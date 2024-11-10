@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # Дозволяє workflow створювати та змінювати файли у репозиторії
+  contents: write
 
 jobs:
   setup:
