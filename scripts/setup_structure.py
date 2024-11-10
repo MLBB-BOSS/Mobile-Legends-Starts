@@ -178,6 +178,7 @@ python-dotenv==0.19.0
 openai==0.11.3
 pytest==6.2.4
 flake8==3.9.2
+PyGithub==1.55
 """,
     "README.md": """# Telegram ML Bot
 
@@ -269,157 +270,19 @@ ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONUNBUFFERED=1
 
 CMD ["python", "main.py"]
-""",
+"""
 }
 
-# Список героїв, поділених за класами
-heroes_data = {
-    "Fighter": [
-        "Balmond",
-        "Alucard",
-        "Bane",
-        "Zilong",
-        "Freya",
-        "Alpha",
-        "Ruby",
-        "Roger",
-        "Gatotkaca",
-        "Grock",
-        "Jawhead",
-        "Martis",
-        "Aldous",
-        "Minsitthar",
-        "Terizla",
-        "X.Borg",
-        "Dyrroth",
-        "Masha",
-        "Silvanna",
-        "Yu Zhong",
-        "Khaleed",
-        "Barats",
-        "Paquito",
-        "Phoveus",
-        "Aulus",
-        "Fiddrin",
-        "Arlott",
-        "Cici",
-        "Kaja",
-        "Leomord",
-        "Thamuz",
-        "Badang",
-        "Guinivere"
-    ],
-    "Tank": [
-        "Alice",
-        "Tigreal",
-        "Akai",
-        "Franco",
-        "Minotaur",
-        "Lolita",
-        "Gatotkaca",
-        "Grock",
-        "Hylos",
-        "Uranus",
-        "Belerick",
-        "Khufra",
-        "Esmeralda",
-        "Terizla",
-        "Baxia",
-        "Masha",
-        "Atlas",
-        "Barats",
-        "Edith",
-        "Fredrinn",
-        "Johnson",
-        "Hilda",
-        "Carmilla",
-        "Gloo",
-        "Chip"
-    ],
-    "Assassin": [
-        "Saber",
-        "Alucard",
-        "Zilong",
-        "Fanny",
-        "Natalia",
-        "Yi Sun-shin",
-        "Lancelot",
-        "Helcurt",
-        "Lesley",
-        "Selena",
-        "Mathilda",
-        "Paquito",
-        "Yin",
-        "Arlott",
-        "Harley",
-        "Suyou"
-    ],
-    "Marksman": [
-        "Popol and Kupa",
-        "Brody",
-        "Beatrix",
-        "Natan",
-        "Melissa",
-        "Ixia",
-        "Hanabi",
-        "Claude",
-        "Kimmy",
-        "Granger",
-        "Wanwan",
-        "Miya",
-        "Bruno",
-        "Clint",
-        "Layla",
-        "Yi Sun-shin",
-        "Moskov",
-        "Roger",
-        "Karrie",
-        "Irithel",
-        "Lesley"
-    ],
-    "Mage": [
-        "Vale",
-        "Lunox",
-        "Kadita",
-        "Cecillion",
-        "Luo Yi",
-        "Xavier",
-        "Valentina",
-        "Harley",
-        "Kagura",
-        "Vale",
-        "Zhask",
-        "Eudora",
-        "Luo-Yi",
-        "Yve",
-        "Pharsa",
-        "Cyclops",
-        "Chang'e",
-        "Lylia",
-        "Harith",
-        "Kadita",
-        "Lunox",
-        "Valir",
-        "Aurora",
-        "Nana",
-        "Vexana",
-        "Cecilion",
-        "Gord",
-        "Odette",
-        "Helcurt"
-    ],
-    "Support": [
-        "Rafaela",
-        "Minotaur",
-        "Lolita",
-        "Estes",
-        "Angela",
-        "Faramis",
-        "Mathilda",
-        "Florin",
-        "Johnson"
-    ]
-}
+# Список героїв, поділений за класами
+# Цей список має бути збережений у файлі heroes_data.json
+heroes_data_file = os.path.join(os.path.dirname(__file__), 'heroes_data.json')
+
+def load_heroes_data(file_path):
+    if not os.path.exists(file_path):
+        print(f"Файл даних героїв '{file_path}' не знайдено.")
+        sys.exit(1)
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def create_file(repo, path, content):
     try:
@@ -438,6 +301,7 @@ def create_folder(repo, path):
         print(f"Папка '{path}' вже існує.")
     except GithubException as e:
         if e.status == 404:
+            # GitHub не підтримує пусті папки, тому додаємо .gitkeep
             repo.create_file(f"{path}/.gitkeep", "Add .gitkeep to keep the folder", "")
             print(f"Папка '{path}' створена з файлом .gitkeep.")
         else:
@@ -490,7 +354,8 @@ def create_structure(current_path, structure, repo):
             create_file(repo, path, content)
     
     # Після створення всіх папок та файлів, створимо папку heroes
-    create_heroes(repo, heroes_data)
+    heroes = load_heroes_data(heroes_data_file)
+    create_heroes(repo, heroes)
 
 def main():
     create_structure("", structure, repo)
