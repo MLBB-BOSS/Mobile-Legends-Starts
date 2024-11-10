@@ -1,6 +1,7 @@
-# scripts/setup_structure.py
+# scripts/setup/setup_structure.py
 import os
 import sys
+import json
 from github import Github, GithubException
 
 # Отримання GitHub Token з середовища
@@ -271,6 +272,155 @@ CMD ["python", "main.py"]
 """,
 }
 
+# Список героїв, поділених за класами
+heroes_data = {
+    "Fighter": [
+        "Balmond",
+        "Alucard",
+        "Bane",
+        "Zilong",
+        "Freya",
+        "Alpha",
+        "Ruby",
+        "Roger",
+        "Gatotkaca",
+        "Grock",
+        "Jawhead",
+        "Martis",
+        "Aldous",
+        "Minsitthar",
+        "Terizla",
+        "X.Borg",
+        "Dyrroth",
+        "Masha",
+        "Silvanna",
+        "Yu Zhong",
+        "Khaleed",
+        "Barats",
+        "Paquito",
+        "Phoveus",
+        "Aulus",
+        "Fiddrin",
+        "Arlott",
+        "Cici",
+        "Kaja",
+        "Leomord",
+        "Thamuz",
+        "Badang",
+        "Guinivere"
+    ],
+    "Tank": [
+        "Alice",
+        "Tigreal",
+        "Akai",
+        "Franco",
+        "Minotaur",
+        "Lolita",
+        "Gatotkaca",
+        "Grock",
+        "Hylos",
+        "Uranus",
+        "Belerick",
+        "Khufra",
+        "Esmeralda",
+        "Terizla",
+        "Baxia",
+        "Masha",
+        "Atlas",
+        "Barats",
+        "Edith",
+        "Fredrinn",
+        "Johnson",
+        "Hilda",
+        "Carmilla",
+        "Gloo",
+        "Chip"
+    ],
+    "Assassin": [
+        "Saber",
+        "Alucard",
+        "Zilong",
+        "Fanny",
+        "Natalia",
+        "Yi Sun-shin",
+        "Lancelot",
+        "Helcurt",
+        "Lesley",
+        "Selena",
+        "Mathilda",
+        "Paquito",
+        "Yin",
+        "Arlott",
+        "Harley",
+        "Suyou"
+    ],
+    "Marksman": [
+        "Popol and Kupa",
+        "Brody",
+        "Beatrix",
+        "Natan",
+        "Melissa",
+        "Ixia",
+        "Hanabi",
+        "Claude",
+        "Kimmy",
+        "Granger",
+        "Wanwan",
+        "Miya",
+        "Bruno",
+        "Clint",
+        "Layla",
+        "Yi Sun-shin",
+        "Moskov",
+        "Roger",
+        "Karrie",
+        "Irithel",
+        "Lesley"
+    ],
+    "Mage": [
+        "Vale",
+        "Lunox",
+        "Kadita",
+        "Cecillion",
+        "Luo Yi",
+        "Xavier",
+        "Valentina",
+        "Harley",
+        "Kagura",
+        "Vale",
+        "Zhask",
+        "Eudora",
+        "Luo-Yi",
+        "Yve",
+        "Pharsa",
+        "Cyclops",
+        "Chang'e",
+        "Lylia",
+        "Harith",
+        "Kadita",
+        "Lunox",
+        "Valir",
+        "Aurora",
+        "Nana",
+        "Vexana",
+        "Cecilion",
+        "Gord",
+        "Odette",
+        "Helcurt"
+    ],
+    "Support": [
+        "Rafaela",
+        "Minotaur",
+        "Lolita",
+        "Estes",
+        "Angela",
+        "Faramis",
+        "Mathilda",
+        "Florin",
+        "Johnson"
+    ]
+}
+
 def create_file(repo, path, content):
     try:
         repo.get_contents(path)
@@ -293,6 +443,40 @@ def create_folder(repo, path):
         else:
             print(f"Помилка при створенні папки '{path}': {e}")
 
+def create_heroes(repo, heroes):
+    for hero_class, hero_list in heroes.items():
+        class_path = f"heroes/{hero_class}"
+        create_folder(repo, class_path)
+        
+        for hero in hero_list:
+            # Замінити пробіли та спеціальні символи у назві файлу
+            hero_filename = hero.lower().replace(" ", "_").replace("-", "_").replace("&", "_").replace("/", "_")
+            hero_file_path = f"{class_path}/{hero_filename}.json"
+            
+            # Перевірка, щоб уникнути створення одного героя в кількох класах
+            try:
+                repo.get_contents(hero_file_path)
+                print(f"Файл '{hero_file_path}' вже існує.")
+                continue
+            except GithubException as e:
+                if e.status != 404:
+                    print(f"Помилка перевірки файлу '{hero_file_path}': {e}")
+                    continue
+            
+            # Створення базового контенту для героя
+            hero_data = {
+                "name": hero,
+                "class": hero_class,
+                "role": "",  # Заповнити відповідну роль, якщо потрібно
+                "skills": [],
+                "builds": {
+                    "optimal": [],
+                    "counter": []
+                }
+            }
+            
+            create_file(repo, hero_file_path, json.dumps(hero_data, ensure_ascii=False, indent=4))
+
 def create_structure(current_path, structure, repo):
     for name, content in structure.items():
         path = os.path.join(current_path, name)
@@ -304,6 +488,9 @@ def create_structure(current_path, structure, repo):
         else:
             # Створення файлу
             create_file(repo, path, content)
+    
+    # Після створення всіх папок та файлів, створимо папку heroes
+    create_heroes(repo, heroes_data)
 
 def main():
     create_structure("", structure, repo)
