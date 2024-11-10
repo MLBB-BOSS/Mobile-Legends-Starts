@@ -1,7 +1,11 @@
+# .github/workflows/create_structure.yml
 name: Create Repository Structure
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/setup/heroes_data.json'
 
 permissions:
   contents: write  # Дозволяє workflow створювати та змінювати файли у репозиторії
