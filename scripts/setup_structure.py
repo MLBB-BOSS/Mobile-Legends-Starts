@@ -284,10 +284,14 @@ def load_heroes_data(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def create_file(repo, path, content):
+def create_file(repo, path, content, update=False):
     try:
-        repo.get_contents(path)
-        print(f"Файл '{path}' вже існує.")
+        file_content = repo.get_contents(path)
+        if update:
+            repo.update_file(path, f"Update {path}", content, file_content.sha)
+            print(f"Файл '{path}' оновлено.")
+        else:
+            print(f"Файл '{path}' вже існує.")
     except GithubException as e:
         if e.status == 404:
             repo.create_file(path, f"Create {path}", content)
