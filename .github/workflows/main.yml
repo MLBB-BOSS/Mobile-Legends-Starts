@@ -13,7 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          # Встановлюємо fetch-depth до 0 для отримання всіх гілок та історії
           fetch-depth: 0
 
       # Крок 2: Налаштування Git
@@ -88,10 +87,9 @@ jobs:
 
       # Крок 4: Додавання, Коміт та Пуш Змін
       - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git add .
-          git commit -m "Setup initial repository structure"
+          git commit -m "Setup initial repository structure" || echo "No changes to commit"
           git push origin HEAD:main
-        env:
-          # GITHUB_TOKEN автоматично доступний в середовищі
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
