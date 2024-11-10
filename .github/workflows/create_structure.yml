@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # Дозволяє workflow створювати та змінювати файли у репозиторії
 
 jobs:
   setup:
@@ -29,4 +29,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          python scripts/setup_structure.py
+          python scripts/setup/setup_structure.py
