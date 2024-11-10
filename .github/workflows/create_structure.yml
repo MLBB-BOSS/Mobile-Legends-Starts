@@ -3,6 +3,9 @@ name: Create Repository Structure
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write  # Дозволяє workflow створювати та змінювати файли у репозиторії
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -14,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Встановіть потрібну версію Python
+          python-version: '3.9'
 
       - name: Install Dependencies
         run: |
@@ -24,5 +27,6 @@ jobs:
       - name: Run Structure Setup Script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python scripts/setup_structure.py
