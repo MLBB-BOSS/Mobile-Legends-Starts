@@ -6,7 +6,7 @@ from github import Github, GithubException
 # Отримання GitHub Token з середовища
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 if not GITHUB_TOKEN:
-    print("GITHUB_TOKEN is not set.")
+    print("GITHUB_TOKEN не встановлено.")
     sys.exit(1)
 
 # Ініціалізація GitHub клієнта
@@ -15,20 +15,17 @@ g = Github(GITHUB_TOKEN)
 # Отримання репозиторія
 repo_name = os.getenv('GITHUB_REPOSITORY')
 if not repo_name:
-    print("GITHUB_REPOSITORY is not set.")
+    print("GITHUB_REPOSITORY не встановлено.")
     sys.exit(1)
 
 try:
     repo = g.get_repo(repo_name)
 except GithubException as e:
-    print(f"Error accessing repository: {e}")
+    print(f"Помилка доступу до репозиторія: {e}")
     sys.exit(1)
 
-# Визначення структури репозиторія
+# Визначення структури репозиторія без .github
 structure = {
-    ".github/workflows": {
-        "ci.yml": """# CI/CD Workflow (existing content or leave empty)"""
-    },
     "handlers": {
         "__init__.py": "",
         "main_menu.py": "# Головне меню бота",
@@ -274,36 +271,42 @@ CMD ["python", "main.py"]
 """,
 }
 
-def create_structure(current_path, structure):
+def create_file(repo, path, content):
+    try:
+        repo.get_contents(path)
+        print(f"Файл '{path}' вже існує.")
+    except GithubException as e:
+        if e.status == 404:
+            repo.create_file(path, f"Create {path}", content)
+            print(f"Файл '{path}' створено.")
+        else:
+            print(f"Помилка при створенні файлу '{path}': {e}")
+
+def create_folder(repo, path):
+    try:
+        repo.get_contents(path)
+        print(f"Папка '{path}' вже існує.")
+    except GithubException as e:
+        if e.status == 404:
+            repo.create_file(f"{path}/.gitkeep", "Add .gitkeep to keep the folder", "")
+            print(f"Папка '{path}' створена з файлом .gitkeep.")
+        else:
+            print(f"Помилка при створенні папки '{path}': {e}")
+
+def create_structure(current_path, structure, repo):
     for name, content in structure.items():
         path = os.path.join(current_path, name)
         if isinstance(content, dict):
             # Створення папки
-            try:
-                repo.get_contents(path)
-                print(f"Папка '{path}' вже існує.")
-            except GithubException as e:
-                if e.status == 404:
-                    repo.create_file(path + '/.gitkeep', "Add .gitkeep to keep the folder", "")
-                    print(f"Папка '{path}' створена з файлом .gitkeep.")
-                else:
-                    print(f"Помилка при створенні папки '{path}': {e}")
+            create_folder(repo, path)
             # Рекурсивний виклик для вкладених папок
-            create_structure(path, content)
+            create_structure(path, content, repo)
         else:
             # Створення файлу
-            try:
-                repo.get_contents(path)
-                print(f"Файл '{path}' вже існує.")
-            except GithubException as e:
-                if e.status == 404:
-                    repo.create_file(path, f"Create {name}", content)
-                    print(f"Файл '{path}' створено.")
-                else:
-                    print(f"Помилка при створенні файлу '{path}': {e}")
+            create_file(repo, path, content)
 
 def main():
-    create_structure("", structure)
+    create_structure("", structure, repo)
 
 if __name__ == "__main__":
     main()
