@@ -254,20 +254,7 @@ from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
     help_text = """
-**Help Menu**
-
-/start - Start the bot
-/menu - Open the main menu
-/characters - List all characters
-/guides - Access game guides
-/tournaments - Tournament information
-/news - Latest news
-/help - Show this help menu
-"""
-    await update.message.reply_text(help_text, parse_mode='Markdown')
-
-router = CommandHandler('help', help_menu)
-""",
+        
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
