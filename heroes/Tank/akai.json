@@ -1,0 +1,10 @@
+{
+    "name": "Akai",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
