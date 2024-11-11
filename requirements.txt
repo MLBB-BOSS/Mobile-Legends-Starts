@@ -1,6 +1,6 @@
 # requirements.txt
 # Перелік залежностей Python
-python-telegram-bot==13.7
+python-telegram-bot==20.3
 SQLAlchemy==1.4.22
 alembic==1.7.1
 boto3==1.18.20
