@@ -1,0 +1,9 @@
+# logging/filebeat/filebeat.yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /app/logs/*.log
+
+output.logstash:
+  hosts: ["localhost:5044"]
