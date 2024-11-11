@@ -1,4 +1,3 @@
-# scripts/setup/setup_structure.py
 import os
 import sys
 import json
@@ -177,9 +176,10 @@ Describe the overall architecture of the Telegram ML Bot, including key componen
 
 - **Analytics and Monitoring**: Add monitoring tools to track the bot's performance and user engagement, aiding in maintenance and feature development.
 """,
-        "handlers": {
-            "__init__.py": "",
-            "main_menu.py": """# handlers/main_menu.py
+    },
+    "handlers": {
+        "__init__.py": "",
+        "main_menu.py": """# handlers/main_menu.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 from utils.keyboards import main_menu_keyboard
@@ -189,7 +189,7 @@ async def main_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('menu', main_menu)
 """,
-            "characters.py": """# handlers/characters.py
+        "characters.py": """# handlers/characters.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 import json
@@ -202,7 +202,7 @@ async def list_characters(update: Update, context: CallbackContext.DEFAULT_TYPE)
 
 router = CommandHandler('characters', list_characters)
 """,
-            "guides.py": """# handlers/guides.py
+        "guides.py": """# handlers/guides.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -217,7 +217,7 @@ async def guides(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('guides', guides)
 """,
-            "tournaments.py": """# handlers/tournaments.py
+        "tournaments.py": """# handlers/tournaments.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -232,33 +232,7 @@ async def tournaments(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('tournaments', tournaments)
 """,
-            "updates.py": """# handlers/updates.py
-from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext
-
-async def updates(update: Update, context: CallbackContext.DEFAULT_TYPE):
-    # Placeholder for updates
-    updates_info = "Bot has been updated with new features."
-    await update.message.reply_text(updates_info)
-
-router = CommandHandler('updates', updates)
-""",
-            "beginner.py": """# handlers/beginner.py
-from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext
-
-async def beginner(update: Update, context: CallbackContext.DEFAULT_TYPE):
-    tips = [
-        "Tip 1: Focus on last-hitting to gain gold.",
-        "Tip 2: Always ward key areas for vision.",
-        "Tip 3: Communicate with your team for coordinated plays."
-    ]
-    message = "Beginner Tips:\n" + "\n".join(tips)
-    await update.message.reply_text(message)
-
-router = CommandHandler('beginner', beginner)
-""",
-            "news.py": """# handlers/news.py
+        "news.py": """# handlers/news.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -274,7 +248,7 @@ async def news(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('news', news)
 """,
-            "help_menu.py": """# handlers/help_menu.py
+        "help_menu.py": """# handlers/help_menu.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -294,7 +268,7 @@ async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('help', help_menu)
 """,
-            "quizzes.py": """# handlers/quizzes.py
+        "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -305,7 +279,7 @@ async def quizzes(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('quizzes', quizzes)
 """,
-            "search.py": """# handlers/search.py
+        "search.py": """# handlers/search.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -320,7 +294,7 @@ async def search(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('search', search)
 """,
-            "emblems.py": """# handlers/emblems.py
+        "emblems.py": """# handlers/emblems.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -335,7 +309,7 @@ async def emblems(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('emblems', emblems)
 """,
-            "recommendations.py": """# handlers/recommendations.py
+        "recommendations.py": """# handlers/recommendations.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 from utils.recommendations_engine import recommend_build
@@ -351,7 +325,7 @@ async def recommendations(update: Update, context: CallbackContext.DEFAULT_TYPE)
 
 router = CommandHandler('recommendations', recommendations)
 """,
-            "comparisons.py": """# handlers/comparisons.py
+        "comparisons.py": """# handlers/comparisons.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -366,7 +340,7 @@ async def comparisons(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('comparisons', comparisons)
 """,
-            "screenshots_handler.py": """# handlers/screenshots_handler.py
+        "screenshots_handler.py": """# handlers/screenshots_handler.py
 from telegram import Update
 from telegram.ext import MessageHandler, Filters, CallbackContext
 from services.s3_service import upload_screenshot
@@ -381,7 +355,7 @@ async def handle_screenshot(update: Update, context: CallbackContext.DEFAULT_TYP
 
 router = MessageHandler(Filters.photo, handle_screenshot)
 """,
-            "myscreenshots_handler.py": """# handlers/myscreenshots_handler.py
+        "myscreenshots_handler.py": """# handlers/myscreenshots_handler.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 from models.user import User
@@ -407,18 +381,18 @@ async def myscreenshots(update: Update, context: CallbackContext.DEFAULT_TYPE):
     session.close()
 
 router = CommandHandler('myscreenshots', myscreenshots)
-"""
-        },
-        "utils": {
-            "__init__.py": "",
-            "data_loader.py": """# utils/data_loader.py
+""",
+    },
+    "utils": {
+        "__init__.py": "",
+        "data_loader.py": """# utils/data_loader.py
 import json
 
 def load_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 """,
-            "openai_api.py": """# utils/openai_api.py
+        "openai_api.py": """# utils/openai_api.py
 import openai
 from config.settings import OPENAI_API_KEY
 
@@ -432,7 +406,7 @@ def get_response(prompt):
     )
     return response.choices[0].text.strip()
 """,
-            "templates.py": """# utils/templates.py
+        "templates.py": """# utils/templates.py
 
 MAIN_MENU = """
 Welcome to the Mobile Legends: Starts (MLS) Bot!
@@ -445,7 +419,7 @@ Please choose an option:
 5. Help
 """
 """,
-            "recommendations_engine.py": """# utils/recommendations_engine.py
+        "recommendations_engine.py": """# utils/recommendations_engine.py
 
 def recommend_build(hero_name):
     # Placeholder for build recommendation logic
@@ -454,7 +428,7 @@ def recommend_build(hero_name):
         "counter": ["ItemA", "ItemB", "ItemC"]
     }
 """,
-            "data_updater.py": """# utils/data_updater.py
+        "data_updater.py": """# utils/data_updater.py
 import json
 
 def update_heroes_data(file_path, new_data):
@@ -465,7 +439,7 @@ def update_heroes_data(file_path, new_data):
         json.dump(data, f, ensure_ascii=False, indent=4)
         f.truncate()
 """,
-            "keyboards.py": """# utils/keyboards.py
+        "keyboards.py": """# utils/keyboards.py
 from telegram import ReplyKeyboardMarkup
 
 def main_menu_keyboard():
@@ -476,23 +450,23 @@ def main_menu_keyboard():
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 """,
-            "points.py": """# utils/points.py
+        "points.py": """# utils/points.py
 
 def add_points(user, points):
     user.points += points
     return user
 """,
-            "badges.py": """# utils/badges.py
+        "badges.py": """# utils/badges.py
 import json
 
 def get_badges():
     with open('data/badges.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 """
-        },
-        "services": {
-            "__init__.py": "",
-            "s3_service.py": """# services/s3_service.py
+    },
+    "services": {
+        "__init__.py": "",
+        "s3_service.py": """# services/s3_service.py
 import boto3
 from config.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME, AWS_REGION
 
@@ -507,13 +481,13 @@ def upload_screenshot(file_name, file_content):
     s3_client.put_object(Bucket=AWS_S3_BUCKET_NAME, Key=file_name, Body=file_content)
     return f"https://{AWS_S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_name}"
 """,
-            "image_recognition.py": """# services/image_recognition.py
+        "image_recognition.py": """# services/image_recognition.py
 
 def recognize_image(image_path):
     # Placeholder for image recognition logic
     return "Recognized content from image."
 """,
-            "google_auth.py": """# services/google_auth.py
+        "google_auth.py": """# services/google_auth.py
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 
@@ -522,10 +496,10 @@ def authenticate_google():
     credentials.refresh(Request())
     return credentials
 """
-        },
-        "models": {
-            "__init__.py": "",
-            "user.py": """# models/user.py
+    },
+    "models": {
+        "__init__.py": "",
+        "user.py": """# models/user.py
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -542,7 +516,7 @@ class User(Base):
     
     screenshots = relationship("Screenshot", back_populates="user")
 """,
-            "screenshot.py": """# models/screenshot.py
+        "screenshot.py": """# models/screenshot.py
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -558,7 +532,7 @@ class Screenshot(Base):
     
     user = relationship("User", back_populates="screenshots")
 """,
-            "badge.py": """# models/badge.py
+        "badge.py": """# models/badge.py
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -571,9 +545,9 @@ class Badge(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(String, nullable=False)
 """
-        },
-        "scripts": {
-            "deploy.sh": """#!/bin/bash
+    },
+    "scripts": {
+        "deploy.sh": """#!/bin/bash
 # scripts/deploy.sh
 # Deployment script for the Telegram ML Bot
 
@@ -589,10 +563,10 @@ pip install -r requirements.txt
 # Restart the bot (assuming using systemd)
 sudo systemctl restart telegram-ml-bot
 """
-        },
-        "tests": {
-            "__init__.py": "",
-            "test_main_menu.py": """# tests/test_main_menu.py
+    },
+    "tests": {
+        "__init__.py": "",
+        "test_main_menu.py": """# tests/test_main_menu.py
 import unittest
 from handlers.main_menu import main_menu
 
@@ -604,7 +578,7 @@ class TestMainMenu(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_items.py": """# tests/test_items.py
+        "test_items.py": """# tests/test_items.py
 import unittest
 from handlers.items import items
 
@@ -616,7 +590,7 @@ class TestItems(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_spells.py": """# tests/test_spells.py
+        "test_spells.py": """# tests/test_spells.py
 import unittest
 from handlers.spells import spells
 
@@ -628,7 +602,7 @@ class TestSpells(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_emblems.py": """# tests/test_emblems.py
+        "test_emblems.py": """# tests/test_emblems.py
 import unittest
 from handlers.emblems import emblems
 
@@ -640,7 +614,7 @@ class TestEmblems(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_recommendations.py": """# tests/test_recommendations.py
+        "test_recommendations.py": """# tests/test_recommendations.py
 import unittest
 from handlers.recommendations import recommendations
 
@@ -652,7 +626,7 @@ class TestRecommendations(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_handlers.py": """# tests/test_handlers.py
+        "test_handlers.py": """# tests/test_handlers.py
 import unittest
 from handlers.main_menu import main_menu
 from handlers.characters import list_characters
@@ -669,7 +643,7 @@ class TestHandlers(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 """,
-            "test_services.py": """# tests/test_services.py
+        "test_services.py": """# tests/test_services.py
 import unittest
 from services.s3_service import upload_screenshot
 
@@ -680,47 +654,20 @@ class TestServices(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-""",
-            "test_models.py": """# tests/test_models.py
-import unittest
-from models.user import User
-from models.screenshot import Screenshot
-from models.badge import Badge
-
-class TestModels(unittest.TestCase):
-    def test_user_model(self):
-        user = User(telegram_id=12345, username="testuser")
-        self.assertEqual(user.telegram_id, 12345)
-        self.assertEqual(user.username, "testuser")
-        self.assertEqual(user.points, 0)
-
-    def test_screenshot_model(self):
-        screenshot = Screenshot(user_id=1, file_url="http://example.com/screenshot.jpg")
-        self.assertEqual(screenshot.user_id, 1)
-        self.assertEqual(screenshot.file_url, "http://example.com/screenshot.jpg")
-
-    def test_badge_model(self):
-        badge = Badge(id=1, name="Collector", description="Upload 10 screenshots")
-        self.assertEqual(badge.id, 1)
-        self.assertEqual(badge.name, "Collector")
-        self.assertEqual(badge.description, "Upload 10 screenshots")
-
-if __name__ == '__main__':
-    unittest.main()
 """
-        },
-        "logging": {
-            "elasticsearch": {
-                "elasticsearch.yml": """# logging/elasticsearch/elasticsearch.yml
+    },
+    "logging": {
+        "elasticsearch": {
+            "elasticsearch.yml": """# logging/elasticsearch/elasticsearch.yml
 # Elasticsearch configuration for logging
 cluster.name: "mls-logging-cluster"
 node.name: "node-1"
 network.host: 0.0.0.0
 http.port: 9200
 """
-            },
-            "logstash": {
-                "logstash.conf": """# logging/logstash/logstash.conf
+        },
+        "logstash": {
+            "logstash.conf": """# logging/logstash/logstash.conf
 input {
   beats {
     port => 5044
@@ -738,15 +685,15 @@ output {
   }
 }
 """
-            },
-            "kibana": {
-                "kibana.yml": """# logging/kibana/kibana.yml
+        },
+        "kibana": {
+            "kibana.yml": """# logging/kibana/kibana.yml
 server.port: 5601
 elasticsearch.hosts: ["http://localhost:9200"]
 """
-            },
-            "filebeat": {
-                "filebeat.yml": """# logging/filebeat/filebeat.yml
+        },
+        "filebeat": {
+            "filebeat.yml": """# logging/filebeat/filebeat.yml
 filebeat.inputs:
 - type: log
   enabled: true
@@ -756,11 +703,11 @@ filebeat.inputs:
 output.logstash:
   hosts: ["localhost:5044"]
 """
-            }
-        },
-        "monitoring": {
-            "prometheus": {
-                "prometheus.yml": """# monitoring/prometheus/prometheus.yml
+        }
+    },
+    "monitoring": {
+        "prometheus": {
+            "prometheus.yml": """# monitoring/prometheus/prometheus.yml
 global:
   scrape_interval: 15s
 
@@ -769,10 +716,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:8000']  # Update with your bot's metrics endpoint if available
 """
-            },
-            "grafana": {
-                "dashboards": {
-                    "example_dashboard.json": """{
+        },
+        "grafana": {
+            "dashboards": {
+                "example_dashboard.json": """{
   "annotations": {
     "list": []
   },
@@ -799,11 +746,11 @@ scrape_configs:
   "uid": "example-dashboard",
   "version": 1
 }"""
-                }
             }
-        },
-        "docker": {
-            "docker-compose.yml": """# docker/docker-compose.yml
+        }
+    },
+    "docker": {
+        "docker-compose.yml": """# docker/docker-compose.yml
 version: '3.8'
 
 services:
@@ -897,7 +844,7 @@ volumes:
   es_data:
   grafana_data:
 """,
-            "Dockerfile.api": """# docker/Dockerfile.api
+        "Dockerfile.api": """# docker/Dockerfile.api
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -909,7 +856,7 @@ COPY . .
 
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 """,
-            "Dockerfile.bot": """# docker/Dockerfile.bot
+        "Dockerfile.bot": """# docker/Dockerfile.bot
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -921,13 +868,13 @@ COPY . .
 
 CMD ["python", "main.py"]
 """,
-            "Dockerfile.db": """# docker/Dockerfile.db
+        "Dockerfile.db": """# docker/Dockerfile.db
 # Typically, you'd use an official image, no need to create a Dockerfile
 FROM postgres:13
 """
-        },
-        "security": {
-            "secrets.yaml": """# security/secrets.yaml
+    },
+    "security": {
+        "secrets.yaml": """# security/secrets.yaml
 # Secrets should not be committed to the repository.
 # Use GitHub Secrets or another secret management system.
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
@@ -939,7 +886,7 @@ AWS_S3_BUCKET_NAME=your_s3_bucket_name
 AWS_REGION=your_aws_region
 DEBUG=True
 """,
-            "firewall_rules.sh": """# security/firewall_rules.sh
+        "firewall_rules.sh": """# security/firewall_rules.sh
 #!/bin/bash
 # Firewall setup script
 
@@ -961,8 +908,8 @@ ufw allow 5601/tcp
 # Enable UFW
 ufw enable
 """
-        },
-        "requirements.txt": """# requirements.txt
+    },
+    "requirements.txt": """# requirements.txt
 # Python dependencies
 python-telegram-bot==13.7
 SQLAlchemy==1.4.22
@@ -976,7 +923,7 @@ PyGithub==1.55
 uvicorn==0.14.0
 fastapi==0.68.1
 """,
-        ".env.example": """# .env.example
+    ".env.example": """# .env.example
 # Example environment variables
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 DATABASE_URL=your_database_url
@@ -987,7 +934,7 @@ AWS_S3_BUCKET_NAME=your_s3_bucket_name
 AWS_REGION=your_aws_region
 DEBUG=True
 """,
-        ".gitignore": """# .gitignore
+    ".gitignore": """# .gitignore
 # Python
 __pycache__/
 *.py[cod]
@@ -1019,10 +966,10 @@ Dockerfile
 # Windows
 Thumbs.db
 """,
-        "Procfile": """# Procfile
+    "Procfile": """# Procfile
 web: python main.py
 """,
-        "README.md": """# Telegram ML Bot
+    "README.md": """# Telegram ML Bot
 
 ## Description
 
@@ -1066,7 +1013,7 @@ Please follow the guidelines in `CONTRIBUTING.md` to contribute to the project.
 
 This project is licensed under the [MIT License](LICENSE).
 """,
-        "main.py": """# main.py
+    "main.py": """# main.py
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -1105,7 +1052,7 @@ def main():
 if __name__ == '__main__':
     main()
 """,
-        "utils/logging_setup.py": """# utils/logging_setup.py
+    "utils/logging_setup.py": """# utils/logging_setup.py
 import logging
 
 def setup_logging():
@@ -1114,7 +1061,7 @@ def setup_logging():
         level=logging.INFO
     )
 """
-    }
+}
 
 # Список героїв завантажується з 'heroes_data.json'
 heroes_data_file = os.path.join(os.path.dirname(__file__), 'heroes_data.json')
@@ -1136,6 +1083,22 @@ def get_existing_hero_files(repo):
         else:
             print(f"Error accessing 'heroes' folder: {e}")
             return {}
+
+    hero_files = {}
+    while contents:
+        file_content = contents.pop(0)
+        if file_content.type == "dir":
+            try:
+                contents.extend(repo.get_contents(file_content.path))
+            except GithubException as e:
+                print(f"Error accessing subfolder '{file_content.path}': {e}")
+                continue
+        else:
+            # Extract hero name from file path
+            hero_name = os.path.splitext(os.path.basename(file_content.path))[0].replace('_', ' ').title()
+            class_name = os.path.basename(os.path.dirname(file_content.path))
+            hero_files[hero_name] = class_name
+    return hero_files
 
 def create_file(repo, path, content, update=False):
     try:
@@ -1167,7 +1130,9 @@ def create_folder(repo, path):
 def move_file(repo, old_path, new_path):
     try:
         file_content = repo.get_contents(old_path)
+        # Створюємо новий файл з вмістом старого
         repo.create_file(new_path, f"Move {old_path} to {new_path}", file_content.decoded_content.decode())
+        # Видаляємо старий файл
         repo.delete_file(old_path, f"Delete old file {old_path} after moving to {new_path}", file_content.sha)
         print(f"Moved '{old_path}' to '{new_path}'.")
     except GithubException as e:
@@ -1229,7 +1194,7 @@ def create_heroes(repo, heroes, existing_hero_files):
                     }
                 }
                 create_file(repo, hero_file_path, json.dumps(hero_data, ensure_ascii=False, indent=4))
-    
+
 def create_structure(current_path, structure, repo):
     for name, content in structure.items():
         path = os.path.join(current_path, name)
