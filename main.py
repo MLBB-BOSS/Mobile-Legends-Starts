@@ -1,7 +1,7 @@
 # main.py
 
 import logging
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from core import (
     get_main_menu,
     handle_screenshot,
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def main():
     # Ініціалізація бази даних
     init_db()
-
+    
     # Створення Updater та Dispatcher
     updater = Updater(token=TELEGRAM_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
