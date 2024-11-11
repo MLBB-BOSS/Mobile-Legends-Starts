@@ -68,8 +68,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1', 't']
         "builds": {
             "optimal_builds.json": "# Recommended optimal builds",
             "counter_builds.json": "# Recommended counter builds",
-            "build_comparisons.json": "# Build comparisons",
-        },
+            "build_comparisons.json": "# Build comparisons"
+        }
     },
     "docs": {
         "README.md": """# Telegram ML Bot
@@ -248,12 +248,12 @@ async def news(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('news', news)
 """,
-"help_menu.py": """# handlers/help_menu.py
+        "help_menu.py": """# handlers/help_menu.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
-    help_text = \"\"\"
+    help_text = '''
 Available Commands:
 /menu - Show the main menu
 /characters - List all characters
@@ -266,11 +266,11 @@ Available Commands:
 /recommendations <hero_name> - Get build recommendations
 /comparisons - Compare builds/items
 /myscreenshots - View your uploaded screenshots
-\"\"\"
+'''
     await update.message.reply_text(help_text)
 
 router = CommandHandler('help', help_menu)
-"""
+""",
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
