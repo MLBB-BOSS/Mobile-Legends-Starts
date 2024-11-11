@@ -1,0 +1,10 @@
+{
+    "name": "Ruby",
+    "class": "Fighter",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
