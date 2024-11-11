@@ -1,0 +1,10 @@
+{
+    "name": "Johnson",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
