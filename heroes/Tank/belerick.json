@@ -1,0 +1,10 @@
+{
+    "name": "Belerick",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
