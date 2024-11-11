@@ -1,0 +1,10 @@
+{
+    "name": "Paquito",
+    "class": "Fighter",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
