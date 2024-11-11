@@ -32,11 +32,26 @@ jobs:
           chmod +x scripts/deploy.sh
           ./scripts/deploy.sh
 
-      - name: Verify file structure
+      - name: Verify file structure with verify_structure.py
         run: |
           python verify_structure.py
-        continue-on-error: false  # Зупиняє workflow при помилці
 
       - name: Run Tests with pytest
         run: |
           pytest
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: tests/__pycache__/  # Або шлях до файлів з результатами
+
+      - name: Send Slack Notification on Failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: "❌ CI/CD Pipeline Failed for `${{ github.repository }}` on `${{ github.ref }}`."
+          SLACK_USERNAME: "GitHub Actions"
+          SLACK_ICON_EMOJI: ":red_circle:"
