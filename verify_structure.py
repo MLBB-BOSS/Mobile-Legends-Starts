@@ -1,5 +1,5 @@
 import os
-import sys
+import pytest
 
 # Визначте очікувану структуру репозиторію
 expected_structure = {
@@ -41,7 +41,8 @@ expected_structure = {
         "test_emblems.py",
         "test_recommendations.py",
         "test_handlers.py",
-        "test_services.py"
+        "test_services.py",
+        "test_structure.py"
     ],
     "utils": [
         "__init__.py",
@@ -80,18 +81,18 @@ expected_structure = {
     "Procfile": None,
     "requirements.txt": None,
     "README.md": None,
-    "main.py": None
+    "main.py": None,
+    "verify_structure.py": None
 }
 
 def check_structure(base_path, structure):
-    all_ok = True
+    missing = []
     for name, content in structure.items():
         path = os.path.join(base_path, name)
         if isinstance(content, list):
             # Це папка з файлами
             if not os.path.isdir(path):
-                print(f"❌ Директорія '{name}' відсутня.")
-                all_ok = False
+                missing.append(f"Directory '{name}' is missing.")
                 continue
             for item in content:
                 item_path = os.path.join(path, item)
@@ -101,28 +102,26 @@ def check_structure(base_path, structure):
                     full_sub_folder = os.path.join(path, sub_folder)
                     full_sub_file = os.path.join(full_sub_folder, sub_file)
                     if not os.path.isdir(full_sub_folder):
-                        print(f"❌ Директорія '{sub_folder}' відсутня у '{name}'.")
-                        all_ok = False
+                        missing.append(f"Sub-directory '{sub_folder}' is missing in '{name}'.")
                         continue
                     if not os.path.isfile(full_sub_file):
-                        print(f"❌ Файл '{sub_file}' відсутній у '{sub_folder}'.")
-                        all_ok = False
+                        missing.append(f"File '{sub_file}' is missing in '{sub_folder}'.")
                 else:
                     if not os.path.isfile(item_path):
-                        print(f"❌ Файл '{item}' відсутній у '{name}'.")
-                        all_ok = False
+                        missing.append(f"File '{item}' is missing in '{name}'.")
         else:
             # Це файл у кореневій папці
             if not os.path.isfile(path):
-                print(f"❌ Файл '{name}' відсутній у корені репозиторію.")
-                all_ok = False
-    return all_ok
+                missing.append(f"File '{name}' is missing in the root directory.")
+    return missing
 
-if __name__ == "__main__":
-    base_path = os.getcwd()  # Базовий шлях - поточна робоча директорія
-    if check_structure(base_path, expected_structure):
-        print("✅ Структура файлів відповідає очікуваній.")
-        sys.exit(0)
-    else:
-        print("❌ Структура файлів не відповідає очікуваній.")
-        sys.exit(1)
+@pytest.fixture
+def base_path():
+    return os.getcwd()
+
+def test_repository_structure(base_path):
+    missing_items = check_structure(base_path, expected_structure)
+    if missing_items:
+        for item in missing_items:
+            print(f"❌ {item}")
+    assert not missing_items, "Repository structure does not match the expected structure."
