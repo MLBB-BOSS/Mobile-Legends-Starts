@@ -1,5 +1,3 @@
-# core/__init__.py
-
 from .info_handler import get_main_menu
 from .screenshot_handler import handle_screenshot
 from .profile_handler import view_profile
