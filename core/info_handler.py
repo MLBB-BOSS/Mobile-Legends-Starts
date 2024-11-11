@@ -1,26 +1,28 @@
 # core/info_handler.py
 
-import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext
+from config.settings import TELEGRAM_BOT_TOKEN
 
-logger = logging.getLogger(__name__)
+# Функція для обробки команди /start
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text("Привіт! Я ваш бот, що допомагає з Mobile Legends.")
+    return
 
-async def get_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        # Створення кнопок для головного меню
-        keyboard = [
-            [InlineKeyboardButton("Інформація про героїв", callback_data='info_heroes')],
-            [InlineKeyboardButton("Завантажити скріншот", callback_data='upload_screenshot')],
-            [InlineKeyboardButton("Мій профіль", callback_data='view_profile')],
-            [InlineKeyboardButton("Лідерборд", callback_data='view_leaderboard')],
-            [InlineKeyboardButton("Допомога", callback_data='help')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+# Функція для основного меню
+def get_main_menu():
+    return [
+        ["Персонажі", "Мета-білди"],
+        ["Підтримка", "Зв'язок з нами"]
+    ]
 
-        # Відправлення повідомлення з меню
-        await update.message.reply_text('Вітаю! Виберіть опцію:', reply_markup=reply_markup)
-        logger.info(f"Displayed main menu to user {update.effective_user.username}")
-    except Exception as e:
-        logger.error(f"Error in get_main_menu: {e}")
-        await update.message.reply_text("Виникла помилка при відображенні меню.")
+def main():
+    from telegram.ext import Updater
+
+    updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+
+    updater.start_polling()
+    updater.idle()
