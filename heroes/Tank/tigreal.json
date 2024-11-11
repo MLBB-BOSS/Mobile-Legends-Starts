@@ -1,0 +1,10 @@
+{
+    "name": "Tigreal",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
