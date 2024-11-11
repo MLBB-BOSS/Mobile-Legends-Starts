@@ -1,0 +1,3 @@
+# docker/Dockerfile.db
+# Typically, you'd use an official image, no need to create a Dockerfile
+FROM postgres:13
