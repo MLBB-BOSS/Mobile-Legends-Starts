@@ -1,0 +1,10 @@
+{
+    "name": "Gatotkaca",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
