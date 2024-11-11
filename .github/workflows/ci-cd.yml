@@ -17,6 +17,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Show current directory
+        run: pwd
+
+      - name: List files
+        run: ls -R
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
