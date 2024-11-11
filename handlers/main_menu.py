@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import logging
 from telegram import Update
@@ -32,6 +30,14 @@ from handlers.main_menu import (
 )
 from data.characters import CHARACTERS
 from data.classes import CLASSES
+
+# Тимчасово пропускаємо імпорт engine
+try:
+    from modules.community_collector.models import Base, engine
+except ImportError:
+    logger.warning("`engine` or `Base` not found in `models.py`. Skipping database setup for now.")
+    engine = None
+    Base = None
 
 # Функція для відправки повідомлення
 async def send_reply(update: Update, text: str, reply_markup=None) -> None:
@@ -101,11 +107,7 @@ async def handle_hero_class_selection(update: Update, context: ContextTypes.DEFA
 
 # Обробка кнопки "Назад"
 async def handle_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Обробник кнопки 'Назад'
-    """
     if 'character' in context.user_data:
-        # Повернення до вибору героя
         hero_class = context.user_data.get('hero_class')
         if hero_class:
             reply_markup = get_class_characters_keyboard(hero_class)
@@ -113,18 +115,16 @@ async def handle_back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         else:
             await send_reply(update, "Оберіть опцію з меню:", reply_markup=get_main_menu_keyboard())
     elif 'hero_class' in context.user_data:
-        # Повернення до меню класів
         reply_markup = get_heroes_menu_keyboard()
         await send_reply(update, "Оберіть клас героя:", reply_markup=reply_markup)
     else:
-        # Повернення до головного меню
         await start(update, context)
 
 # Обробка запиту до GPT-4
 async def handle_gpt_query(update: Update, user_input: str) -> None:
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",  # Виправлена назва моделі
+            model="gpt-4",
             messages=[{"role": "user", "content": user_input}],
             max_tokens=1000,
             temperature=0.7
