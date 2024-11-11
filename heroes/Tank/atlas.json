@@ -1,0 +1,10 @@
+{
+    "name": "Atlas",
+    "class": "Tank",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
