@@ -254,19 +254,19 @@ from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
     help_text = """
-    Available Commands:
-    /menu - Show the main menu
-    /characters - List all characters
-    /guides - Show game guides
-    /tournaments - Upcoming tournaments
-    /news - Latest news
-    /quizzes - Take a quiz
-    /search <query> - Search for information
-    /emblems - View available emblems
-    /recommendations <hero_name> - Get build recommendations
-    /comparisons - Compare builds/items
-    /myscreenshots - View your uploaded screenshots
-    """
+Available Commands:
+/menu - Show the main menu
+/characters - List all characters
+/guides - Show game guides
+/tournaments - Upcoming tournaments
+/news - Latest news
+/quizzes - Take a quiz
+/search <query> - Search for information
+/emblems - View available emblems
+/recommendations <hero_name> - Get build recommendations
+/comparisons - Compare builds/items
+/myscreenshots - View your uploaded screenshots
+"""
     await update.message.reply_text(help_text)
 
 router = CommandHandler('help', help_menu)
