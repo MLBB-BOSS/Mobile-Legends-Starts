@@ -254,7 +254,7 @@ from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
     help_text = """
-**Help Menu**
+""Help Menu""
 
 /start - Start the bot
 /menu - Open the main menu
