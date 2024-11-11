@@ -180,7 +180,7 @@ async def send_final_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 # Налаштування Telegram-бота
 def main() -> None:
-    token = os.getenv('TELEGRAM_TOKEN')
+    token = os.getenv('TELEGRAM_BOT_TOKEN')
     if not token:
         logger.error("TELEGRAM_TOKEN не встановлено у змінних оточення.")
         return
