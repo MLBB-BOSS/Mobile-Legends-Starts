@@ -270,7 +270,7 @@ Available Commands:
     await update.message.reply_text(help_text)
 
 router = CommandHandler('help', help_menu)
-"""
+""",
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
