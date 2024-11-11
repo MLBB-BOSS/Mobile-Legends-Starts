@@ -411,7 +411,7 @@ def get_response(prompt):
 """,
         "templates.py": """# utils/templates.py
 
-MAIN_MENU = """
+MAIN_MENU = '''
 Welcome to the Mobile Legends: Starts (MLS) Bot!
 
 Please choose an option:
@@ -420,7 +420,7 @@ Please choose an option:
 3. Tournaments
 4. News
 5. Help
-"""
+'''
 """,
         "recommendations_engine.py": """# utils/recommendations_engine.py
 
