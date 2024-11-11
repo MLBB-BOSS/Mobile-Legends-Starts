@@ -1,0 +1,10 @@
+{
+    "name": "Claude",
+    "class": "Marksman",
+    "role": "",
+    "skills": [],
+    "builds": {
+        "optimal": [],
+        "counter": []
+    }
+}
