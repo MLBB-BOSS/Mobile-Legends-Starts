@@ -1,10 +1,14 @@
 # main.py
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from core.info_handler import get_main_menu
-from core.screenshot_handler import handle_screenshot
-from core.profile_handler import view_profile
-from core.leaderboard_handler import view_leaderboard
+from core import (
+    get_main_menu,
+    handle_screenshot,
+    view_profile,
+    view_leaderboard,
+    handle_heroes_info,
+    handle_help
+)
 from config.settings import TELEGRAM_BOT_TOKEN, ENABLE_QUIZZES, ENABLE_NEWS
 from services.database import init_db
 
