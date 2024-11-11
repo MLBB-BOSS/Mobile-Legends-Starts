@@ -1,26 +1,43 @@
 # main.py
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from bot.handlers import main_menu
-from core.config import settings
-from core.logging import setup_logging
 
-# Налаштування логування
-setup_logging()
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привіт! Я MLSnap бот. Як я можу допомогти?")
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from core.info_handler import get_main_menu
+from core.screenshot_handler import handle_screenshot
+from core.profile_handler import view_profile
+from core.leaderboard_handler import view_leaderboard
+from config.settings import TELEGRAM_BOT_TOKEN, ENABLE_QUIZZES, ENABLE_NEWS
+from services.database import init_db
 
 def main():
-    application = ApplicationBuilder().token(settings.TELEGRAM_BOT_TOKEN).build()
+    # Ініціалізація бази даних
+    init_db()
+    
+    # Створення Updater та Dispatcher
+    updater = Updater(token=TELEGRAM_BOT_TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
 
-    # Додавання обробників
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(main_menu.router)
+    # Додавання обробника команди /start
+    dispatcher.add_handler(CommandHandler('start', get_main_menu))
+
+    # Додавання обробників для натискання кнопок меню
+    dispatcher.add_handler(MessageHandler(Filters.regex('^Інформація про героїв$'), handle_heroes_info))
+    dispatcher.add_handler(MessageHandler(Filters.regex('^Завантажити скріншот$'), handle_screenshot))
+    dispatcher.add_handler(MessageHandler(Filters.regex('^Мій профіль$'), view_profile))
+    dispatcher.add_handler(MessageHandler(Filters.regex('^Лідерборд$'), view_leaderboard))
+    dispatcher.add_handler(MessageHandler(Filters.regex('^Допомога$'), handle_help))
+
+    # Додавання інших обробників за потребою
+    if ENABLE_QUIZZES:
+        from handlers.quizzes import handle_quiz
+        dispatcher.add_handler(CommandHandler('quiz', handle_quiz))
+
+    if ENABLE_NEWS:
+        from handlers.news import handle_news
+        dispatcher.add_handler(CommandHandler('news', handle_news))
 
     # Запуск бота
-    application.run_polling()
+    updater.start_polling()
+    updater.idle()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
