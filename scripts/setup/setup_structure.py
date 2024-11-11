@@ -253,7 +253,7 @@ from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
-    help_text = """
+    help_text = \"\"\"
 Available Commands:
 /menu - Show the main menu
 /characters - List all characters
@@ -266,11 +266,11 @@ Available Commands:
 /recommendations <hero_name> - Get build recommendations
 /comparisons - Compare builds/items
 /myscreenshots - View your uploaded screenshots
-"""
+\"\"\"
     await update.message.reply_text(help_text)
 
 router = CommandHandler('help', help_menu)
-""",
+"""
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
