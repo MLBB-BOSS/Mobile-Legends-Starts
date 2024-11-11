@@ -248,7 +248,7 @@ async def news(update: Update, context: CallbackContext.DEFAULT_TYPE):
 
 router = CommandHandler('news', news)
 """,
-        "help_menu.py": """# handlers/help_menu.py
+"help_menu.py": """# handlers/help_menu.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
@@ -270,7 +270,7 @@ Available Commands:
     await update.message.reply_text(help_text)
 
 router = CommandHandler('help', help_menu)
-""",
+"""
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
