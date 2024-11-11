@@ -175,7 +175,7 @@ Describe the overall architecture of the Telegram ML Bot, including key componen
 - **User Personalization**: Implement features that personalize the user experience based on their preferences and activity within the bot.
 
 - **Analytics and Monitoring**: Add monitoring tools to track the bot's performance and user engagement, aiding in maintenance and feature development.
-""",
+"""
     },
     "handlers": {
         "__init__.py": "",
@@ -254,7 +254,23 @@ from telegram.ext import CommandHandler, CallbackContext
 
 async def help_menu(update: Update, context: CallbackContext.DEFAULT_TYPE):
     help_text = """
-        
+    Available Commands:
+    /menu - Show the main menu
+    /characters - List all characters
+    /guides - Show game guides
+    /tournaments - Upcoming tournaments
+    /news - Latest news
+    /quizzes - Take a quiz
+    /search <query> - Search for information
+    /emblems - View available emblems
+    /recommendations <hero_name> - Get build recommendations
+    /comparisons - Compare builds/items
+    /myscreenshots - View your uploaded screenshots
+    """
+    await update.message.reply_text(help_text)
+
+router = CommandHandler('help', help_menu)
+""",
         "quizzes.py": """# handlers/quizzes.py
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
@@ -368,7 +384,7 @@ async def myscreenshots(update: Update, context: CallbackContext.DEFAULT_TYPE):
     session.close()
 
 router = CommandHandler('myscreenshots', myscreenshots)
-""",
+"""
     },
     "utils": {
         "__init__.py": "",
