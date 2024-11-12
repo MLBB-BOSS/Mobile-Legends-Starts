@@ -1,48 +1,32 @@
-from typing import Dict, Optional
-from datetime import datetime
+from enum import Enum
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum as SQLEnum
+from sqlalchemy.orm import relationship
 from .base import BaseModel
 
-class MediaType:
-    SCREENSHOT = 'screenshot'
-    SKIN = 'skin'
-    GAMEPLAY = 'gameplay'
-    BUILD = 'build'
+class MediaType(Enum):
+    IMAGE = "image"
+    VIDEO = "video"
+    GUIDE = "guide"
 
 class HeroMedia(BaseModel):
-    def __init__(self, 
-                 hero_id: str,
-                 media_type: str,
-                 url: str,
-                 author_id: str,
-                 author_nickname: str,
-                 metadata: Optional[Dict] = None):
-        super().__init__()
-        self.hero_id: str = hero_id
-        self.media_type: str = media_type
-        self.url: str = url
-        self.author_id: str = author_id
-        self.author_nickname: str = author_nickname
-        self.metadata: Dict = metadata or {}
-        self.approved: bool = False
-        self.votes: int = 0
-        self.approver_id: Optional[str] = None
-        self.approved_at: Optional[datetime] = None
-        self.reports: List[Dict] = []
-
-    def approve(self, approver_id: str) -> None:
-        """Approve the media content"""
-        self.approved = True
-        self.approver_id = approver_id
-        self.approved_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-
-    def add_vote(self, user_id: str) -> bool:
-        """Add a vote to the media"""
-        if user_id not in self.metadata.get('voters', []):
-            voters = self.metadata.get('voters', [])
-            voters.append(user_id)
-            self.metadata['voters'] = voters
-            self.votes += 1
-            self.updated_at = datetime.utcnow()
-            return True
-        return False
+    __tablename__ = 'hero_media'
+    
+    hero_id = Column(Integer, ForeignKey('heroes.id'), nullable=False)
+    media_type = Column(SQLEnum(MediaType), nullable=False)
+    url = Column(String(500), nullable=False)
+    description = Column(String(1000))
+    
+    # Система голосування
+    upvotes = Column(Integer, default=0)
+    downvotes = Column(Integer, default=0)
+    
+    # Відносини
+    hero = relationship("Hero", back_populates="media")
+    
+    @property
+    def rating(self) -> float:
+        """Обчислює рейтинг медіа контенту"""
+        total = self.upvotes + self.downvotes
+        if total == 0:
+            return 0
+        return self.upvotes / total * 100
