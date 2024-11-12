@@ -1,186 +1,143 @@
-# services/hero_service.py
+# services/s3_service.py
+import os
+import boto3
 import logging
-from typing import Optional, List, Dict
-from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
-
-from models.hero import Hero
-from models.hero_media import HeroMedia
-from services.base_service import BaseService
-from services.s3_service import S3Service
+from typing import Optional, Dict, Any, BinaryIO
+from botocore.exceptions import ClientError
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-class HeroService(BaseService):
-    def __init__(self, session: AsyncSession, s3_service: S3Service):
-        super().__init__(session)
-        self.s3_service = s3_service
-
-    async def create_hero(self, 
-                         name: str, 
-                         description: str, 
-                         contributor_id: int) -> Optional[Hero]:
+class S3Service:
+    def __init__(self):
         """
-        Створення нового героя
+        Ініціалізація сервісу S3 з змінних середовища Heroku
+        Необхідні змінні:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+        - AWS_REGION
+        - AWS_S3_BUCKET_NAME
+        """
+        self.aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+        self.aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        self.region = os.environ.get('AWS_REGION', 'eu-central-1')
+        self.bucket_name = os.environ.get('AWS_S3_BUCKET_NAME')
+
+        if not all([self.aws_access_key_id, self.aws_secret_access_key, self.bucket_name]):
+            raise ValueError("Missing required AWS credentials in environment variables")
+
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+            region_name=self.region
+        )
+
+    async def upload_file(self, 
+                         file_data: bytes,
+                         file_key: str,
+                         metadata: Dict[str, str] = None,
+                         content_type: str = 'image/jpeg') -> Optional[str]:
+        """
+        Завантаження файлу в S3
         
         Args:
-            name: Ім'я героя
-            description: Опис героя
-            contributor_id: ID користувача, який додав героя
-        """
-        try:
-            hero = Hero(
-                name=name,
-                description=description,
-                contributor_id=contributor_id,
-                status='pending',
-                created_at=datetime.utcnow()
-            )
-            self._session.add(hero)
-            await self.commit()
-            logger.info(f"Created new hero: {name}")
-            return hero
-        except Exception as e:
-            logger.error(f"Error creating hero: {e}")
-            return None
-
-    async def add_hero_media(self, 
-                            hero_id: int, 
-                            file_data: bytes,
-                            media_type: str,
-                            contributor_id: int,
-                            content_type: str = 'image/jpeg') -> Optional[HeroMedia]:
-        """
-        Додавання медіа контенту для героя
-        
-        Args:
-            hero_id: ID героя
             file_data: Байти файлу
-            media_type: Тип медіа ('screenshot' або 'skin')
-            contributor_id: ID користувача
+            file_key: Ключ файлу в S3 (шлях/назва)
+            metadata: Метадані файлу
             content_type: Тип контенту файлу
+            
+        Returns:
+            URL завантаженого файлу або None у випадку помилки
         """
         try:
-            file_key = f"heroes/{hero_id}/{media_type}_{datetime.utcnow().timestamp()}"
-            
-            # Завантаження файлу в S3
-            media_url = await self.s3_service.upload_file(
-                file_data=file_data,
-                file_key=file_key,
-                metadata={
-                    'hero_id': str(hero_id),
-                    'media_type': media_type,
-                    'contributor_id': str(contributor_id)
-                },
-                content_type=content_type
-            )
-            
-            if not media_url:
-                return None
-
-            # Створення запису про медіа
-            hero_media = HeroMedia(
-                hero_id=hero_id,
-                media_type=media_type,
-                media_url=media_url,
-                contributor_id=contributor_id,
-                created_at=datetime.utcnow()
-            )
-            
-            self._session.add(hero_media)
-            await self.commit()
-            return hero_media
-
-        except Exception as e:
-            logger.error(f"Error adding hero media: {e}")
-            return None
-
-    async def get_hero(self, hero_id: int) -> Optional[Dict]:
-        """
-        Отримання інформації про героя
-        
-        Args:
-            hero_id: ID героя
-        """
-        try:
-            query = select(Hero).where(Hero.id == hero_id)
-            result = await self._session.execute(query)
-            hero = result.scalar_one_or_none()
-            
-            if not hero:
-                return None
-
-            # Отримання медіа контенту
-            media_query = select(HeroMedia).where(HeroMedia.hero_id == hero_id)
-            media_result = await self._session.execute(media_query)
-            media = media_result.scalars().all()
-
-            return {
-                'id': hero.id,
-                'name': hero.name,
-                'description': hero.description,
-                'status': hero.status,
-                'contributor_id': hero.contributor_id,
-                'created_at': hero.created_at,
-                'media': [
-                    {
-                        'id': m.id,
-                        'type': m.media_type,
-                        'url': m.media_url,
-                        'votes': m.votes,
-                        'contributor_id': m.contributor_id
-                    } for m in media
-                ]
+            # Додаємо базові метадані
+            full_metadata = {
+                'uploaded_at': datetime.utcnow().isoformat(),
+                'uploaded_by': 'mlbb-bot'
             }
+            if metadata:
+                full_metadata.update(metadata)
 
-        except Exception as e:
-            logger.error(f"Error getting hero: {e}")
+            # Завантаження файлу
+            self.s3_client.put_object(
+                Bucket=self.bucket_name,
+                Key=file_key,
+                Body=file_data,
+                ContentType=content_type,
+                Metadata=full_metadata
+            )
+
+            # Формуємо URL файлу
+            url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{file_key}"
+            logger.info(f"File uploaded successfully to {url}")
+            return url
+
+        except ClientError as e:
+            logger.error(f"Error uploading file to S3: {e}")
             return None
 
-    async def update_hero_status(self, 
-                                hero_id: int, 
-                                status: str,
-                                moderator_id: int) -> bool:
+    async def delete_file(self, file_key: str) -> bool:
         """
-        Оновлення статусу героя
+        Видалення файлу з S3
         
         Args:
-            hero_id: ID героя
-            status: Новий статус ('approved' або 'rejected')
-            moderator_id: ID модератора
+            file_key: Ключ файлу в S3
+            
+        Returns:
+            True якщо файл успішно видалено, False у випадку помилки
         """
         try:
-            query = update(Hero).where(Hero.id == hero_id).values(
-                status=status,
-                moderator_id=moderator_id,
-                moderated_at=datetime.utcnow()
+            self.s3_client.delete_object(
+                Bucket=self.bucket_name,
+                Key=file_key
             )
-            await self._session.execute(query)
-            await self.commit()
-            logger.info(f"Updated hero {hero_id} status to {status}")
+            logger.info(f"File {file_key} deleted successfully")
             return True
-        except Exception as e:
-            logger.error(f"Error updating hero status: {e}")
+        except ClientError as e:
+            logger.error(f"Error deleting file from S3: {e}")
             return False
 
-    async def vote_for_media(self, media_id: int, user_id: int) -> bool:
+    async def get_file_url(self, file_key: str, expires_in: int = 3600) -> Optional[str]:
         """
-        Голосування за медіа контент
+        Отримання тимчасового URL для файлу
         
         Args:
-            media_id: ID медіа
-            user_id: ID користувача
+            file_key: Ключ файлу в S3
+            expires_in: Час дії URL в секундах (за замовчуванням 1 година)
+            
+        Returns:
+            Тимчасовий URL або None у випадку помилки
         """
         try:
-            query = update(HeroMedia).where(
-                HeroMedia.id == media_id
-            ).values(
-                votes=HeroMedia.votes + 1
+            url = self.s3_client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': self.bucket_name,
+                    'Key': file_key
+                },
+                ExpiresIn=expires_in
             )
-            await self._session.execute(query)
-            await self.commit()
+            return url
+        except ClientError as e:
+            logger.error(f"Error generating presigned URL: {e}")
+            return None
+
+    async def check_file_exists(self, file_key: str) -> bool:
+        """
+        Перевірка існування файлу в S3
+        
+        Args:
+            file_key: Ключ файлу в S3
+            
+        Returns:
+            True якщо файл існує, False якщо ні або виникла помилка
+        """
+        try:
+            self.s3_client.head_object(
+                Bucket=self.bucket_name,
+                Key=file_key
+            )
             return True
-        except Exception as e:
-            logger.error(f"Error voting for media: {e}")
+        except ClientError:
             return False
