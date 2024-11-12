@@ -1,32 +1,24 @@
-from enum import Enum
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum as SQLEnum
+# models/hero_media.py
+from sqlalchemy import Column, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
+import enum
 from .base import BaseModel
 
-class MediaType(Enum):
+class MediaType(enum.Enum):
     IMAGE = "image"
     VIDEO = "video"
-    GUIDE = "guide"
+    SCREENSHOT = "screenshot"
 
 class HeroMedia(BaseModel):
     __tablename__ = 'hero_media'
-    
+
     hero_id = Column(Integer, ForeignKey('heroes.id'), nullable=False)
-    media_type = Column(SQLEnum(MediaType), nullable=False)
-    url = Column(String(500), nullable=False)
-    description = Column(String(1000))
-    
-    # Система голосування
-    upvotes = Column(Integer, default=0)
-    downvotes = Column(Integer, default=0)
+    media_type = Column(Enum(MediaType), nullable=False)
+    url = Column(String(512), nullable=False)
+    description = Column(String(256))
     
     # Відносини
     hero = relationship("Hero", back_populates="media")
-    
-    @property
-    def rating(self) -> float:
-        """Обчислює рейтинг медіа контенту"""
-        total = self.upvotes + self.downvotes
-        if total == 0:
-            return 0
-        return self.upvotes / total * 100
+
+    def __repr__(self):
+        return f"<HeroMedia(hero_id={self.hero_id}, type={self.media_type})>"
