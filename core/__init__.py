@@ -1,6 +1,6 @@
 # core/__init__.py
 
-from .info_handler import get_main_menu
+from .info_handler import start, get_main_menu
 from .screenshot_handler import handle_screenshot
 from .profile_handler import view_profile
 from .leaderboard_handler import view_leaderboard
@@ -9,6 +9,7 @@ from .help_handler import handle_help
 from .callback_handler import handle_callback
 
 __all__ = [
+    'start',
     'get_main_menu',
     'handle_screenshot',
     'view_profile',
