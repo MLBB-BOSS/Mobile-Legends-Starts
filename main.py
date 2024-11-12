@@ -1,20 +1,40 @@
-# main.py
 import os
 import asyncio
 import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from core.bot import run_bot
 from core.config import settings
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from services.base_service import BaseService
+
+# Створення директорії для логів, якщо її ще немає
+if not os.path.exists('logs'):
+    os.makedirs('logs')
 
 # Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-logger = logging.getLogger(__name__)
+
+# Обробник для консолі
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# Обробник для файлу з ротацією
+file_handler = RotatingFileHandler(
+    'logs/app.log',
+    maxBytes=5*1024*1024,  # 5 МБ
+    backupCount=5
+)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 # Отримуємо DATABASE_URL з змінних середовища або конфігурації
 database_url = os.getenv('DATABASE_URL', settings.DATABASE_URL)
@@ -42,38 +62,42 @@ async def init_db():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(lambda x: x)
-        logger.info("✅ Database connection established successfully")
+        logger.info("✅ Підключення до бази даних успішно встановлено")
     except Exception as e:
-        logger.error(f"❌ Error connecting to database: {e}")
+        logger.error(f"❌ Помилка підключення до бази даних: {e}", exc_info=True)
         raise
 
 async def startup():
     """Функція ініціалізації при запуску"""
     try:
-        logger.info(f"🚀 Starting MLBB-BOSS bot at {datetime.utcnow()}")
-        logger.info(f"🔧 Debug mode: {settings.DEBUG}")
+        logger.info(f"🚀 Запуск MLBB-BOSS бота о {datetime.utcnow()} UTC")
+        logger.info(f"🔧 Режим відладки: {settings.DEBUG}")
         
         # Ініціалізуємо базу даних
         await init_db()
+        
+        # Ініціалізуємо сервіси
+        service = BaseService()
+        service.perform_action()
         
         # Запускаємо бота
         await run_bot(AsyncSessionFactory)
         
     except Exception as e:
-        logger.error(f"❌ Error during startup: {e}")
+        logger.error(f"❌ Помилка під час запуску: {e}", exc_info=True)
         raise
 
 async def shutdown():
     """Функція очищення при зупинці"""
     try:
-        logger.info("🔄 Shutting down...")
+        logger.info("🔄 Завершення роботи...")
         
         # Закриваємо з'єднання з базою даних
         await engine.dispose()
-        logger.info("✅ Database connection closed")
+        logger.info("✅ З'єднання з базою даних закрито")
         
     except Exception as e:
-        logger.error(f"❌ Error during shutdown: {e}")
+        logger.error(f"❌ Помилка під час завершення роботи: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
@@ -85,9 +109,9 @@ if __name__ == "__main__":
         asyncio.run(startup())
         
     except KeyboardInterrupt:
-        logger.info("👋 Bot stopped by user")
+        logger.info("👋 Бот зупинено користувачем")
         asyncio.run(shutdown())
         
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        logger.error(f"❌ Несподівана помилка: {e}", exc_info=True)
         asyncio.run(shutdown())
