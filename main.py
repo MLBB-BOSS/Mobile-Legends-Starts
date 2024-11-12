@@ -1,56 +1,93 @@
 # main.py
-
-from core import (
-    start,
-    get_main_menu,
-    handle_screenshot,
-    view_profile,
-    view_leaderboard,
-    handle_heroes_info,
-    handle_help,
-    handle_callback,
-    handle_settings
-)
-from config.settings import TELEGRAM_BOT_TOKEN
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    CallbackQueryHandler,
-    filters
-)
-import logging
+import os
 import asyncio
+import logging
+from datetime import datetime
+from core.bot import run_bot
+from core.config import settings
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 # Налаштування логування
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
 
-async def main():
-    app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+# Отримуємо DATABASE_URL з змінних середовища або конфігурації
+database_url = os.getenv('DATABASE_URL', settings.DATABASE_URL)
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql+asyncpg://', 1)
 
-    # Додавання обробників команд
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("profile", view_profile))
-    app.add_handler(CommandHandler("leaderboard", view_leaderboard))
-    app.add_handler(CommandHandler("heroes", handle_heroes_info))
-    app.add_handler(CommandHandler("help", handle_help))
-    app.add_handler(CommandHandler("settings", handle_settings))
+# Створюємо engine для бази даних
+engine = create_async_engine(
+    database_url,
+    echo=settings.DEBUG,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10
+)
 
-    # Обробка завантажених фото
-    app.add_handler(MessageHandler(filters.PHOTO, handle_screenshot))
+# Створюємо фабрику сесій
+AsyncSessionFactory = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
 
-    # Обробка текстових повідомлень
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_callback))
+async def init_db():
+    """Ініціалізація бази даних"""
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(lambda x: x)
+        logger.info("✅ Database connection established successfully")
+    except Exception as e:
+        logger.error(f"❌ Error connecting to database: {e}")
+        raise
 
-    # Обробка callback queries (натискання кнопок)
-    app.add_handler(CallbackQueryHandler(handle_callback))
+async def startup():
+    """Функція ініціалізації при запуску"""
+    try:
+        logger.info(f"🚀 Starting MLBB-BOSS bot at {datetime.utcnow()}")
+        logger.info(f"🔧 Debug mode: {settings.DEBUG}")
+        
+        # Ініціалізуємо базу даних
+        await init_db()
+        
+        # Запускаємо бота
+        await run_bot(AsyncSessionFactory)
+        
+    except Exception as e:
+        logger.error(f"❌ Error during startup: {e}")
+        raise
 
-    # Запуск бота
-    await app.run_polling()
+async def shutdown():
+    """Функція очищення при зупинці"""
+    try:
+        logger.info("🔄 Shutting down...")
+        
+        # Закриваємо з'єднання з базою даних
+        await engine.dispose()
+        logger.info("✅ Database connection closed")
+        
+    except Exception as e:
+        logger.error(f"❌ Error during shutdown: {e}")
+        raise
 
-if __name__ == '__main__':
-    asyncio.run(main())
+if __name__ == "__main__":
+    try:
+        # Встановлюємо UTC часовий пояс
+        os.environ['TZ'] = 'UTC'
+        
+        # Запускаємо бота
+        asyncio.run(startup())
+        
+    except KeyboardInterrupt:
+        logger.info("👋 Bot stopped by user")
+        asyncio.run(shutdown())
+        
+    except Exception as e:
+        logger.error(f"❌ Unexpected error: {e}")
+        asyncio.run(shutdown())
