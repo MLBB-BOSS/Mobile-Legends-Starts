@@ -2,7 +2,7 @@ from typing import Generic, TypeVar, Type
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from models.base import BaseModel
-from logger import logger
+from logging import logging
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 
