@@ -22,11 +22,12 @@ s3_client = boto3.client(
 def upload_file_to_s3(file_path, object_name):
     try:
         # Завантаження файлу до S3 bucket
-        response = s3_client.put_object(
-            Bucket=AWS_S3_BUCKET_NAME,
-            Key=object_name,
-            Body=open(file_path, 'rb')
-        )
+        with open(file_path, 'rb') as file_data:
+            response = s3_client.put_object(
+                Bucket=AWS_S3_BUCKET_NAME,
+                Key=object_name,
+                Body=file_data
+            )
         logger.info(f"Uploaded {file_path} to S3 Bucket {AWS_S3_BUCKET_NAME} as {object_name}")
         # Генерація URL для доступу до файлу
         s3_url = f"https://{AWS_S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{object_name}"
