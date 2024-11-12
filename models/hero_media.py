@@ -1,5 +1,5 @@
 # models/hero_media.py
-from sqlalchemy import Column, String, ForeignKey, Enum
+from sqlalchemy import Column, String, ForeignKey, Enum, Integer
 from sqlalchemy.orm import relationship
 import enum
 from .base import BaseModel
