@@ -8,6 +8,10 @@ logger = logging.getLogger(__name__)
 
 async def view_profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
-    # Тут додайте логіку для відображення профілю користувача
-    await update.message.reply_text(f"Ваш профіль, {user.first_name}!")
-    logger.info(f"User {user.username} viewed their profile.")
+    # Логіка для відображення профілю користувача
+    profile_info = f"📄 **Ваш профіль:**\n\n"
+    profile_info += f"👤 **Ім'я:** {user.first_name} {user.last_name if user.last_name else ''}\n"
+    profile_info += f"🔢 **ID:** {user.id}\n"
+    # Додайте іншу необхідну інформацію
+    await update.message.reply_text(profile_info, parse_mode='Markdown')
+    logger.info(f"User {user.username or user.id} viewed their profile.")
