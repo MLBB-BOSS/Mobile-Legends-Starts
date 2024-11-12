@@ -1,26 +1,28 @@
 from datetime import datetime
 from typing import Optional, Dict, Any
-from uuid import uuid4
+from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
-class BaseModel:
-    def __init__(self):
-        self.id: str = str(uuid4())
-        self.created_at: datetime = datetime.utcnow()
-        self.updated_at: datetime = datetime.utcnow()
-        self.is_active: bool = True
+Base = declarative_base()
 
+class BaseModel(Base):
+    __abstract__ = True
+    
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert model to dictionary"""
+        """Конвертує модель в словник"""
         return {
-            key: value for key, value in self.__dict__.items()
-            if not key.startswith('_')
+            column.name: getattr(self, column.name)
+            for column in self.__table__.columns
         }
-
+    
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'BaseModel':
-        """Create model instance from dictionary"""
-        instance = cls()
-        for key, value in data.items():
-            if hasattr(instance, key):
-                setattr(instance, key, value)
-        return instance
+    def from_dict(cls, data: Dict[str, Any]) -> "BaseModel":
+        """Створює об'єкт моделі з словника"""
+        return cls(**{
+            k: v for k, v in data.items() 
+            if k in cls.__table__.columns
+        })
