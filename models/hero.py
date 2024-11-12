@@ -1,5 +1,5 @@
 # models/hero.py
-from sqlalchemy import Column, String, Text, Enum
+from sqlalchemy import Column, String, Text, Enum, Integer
 from sqlalchemy.orm import relationship
 from .base import BaseModel
 import enum
