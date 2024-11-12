@@ -1,4 +1,4 @@
-aiogram
+aiogram==2.11.2
 python-telegram-bot==21.7
 SQLAlchemy==2.0.21
 alembic==1.12.0
