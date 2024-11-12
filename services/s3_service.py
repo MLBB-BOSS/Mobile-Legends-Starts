@@ -1,5 +1,4 @@
 # services/s3_service.py
-
 import os
 import boto3
 import logging
@@ -71,7 +70,7 @@ class S3Service:
 
             # Формуємо URL файлу
             url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{file_key}"
-            logger.info(f"Successfully uploaded file to {url}")
+            logger.info(f"File uploaded successfully to {url}")
             return url
 
         except ClientError as e:
@@ -93,24 +92,22 @@ class S3Service:
                 Bucket=self.bucket_name,
                 Key=file_key
             )
-            logger.info(f"Successfully deleted file: {file_key}")
+            logger.info(f"File {file_key} deleted successfully")
             return True
         except ClientError as e:
             logger.error(f"Error deleting file from S3: {e}")
             return False
 
-    async def get_presigned_url(self, 
-                              file_key: str, 
-                              expiration: int = 3600) -> Optional[str]:
+    async def get_file_url(self, file_key: str, expires_in: int = 3600) -> Optional[str]:
         """
-        Створення попередньо підписаного URL для файлу
+        Отримання тимчасового URL для файлу
         
         Args:
             file_key: Ключ файлу в S3
-            expiration: Час дії URL в секундах (за замовчуванням 1 година)
+            expires_in: Час дії URL в секундах (за замовчуванням 1 година)
             
         Returns:
-            Попередньо підписаний URL або None у випадку помилки
+            Тимчасовий URL або None у випадку помилки
         """
         try:
             url = self.s3_client.generate_presigned_url(
@@ -119,54 +116,28 @@ class S3Service:
                     'Bucket': self.bucket_name,
                     'Key': file_key
                 },
-                ExpiresIn=expiration
+                ExpiresIn=expires_in
             )
             return url
         except ClientError as e:
             logger.error(f"Error generating presigned URL: {e}")
             return None
 
-    async def get_file_metadata(self, file_key: str) -> Optional[Dict[str, Any]]:
+    async def check_file_exists(self, file_key: str) -> bool:
         """
-        Отримання метаданих файлу
+        Перевірка існування файлу в S3
         
         Args:
             file_key: Ключ файлу в S3
             
         Returns:
-            Словник з метаданими або None у випадку помилки
+            True якщо файл існує, False якщо ні або виникла помилка
         """
         try:
-            response = self.s3_client.head_object(
+            self.s3_client.head_object(
                 Bucket=self.bucket_name,
                 Key=file_key
             )
-            return {
-                'metadata': response.get('Metadata', {}),
-                'content_type': response.get('ContentType'),
-                'content_length': response.get('ContentLength'),
-                'last_modified': response.get('LastModified')
-            }
-        except ClientError as e:
-            logger.error(f"Error getting file metadata: {e}")
-            return None
-
-    def get_file_key_from_url(self, url: str) -> Optional[str]:
-        """
-        Отримання ключа файлу з URL S3
-        
-        Args:
-            url: URL файлу в S3
-            
-        Returns:
-            Ключ файлу або None якщо URL невірний
-        """
-        try:
-            # Видаляємо базовий URL S3
-            base_url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/"
-            if url.startswith(base_url):
-                return url[len(base_url):]
-            return None
-        except Exception as e:
-            logger.error(f"Error parsing S3 URL: {e}")
-            return None# Завантаження скріншотів на S3 або інший сервер
+            return True
+        except ClientError:
+            return False
