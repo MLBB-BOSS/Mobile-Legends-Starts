@@ -1,19 +1,32 @@
 # main.py
 
-from core.info_handler import start, get_main_menu
-from core.profile_handler import view_profile
-from core.screenshot_handler import handle_screenshot
-from core.leaderboard_handler import view_leaderboard
-from core.heroes_info_handler import handle_heroes_info
-from core.help_handler import handle_help
-from core.callback_handler import handle_callback
+from core import (
+    start,
+    get_main_menu,
+    handle_screenshot,
+    view_profile,
+    view_leaderboard,
+    handle_heroes_info,
+    handle_help,
+    handle_callback,
+    handle_settings
+)
 from config.settings import TELEGRAM_BOT_TOKEN
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters
-
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    CallbackQueryHandler,
+    filters
+)
 import logging
+import asyncio
 
 # Налаштування логування
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 async def main():
@@ -25,16 +38,19 @@ async def main():
     app.add_handler(CommandHandler("leaderboard", view_leaderboard))
     app.add_handler(CommandHandler("heroes", handle_heroes_info))
     app.add_handler(CommandHandler("help", handle_help))
-    
+    app.add_handler(CommandHandler("settings", handle_settings))
+
     # Обробка завантажених фото
     app.add_handler(MessageHandler(filters.PHOTO, handle_screenshot))
-    
-    # Обробка callback queries (наприклад, кнопок)
+
+    # Обробка текстових повідомлень
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_callback))
+
+    # Обробка callback queries (натискання кнопок)
     app.add_handler(CallbackQueryHandler(handle_callback))
-    
+
     # Запуск бота
     await app.run_polling()
 
 if __name__ == '__main__':
-    import asyncio
     asyncio.run(main())
