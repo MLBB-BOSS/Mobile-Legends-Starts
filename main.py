@@ -1,7 +1,6 @@
 import os
 import asyncio
 import logging
-from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from core.bot import run_bot
 from core.config import settings
@@ -28,7 +27,7 @@ console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
 # Обробник для файлу з ротацією
-file_handler = RotatingFileHandler(
+file_handler = logging.handlers.RotatingFileHandler(
     'logs/app.log',
     maxBytes=5*1024*1024,  # 5 МБ
     backupCount=5
@@ -72,17 +71,17 @@ async def startup():
     try:
         logger.info(f"🚀 Запуск MLBB-BOSS бота о {datetime.utcnow()} UTC")
         logger.info(f"🔧 Режим відладки: {settings.DEBUG}")
-        
+
         # Ініціалізуємо базу даних
         await init_db()
-        
+
         # Ініціалізуємо сервіси
         service = BaseService()
         service.perform_action()
-        
+
         # Запускаємо бота
         await run_bot(AsyncSessionFactory)
-        
+
     except Exception as e:
         logger.error(f"❌ Помилка під час запуску: {e}", exc_info=True)
         raise
@@ -91,11 +90,11 @@ async def shutdown():
     """Функція очищення при зупинці"""
     try:
         logger.info("🔄 Завершення роботи...")
-        
+
         # Закриваємо з'єднання з базою даних
         await engine.dispose()
         logger.info("✅ З'єднання з базою даних закрито")
-        
+
     except Exception as e:
         logger.error(f"❌ Помилка під час завершення роботи: {e}", exc_info=True)
         raise
@@ -104,14 +103,14 @@ if __name__ == "__main__":
     try:
         # Встановлюємо UTC часовий пояс
         os.environ['TZ'] = 'UTC'
-        
+
         # Запускаємо бота
         asyncio.run(startup())
-        
+
     except KeyboardInterrupt:
         logger.info("👋 Бот зупинено користувачем")
         asyncio.run(shutdown())
-        
+
     except Exception as e:
         logger.error(f"❌ Несподівана помилка: {e}", exc_info=True)
         asyncio.run(shutdown())
