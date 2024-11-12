@@ -1,35 +1,38 @@
 # core/callback_handler.py
 
 import logging
-from telegram import Update
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
-from core import (
-    handle_heroes_info,
-    handle_help,
-    handle_screenshot_prompt,
-    view_profile,
-    view_leaderboard
-)
+from core.info_handler import get_main_menu
+from core.profile_handler import view_profile
+from core.leaderboard_handler import view_leaderboard
+from core.heroes_info_handler import handle_heroes_info
+from core.help_handler import handle_help
+from core.screenshot_handler import handle_screenshot
 
 logger = logging.getLogger(__name__)
 
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
-    data = query.data
-    logger.info(f"Received callback data: {data}")
+    await query.answer()  # Відповідь на callback query
 
-    if data == 'info_heroes':
+    data = query.data
+    user = update.effective_user
+
+    logger.info(f"User {user.username or user.id} clicked button with data: {data}")
+
+    if data == 'heroes_info':
         await handle_heroes_info(update, context)
     elif data == 'upload_screenshot':
-        await handle_screenshot_prompt(update, context)
+        # Відправка повідомлення про завантаження скріншоту
+        await query.message.reply_text("Будь ласка, завантажте скріншот гри.")
     elif data == 'view_profile':
         await view_profile(update, context)
-    elif data == 'view_leaderboard':
+    elif data == 'leaderboard':
         await view_leaderboard(update, context)
     elif data == 'help':
         await handle_help(update, context)
     else:
-        await query.edit_message_text(text="Невідома опція.")
-        logger.warning(f"Unknown callback data: {data}")
+        await query.message.reply_text("Неопізнана команда.")
+        logger.warning(f"Unrecognized callback data: {data}")
