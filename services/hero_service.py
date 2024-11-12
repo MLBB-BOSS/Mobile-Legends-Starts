@@ -1,139 +1,186 @@
 # services/hero_service.py
-
-import os
 import logging
-from typing import List, Optional, Dict, Any
+from typing import Optional, List, Dict
 from datetime import datetime
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, delete
 
-from models import Hero, HeroMedia
+from models.hero import Hero
+from models.hero_media import HeroMedia
+from services.base_service import BaseService
 from services.s3_service import S3Service
 
 logger = logging.getLogger(__name__)
 
-class HeroService:
-    def __init__(self):
-        self.s3_service = S3Service()
-        self._heroes: Dict[str, Hero] = {}  # Тимчасове зберігання для прототипу
+class HeroService(BaseService):
+    def __init__(self, session: AsyncSession, s3_service: S3Service):
+        super().__init__(session)
+        self.s3_service = s3_service
+
+    async def create_hero(self, 
+                         name: str, 
+                         description: str, 
+                         contributor_id: int) -> Optional[Hero]:
+        """
+        Створення нового героя
         
-    async def create_hero(self, hero_data: Dict[str, Any]) -> Hero:
-        """Створення нового героя"""
+        Args:
+            name: Ім'я героя
+            description: Опис героя
+            contributor_id: ID користувача, який додав героя
+        """
         try:
             hero = Hero(
-                name=hero_data['name'],
-                role=hero_data['role'],
-                description=hero_data['description'],
-                difficulty=hero_data.get('difficulty', 'Normal'),
-                speciality=hero_data.get('speciality', []),
-                recommended_spells=hero_data.get('recommended_spells', []),
-                recommended_emblems=hero_data.get('recommended_emblems', [])
+                name=name,
+                description=description,
+                contributor_id=contributor_id,
+                status='pending',
+                created_at=datetime.utcnow()
             )
-            self._heroes[hero.id] = hero
+            self._session.add(hero)
+            await self.commit()
+            logger.info(f"Created new hero: {name}")
             return hero
         except Exception as e:
             logger.error(f"Error creating hero: {e}")
-            raise
-
-    async def get_hero(self, hero_id: str) -> Optional[Hero]:
-        """Отримання героя за ID"""
-        return self._heroes.get(hero_id)
-
-    async def get_heroes(self) -> List[Hero]:
-        """Отримання всіх героїв"""
-        return list(self._heroes.values())
-
-    async def update_hero(self, hero_id: str, hero_data: Dict[str, Any]) -> Optional[Hero]:
-        """Оновлення інформації про героя"""
-        hero = await self.get_hero(hero_id)
-        if hero:
-            for key, value in hero_data.items():
-                if hasattr(hero, key):
-                    setattr(hero, key, value)
-            hero.updated_at = datetime.utcnow()
-            return hero
-        return None
+            return None
 
     async def add_hero_media(self, 
-                           hero_id: str, 
-                           file_data: bytes, 
-                           media_type: str,
-                           author_id: str,
-                           author_nickname: str,
-                           metadata: Dict = None) -> Optional[HeroMedia]:
-        """Додавання медіа контенту для героя"""
+                            hero_id: int, 
+                            file_data: bytes,
+                            media_type: str,
+                            contributor_id: int,
+                            content_type: str = 'image/jpeg') -> Optional[HeroMedia]:
+        """
+        Додавання медіа контенту для героя
+        
+        Args:
+            hero_id: ID героя
+            file_data: Байти файлу
+            media_type: Тип медіа ('screenshot' або 'skin')
+            contributor_id: ID користувача
+            content_type: Тип контенту файлу
+        """
         try:
-            hero = await self.get_hero(hero_id)
-            if not hero:
-                raise ValueError(f"Hero with id {hero_id} not found")
-
+            file_key = f"heroes/{hero_id}/{media_type}_{datetime.utcnow().timestamp()}"
+            
             # Завантаження файлу в S3
-            file_key = f"heroes/{hero_id}/{media_type}/{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
-            url = await self.s3_service.upload_file(
-                file_data,
-                file_key,
+            media_url = await self.s3_service.upload_file(
+                file_data=file_data,
+                file_key=file_key,
                 metadata={
-                    'hero_id': hero_id,
+                    'hero_id': str(hero_id),
                     'media_type': media_type,
-                    'author_id': author_id
-                }
+                    'contributor_id': str(contributor_id)
+                },
+                content_type=content_type
             )
-
-            if not url:
-                raise Exception("Failed to upload file to S3")
+            
+            if not media_url:
+                return None
 
             # Створення запису про медіа
             hero_media = HeroMedia(
                 hero_id=hero_id,
                 media_type=media_type,
-                url=url,
-                author_id=author_id,
-                author_nickname=author_nickname,
-                metadata=metadata or {}
+                media_url=media_url,
+                contributor_id=contributor_id,
+                created_at=datetime.utcnow()
             )
-
-            # Оновлення лічильника медіа для героя
-            hero.media_count += 1
             
+            self._session.add(hero_media)
+            await self.commit()
             return hero_media
 
         except Exception as e:
             logger.error(f"Error adding hero media: {e}")
-            raise
+            return None
 
-    async def get_hero_media(self, 
-                           hero_id: str, 
-                           media_type: Optional[str] = None,
-                           approved_only: bool = True) -> List[HeroMedia]:
-        """Отримання медіа контенту героя"""
-        # В реальному проекті тут буде запит до бази даних
-        # Зараз повертаємо пустий список для прототипу
-        return []
+    async def get_hero(self, hero_id: int) -> Optional[Dict]:
+        """
+        Отримання інформації про героя
+        
+        Args:
+            hero_id: ID героя
+        """
+        try:
+            query = select(Hero).where(Hero.id == hero_id)
+            result = await self._session.execute(query)
+            hero = result.scalar_one_or_none()
+            
+            if not hero:
+                return None
 
-    async def approve_media(self,
-                          media_id: str,
-                          approver_id: str) -> Optional[HeroMedia]:
-        """Затвердження медіа контенту"""
-        # В реальному проекті тут буде логіка затвердження
-        # Зараз повертаємо None для прототипу
-        return None
+            # Отримання медіа контенту
+            media_query = select(HeroMedia).where(HeroMedia.hero_id == hero_id)
+            media_result = await self._session.execute(media_query)
+            media = media_result.scalars().all()
 
-    async def vote_for_media(self,
-                           media_id: str,
-                           user_id: str) -> bool:
-        """Голосування за медіа контент"""
-        # В реальному проекті тут буде логіка голосування
-        # Зараз повертаємо False для прототипу
-        return False
+            return {
+                'id': hero.id,
+                'name': hero.name,
+                'description': hero.description,
+                'status': hero.status,
+                'contributor_id': hero.contributor_id,
+                'created_at': hero.created_at,
+                'media': [
+                    {
+                        'id': m.id,
+                        'type': m.media_type,
+                        'url': m.media_url,
+                        'votes': m.votes,
+                        'contributor_id': m.contributor_id
+                    } for m in media
+                ]
+            }
 
-    async def search_heroes(self, query: str) -> List[Hero]:
-        """Пошук героїв"""
-        query = query.lower()
-        return [
-            hero for hero in self._heroes.values()
-            if query in hero.search_text
-        ]
+        except Exception as e:
+            logger.error(f"Error getting hero: {e}")
+            return None
 
-    async def get_popular_heroes(self, limit: int = 10) -> List[Hero]:
-        """Отримання популярних героїв"""
-        heroes = list(self._heroes.values())
-        heroes.sort(key=lambda x: x.popularity, reverse=True)
-        return heroes[:limit]
+    async def update_hero_status(self, 
+                                hero_id: int, 
+                                status: str,
+                                moderator_id: int) -> bool:
+        """
+        Оновлення статусу героя
+        
+        Args:
+            hero_id: ID героя
+            status: Новий статус ('approved' або 'rejected')
+            moderator_id: ID модератора
+        """
+        try:
+            query = update(Hero).where(Hero.id == hero_id).values(
+                status=status,
+                moderator_id=moderator_id,
+                moderated_at=datetime.utcnow()
+            )
+            await self._session.execute(query)
+            await self.commit()
+            logger.info(f"Updated hero {hero_id} status to {status}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating hero status: {e}")
+            return False
+
+    async def vote_for_media(self, media_id: int, user_id: int) -> bool:
+        """
+        Голосування за медіа контент
+        
+        Args:
+            media_id: ID медіа
+            user_id: ID користувача
+        """
+        try:
+            query = update(HeroMedia).where(
+                HeroMedia.id == media_id
+            ).values(
+                votes=HeroMedia.votes + 1
+            )
+            await self._session.execute(query)
+            await self.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error voting for media: {e}")
+            return False
