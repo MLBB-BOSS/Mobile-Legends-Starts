@@ -1,3 +1,3 @@
-from .settings import settings
+# config/__init__.py
 
-__all__ = ['settings']
+# Пустий файл ініціалізації пакету
