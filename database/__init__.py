@@ -1,3 +1,3 @@
-from .connection import engine, AsyncSessionFactory, get_session
+# database/__init__.py
 
-__all__ = ['engine', 'AsyncSessionFactory', 'get_session']
+# Пустий файл ініціалізації пакету
