@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import signal
-from aiogram import Dispatcher
+from aiogram import Dispatcher, exceptions
 from core.bot import dp, bot, on_startup, on_shutdown
 import handlers.callback_handler
 import handlers.help_handler
@@ -27,22 +27,29 @@ def signal_handler():
     """Обробник сигналів завершення роботи"""
     asyncio.create_task(shutdown())
 
-async def main():
-    """Головна функція запуску бота"""
-    await on_startup(dp)
+async def start_bot():
+    """Функція для запуску бота з обробкою перепідключення при мережевих помилках"""
+    while True:
+        try:
+            await on_startup(dp)  # Викликається при запуску бота
+            await dp.start_polling(timeout=10)  # Налаштовано таймаут у 10 секунд
+        except exceptions.NetworkError as e:
+            logger.error(f"Network error occurred: {e}")
+            await asyncio.sleep(5)  # Чекаємо 5 секунд перед повторним підключенням
+        except Exception as e:
+            logger.error(f"❌ Помилка при роботі бота: {e}", exc_info=True)
+        finally:
+            await shutdown()
+            break  # Вихід з циклу після коректного завершення роботи
 
+async def main():
+    """Головна функція для обробки сигналів та запуску бота"""
     # Реєстрація обробників сигналів
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, signal_handler)
 
-    try:
-        # Запуск бота на прослуховування
-        await dp.start_polling()
-    except Exception as e:
-        logger.error(f"❌ Помилка при роботі бота: {e}", exc_info=True)
-    finally:
-        await shutdown()
+    await start_bot()
 
 if __name__ == "__main__":
     try:
