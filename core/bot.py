@@ -34,13 +34,13 @@ async def cmd_start(message: types.Message):
                 telegram_id=message.from_user.id,
                 username=message.from_user.username or "Anonymous"
             )
-
+        
         await message.reply(
             "Вітаю! Я MLBB-BOSS бот для організації турнірів Mobile Legends. "
             "Використовуйте /help для перегляду доступних команд."
         )
         app_state.increment_processed_commands()
-
+        
     except Exception as e:
         logger.error(f"Error in start command: {e}", exc_info=True)
         await message.reply("Вибачте, сталася помилка. Спробуйте пізніше.")
@@ -79,13 +79,13 @@ async def on_startup(dp: Dispatcher, session_factory):
     try:
         # Ініціалізуємо сервіси
         services = await init_services()
-
+        
         # Реєструємо сервіси в стані додатку
         for name, service in services.items():
             app_state.register_service(name, service)
-
+        
         logger.info("Bot started successfully")
-
+        
     except Exception as e:
         logger.error(f"Error during bot startup: {e}", exc_info=True)
         raise
@@ -95,9 +95,9 @@ async def on_shutdown(dp: Dispatcher):
     try:
         # Закриваємо з'єднання з Telegram
         await bot.close()
-
+        
         logger.info("Bot shutdown completed")
-
+        
     except Exception as e:
         logger.error(f"Error during bot shutdown: {e}", exc_info=True)
         raise
