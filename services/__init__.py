@@ -1,3 +1,3 @@
-from .screenshot_service import ScreenshotService
+# services/__init__.py
 
-__all__ = ['ScreenshotService']
+# Пустий файл ініціалізації пакету
