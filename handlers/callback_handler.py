@@ -1,4 +1,4 @@
-# callback_handler.py
+# core/callback_handler.py
 
 from aiogram import types
 from aiogram.dispatcher.filters import Text
