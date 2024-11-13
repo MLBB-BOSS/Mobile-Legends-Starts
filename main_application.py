@@ -1,10 +1,13 @@
+# main_application.py
+
 import os
 import asyncio
 import logging
-from core.bot_runner import run_bot  # Оновлений імпорт
+from core.bot_runner import run_bot
 from core.config import settings
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from services.init_services import init_services
 
 # Налаштування логування
 logging.basicConfig(
@@ -12,6 +15,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Завантажуємо змінні середовища з .env файлу (якщо використовуєте dotenv)
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # Отримуємо DATABASE_URL з Heroku або локального .env
 database_url = os.getenv('DATABASE_URL')
@@ -34,11 +41,32 @@ AsyncSessionFactory = sessionmaker(
     expire_on_commit=False
 )
 
+async def notify_user(message: str):
+    """
+    Callback-функція для відправки повідомлень користувачам через бот.
+
+    Args:
+        message (str): Повідомлення для відправки.
+    """
+    # Припустимо, у вас є спосіб доступу до диспетчера або бота
+    from core.bot import bot  # Використовуйте локальний імпорт, щоб уникнути циклу
+
+    # Наприклад, відправити повідомлення адміністратору
+    admin_id = os.getenv('ADMIN_USER_ID')
+    if admin_id:
+        try:
+            await bot.send_message(chat_id=admin_id, text=message)
+            logger.info(f"Sent notification to admin: {message}")
+        except Exception as e:
+            logger.error(f"Failed to send notification to admin: {e}")
+
 async def init_db():
     """Ініціалізація бази даних"""
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(lambda x: x)
+            # При необхідності створюйте всі таблиці
+            from models import Base  # Переконайтесь, що ви імпортуєте Base
+            await conn.run_sync(Base.metadata.create_all)
         logger.info("Database connection established successfully")
     except Exception as e:
         logger.error(f"Error connecting to database: {e}", exc_info=True)
@@ -49,10 +77,13 @@ async def main():
     try:
         # Ініціалізуємо базу даних
         await init_db()
-        
+
+        # Ініціалізуємо сервіси з передачею callback-функції
+        services = await init_services(notify_callback=notify_user)
+
         # Запускаємо бота
         await run_bot(AsyncSessionFactory)
-        
+
     except Exception as e:
         logger.error(f"Error during startup: {e}", exc_info=True)
         raise
@@ -64,7 +95,9 @@ if __name__ == "__main__":
     try:
         # Встановлюємо правильний часовий пояс
         os.environ['TZ'] = 'UTC'
-        
+        import time
+        time.tzset()
+
         # Запускаємо головну функцію
         asyncio.run(main())
     except KeyboardInterrupt:
