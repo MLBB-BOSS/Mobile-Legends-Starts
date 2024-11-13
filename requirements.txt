@@ -1,7 +1,6 @@
 # Database
 SQLAlchemy>=2.0.23
-asyncpg>=0.29.0
-psycopg2-binary>=2.9.9  # Додаємо драйвер PostgreSQL
+asyncpg>=0.29.0  # Асинхронний драйвер для PostgreSQL
 alembic>=1.13.0
 
 # Telegram
