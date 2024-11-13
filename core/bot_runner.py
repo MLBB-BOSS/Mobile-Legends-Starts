@@ -5,13 +5,13 @@ import logging
 import signal
 from aiogram import Dispatcher
 from core.bot import dp, bot, on_startup, on_shutdown
-import handlers.basic_handlers
+import handlers.callback_handler
 import handlers.help_handler
-import handlers.screenshot_handler
 import handlers.heroes_info_handler
+import handlers.info_handler
 import handlers.leaderboard_handler
 import handlers.profile_handler
-import core.callback_handler
+import handlers.screenshot_handler
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
