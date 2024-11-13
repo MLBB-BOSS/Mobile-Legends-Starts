@@ -1,4 +1,3 @@
-from .base import Base, BaseModel
-from .screenshot import Screenshot
+# models/__init__.py
 
-__all__ = ['Base', 'BaseModel', 'Screenshot']
+# Пустий файл ініціалізації пакету
