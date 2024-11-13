@@ -1,14 +1,37 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.env
+# .gitignore
 
-# IDE
-.idea/
-.vscode/
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
 *.swp
+*.swo
+
+# Environments
+.env
+.env.*
+venv/
+ENV/
+env/
+venv.bak/
+venv_old/
+
+# Database
+*.db
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Migrations
+migrations/versions/*.pyc
+
+# Others
+*.DS_Store
