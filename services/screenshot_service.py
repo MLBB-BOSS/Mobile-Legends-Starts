@@ -1,31 +1,37 @@
 from models.screenshot import Screenshot
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from typing import List, Optional
+from sqlalchemy import select
 
 class ScreenshotService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save_screenshot(self, user_id: int, file_id: str, hero_name: Optional[str] = None) -> Screenshot:
-        """Зберігає новий скріншот"""
+    async def create_screenshot(self, user_id: int, file_id: str, file_unique_id: str, 
+                              width: int, height: int, file_path: str) -> Screenshot:
         screenshot = Screenshot(
             user_id=user_id,
             file_id=file_id,
-            hero_name=hero_name
+            file_unique_id=file_unique_id,
+            width=width,
+            height=height,
+            file_path=file_path
         )
         self.session.add(screenshot)
         await self.session.commit()
+        await self.session.refresh(screenshot)
         return screenshot
 
-    async def get_user_screenshots(self, user_id: int) -> List[Screenshot]:
-        """Отримує всі скріншоти користувача"""
-        query = select(Screenshot).where(Screenshot.user_id == user_id)
-        result = await self.session.execute(query)
+    async def get_user_screenshots(self, user_id: int) -> list[Screenshot]:
+        result = await self.session.execute(
+            select(Screenshot)
+            .where(Screenshot.user_id == user_id)
+            .order_by(Screenshot.created_at.desc())
+        )
         return result.scalars().all()
 
-    async def get_screenshot(self, screenshot_id: int) -> Optional[Screenshot]:
-        """Отримує конкретний скріншот за ID"""
-        query = select(Screenshot).where(Screenshot.id == screenshot_id)
-        result = await self.session.execute(query)
+    async def get_screenshot_by_file_id(self, file_unique_id: str) -> Screenshot:
+        result = await self.session.execute(
+            select(Screenshot)
+            .where(Screenshot.file_unique_id == file_unique_id)
+        )
         return result.scalar_one_or_none()
