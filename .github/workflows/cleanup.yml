@@ -1,0 +1,43 @@
+name: Cleanup Duplicate Files
+
+on:
+  push:
+    branches:
+      - main  # Замініть на вашу основну гілку, якщо вона інша
+  pull_request:
+    branches:
+      - main  # Замініть на вашу основну гілку
+
+jobs:
+  detect-duplicates:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Встановіть відповідну версію Node.js
+
+    - name: Install Dependencies
+      run: |
+        npm install -g jscpd
+
+    - name: Install jq
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Run Duplicate Cleanup Script
+      run: |
+        chmod +x ./scripts/run_jscpd.sh
+        ./scripts/run_jscpd.sh
+
+    - name: Report Duplicate Files
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: jscpd-report
+        path: jscpd-report.json
