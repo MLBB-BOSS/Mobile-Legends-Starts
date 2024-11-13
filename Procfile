@@ -1,1 +1,3 @@
-worker: python main.py
+# Procfile
+
+worker: python core/bot_runner.py
