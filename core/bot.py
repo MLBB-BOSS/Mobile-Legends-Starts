@@ -1,13 +1,13 @@
 # core/bot.py
+
 import os
 import logging
 from typing import Dict, Any
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.utils import executor
 
 from . import CoreConfig, get_app_state
-from services import init_services
+from services import init_services  # Припускаючи, що вам потрібен цей імпорт
 
 # Отримуємо токен бота
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -43,7 +43,7 @@ async def cmd_start(message: types.Message):
         app_state.increment_processed_commands()
         
     except Exception as e:
-        logger.error(f"Error in start command: {e}")
+        logger.error(f"Error in start command: {e}", exc_info=True)
         await message.reply("Вибачте, сталася помилка. Спробуйте пізніше.")
 
 @dp.message_handler(commands=['help'])
@@ -75,14 +75,14 @@ async def cmd_stats(message: types.Message):
     await message.reply(stats_text)
     app_state.increment_processed_commands()
 
-async def on_startup(dp: Dispatcher):
+async def on_startup(dp: Dispatcher, session_factory):
     """Callback при запуску бота"""
     try:
         # Ініціалізуємо ядро
-        await initialize_core()
-        
+        await initialize_core()  # Переконайтесь, що ця функція визначена
+
         # Ініціалізуємо сервіси
-        services = await init_services(None)  # Тут потрібно передати session
+        services = await init_services(session_factory)  # Тут передається session_factory
         
         # Реєструємо сервіси в стані додатку
         for name, service in services.items():
@@ -91,14 +91,14 @@ async def on_startup(dp: Dispatcher):
         logger.info("Bot started successfully")
         
     except Exception as e:
-        logger.error(f"Error during bot startup: {e}")
+        logger.error(f"Error during bot startup: {e}", exc_info=True)
         raise
 
 async def on_shutdown(dp: Dispatcher):
     """Callback при зупинці бота"""
     try:
         # Закриваємо ядро
-        await shutdown_core()
+        await shutdown_core()  # Переконайтесь, що ця функція визначена
         
         # Закриваємо з'єднання з Telegram
         await bot.close()
@@ -106,21 +106,5 @@ async def on_shutdown(dp: Dispatcher):
         logger.info("Bot shutdown completed")
         
     except Exception as e:
-        logger.error(f"Error during bot shutdown: {e}")
+        logger.error(f"Error during bot shutdown: {e}", exc_info=True)
         raise
-
-def run_bot():
-    """Запуск бота"""
-    try:
-        executor.start_polling(
-            dp,
-            on_startup=on_startup,
-            on_shutdown=on_shutdown,
-            skip_updates=True
-        )
-    except Exception as e:
-        logger.error(f"Failed to start bot: {e}")
-        raise
-
-if __name__ == '__main__':
-    run_bot()
