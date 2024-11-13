@@ -74,7 +74,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
-        env_prefix = "APP_"
+        # env_prefix = "APP_"  # Видалено префікс
 
 # Створюємо глобальний екземпляр налаштувань
 settings = Settings()
