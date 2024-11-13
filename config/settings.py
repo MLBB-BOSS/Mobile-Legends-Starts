@@ -8,7 +8,8 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     
     # Налаштування бази даних
-    DATABASE_URL: str
+    DATABASE_URL: str  # Для синхронного з'єднання (якщо використовується)
+    ASYNC_DATABASE_URL: Optional[str] = None  # Для асинхронного з'єднання
     
     # Налаштування логування
     LOG_LEVEL: str = "INFO"
@@ -28,6 +29,16 @@ class Settings(BaseSettings):
         # Якщо використовується Heroku, замінюємо postgres:// на postgresql://
         if v.startswith("postgres://"):
             v = v.replace("postgres://", "postgresql://", 1)
+        
+        return v
+    
+    @field_validator("ASYNC_DATABASE_URL")
+    def validate_async_database_url(cls, v: Optional[str]) -> Optional[str]:
+        """
+        Перевіряє і модифікує URL для асинхронної бази даних
+        """
+        if v and v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
         
         return v
     
@@ -74,7 +85,6 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
-        # env_prefix = "APP_"  # Видалено префікс
 
 # Створюємо глобальний екземпляр налаштувань
 settings = Settings()
