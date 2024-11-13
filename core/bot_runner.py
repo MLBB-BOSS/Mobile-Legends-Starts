@@ -1,7 +1,7 @@
 # core/bot_runner.py
 
 import logging
-from aiogram import executor
+from aiogram import Dispatcher
 from core.bot import dp, on_startup, on_shutdown
 
 logger = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 async def run_bot(session_factory):
     """
     Функція для запуску бота.
-    
+
     Args:
         session_factory: Фабрика для створення сесій бази даних.
     """
