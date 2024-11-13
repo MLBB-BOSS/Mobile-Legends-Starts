@@ -19,8 +19,7 @@ async def main():
     except Exception as e:
         logger.error(f"Помилка при запуску бота: {e}", exc_info=True)
     finally:
-        # Ви можете залишити `on_shutdown(dp)` тільки якщо у ньому є інші важливі завершальні дії.
-        # Видаляємо виклик `await bot.shutdown()` всередині `on_shutdown(dp)`, оскільки він викликає цю помилку.
+        # Викликаємо on_shutdown для завершальних дій, таких як закриття сесій
         await on_shutdown(dp)
 
 if __name__ == '__main__':
