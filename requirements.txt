@@ -1,8 +1,15 @@
+# Database
 SQLAlchemy>=2.0.23
-asyncpg>=0.29.0
+asyncpg>=0.29.0  # Асинхронний драйвер для PostgreSQL
 alembic>=1.13.0
-psycopg[async]
-aiogram>=2.25.1
+psycopg
+
+# Telegram
+aiogram==2.25.1
+
+# Settings and validation
 pydantic>=2.5.2
 pydantic-settings>=2.1.0
+
+# Environment variables
 python-dotenv>=1.0.0
