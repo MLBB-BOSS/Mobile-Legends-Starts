@@ -5,6 +5,7 @@ import logging
 import signal
 from aiogram import Dispatcher, exceptions
 from core.bot import dp, bot, on_startup, on_shutdown
+import handlers.basic_handlers  # Імпортуємо обробник для команди /start
 import handlers.callback_handler
 import handlers.help_handler
 import handlers.heroes_info_handler
