@@ -1,18 +1,13 @@
-from telegram import Update
-from telegram.ext import ContextTypes
+# handlers/basic_handlers.py
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обробник команди /start"""
-    await update.message.reply_text(
-        "Привіт! Я MLBB-BOSS Telegram Bot. "
-        "Використовуй /help для отримання списку команд."
+from aiogram import types
+from aiogram.dispatcher.filters import Command
+from core.bot import dp
+
+@dp.message_handler(Command("start"))
+async def send_welcome(message: types.Message):
+    welcome_text = (
+        "👋 <b>Вітаємо!</b>\n\n"
+        "Цей бот допоможе вам з інформацією про героїв та керування скріншотами."
     )
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обробник команди /help"""
-    help_text = """
-    Доступні команди:
-    /start - Почати роботу з ботом
-    /help - Показати це повідомлення
-    """
-    await update.message.reply_text(help_text)
+    await message.reply(welcome_text, parse_mode="HTML")
