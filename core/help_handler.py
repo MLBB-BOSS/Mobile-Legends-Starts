@@ -10,6 +10,8 @@ async def send_help(message: types.Message):
         "📖 <b>Допомога</b>\n\n"
         "/start - Запустити бота\n"
         "/help - Отримати допомогу\n"
-        "/screenshots - Переглянути скріншоти"
+        "/screenshots - Переглянути скріншоти\n"
+        "/leaderboard - Таблиця лідерів\n"
+        "/profile - Ваш профіль"
     )
     await message.reply(help_text, parse_mode="HTML")
