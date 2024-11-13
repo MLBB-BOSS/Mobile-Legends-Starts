@@ -3,8 +3,9 @@
 import logging
 from aiogram import types
 from database.connection import get_db
-from models.screenshot import Screenshot
+from models.screenshot import Screenshot, User
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,17 @@ async def handle_screenshot_upload(message: types.Message):
             await message.reply("Цей скріншот вже був завантажений.")
             return
 
+        # Перевірка чи існує користувач
+        stmt = select(User).where(User.id == user_id)
+        result = await session.execute(stmt)
+        user = result.scalars().first()
+
+        if not user:
+            # Створення нового користувача
+            user = User(id=user_id)
+            session.add(user)
+            await session.commit()
+
         # Створення нового запису
         new_screenshot = Screenshot(
             user_id=user_id,
@@ -40,12 +52,18 @@ async def handle_screenshot_upload(message: types.Message):
 async def get_leaderboard():
     """Отримання таблиці лідерів за кількістю скріншотів"""
     async for session in get_db():
-        stmt = select(Screenshot.user_id, func.count(Screenshot.id).label("count")) \
-            .group_by(Screenshot.user_id) \
-            .order_by(func.count(Screenshot.id).desc()) \
+        stmt = (
+            select(User.id, func.count(Screenshot.id).label("count"))
+            .join(Screenshot)
+            .group_by(User.id)
+            .order_by(func.count(Screenshot.id).desc())
             .limit(10)
+        )
         result = await session.execute(stmt)
         leaderboard = result.all()
+
+        if not leaderboard:
+            return "🏆 <b>Таблиця Лідерів</b>\n\nПоки немає даних."
 
         leaderboard_text = "🏆 <b>Таблиця Лідерів</b>\n\n"
         for rank, (user_id, count) in enumerate(leaderboard, start=1):
