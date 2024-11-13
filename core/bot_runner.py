@@ -1,24 +1,47 @@
 # core/bot_runner.py
 
+import asyncio
 import logging
-from core.bot import dp, on_startup, on_shutdown
+import signal
+from aiogram import Dispatcher
+from core.bot import dp, bot, on_startup, on_shutdown
 
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def run_bot(session_factory):
-    """
-    Функція для запуску бота.
+async def shutdown():
+    """Функція для коректного завершення роботи бота"""
+    logger.info("🔄 Початок послідовності завершення роботи...")
+    await on_shutdown(dp)
+    await bot.close()
+    logger.info("✅ Завершення роботи бота успішно виконано.")
 
-    Args:
-        session_factory: Фабрика для створення сесій бази даних.
-    """
+def signal_handler():
+    """Обробник сигналів завершення роботи"""
+    asyncio.create_task(shutdown())
+
+async def main():
+    """Головна функція запуску бота"""
+    await on_startup(dp)
+
+    # Реєстрація обробників сигналів
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, signal_handler)
+
     try:
-        async with session_factory() as session:
-            await dp.start_polling(
-                on_startup=lambda dp: on_startup(dp, session),
-                on_shutdown=on_shutdown,
-                skip_updates=True
-            )
+        # Запуск бота на прослуховування
+        await dp.start_polling(bot)
     except Exception as e:
-        logger.error(f"Failed to start bot: {e}", exc_info=True)
-        raise
+        logger.error(f"❌ Помилка при роботі бота: {e}", exc_info=True)
+    finally:
+        await shutdown()
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Бот зупинено користувачем.")
+    except Exception as e:
+        logger.error(f"❌ Несподівана помилка: {e}", exc_info=True)
