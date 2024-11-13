@@ -5,9 +5,10 @@ alembic>=1.13.0
 
 # Telegram
 python-telegram-bot>=20.7
+aiogram>=2.25.1
 python-dotenv>=1.0.0
 
 # Settings and validation
 pydantic>=2.5.2
 pydantic-settings>=2.1.0
-psycopg[async]
+psycopg[binary]
