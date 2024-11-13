@@ -14,12 +14,13 @@ async def main():
         await on_startup(dp)
         
         # Запуск бота
-        await dp.start_polling(bot)
+        await dp.start_polling(bot)  # `start_polling` запускає цикл обробки повідомлень
         
     except Exception as e:
         logger.error(f"Помилка при запуску бота: {e}", exc_info=True)
     finally:
-        # Запускаємо callback для завершення служб при завершенні
+        # Ви можете залишити `on_shutdown(dp)` тільки якщо у ньому є інші важливі завершальні дії.
+        # Видаляємо виклик `await bot.shutdown()` всередині `on_shutdown(dp)`, оскільки він викликає цю помилку.
         await on_shutdown(dp)
 
 if __name__ == '__main__':
