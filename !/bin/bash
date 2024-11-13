@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Встановлення jscpd, якщо не встановлено
+if ! command -v jscpd &> /dev/null
+then
+    echo "jscpd не встановлено. Встановлюю..."
+    npm install -g jscpd
+fi
+
+# Встановлення jq, якщо не встановлено
+if ! command -v jq &> /dev/null
+then
+    echo "jq не встановлено. Встановлюю..."
+    sudo apt-get update && sudo apt-get install -y jq
+fi
+
+# Запуск jscpd
+jscpd --path Mobile-Legends-Starts/ --languages python --reporters json --output jscpd-report.json
+
+# Перевірка наявності дубльованих фрагментів
+DUPLICATES=$(jq '.statistics.duplicates' jscpd-report.json)
+
+if [ "$DUPLICATES" -gt "0" ]; then
+    echo "Виявлено $DUPLICATES дублікати."
+    exit 1
+else
+    echo "Дублікати не виявлено."
+    exit 0
+fi
