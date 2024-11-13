@@ -1,26 +1,18 @@
+# database/connection.py
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from config.settings import settings
 
-# Замінюємо postgresql:// на postgresql+asyncpg:// для асинхронного з'єднання
-DATABASE_URL = settings.DATABASE_URL.replace(
-    'postgresql://', 
-    'postgresql+asyncpg://', 
-    1
-)
+DATABASE_URL = settings.ASYNC_DATABASE_URL or settings.DATABASE_URL
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    future=True
-)
-
-AsyncSessionFactory = sessionmaker(
-    engine,
+engine = create_async_engine(DATABASE_URL, echo=True)
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-async def get_session() -> AsyncSession:
-    async with AsyncSessionFactory() as session:
+async def get_db():
+    async with AsyncSessionLocal() as session:
         yield session
