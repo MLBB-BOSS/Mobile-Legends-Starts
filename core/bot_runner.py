@@ -5,6 +5,13 @@ import logging
 import signal
 from aiogram import Dispatcher
 from core.bot import dp, bot, on_startup, on_shutdown
+import handlers.basic_handlers
+import handlers.help_handler
+import handlers.screenshot_handler
+import handlers.heroes_info_handler
+import handlers.leaderboard_handler
+import handlers.profile_handler
+import core.callback_handler
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +21,6 @@ async def shutdown():
     """Функція для коректного завершення роботи бота"""
     logger.info("🔄 Початок послідовності завершення роботи...")
     await on_shutdown(dp)
-    await bot.close()
     logger.info("✅ Завершення роботи бота успішно виконано.")
 
 def signal_handler():
@@ -32,7 +38,7 @@ async def main():
 
     try:
         # Запуск бота на прослуховування
-        await dp.start_polling(bot)
+        await dp.start_polling()
     except Exception as e:
         logger.error(f"❌ Помилка при роботі бота: {e}", exc_info=True)
     finally:
