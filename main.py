@@ -13,8 +13,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Створюємо engine для бази даних
-engine = create_async_engine(settings.DATABASE_URL)
+# Використовуємо ASYNC_DATABASE_URL, якщо він доступний, інакше DATABASE_URL
+database_url = settings.ASYNC_DATABASE_URL or settings.DATABASE_URL
+engine = create_async_engine(database_url)
 AsyncSessionFactory = sessionmaker(engine, class_=AsyncSession)
 
 async def setup_bot():
@@ -52,12 +53,14 @@ async def setup_bot():
 
 async def main():
     """Головна функція запуску бота"""
+    bot = await setup_bot()
     try:
-        bot = await setup_bot()
         logger.info("Bot started successfully!")
         await bot.idle()
     except Exception as e:
-        logger.error(f"Error starting bot: {e}", exc_info=True)
+        logger.error(f"Error during bot runtime: {e}", exc_info=True)
+    finally:
+        await bot.shutdown()
 
 if __name__ == '__main__':
     asyncio.run(main())
