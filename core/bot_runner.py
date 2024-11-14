@@ -1,37 +1,26 @@
 # core/bot_runner.py
 
-import asyncio
-import logging
-from core.bot import bot, dp
-from handlers.hero_handler import router as hero_router
+from handlers.hero_handler import router as hero_router  # Імпорт вашого роутера з hero_handler
+from aiogram import Bot, Dispatcher
+from aiogram.types import BotCommand
+from aiogram.utils.executor import start_polling
 
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+API_TOKEN = "YOUR_BOT_API_TOKEN"
 
-async def on_startup():
-    """Ініціалізація всіх необхідних налаштувань при запуску бота."""
-    logger.info("Бот запускається...")
-    dp.include_router(hero_router)
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher()
 
-async def main():
-    await on_startup()
-    try:
-        logger.info("Початок роботи бота...")
-        await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"❌ Помилка під час роботи бота: {e}")
-    finally:
-        await bot.session.close()
-        logger.info("Бот зупинено.")
+# Реєструємо роутер
+dp.include_router(hero_router)
+
+async def set_commands(bot: Bot):
+    commands = [
+        BotCommand(command="/hero", description="Get hero response"),
+    ]
+    await bot.set_my_commands(commands)
+
+async def on_startup(dispatcher: Dispatcher):
+    await set_commands(dispatcher.bot)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("👋 Бот зупинено користувачем.")
-    except Exception as e:
-        logger.error(f"❌ Несподівана помилка: {e}")
+    start_polling(dp, skip_updates=True, on_startup=on_startup)
