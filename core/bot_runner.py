@@ -14,6 +14,7 @@ import handlers.leaderboard_handler
 import handlers.profile_handler
 import handlers.screenshot_handler
 import handlers.hero_handler
+from handlers.main_menu_handler import router as main_menu_router  # Імпорт обробника головного меню
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -31,9 +32,10 @@ def signal_handler():
 
 def setup_handlers(dp: Dispatcher):
     """Функція для реєстрації всіх обробників"""
+    dp.include_router(main_menu_router)  # Додаємо обробник головного меню
     register_start_handler(dp)  # Реєструємо обробник для команди /start
-    
-    # Реєстрація обробників з перевіркою їх наявності
+
+    # Реєстрація інших обробників
     if hasattr(handlers.callback_handler, 'some_callback_handler'):
         dp.register_message_handler(handlers.callback_handler.some_callback_handler)
     else:
