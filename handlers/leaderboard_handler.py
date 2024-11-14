@@ -1,11 +1,10 @@
-# leaderboard_handler.py
+# handlers/leaderboard_handler.py
 
-from aiogram import types
-from aiogram.dispatcher.filters import Command
-from core.bot import dp
-from services.screenshot_service import get_leaderboard
+from aiogram import Router
+from aiogram.types import Message
 
-@dp.message_handler(Command("leaderboard"))
-async def send_leaderboard(message: types.Message):
-    leaderboard = await get_leaderboard()
-    await message.reply(leaderboard, parse_mode="HTML")
+leaderboard_router = Router()
+
+@leaderboard_router.message(commands=["leaderboard"])
+async def leaderboard_command(message: Message):
+    await message.reply("Тут буде таблиця лідерів.")
