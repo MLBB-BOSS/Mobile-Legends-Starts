@@ -1,6 +1,5 @@
 # config/settings.py
 
-import os
 from pydantic_settings import BaseSettings, Field
 
 class Settings(BaseSettings):
