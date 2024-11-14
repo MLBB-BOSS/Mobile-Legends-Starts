@@ -1,8 +1,10 @@
-from aiogram import F, Router, types
+# handlers/basic_handlers.py
+from aiogram import F, Router
+from aiogram.types import Message
 
-router = Router()
+start_router = Router()
 
-@router.message(F.text == "/start")
-async def start_command(message: types.Message):
-    """Команда /start."""
-    await message.reply("Бот запущено!")
+@start_router.message(F.text == "/start")
+async def start_command(message: Message):
+    """Відповідає на команду /start."""
+    await message.reply("Ласкаво просимо до бота Mobile Legends!")
