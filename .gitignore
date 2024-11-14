@@ -27,9 +27,3 @@ venv_old/
 
 # Logs
 *.log
-
-# Migrations
-migrations/versions/*.pyc
-
-# Others
-*.DS_Store
