@@ -1,10 +1,9 @@
 # services/keyboard_service.py
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import os
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 def get_class_keyboard():
-    """Повертає клавіатуру з кнопками класів персонажів."""
+    """Повертає клавіатуру для вибору класу героїв."""
     keyboard = InlineKeyboardMarkup()
     classes = ["Assassin", "Fighter", "Mage", "Marksman", "Support", "Tank"]
     for hero_class in classes:
@@ -12,15 +11,11 @@ def get_class_keyboard():
     return keyboard
 
 def get_heroes_keyboard(hero_class):
-    """Повертає клавіатуру з персонажами обраного класу."""
+    """Повертає клавіатуру для вибору героя з певного класу."""
     keyboard = InlineKeyboardMarkup()
-    class_path = f"heroes/{hero_class}"
-    try:
-        for hero_file in os.listdir(class_path):
-            if hero_file.endswith(".json"):
-                hero_name = hero_file.replace(".json", "").replace("_", " ").title()
-                keyboard.add(InlineKeyboardButton(text=hero_name, callback_data=f"hero_{hero_name}"))
-        keyboard.add(InlineKeyboardButton(text="⬅️ Назад", callback_data="back_to_classes"))
-    except FileNotFoundError:
-        keyboard.add(InlineKeyboardButton(text="Немає даних про цей клас", callback_data="no_data"))
+    # Список героїв для кожного класу може бути збережений у файлах або базі даних
+    heroes = ["Hero1", "Hero2", "Hero3"]  # Приклад героїв
+    for hero in heroes:
+        keyboard.add(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
+    keyboard.add(InlineKeyboardButton(text="Назад", callback_data="back_to_classes"))
     return keyboard
