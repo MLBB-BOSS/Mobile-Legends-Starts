@@ -31,18 +31,49 @@ def signal_handler():
 
 def setup_handlers(dp: Dispatcher):
     """Функція для реєстрації всіх обробників"""
-    logger.info("🛠️ Реєстрація обробників...")
-    register_start_handler(dp)  # Реєструємо обробник для команди /start
-    # Реєстрація інших обробників
-    dp.register_message_handler(handlers.callback_handler.some_callback_handler)
-    dp.register_message_handler(handlers.help_handler.help_command)
-    dp.register_message_handler(handlers.heroes_info_handler.heroes_info_command)
-    dp.register_message_handler(handlers.info_handler.info_command)
-    dp.register_message_handler(handlers.leaderboard_handler.leaderboard_command)
-    dp.register_message_handler(handlers.profile_handler.profile_command)
-    dp.register_message_handler(handlers.screenshot_handler.screenshot_command)
-    dp.register_message_handler(handlers.hero_handler.hero_command)
-    logger.info("✅ Обробники зареєстровано")
+    # Реєструємо обробник для команди /start
+    register_start_handler(dp)  
+    
+    # Перевіряємо наявність потрібних функцій у кожному обробнику перед реєстрацією
+    if hasattr(handlers.callback_handler, 'some_callback_handler'):
+        dp.register_message_handler(handlers.callback_handler.some_callback_handler)
+    else:
+        logger.warning("Обробник 'some_callback_handler' не знайдено в 'callback_handler'")
+
+    if hasattr(handlers.help_handler, 'help_command'):
+        dp.register_message_handler(handlers.help_handler.help_command)
+    else:
+        logger.warning("Обробник 'help_command' не знайдено в 'help_handler'")
+
+    if hasattr(handlers.heroes_info_handler, 'heroes_info_command'):
+        dp.register_message_handler(handlers.heroes_info_handler.heroes_info_command)
+    else:
+        logger.warning("Обробник 'heroes_info_command' не знайдено в 'heroes_info_handler'")
+
+    if hasattr(handlers.info_handler, 'info_command'):
+        dp.register_message_handler(handlers.info_handler.info_command)
+    else:
+        logger.warning("Обробник 'info_command' не знайдено в 'info_handler'")
+
+    if hasattr(handlers.leaderboard_handler, 'leaderboard_command'):
+        dp.register_message_handler(handlers.leaderboard_handler.leaderboard_command)
+    else:
+        logger.warning("Обробник 'leaderboard_command' не знайдено в 'leaderboard_handler'")
+
+    if hasattr(handlers.profile_handler, 'profile_command'):
+        dp.register_message_handler(handlers.profile_handler.profile_command)
+    else:
+        logger.warning("Обробник 'profile_command' не знайдено в 'profile_handler'")
+
+    if hasattr(handlers.screenshot_handler, 'screenshot_command'):
+        dp.register_message_handler(handlers.screenshot_handler.screenshot_command)
+    else:
+        logger.warning("Обробник 'screenshot_command' не знайдено в 'screenshot_handler'")
+
+    if hasattr(handlers.hero_handler, 'hero_command'):
+        dp.register_message_handler(handlers.hero_handler.hero_command)
+    else:
+        logger.warning("Обробник 'hero_command' не знайдено в 'hero_handler'")
 
 async def start_bot():
     """Функція для запуску бота з обробкою перепідключення при мережевих помилках"""
@@ -50,7 +81,6 @@ async def start_bot():
         try:
             await on_startup(dp)  # Викликається при запуску бота
             setup_handlers(dp)  # Реєстрація обробників
-            logger.info("🚀 Запуск polling...")
             await dp.start_polling(timeout=10)  # Налаштовано таймаут у 10 секунд
         except exceptions.NetworkError as e:
             logger.error(f"Network error occurred: {e}")
