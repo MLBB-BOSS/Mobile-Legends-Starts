@@ -5,7 +5,7 @@ import logging
 import signal
 from aiogram import Dispatcher, exceptions
 from core.bot import dp, bot, on_startup, on_shutdown
-from handlers.start_handler import register_handlers as register_start_handler  # Імпортуємо реєстрацію обробника для команди /start
+from handlers.start_handler import register_handlers as register_start_handler
 import handlers.callback_handler
 import handlers.help_handler
 import handlers.heroes_info_handler
@@ -31,10 +31,9 @@ def signal_handler():
 
 def setup_handlers(dp: Dispatcher):
     """Функція для реєстрації всіх обробників"""
-    # Реєструємо обробник для команди /start
-    register_start_handler(dp)  
+    register_start_handler(dp)  # Реєструємо обробник для команди /start
     
-    # Перевіряємо наявність потрібних функцій у кожному обробнику перед реєстрацією
+    # Реєстрація обробників з перевіркою їх наявності
     if hasattr(handlers.callback_handler, 'some_callback_handler'):
         dp.register_message_handler(handlers.callback_handler.some_callback_handler)
     else:
