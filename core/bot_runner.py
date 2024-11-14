@@ -13,7 +13,7 @@ import handlers.info_handler
 import handlers.leaderboard_handler
 import handlers.profile_handler
 import handlers.screenshot_handler
-
+import handlers.hero_handler  # Імпорт обробника з новим кодом
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
