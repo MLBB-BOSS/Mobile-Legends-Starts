@@ -5,7 +5,11 @@ import logging
 from core.bot import bot, dp
 from handlers.hero_handler import router as hero_router
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# Налаштування логування з відповідним форматом
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 async def on_startup():
@@ -16,8 +20,8 @@ async def on_startup():
 async def main():
     await on_startup()
     try:
-        await dp.start_polling(bot)  # Видалено контекстний менеджер для dp.start_polling
-        logger.info("Бот працює...")
+        logger.info("Початок роботи бота...")
+        await dp.start_polling(bot)  # Виклик без контекстного менеджера
     except Exception as e:
         logger.error(f"❌ Помилка під час роботи бота: {e}")
     finally:
