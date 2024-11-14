@@ -2,21 +2,23 @@
 
 import asyncio
 import logging
-from aiogram import Dispatcher
 from core.bot import bot, dp
-from handlers.handlers import router
+from handlers.hero_handler import router as hero_router
 
 logging.basicConfig(level=logging.INFO)
 
 async def on_startup():
-    dp.include_router(router)
+    """Ініціалізація всіх необхідних налаштувань при запуску бота."""
+    logging.info("Бот запускається...")
+    dp.include_router(hero_router)
 
 async def main():
     await on_startup()
     try:
-        await dp.start_polling(bot)
+        async with dp.start_polling(bot):
+            logging.info("Бот працює...")
     except Exception as e:
-        logging.error(f"❌ Помилка під час запуску бота: {e}")
+        logging.error(f"❌ Помилка під час роботи бота: {e}")
     finally:
         await bot.session.close()
         logging.info("Бот зупинено.")
