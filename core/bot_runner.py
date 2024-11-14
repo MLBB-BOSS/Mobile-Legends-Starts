@@ -31,8 +31,9 @@ def signal_handler():
 
 def setup_handlers(dp: Dispatcher):
     """Функція для реєстрації всіх обробників"""
+    logger.info("🛠️ Реєстрація обробників...")
     register_start_handler(dp)  # Реєструємо обробник для команди /start
-    # Можна додати інші реєстрації обробників тут, якщо є окремі функції для них
+    # Реєстрація інших обробників
     dp.register_message_handler(handlers.callback_handler.some_callback_handler)
     dp.register_message_handler(handlers.help_handler.help_command)
     dp.register_message_handler(handlers.heroes_info_handler.heroes_info_command)
@@ -41,6 +42,7 @@ def setup_handlers(dp: Dispatcher):
     dp.register_message_handler(handlers.profile_handler.profile_command)
     dp.register_message_handler(handlers.screenshot_handler.screenshot_command)
     dp.register_message_handler(handlers.hero_handler.hero_command)
+    logger.info("✅ Обробники зареєстровано")
 
 async def start_bot():
     """Функція для запуску бота з обробкою перепідключення при мережевих помилках"""
@@ -48,6 +50,7 @@ async def start_bot():
         try:
             await on_startup(dp)  # Викликається при запуску бота
             setup_handlers(dp)  # Реєстрація обробників
+            logger.info("🚀 Запуск polling...")
             await dp.start_polling(timeout=10)  # Налаштовано таймаут у 10 секунд
         except exceptions.NetworkError as e:
             logger.error(f"Network error occurred: {e}")
