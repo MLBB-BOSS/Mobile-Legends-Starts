@@ -1,9 +1,10 @@
-# core/callback_handler.py
+# handlers/callback_handler.py
 
 from aiogram import types
-from aiogram.dispatcher.filters import Text
-from core.bot import dp
+from aiogram.dispatcher import Dispatcher
 
-@dp.callback_query_handler(Text(startswith="example"))
-async def handle_example_callback(callback_query: types.CallbackQuery):
-    await callback_query.answer("Це приклад обробника колбеків.")
+async def some_callback_handler(callback_query: types.CallbackQuery):
+    await callback_query.answer("Це відповідь на callback!")
+
+def register_callback_handler(dp: Dispatcher):
+    dp.register_callback_query_handler(some_callback_handler, text="some_callback_data")
