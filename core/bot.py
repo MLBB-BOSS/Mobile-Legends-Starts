@@ -1,30 +1,36 @@
-# core/bot.py
+# core/bot_runner.py
 
+import asyncio
 import logging
-from aiogram import Bot, Dispatcher
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from config.settings import settings
+from aiogram import Dispatcher
+from core.bot import bot, dp
+from handlers.basic_handlers import basic_router
+from handlers.callback_handler import callback_router
+from handlers.help_handler import help_router
+from handlers.heroes_info_handler import heroes_info_router
+from handlers.info_handler import info_router
+from handlers.leaderboard_handler import leaderboard_router
+from handlers.profile_handler import profile_router
+from handlers.screenshot_handler import screenshot_router
 
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Ініціалізація бота та диспетчера з використанням MemoryStorage
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode="HTML")
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+async def on_startup():
+    dp.include_router(basic_router)
+    dp.include_router(callback_router)
+    dp.include_router(help_router)
+    dp.include_router(heroes_info_router)
+    dp.include_router(info_router)
+    dp.include_router(leaderboard_router)
+    dp.include_router(profile_router)
+    dp.include_router(screenshot_router)
 
-async def on_startup(dp: Dispatcher):
-    """Функція, що викликається при запуску бота"""
-    logger.info("🚀 Бот запускається...")
+async def main():
+    await on_startup()
+    await dp.start_polling(bot)
 
-async def on_shutdown(dp: Dispatcher):
-    """Функція, що викликається при зупинці бота"""
-    logger.info("🔄 Бот зупиняється...")
-    await dp.storage.close()
-    await dp.storage.wait_closed()
-    await bot.close()
-    logger.info("✅ Бот зупинено.")
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("👋 Бот зупинено користувачем.")
