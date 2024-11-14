@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.utils.executor import start_polling
 
-API_TOKEN = "TELEGRAM_BOT_TOKEN"
+API_TOKEN = "YOUR_BOT_API_TOKEN"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
