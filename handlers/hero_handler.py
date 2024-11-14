@@ -1,7 +1,8 @@
 # handlers/hero_handler.py
 
 from aiogram import Router
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text  # Updated import path
 from aiogram.types import CallbackQuery, Message
 from services.keyboard_service import get_class_keyboard, get_heroes_keyboard
 import logging
