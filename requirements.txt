@@ -5,7 +5,7 @@ alembic>=1.13.0
 psycopg
 
 # Telegram
-aiogram==3.14.0
+aiogram==2.25.1
 
 # Settings and validation
 pydantic>=2.5.2
