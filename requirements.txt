@@ -2,7 +2,8 @@ aiogram==3.0.0
 SQLAlchemy>=2.0.23
 asyncpg>=0.29.0
 alembic>=1.13.0
-pydantic-settings>=2.1.0
+pydantic-settings==2.1.0  # Вказана точна версія для стабільності
+pydantic==2.9.2           # Додано pydantic для сумісності з pydantic-settings
 python-dotenv>=1.0.0
 pytest>=6.2.5
 aiocache>=0.11.1
