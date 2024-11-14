@@ -1,11 +1,10 @@
-# heroes_info_handler.py
+# handlers/heroes_info_handler.py
 
-from aiogram import types
-from aiogram.dispatcher.filters import Command
-from core.bot import dp
-from services.screenshot_service import get_hero_info
+from aiogram import Router
+from aiogram.types import Message
 
-@dp.message_handler(Command("heroes"))
-async def send_heroes_info(message: types.Message):
-    hero_info = await get_hero_info()
-    await message.reply(hero_info, parse_mode="HTML")
+heroes_info_router = Router()
+
+@heroes_info_router.message(commands=["hero_info"])
+async def hero_info_command(message: Message):
+    await message.reply("Інформація про героя!")
