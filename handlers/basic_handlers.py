@@ -1,11 +1,8 @@
-# handlers/basic_handlers.py
-
-from aiogram import Router, types
-from aiogram.types import Message
+from aiogram import F, Router, types
 
 router = Router()
 
-@router.message(commands=["start"])
-async def start_command(message: Message):
-    """Відправляє привітальне повідомлення при запуску команди /start."""
-    await message.reply("Вітаю! Я ваш бот, готовий допомогти.")
+@router.message(F.text == "/start")
+async def start_command(message: types.Message):
+    """Команда /start."""
+    await message.reply("Бот запущено!")
