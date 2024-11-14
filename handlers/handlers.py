@@ -1,16 +1,15 @@
 # handlers/handlers.py
-
-from aiogram import Router, types
-from aiogram.types import Message, CallbackQuery
-from services.screenshot_service import get_hero_info
+from aiogram import F, Router
+from aiogram.types import Message
 
 router = Router()
 
-@router.message(commands=["start"])
+@router.message(F.text == "/start")
 async def start_command(message: Message):
-    await message.reply("Вітаю! Я ваш бот, готовий допомогти.")
+    """Відповідає на команду /start."""
+    await message.reply("Ласкаво просимо до бота Mobile Legends!")
 
-@router.message(commands=["help"])
+@router.message(F.text == "/help")
 async def help_command(message: Message):
     await message.reply("📖 Допомога\n\n"
                         "/start - Запустити бота\n"
@@ -19,35 +18,26 @@ async def help_command(message: Message):
                         "/leaderboard - Таблиця лідерів\n"
                         "/profile - Ваш профіль")
 
-@router.message(commands=["hero_info"])
+@router.message(F.text == "/hero_info")
 async def hero_info_command(message: Message):
     await message.reply("Інформація про героя!")
 
-@router.message(commands=["info"])
+@router.message(F.text == "/info")
 async def info_command(message: Message):
-    await message.reply("Це загальна інформація!")
+    """Відповідає на команду /info з загальною інформацією."""
+    await message.reply("Загальна інформація про бота Mobile Legends.")
 
-@router.message(commands=["leaderboard"])
+@router.message(F.text == "/leaderboard")
 async def leaderboard_command(message: Message):
-    await message.reply("Тут буде таблиця лідерів.")
+    """Відповідає з таблицею лідерів."""
+    await message.reply("Таблиця лідерів: інформація буде додана.")
 
-@router.message(commands=["profile"])
+@router.message(F.text == "/profile")
 async def profile_command(message: Message):
-    await message.reply("Ваш профіль!")
+    """Відповідає з інформацією профілю користувача."""
+    await message.reply("Ваш профіль: інформація буде додана.")
 
-@router.message(commands=["screenshots"])
+@router.message(F.text == "/screenshots")
 async def screenshots_command(message: Message):
-    try:
-        hero_info = get_hero_info()
-        await message.reply(f"Скріншоти: {hero_info}")
-    except Exception as e:
-        await message.reply("❌ Виникла помилка при отриманні скріншотів.")
-        print(f"Error in screenshots_command: {e}")
-
-@router.callback_query()
-async def handle_callback(call: CallbackQuery):
-    try:
-        await call.answer("Це тестове повідомлення для callback!")
-    except Exception as e:
-        await call.message.reply("❌ Виникла помилка при обробці callback.")
-        print(f"Error in handle_callback: {e}")
+    """Відповідає з посиланням на скріншоти."""
+    await message.reply("Перегляньте скріншоти тут: [посилання]")
