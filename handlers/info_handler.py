@@ -1,13 +1,10 @@
-# info_handler.py
+# handlers/info_handler.py
 
-from aiogram import types
-from aiogram.dispatcher.filters import Command
-from core.bot import dp
+from aiogram import Router
+from aiogram.types import Message
 
-@dp.message_handler(Command("info"))
-async def send_info(message: types.Message):
-    info_text = (
-        "👋 <b>Ласкаво просимо до нашого бота!</b>\n"
-        "Цей бот допоможе вам з інформацією про героїв та керування скріншотами."
-    )
-    await message.reply(info_text, parse_mode="HTML")
+info_router = Router()
+
+@info_router.message(commands=["info"])
+async def info_command(message: Message):
+    await message.reply("Це загальна інформація!")
