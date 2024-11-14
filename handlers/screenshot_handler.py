@@ -1,9 +1,12 @@
 # handlers/screenshot_handler.py
 
-from aiogram import types
-from core.bot import dp
-from services.screenshot_service import handle_screenshot_upload
+from aiogram import Router
+from aiogram.types import Message
+from services.screenshot_service import get_hero_info
 
-@dp.message_handler(content_types=types.ContentType.PHOTO)
-async def handle_photo(message: types.Message):
-    await handle_screenshot_upload(message)
+screenshot_router = Router()
+
+@screenshot_router.message(commands=["screenshots"])
+async def screenshots_command(message: Message):
+    hero_info = get_hero_info()
+    await message.reply(f"Скріншоти: {hero_info}")
