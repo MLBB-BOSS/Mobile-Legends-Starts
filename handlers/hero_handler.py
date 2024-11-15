@@ -1,7 +1,7 @@
 # handlers/hero_handler.py
 
 from aiogram import Router
-from aiogram.filters import Text  # Оновлений шлях імпорту
+from aiogram.filters.text import Text  # Правильний імпорт для aiogram 3.x  # Оновлений шлях імпорту
 from aiogram.types import Message
 
 router = Router()
