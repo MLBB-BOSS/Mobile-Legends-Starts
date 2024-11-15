@@ -1,37 +1,34 @@
-import asyncio
-import logging
-from core.bot import bot, dp
-from heroes.hero_handlers import router as hero_router
+from aiogram import Router, F
+from aiogram.filters import Command
+from aiogram.types import Message
+from aiogram.utils.markdown import hbold
 
-# Налаштування логування з відповідним форматом
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+router = Router()
 
-async def on_startup():
-    """Ініціалізація всіх необхідних налаштувань при запуску бота."""
-    logger.info("🚀 Бот запускається...")
-    dp.include_router(hero_router)
+@router.message(Command("start"))
+async def cmd_start(message: Message):
+    await message.answer(
+        f"Привіт, {hbold(message.from_user.full_name)}!\n"
+        "Я бот для Mobile Legends. Чим можу допомогти?"
+    )
 
-async def main():
-    logger.info("Початок роботи бота...")
-    try:
-        await dp.start_polling(
-            bot,
-            skip_updates=True,
-            on_startup=on_startup
-        )
-    except Exception as e:
-        logger.error(f"❌ Помилка під час роботи бота: {e}")
-    finally:
-        logger.info("Бот зупинено.")
+@router.message(F.text.lower() == "герої")
+async def show_heroes(message: Message):
+    await message.answer("Ось список доступних героїв:")
+    # Тут можна додати логіку для відображення героїв
 
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("👋 Бот зупинено користувачем.")
-    except Exception as e:
-        logger.error(f"❌ Несподівана помилка: {e}")
+@router.message(Command("help"))
+async def cmd_help(message: Message):
+    help_text = (
+        "Доступні команди:\n"
+        "/start - Почати роботу з ботом\n"
+        "/help - Показати це повідомлення\n"
+        "Напишіть 'герої' щоб побачити список героїв"
+    )
+    await message.answer(help_text)
+
+# Обробка різних варіантів тексту
+@router.message(F.text.lower().in_(["герої", "heroes", "персонажі"]))
+async def show_heroes_alternative(message: Message):
+    await message.answer("Ось список доступних героїв:")
+    # Логіка для відображення героїв
