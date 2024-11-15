@@ -1,121 +1,73 @@
 from aiogram import Router, F
-from aiogram.filters import Command
 from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
-from services.states import RegistrationStates
-from services.database import async_session, User
-from sqlalchemy import select
+from aiogram.filters import Command
 import logging
-import re
 
+# Налаштування логування
 logger = logging.getLogger(__name__)
-router = Router()
 
-@router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext):
+# Створюємо роутер для повідомлень
+router = Router(name="message_router")
+
+# Обробка текстових повідомлень
+@router.message(F.text)
+async def handle_text_message(message: Message):
     try:
-        async with async_session() as session:
-            # Перевіряємо чи користувач вже зареєстрований
-            result = await session.execute(
-                select(User).where(User.telegram_id == message.from_user.id)
+        text = message.text.lower()
+        
+        # Базова обробка повідомлень
+        if "привіт" in text:
+            await message.answer("Привіт! Чим можу допомогти?")
+        
+        elif "допомога" in text:
+            await message.answer(
+                "Ось список доступних команд:\n"
+                "/start - Почати роботу з ботом\n"
+                "/hero - Переглянути героїв\n"
+                "/help - Отримати допомогу"
             )
-            user = result.scalar_one_or_none()
-            
-            if user and user.is_registered:
-                await message.answer(
-                    f"З поверненням, {user.nickname}! 👋\n"
-                    "Оберіть опцію з меню нижче:"
-                )
-            else:
-                await message.answer(
-                    "Ласкаво просимо до MLS Bot! 🎮\n"
-                    "Давайте розпочнемо реєстрацію.\n"
-                    "Введіть ваш нікнейм (мінімум 3 символи):"
-                )
-                await state.set_state(RegistrationStates.waiting_for_nickname)
+        
+        else:
+            await message.answer(
+                "Я не впевнений, що розумію. Спробуйте використати команди:\n"
+                "/start - для початку роботи\n"
+                "/hero - для перегляду героїв"
+            )
+        
+        logger.info(f"Оброблено повідомлення від користувача {message.from_user.id}: {text}")
+    
     except Exception as e:
-        logger.error(f"Помилка при обробці команди start: {e}")
-        await message.answer("Виникла помилка. Спробуйте пізніше або зверніться до адміністратора.")
+        logger.error(f"Помилка при обробці повідомлення: {e}")
+        await message.answer("Вибачте, сталася помилка при обробці вашого повідомлення.")
 
-@router.message(RegistrationStates.waiting_for_nickname)
-async def process_nickname(message: Message, state: FSMContext):
-    nickname = message.text.strip()
+# Обробка команди /help
+@router.message(Command("help"))
+async def help_command(message: Message):
+    try:
+        help_text = (
+            "🤖 *Допомога по використанню бота*\n\n"
+            "*Основні команди:*\n"
+            "• /start - Почати роботу з ботом\n"
+            "• /hero - Переглянути список героїв\n"
+            "• /help - Показати це повідомлення\n\n"
+            "*Додаткові функції:*\n"
+            "• Виберіть клас героя за допомогою кнопок\n"
+            "• Перегляньте інформацію про конкретного героя\n"
+            "• Використовуйте кнопку 'Назад' для повернення до меню\n\n"
+            "Якщо у вас виникли проблеми, спробуйте перезапустити бота командою /start"
+        )
+        
+        await message.answer(help_text, parse_mode="Markdown")
+        logger.info(f"Відправлено довідку користувачу {message.from_user.id}")
     
-    if len(nickname) < 3:
-        await message.answer("Нікнейм повинен містити мінімум 3 символи. Спробуйте ще раз:")
-        return
-    
-    await state.update_data(nickname=nickname)
+    except Exception as e:
+        logger.error(f"Помилка при відправці довідки: {e}")
+        await message.answer("Вибачте, сталася помилка при відображенні довідки.")
+
+# Обробка невідомих команд
+@router.message(Command(""))
+async def unknown_command(message: Message):
     await message.answer(
-        "Чудово! ✨\n"
-        "Тепер введіть вашу електронну пошту:"
+        "Невідома команда. Використайте /help для перегляду доступних команд."
     )
-    await state.set_state(RegistrationStates.waiting_for_email)
-
-@router.message(RegistrationStates.waiting_for_email)
-async def process_email(message: Message, state: FSMContext):
-    email = message.text.strip().lower()
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    
-    if not re.match(email_pattern, email):
-        await message.answer("Некоректний формат email. Спробуйте ще раз:")
-        return
-    
-    try:
-        async with async_session() as session:
-            result = await session.execute(
-                select(User).where(User.email == email)
-            )
-            if result.scalar_one_or_none():
-                await message.answer("Цей email вже зареєстрований. Використайте інший:")
-                return
-            
-            await state.update_data(email=email)
-            await message.answer(
-                "Чудово! 📧\n"
-                "Тепер введіть ваш ID з Mobile Legends (тільки цифри):"
-            )
-            await state.set_state(RegistrationStates.waiting_for_game_id)
-    except Exception as e:
-        logger.error(f"Помилка при обробці email: {e}")
-        await message.answer("Виникла помилка. Спробуйте пізніше.")
-
-@router.message(RegistrationStates.waiting_for_game_id)
-async def process_game_id(message: Message, state: FSMContext):
-    game_id = message.text.strip()
-    
-    if not game_id.isdigit():
-        await message.answer("ID повинен містити тільки цифри. Спробуйте ще раз:")
-        return
-    
-    try:
-        async with async_session() as session:
-            # Перевіряємо чи game_id вже існує
-            result = await session.execute(
-                select(User).where(User.game_id == game_id)
-            )
-            if result.scalar_one_or_none():
-                await message.answer("Цей ID вже зареєстрований. Використайте інший:")
-                return
-            
-            user_data = await state.get_data()
-            new_user = User(
-                telegram_id=message.from_user.id,
-                nickname=user_data['nickname'],
-                email=user_data['email'],
-                game_id=game_id,
-                is_registered=True
-            )
-            
-            session.add(new_user)
-            await session.commit()
-            
-            await message.answer(
-                f"🎉 Вітаємо, {user_data['nickname']}!\n"
-                "Реєстрація успішно завершена.\n"
-                "Тепер ви можете користуватися всіма функціями бота!"
-            )
-            await state.clear()
-    except Exception as e:
-        logger.error(f"Помилка при реєстрації користувача: {e}")
-        await message.answer("Виникла помилка при реєстрації. Спробуйте пізніше.")
+    logger.warning(f"Користувач {message.from_user.id} використав невідому команду: {message.text}")
