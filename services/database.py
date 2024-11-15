@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
@@ -51,16 +52,13 @@ async_session = sessionmaker(
 async def init_db():
     try:
         async with engine.begin() as conn:
-            # Видаляємо стару таблицю, якщо вона існує
             await conn.run_sync(Base.metadata.drop_all)
-            # Створюємо нові таблиці
             await conn.run_sync(Base.metadata.create_all)
             logger.info("База даних успішно ініціалізована")
     except Exception as e:
         logger.error(f"Помилка при ініціалізації бази даних: {e}")
         raise
 
-# Функція для отримання сесії бази даних
 async def get_db():
     async with async_session() as session:
         try:
@@ -73,8 +71,7 @@ async def get_db():
         finally:
             await session.close()
 
-# Допоміжні функції для роботи з користувачами
-async def get_user_by_telegram_id(telegram_id: int) -> User | None:
+async def get_user_by_telegram_id(telegram_id: int) -> Optional[User]:
     try:
         async with async_session() as session:
             from sqlalchemy import select
@@ -91,7 +88,7 @@ async def create_user(
     nickname: str,
     email: str,
     game_id: str
-) -> User | None:
+) -> Optional[User]:
     try:
         async with async_session() as session:
             user = User(
