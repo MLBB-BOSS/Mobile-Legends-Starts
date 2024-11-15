@@ -1,16 +1,15 @@
 from aiogram import Router, types
 from aiogram.filters import CommandStart
-from aiogram.types import FSInputFile
 import logging
 
-router = Router(name="start_router")
+router = Router()
 logger = logging.getLogger(__name__)
 
 @router.message(CommandStart())
 async def start_command(message: types.Message):
     user_name = message.from_user.first_name
-    
-    welcome_text = f"""
+
+    welcome_text = f'''
 🎮 *Вітаю, {user_name}!* 🎮
 
 🌟 Я твій особистий помічник у світі Mobile Legends: Bang Bang! 🌟
@@ -28,7 +27,7 @@ async def start_command(message: types.Message):
 📍 /help - додаткова допомога
 
 _Готовий допомогти тобі стати кращим гравцем!_ 💪
-"""
+'''
 
     try:
         # Надсилаємо повідомлення з форматуванням Markdown
@@ -37,8 +36,9 @@ _Готовий допомогти тобі стати кращим гравце
             parse_mode="Markdown"
         )
         logger.info(f"Відправлено привітання користувачу {user_name} (ID: {message.from_user.id})")
-        
     except Exception as e:
         logger.error(f"Помилка при відправці привітання: {e}")
         # Відправляємо спрощене повідомлення у випадку помилки
-        await message.answer("Вітаю! Я бот Mobile Legends. Використовуйте /help для перегляду команд.")
+        await message.answer(
+            "Вітаю! Я бот Mobile Legends. Використовуйте /help для перегляду команд."
+        )
