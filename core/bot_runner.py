@@ -1,24 +1,17 @@
 import asyncio
 import logging
-import os
 import sys
 from pathlib import Path
 
 # Додаємо шлях до кореневої директорії проекту
-current_dir = Path(__file__).resolve().parent
-project_root = current_dir.parent
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-try:
-    from core.bot import bot, dp
-    from handlers.hero_commands import router as hero_router
-except ModuleNotFoundError as e:
-    print(f"Error importing modules: {e}")
-    print(f"Current directory: {os.getcwd()}")
-    print(f"Python path: {sys.path}")
-    raise
+from core.bot import bot, dp
+from handlers.hero_commands import router as hero_router
+from handlers.start_command import router as start_router  # Додаємо імпорт
 
-# Налаштування логування з відповідним форматом
+# Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -29,10 +22,10 @@ async def on_startup():
     """Ініціалізація всіх необхідних налаштувань при запуску бота."""
     try:
         logger.info("🚀 Бот запускається...")
-        # Виводимо інформацію про шляхи для діагностики
-        logger.info(f"Working directory: {os.getcwd()}")
-        logger.info(f"Project root: {project_root}")
+        # Підключаємо роутери
+        dp.include_router(start_router)  # Додаємо старт роутер першим
         dp.include_router(hero_router)
+        logger.info("✅ Роутери підключено успішно")
     except Exception as e:
         logger.error(f"❌ Помилка при ініціалізації: {e}")
         raise
