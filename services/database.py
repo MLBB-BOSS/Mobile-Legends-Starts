@@ -32,9 +32,9 @@ class User(Base):
     def __repr__(self):
         return f"<User(id={self.id}, nickname={self.nickname}, telegram_id={self.telegram_id})>"
 
-# Створюємо підключення до бази даних
+# Створюємо підключення до бази даних з новими реквізитами
 engine = create_async_engine(
-    "postgresql+asyncpg://u19gdelo8pjkrg:pb95edc1e9dc17f2d21f8f49fe9e9c6a3c2eab4969e95adbfc2c69a5c753b9fdb@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/da4c4gk6ldknbt",
+    "postgresql+asyncpg://udoepvnsfd1v4p:p06d554a757b594fc448b0fe17f59b24af6e1ed553f9cd262a36d4e56fd87a37f@c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d76pc5iknkd84",
     echo=True,
     pool_size=5,
     max_overflow=10,
@@ -48,18 +48,11 @@ async_session = sessionmaker(
     expire_on_commit=False
 )
 
-# Функція для ініціалізації бази даних
+# Спрощена функція ініціалізації бази даних
 async def init_db():
     try:
         async with engine.begin() as conn:
-            # Скидаємо всю схему і створюємо нову
-            await conn.execute(text("""
-                DROP SCHEMA public CASCADE;
-                CREATE SCHEMA public;
-                GRANT ALL ON SCHEMA public TO public;
-            """))
-            
-            # Створюємо нові таблиці
+            # Створюємо таблиці
             await conn.run_sync(Base.metadata.create_all)
             logger.info("База даних успішно ініціалізована")
     except Exception as e:
