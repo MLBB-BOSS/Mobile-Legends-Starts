@@ -6,7 +6,7 @@ from handlers.bot_handlers import router as bot_router  # Оновлений і�
 # Налаштування логування з відповідним форматом
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levellevel)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
