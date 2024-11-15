@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, text
 import logging
 from datetime import datetime
 
@@ -52,7 +52,14 @@ async_session = sessionmaker(
 async def init_db():
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
+            # Скидаємо всю схему і створюємо нову
+            await conn.execute(text("""
+                DROP SCHEMA public CASCADE;
+                CREATE SCHEMA public;
+                GRANT ALL ON SCHEMA public TO public;
+            """))
+            
+            # Створюємо нові таблиці
             await conn.run_sync(Base.metadata.create_all)
             logger.info("База даних успішно ініціалізована")
     except Exception as e:
