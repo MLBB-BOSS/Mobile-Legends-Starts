@@ -20,8 +20,6 @@ wheels/
 *.egg
 
 # Virtual Environments
-.env
-.env.*
 venv/
 ENV/
 env/
@@ -61,6 +59,7 @@ yarn-debug.log*
 yarn-error.log*
 debug.log
 *.debug
+bot.log
 
 # Project specific
 screenshots/
@@ -93,10 +92,6 @@ Thumbs.db
 *.bak
 *.tmp
 *.temp
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Bot specific
 config.yaml
@@ -104,10 +99,11 @@ config.yml
 secrets.yaml
 secrets.yml
 bot_token.txt
-*.session
-*.session-journal
 telegram_api_id.txt
 telegram_api_hash.txt
+
+# JSON files (specific to project)
+heroes/*.json  # Якщо JSON-файли не потрібні в репозиторії
 
 # Dependencies
 node_modules/
