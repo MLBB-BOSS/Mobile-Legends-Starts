@@ -1,9 +1,9 @@
 import asyncio
 import logging
 from core.bot import bot, dp
-from heroes.hero_handlers import router as hero_router
+from handlers.bot_handlers import router as bot_router  # Оновлений імпорт
 
-# Налаштування логування
+# Налаштування логування з відповідним форматом
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -11,18 +11,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def on_startup():
-    """Ініціалізація при запуску бота."""
-    logger.info("🚀 Бот запускається...")
-    # Реєструємо роутер перед стартом
-    dp.include_router(hero_router)
-    logger.info("✅ Роутери зареєстровано")
+    """Ініціалізація всіх необхідних налаштувань при запуску бота."""
+    logger.info("Бот запускається...")
+    dp.include_router(bot_router)  # Оновлена назва роутера
 
 async def main():
     logger.info("Початок роботи бота...")
     try:
-        # Важливо: on_startup має викликатись до start_polling
-        await on_startup()
-        await dp.start_polling(bot)
+        await dp.start_polling(
+            bot,
+            skip_updates=True,
+            on_startup=on_startup
+        )
     except Exception as e:
         logger.error(f"❌ Помилка під час роботи бота: {e}")
     finally:
