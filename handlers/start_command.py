@@ -30,15 +30,8 @@ _Готовий допомогти тобі стати кращим гравце
 '''
 
     try:
-        # Надсилаємо повідомлення з форматуванням Markdown
-        await message.answer(
-            text=welcome_text,
-            parse_mode="Markdown"
-        )
+        await message.answer(text=welcome_text, parse_mode="Markdown")
         logger.info(f"Відправлено привітання користувачу {user_name} (ID: {message.from_user.id})")
     except Exception as e:
         logger.error(f"Помилка при відправці привітання: {e}")
-        # Відправляємо спрощене повідомлення у випадку помилки
-        await message.answer(
-            "Вітаю! Я бот Mobile Legends. Використовуйте /help для перегляду команд."
-        )
+        await message.answer("Вітаю! Я бот Mobile Legends. Використовуйте /help для перегляду команд.")
