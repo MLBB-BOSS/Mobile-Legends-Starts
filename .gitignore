@@ -1,12 +1,25 @@
 # Python
-*.pyc
+*.py[cod]
 __pycache__/
-*.pyo
-*.pyd
-*.swp
-*.swo
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Environments
+# Virtual Environments
 .env
 .env.*
 venv/
@@ -14,16 +27,89 @@ ENV/
 env/
 venv.bak/
 venv_old/
+.venv
+.python-version
+.python-version.*
 
 # Database
 *.db
 *.sqlite3
+*.sqlite
+*.sql
+*.bak
+*.dump
 
-# IDEs
+# IDEs and Editors
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.settings/
+.classpath
 
-# Logs
+# Logs and Debug
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug.log
+*.debug
+
+# Project specific
+screenshots/
+uploads/
+downloads/
+temp/
+.cache/
+*.session
+*.session-journal
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.temp
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Bot specific
+config.yaml
+config.yml
+secrets.yaml
+secrets.yml
+bot_token.txt
+*.session
+*.session-journal
+telegram_api_id.txt
+telegram_api_hash.txt
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
