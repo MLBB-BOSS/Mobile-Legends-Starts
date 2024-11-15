@@ -1,8 +1,6 @@
-# core/bot.py
-
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.client.bot import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from config.settings import settings
 
@@ -14,6 +12,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Ініціалізація бота та диспетчера
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
+bot = Bot(
+    token=settings.TELEGRAM_BOT_TOKEN, 
+    parse_mode=ParseMode.HTML  # Змінено спосіб встановлення parse_mode
+)
+
+# Створення сховища для FSM
 storage = MemoryStorage()
+
+# Ініціалізація диспетчера
 dp = Dispatcher(storage=storage)
