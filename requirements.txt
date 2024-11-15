@@ -1,8 +1,13 @@
-aiogram>=3.7.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
-python-dotenv
-sqlalchemy[asyncio]>=2.0.0
-asyncpg>=0.28.0
-pydantic-settings>=2.0.0
-pydantic[email]>=2.0.0
+# Основні залежності
+aiogram==3.7.0
+pydantic[email]==2.5.2
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# База даних
+sqlalchemy[asyncio]==2.0.23
+asyncpg==0.28.0
+
+# Додаткові залежності (якщо потрібні)
+# redis==5.0.1  # для кешування
+# aiohttp==3.9.1  # для асинхронних HTTP запитів
