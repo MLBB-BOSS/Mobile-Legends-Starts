@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
@@ -12,7 +12,8 @@ async def cmd_start(message: Message):
         "Я бот для Mobile Legends. Чим можу допомогти?"
     )
 
-@router.message(Text(text="герої", ignore_case=True))
+# Instead of Text filter, we use F.text
+@router.message(F.text.lower() == "герої")
 async def show_heroes(message: Message):
     await message.answer("Ось список доступних героїв:")
     # Тут можна додати логіку для відображення героїв
@@ -26,3 +27,9 @@ async def cmd_help(message: Message):
         "Напишіть 'герої' щоб побачити список героїв"
     )
     await message.answer(help_text)
+
+# If you need to handle multiple text variants, you can use in_ operator
+@router.message(F.text.lower().in_(["герої", "heroes", "персонажі"]))
+async def show_heroes_alternative(message: Message):
+    await message.answer("Ось список доступних героїв:")
+    # Логіка для відображення героїв
