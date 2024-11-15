@@ -27,7 +27,9 @@ async def main():
         dp.include_router(start_router)
         dp.include_router(hero_router)
         dp.include_router(message_router)
-        
+        dp.include_router(registration.router)
+        dp.include_router(messages.router)
+
         # Логуємо успішну реєстрацію роутерів
         logger.info("Роутери зареєстровано успішно")
         
