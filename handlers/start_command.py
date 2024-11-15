@@ -3,33 +3,39 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from services.states import RegistrationStates
-from services.reply_keyboard import get_main_keyboard
 from services.database import async_session, User
 from sqlalchemy import select
+import logging
 import re
 
+logger = logging.getLogger(__name__)
 router = Router()
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
-    async with async_session() as session:
-        # Перевіряємо чи користувач вже зареєстрований
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
-        user = result.scalar_one_or_none()
-        
-        if user and user.is_registered:
-            await message.answer(
-                f"З поверненням, {user.nickname}! 👋\nОберіть опцію з меню:",
-                reply_markup=get_main_keyboard()
+    try:
+        async with async_session() as session:
+            # Перевіряємо чи користувач вже зареєстрований
+            result = await session.execute(
+                select(User).where(User.telegram_id == message.from_user.id)
             )
-        else:
-            await message.answer(
-                "Ласкаво просимо! Давайте розпочнемо реєстрацію.\n"
-                "Введіть ваш нікнейм (мінімум 3 символи):"
-            )
-            await state.set_state(RegistrationStates.waiting_for_nickname)
+            user = result.scalar_one_or_none()
+            
+            if user and user.is_registered:
+                await message.answer(
+                    f"З поверненням, {user.nickname}! 👋\n"
+                    "Оберіть опцію з меню нижче:"
+                )
+            else:
+                await message.answer(
+                    "Ласкаво просимо до MLS Bot! 🎮\n"
+                    "Давайте розпочнемо реєстрацію.\n"
+                    "Введіть ваш нікнейм (мінімум 3 символи):"
+                )
+                await state.set_state(RegistrationStates.waiting_for_nickname)
+    except Exception as e:
+        logger.error(f"Помилка при обробці команди start: {e}")
+        await message.answer("Виникла помилка. Спробуйте пізніше або зверніться до адміністратора.")
 
 @router.message(RegistrationStates.waiting_for_nickname)
 async def process_nickname(message: Message, state: FSMContext):
@@ -40,7 +46,10 @@ async def process_nickname(message: Message, state: FSMContext):
         return
     
     await state.update_data(nickname=nickname)
-    await message.answer("Чудово! Тепер введіть вашу електронну пошту:")
+    await message.answer(
+        "Чудово! ✨\n"
+        "Тепер введіть вашу електронну пошту:"
+    )
     await state.set_state(RegistrationStates.waiting_for_email)
 
 @router.message(RegistrationStates.waiting_for_email)
@@ -52,20 +61,24 @@ async def process_email(message: Message, state: FSMContext):
         await message.answer("Некоректний формат email. Спробуйте ще раз:")
         return
     
-    async with async_session() as session:
-        # Перевіряємо чи email вже існує
-        result = await session.execute(
-            select(User).where(User.email == email)
-        )
-        existing_email = result.scalar_one_or_none()
-        
-        if existing_email:
-            await message.answer("Цей email вже зареєстрований. Спробуйте інший:")
-            return
-    
-    await state.update_data(email=email)
-    await message.answer("Чудово! Тепер введіть ваш ID з Mobile Legends (тільки цифри):")
-    await state.set_state(RegistrationStates.waiting_for_game_id)
+    try:
+        async with async_session() as session:
+            result = await session.execute(
+                select(User).where(User.email == email)
+            )
+            if result.scalar_one_or_none():
+                await message.answer("Цей email вже зареєстрований. Використайте інший:")
+                return
+            
+            await state.update_data(email=email)
+            await message.answer(
+                "Чудово! 📧\n"
+                "Тепер введіть ваш ID з Mobile Legends (тільки цифри):"
+            )
+            await state.set_state(RegistrationStates.waiting_for_game_id)
+    except Exception as e:
+        logger.error(f"Помилка при обробці email: {e}")
+        await message.answer("Виникла помилка. Спробуйте пізніше.")
 
 @router.message(RegistrationStates.waiting_for_game_id)
 async def process_game_id(message: Message, state: FSMContext):
@@ -75,36 +88,34 @@ async def process_game_id(message: Message, state: FSMContext):
         await message.answer("ID повинен містити тільки цифри. Спробуйте ще раз:")
         return
     
-    async with async_session() as session:
-        # Перевіряємо чи game_id вже існує
-        result = await session.execute(
-            select(User).where(User.game_id == game_id)
-        )
-        existing_game_id = result.scalar_one_or_none()
-        
-        if existing_game_id:
-            await message.answer("Цей ID вже зареєстрований. Спробуйте інший:")
-            return
-        
-        user_data = await state.get_data()
-        new_user = User(
-            telegram_id=message.from_user.id,
-            nickname=user_data['nickname'],
-            email=user_data['email'],
-            game_id=game_id,
-            is_registered=True
-        )
-        
-        try:
+    try:
+        async with async_session() as session:
+            # Перевіряємо чи game_id вже існує
+            result = await session.execute(
+                select(User).where(User.game_id == game_id)
+            )
+            if result.scalar_one_or_none():
+                await message.answer("Цей ID вже зареєстрований. Використайте інший:")
+                return
+            
+            user_data = await state.get_data()
+            new_user = User(
+                telegram_id=message.from_user.id,
+                nickname=user_data['nickname'],
+                email=user_data['email'],
+                game_id=game_id,
+                is_registered=True
+            )
+            
             session.add(new_user)
             await session.commit()
+            
             await message.answer(
-                f"Реєстрація завершена! Вітаємо, {user_data['nickname']}! 🎉\n"
-                "Ви можете скористатися меню для подальших дій:",
-                reply_markup=get_main_keyboard()
+                f"🎉 Вітаємо, {user_data['nickname']}!\n"
+                "Реєстрація успішно завершена.\n"
+                "Тепер ви можете користуватися всіма функціями бота!"
             )
-        except Exception as e:
-            await session.rollback()
-            await message.answer("Помилка при реєстрації. Спробуйте ще раз з /start")
-        finally:
             await state.clear()
+    except Exception as e:
+        logger.error(f"Помилка при реєстрації користувача: {e}")
+        await message.answer("Виникла помилка при реєстрації. Спробуйте пізніше.")
