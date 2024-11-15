@@ -1,30 +1,40 @@
-# main.py
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 from core.config import settings
-from services.database import init_db
+from services.database import init_models
+from handlers import router
 
-# Налаштування логування
-logging.basicConfig(level=settings.LOG_LEVEL)
+# Configure logging
+logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бота
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+# Initialize bot and dispatcher
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
+# Register routers
+dp.include_router(router)
+
 async def main():
-    # Ініціалізація бази даних
-    if not await init_db():
-        logger.error("Failed to initialize database")
+    logger.info("Starting bot...")
+    
+    # Initialize database
+    try:
+        await init_models()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
         return
     
-    # Запуск бота
+    # Start polling
     try:
-        logger.info("Starting bot...")
         await dp.start_polling(bot)
+    except Exception as e:
+        logger.error(f"Bot polling error: {e}")
     finally:
         await bot.session.close()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
