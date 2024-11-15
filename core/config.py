@@ -1,25 +1,19 @@
-# core/config.py
 from pydantic_settings import BaseSettings
-from pydantic import Field, PostgresDsn
-from datetime import datetime
+from pydantic import Field
 
 class Settings(BaseSettings):
-    # Базові налаштування бота
+    # Bot settings
     TELEGRAM_BOT_TOKEN: str = Field(..., env='TELEGRAM_BOT_TOKEN')
     
-    # База даних
-    DATABASE_URL: PostgresDsn = Field(..., env='DATABASE_URL')
+    # Database settings
+    ASYNC_DATABASE_URL: str = Field(..., env='ASYNC_DATABASE_URL')
     
-    # Налаштування середовища
+    # Environment settings
     ENVIRONMENT: str = Field(default="development")
     DEBUG: bool = Field(default=False)
     
-    # Базові налаштування
+    # Rate limiting
     RATE_LIMIT: float = Field(default=0.5)
-    LOG_LEVEL: str = Field(default="INFO")
-    
-    # Адміністратори
-    ADMIN_IDS: list[int] = Field(default_factory=list)
     
     class Config:
         case_sensitive = True
