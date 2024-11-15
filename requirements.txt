@@ -1,13 +1,6 @@
-# Main dependencies
-aiogram==3.7.0
-pydantic[email]==2.5.2
-pydantic-settings==2.1.0
-python-dotenv==1.0.0
-
-# Database
-sqlalchemy[asyncio]==2.0.23
-asyncpg==0.28.0
-psycopg2-binary==2.9.9
-
-# Utils
-aiohttp==3.9.1
+aiogram>=3.7.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.28.0
