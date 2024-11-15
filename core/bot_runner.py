@@ -1,31 +1,50 @@
 import asyncio
 import logging
-import os
+from aiogram import Bot, Dispatcher
 from core.bot import bot, dp
 from handlers.hero_commands import router as hero_router
 from handlers.start_command import router as start_router
 from handlers.message_handlers import router as message_router
-
-# Отримуємо токен бота із змінної середовища
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("Не вдалося знайти TELEGRAM_BOT_TOKEN у змінних середовища!")
+from services.database import init_db
 
 # Налаштування логування
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
-async def on_startup():
-    dp.include_router(start_router)
-    dp.include_router(hero_router)
-    dp.include_router(message_router)
-    logger.info("✅ Бот готовий до роботи.")
+logger = logging.getLogger(__name__)
 
 async def main():
     try:
-        await dp.start_polling(bot, skip_updates=True, on_startup=on_startup)
+        # Ініціалізуємо базу даних
+        logger.info("Ініціалізація бази даних...")
+        await init_db()
+        logger.info("База даних ініціалізована успішно")
+
+        # Реєструємо роутери
+        dp.include_router(start_router)
+        dp.include_router(hero_router)
+        dp.include_router(message_router)
+        
+        # Логуємо успішну реєстрацію роутерів
+        logger.info("Роутери зареєстровано успішно")
+        
+        # Запускаємо бота
+        logger.info("Запускаємо бота...")
+        await dp.start_polling(bot, skip_updates=True)
+        
     except Exception as e:
-        logger.error(f"❌ Критична помилка: {e}", exc_info=True)
+        logger.error(f"Критична помилка: {e}")
+        raise
+    finally:
+        logger.info("Завершення роботи бота")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинений вручну")
+    except Exception as e:
+        logger.error(f"Неочікувана помилка: {e}")
