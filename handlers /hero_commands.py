@@ -1,51 +1,51 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
-from services.keyboard_service import get_class_keyboard, get_heroes_keyboard
+import asyncio
+import logging
+from core.bot import bot, dp
+from handlers.hero_commands import router as hero_router  # Оновлений імпорт
 
-router = Router(name="hero_router")
+# Налаштування логування з відповідним форматом
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-# Command handler
-@router.message(Command("hero"))
-async def hero_command(message: Message):
-    """Handle /hero command - shows hero class selection keyboard"""
-    await message.answer(
-        "Оберіть клас героя:", 
-        reply_markup=get_class_keyboard()
-    )
+async def on_startup():
+    """Ініціалізація всіх необхідних налаштувань при запуску бота."""
+    try:
+        logger.info("🚀 Бот запускається...")
+        dp.include_router(hero_router)  # Використовуємо hero_router замість bot_router
+    except Exception as e:
+        logger.error(f"❌ Помилка при ініціалізації: {e}")
+        raise
 
-# Text message handler
-@router.message(F.text.lower() == "hero")
-async def hero_text(message: Message):
-    """Handle 'hero' text message"""
-    await hero_command(message)
+async def on_shutdown():
+    """Дії при завершенні роботи бота."""
+    logger.info("🔄 Закриття з'єднань...")
+    await bot.session.close()
+    logger.info("✅ Бот успішно зупинено.")
 
-# Callback handlers
-@router.callback_query(F.data.startswith("class_"))
-async def process_hero_class(callback: CallbackQuery):
-    """Handle hero class selection"""
-    hero_class = callback.data.split("_")[1]
-    await callback.message.edit_text(
-        f"Оберіть героя класу {hero_class}:",
-        reply_markup=get_heroes_keyboard(hero_class)
-    )
-    await callback.answer()
+async def main():
+    """Головна функція запуску бота."""
+    logger.info("📱 Початок роботи бота...")
+    try:
+        await dp.start_polling(
+            bot,
+            skip_updates=True,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown
+        )
+    except Exception as e:
+        logger.error(f"❌ Помилка під час роботи бота: {e}")
+        raise
+    finally:
+        logger.info("🔄 Завершення роботи бота...")
 
-@router.callback_query(F.data.startswith("hero_"))
-async def process_hero_selection(callback: CallbackQuery):
-    """Handle specific hero selection"""
-    hero_name = callback.data.split("_")[1]
-    await callback.message.edit_text(
-        f"Інформація про героя {hero_name}:\n"
-        f"[Тут буде детальна інформація про {hero_name}]"
-    )
-    await callback.answer()
-
-@router.callback_query(F.data == "back_to_classes")
-async def back_to_classes(callback: CallbackQuery):
-    """Handle 'back to classes' button"""
-    await callback.message.edit_text(
-        "Оберіть клас героя:",
-        reply_markup=get_class_keyboard()
-    )
-    await callback.answer()
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("👋 Бот зупинено користувачем")
+    except Exception as e:
+        logger.error(f"❌ Критична помилка: {e}", exc_info=True)
+        exit(1)
