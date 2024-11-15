@@ -1,9 +1,10 @@
 from typing import Optional, AsyncGenerator
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, text
 import logging
 from datetime import datetime
+from core.config import settings
 
 # Налаштування логування
 logging.basicConfig(
@@ -18,40 +19,35 @@ logger = logging.getLogger(__name__)
 Base = declarative_base()
 
 # Створюємо підключення до бази даних
-DATABASE_URL = "postgresql+asyncpg://udoepvnsfd1v4p:p06d554a757b594fc448b0fe17f59b24af6e1ed553f9cd262a36d4e56fd87a37f@c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d76pc5iknkd84"
-
 engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,
-    pool_size=5,
-    max_overflow=10,
-    pool_timeout=30
+    settings.DATABASE_URL,
+    echo=settings.DB_ECHO,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
+    pool_timeout=settings.DB_POOL_TIMEOUT
 )
 
 # Створюємо фабрику сесій
-async_session = sessionmaker(
+async_session_maker = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Базова модель користувача
-class User(Base):
-    __tablename__ = "users"
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    """Генератор асинхронних сесій для роботи з БД"""
+    async with async_session_maker() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Помилка сесії БД: {e}")
+            raise
+        finally:
+            await session.close()
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(Integer, unique=True, nullable=False)
-    username = Column(String, unique=True)
-    first_name = Column(String)
-    last_name = Column(String)
-    is_admin = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<User(id={self.id}, username={self.username}, telegram_id={self.telegram_id})>"
-
-async def init_db():
+async def init_db() -> bool:
     """Ініціалізація бази даних"""
     try:
         async with engine.begin() as conn:
@@ -77,21 +73,8 @@ async def init_db():
             else:
                 logger.info("Таблиці вже існують")
 
-        return True
+            return True
 
     except Exception as e:
         logger.error(f"Помилка при ініціалізації бази даних: {str(e)}")
         return False
-
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """Отримання сесії бази даних"""
-    async with async_session() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception as e:
-            await session.rollback()
-            logger.error(f"Помилка сесії бази даних: {e}")
-            raise
-        finally:
-            await session.close()
