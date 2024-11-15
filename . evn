@@ -1,0 +1,29 @@
+# Бот
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+
+# База даних
+ASYNC_DATABASE_URL=postgresql+asyncpg://u19gdelo8pjkrg:pb95edc1e9dc17f2d21f8f49fe9e9c6a3c2eab4969e95adbfc2c69a5c753b9fdb@ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/da4c4gk6ldknbt
+
+# Налаштування середовища
+ENVIRONMENT=development
+
+# Налаштування PostgreSQL (як резерв, якщо ASYNC_DATABASE_URL не працює)
+POSTGRES_USER=u19gdelo8pjkrg
+POSTGRES_PASSWORD=pb95edc1e9dc17f2d21f8f49fe9e9c6a3c2eab4969e95adbfc2c69a5c753b9fdb
+POSTGRES_HOST=ccaml3dimis7eh.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com
+POSTGRES_PORT=5432
+POSTGRES_DB=da4c4gk6ldknbt
+
+# Додаткові налаштування
+DB_ECHO=False
+DB_POOL_SIZE=5
+DB_MAX_OVERFLOW=10
+DB_POOL_TIMEOUT=30
+LOG_LEVEL=INFO
+RATE_LIMIT=0.5
+
+# Redis (якщо потрібно)
+REDIS_URL=
+
+# Адміністратори (додайте свої ID)
+ADMIN_IDS=123456789,987654321
