@@ -1,22 +1,23 @@
-# services/database.py
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import text
+from sqlalchemy.orm import DeclarativeBase
 import logging
 from core.config import settings
 
-# Налаштування логування
-logging.basicConfig(level=settings.LOG_LEVEL)
+logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
 
-# Створюємо базовий клас для моделей
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
-# Створюємо підключення до бази даних
-engine = create_async_engine(str(settings.DATABASE_URL))
+# Create async engine
+engine = create_async_engine(
+    settings.ASYNC_DATABASE_URL,
+    echo=settings.DEBUG,
+    future=True
+)
 
-# Створюємо фабрику сесій
+# Create session factory
 async_session_maker = async_sessionmaker(
     engine,
     class_=AsyncSession,
@@ -35,18 +36,6 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
-async def init_db() -> bool:
-    """Ініціалізація бази даних"""
-    try:
-        async with engine.begin() as conn:
-            # Перевіряємо підключення
-            await conn.execute(text("SELECT 1"))
-            logger.info("Database connection established")
-            
-            # Створюємо таблиці
-            await conn.run_sync(Base.metadata.create_all)
-            logger.info("Database tables created successfully")
-            return True
-    except Exception as e:
-        logger.error(f"Database initialization error: {e}")
-        return False
+async def init_models():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
