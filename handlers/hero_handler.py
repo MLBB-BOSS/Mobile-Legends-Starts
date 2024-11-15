@@ -3,17 +3,21 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from services.keyboard_service import get_class_keyboard, get_heroes_keyboard
 
+# Важливо вказати name при створенні роутера
 router = Router(name="hero_router")
 
-# Command handler
+@router.message(Command("start"))
+async def cmd_start(message: Message):
+    await message.answer("Привіт! Я бот для Mobile Legends. Використовуй /hero для вибору героя.")
+
 @router.message(Command("hero"))
 async def hero_command(message: Message):
-    """Handle /hero command - shows hero class selection keyboard"""
     await message.answer(
         "Оберіть клас героя:", 
         reply_markup=get_class_keyboard()
     )
 
+# Решта коду залишається без змін...
 # Text message handler
 @router.message(F.text.lower() == "hero")
 async def hero_text(message: Message):
