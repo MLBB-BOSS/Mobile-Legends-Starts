@@ -1,5 +1,3 @@
-# core/bot_runner.py
-
 import asyncio
 import logging
 from core.bot import bot, dp
@@ -18,14 +16,18 @@ async def on_startup():
     dp.include_router(hero_router)  # Додаємо маршрутизатор обробників
 
 async def main():
-    await on_startup()
+    logger.info("Початок роботи бота...")
     try:
-        logger.info("Початок роботи бота...")
-        await dp.start_polling(bot)  # Виклик без контекстного менеджера
+        # В aiogram 3.x змінився метод запуску
+        await dp.start_polling(
+            bot,
+            skip_updates=True,  # Пропускати оновлення, що накопичились
+            on_startup=on_startup  # Передаємо функцію, яка виконається при старті
+        )
     except Exception as e:
         logger.error(f"❌ Помилка під час роботи бота: {e}")
     finally:
-        await bot.session.close()
+        # В aiogram 3.x закриття сесії відбувається автоматично
         logger.info("Бот зупинено.")
 
 if __name__ == "__main__":
