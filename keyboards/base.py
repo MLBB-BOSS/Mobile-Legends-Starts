@@ -24,12 +24,6 @@ class BaseKeyboard:
         :param resize_keyboard: Чи змінювати розмір клавіатури
         :return: Об'єкт клавіатури
         """
-        keyboard = ReplyKeyboardMarkup(
-            resize_keyboard=resize_keyboard,
-            row_width=row_width,
-            **kwargs
-        )
-        
         # Конвертуємо кнопки в об'єкти KeyboardButton
         button_objects = []
         for button in buttons:
@@ -40,6 +34,14 @@ class BaseKeyboard:
             else:
                 button_objects.append(button)
         
-        # Додаємо кнопки до клавіатури
-        keyboard.add(*button_objects)
-        return keyboard
+        # Створюємо розмітку клавіатури
+        keyboard_markup = []
+        for i in range(0, len(button_objects), row_width):
+            keyboard_markup.append(button_objects[i:i + row_width])
+        
+        # Створюємо клавіатуру з розміткою
+        return ReplyKeyboardMarkup(
+            keyboard=keyboard_markup,
+            resize_keyboard=resize_keyboard,
+            **kwargs
+        )
