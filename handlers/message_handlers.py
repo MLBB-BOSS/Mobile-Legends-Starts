@@ -1,5 +1,6 @@
 # File: handlers/message_handlers.py
 from aiogram import Router, F
+from aiogram.filters import Command  # Додаємо цей імпорт
 from aiogram.types import Message
 from config.messages.base import get_messages
 from keyboards import MainMenu, NavigationMenu, ProfileMenu
