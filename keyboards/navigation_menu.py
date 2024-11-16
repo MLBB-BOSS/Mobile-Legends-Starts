@@ -8,11 +8,9 @@ class NavigationMenu(BaseKeyboard):
     def get_navigation_menu(cls):
         """Повертає меню навігації"""
         buttons = [
-            [{"text": "📚 Гайди", "callback_data": "guides"}],
-            [{"text": "🧙‍♂️ Персонажі", "callback_data": "heroes"}],
-            [{"text": "🎯 Контр-Піки", "callback_data": "counter_picks"}],
-            [{"text": "⚔️ Збірки", "callback_data": "builds"}],
-            [{"text": "🗳 Голосування", "callback_data": "voting"}],
-            [{"text": "🔙 Назад", "callback_data": "back_to_main"}]
+            ["📚 Гайди", "🧙‍♂️ Персонажі"],
+            ["🎯 Контр-Піки", "⚔️ Збірки"],
+            ["🗳 Голосування"],
+            ["🔙 Головне меню"]
         ]
-        return cls.create_keyboard(buttons, is_inline=True)
+        return cls.create_keyboard(buttons)
