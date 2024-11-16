@@ -10,6 +10,6 @@ class ProfileMenu(BaseKeyboard):
         buttons = [
             ["📊 Статистика", "🏅 Досягнення"],
             ["⚙️ Налаштування"],
-            ["🔙 Головне меню"]
+            ["🔙 Головне меню"]  # Кнопка повернення в головне меню
         ]
         return cls.create_keyboard(buttons)
