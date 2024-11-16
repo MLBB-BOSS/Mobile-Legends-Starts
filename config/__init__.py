@@ -1,3 +1,4 @@
-# config/__init__.py
+# File: config/__init__.py
+from .settings import Config, config
 
-# Пустий файл ініціалізації пакету
+__all__ = ['Config', 'config']
