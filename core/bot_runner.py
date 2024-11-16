@@ -9,6 +9,10 @@ from handlers.hero_commands import router as hero_router
 from handlers.start_command import router as start_router
 from handlers.message_handlers import router as message_router
 from handlers.menu_handlers import router as menu_router  # Додаємо новий роутер меню
+from handlers.menu_handlers import router as menu_router
+
+# І додати його реєстрацію:
+dp.include_router(menu_router)
 
 # Покращене налаштування логування
 def setup_logging():
