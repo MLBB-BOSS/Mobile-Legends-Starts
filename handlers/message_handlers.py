@@ -1,7 +1,7 @@
 # File: handlers/message_handlers.py
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
 from keyboards import NavigationMenu, ProfileMenu, MainMenu
 import logging
 
@@ -16,7 +16,7 @@ async def cmd_start(message: Message):
         reply_markup=MainMenu.get_main_menu()
     )
 
-@router.message(Text(text="🧭 Навігація"))
+@router.message(F.text == "🧭 Навігація")
 async def handle_navigation(message: Message):
     """Обробляє натискання кнопки Навігація"""
     logger.info(f"Отримано команду навігації: {message.text}")
@@ -25,7 +25,7 @@ async def handle_navigation(message: Message):
         reply_markup=NavigationMenu.get_navigation_menu()
     )
 
-@router.message(Text(text="🪧 Мій Кабінет"))
+@router.message(F.text == "🪧 Мій Кабінет")
 async def handle_profile(message: Message):
     """Обробляє натискання кнопки Мій Кабінет"""
     logger.info(f"Отримано команду профілю: {message.text}")
@@ -34,7 +34,7 @@ async def handle_profile(message: Message):
         reply_markup=ProfileMenu.get_profile_menu()
     )
 
-@router.message(Text(text="🔙 Головне меню"))
+@router.message(F.text == "🔙 Головне меню")
 async def handle_back_to_main(message: Message):
     """Обробляє повернення до головного меню"""
     logger.info(f"Отримано команду повернення: {message.text}")
