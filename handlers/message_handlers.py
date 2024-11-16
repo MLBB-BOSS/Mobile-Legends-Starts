@@ -1,32 +1,30 @@
+# File: handlers/message_handlers.py
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command
-import logging
+from keyboards import NavigationMenu, ProfileMenu, MainMenu
 
-logger = logging.getLogger(__name__)
-router = Router(name="message_router")
+router = Router()
 
-@router.message(F.text)
-async def handle_text_message(message: Message):
-    try:
-        text = message.text.lower()
+@router.message(F.text == "🧭 Навігація")
+async def handle_navigation(message: Message):
+    """Обробляє натискання кнопки Навігація"""
+    await message.answer(
+        "Оберіть розділ навігації:",
+        reply_markup=NavigationMenu.get_navigation_menu()
+    )
 
-        if "привіт" in text:
-            await message.answer("Привіт! Чим можу допомогти?")
-        elif "допомога" in text:
-            await message.answer(
-                "Ось список доступних команд:\n"
-                "/start - Почати роботу з ботом\n"
-                "/hero - Переглянути героїв\n/help - Отримати допомогу"
-            )
-        else:
-            await message.answer(
-                "Я не впевнений, що розумію. Спробуйте використати команди:\n"
-                "/start - для початку роботи\n"
-                "/hero - для перегляду героїв"
-            )
+@router.message(F.text == "🪧 Мій Кабінет")
+async def handle_profile(message: Message):
+    """Обробляє натискання кнопки Мій Кабінет"""
+    await message.answer(
+        "Ваш особистий кабінет:",
+        reply_markup=ProfileMenu.get_profile_menu()
+    )
 
-        logger.info(f"Оброблено повідомлення від користувача {message.from_user.id}: {text}")
-    except Exception as e:
-        logger.error(f"Помилка при обробці повідомлення: {e}")
-        await message.answer("Вибачте, сталася помилка при обробці вашого повідомлення.")
+@router.message(F.text == "🔙 Головне меню")
+async def handle_back_to_main(message: Message):
+    """Обробляє повернення до головного меню"""
+    await message.answer(
+        "Головне меню:",
+        reply_markup=MainMenu.get_main_menu()
+    )
