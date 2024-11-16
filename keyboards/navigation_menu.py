@@ -1,3 +1,4 @@
+from aiogram.types import InlineKeyboardMarkup
 from .base import BaseKeyboard
 
 class NavigationMenu(BaseKeyboard):
