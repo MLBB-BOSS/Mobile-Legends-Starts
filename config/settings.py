@@ -1,17 +1,22 @@
+# File: config/settings.py
 from pydantic_settings import BaseSettings
+from pydantic import SecretStr
 import os
 
-class Settings(BaseSettings):
+class Config(BaseSettings):
     # Основні налаштування
-    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    TELEGRAM_BOT_TOKEN: SecretStr = os.environ["TELEGRAM_BOT_TOKEN"]
     
-    # Налаштування бази даних
-    database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost/dbname")
-    async_database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost/dbname_async")
-
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
-        case_sensitive = False
+        env_file = None  # Відключаємо завантаження з .env файлу
+        case_sensitive = True
 
-settings = Settings()
+# Створюємо екземпляр конфігурації
+config = Config()
+
+# Валідація при імпорті
+def validate_config() -> None:
+    if not config.TELEGRAM_BOT_TOKEN:
+        raise ValueError("TELEGRAM_BOT_TOKEN не налаштовано в змінних середовища Heroku")
+
+validate_config()
