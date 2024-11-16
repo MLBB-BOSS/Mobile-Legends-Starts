@@ -1,3 +1,4 @@
+# File: keyboards/base.py
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
@@ -5,16 +6,16 @@ from aiogram.types import (
     InlineKeyboardButton
 )
 from typing import List, Union, Dict
+from .utils import create_keyboard_row
 
 class BaseKeyboard:
     @staticmethod
     def create_keyboard(
-        buttons: List[List[Union[str, Dict[str, str]]]], 
+        buttons: List[List[Union[str, Dict[str, str], InlineKeyboardButton]]], 
         is_inline: bool = False,
         resize_keyboard: bool = True,
         **kwargs
     ) -> Union[ReplyKeyboardMarkup, InlineKeyboardMarkup]:
-        # ... решта коду залишається без змін ...
         """
         Створює клавіатуру на основі списку кнопок
         
@@ -25,17 +26,23 @@ class BaseKeyboard:
         """
         keyboard = []
         for row in buttons:
-            keyboard_row = []
-            for button in row:
-                if is_inline:
-                    if isinstance(button, dict):
-                        keyboard_row.append(InlineKeyboardButton(**button))
-                    else:
-                        keyboard_row.append(InlineKeyboardButton(text=button, callback_data=f"btn_{button}"))
-                else:
-                    keyboard_row.append(KeyboardButton(text=button))
+            if is_inline:
+                keyboard_row = create_keyboard_row(*row)
+            else:
+                keyboard_row = [KeyboardButton(text=button) if isinstance(button, str) 
+                              else KeyboardButton(**button) for button in row]
             keyboard.append(keyboard_row)
 
         if is_inline:
             return InlineKeyboardMarkup(inline_keyboard=keyboard, **kwargs)
         return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=resize_keyboard, **kwargs)
+
+    @classmethod
+    def create_row(cls, *buttons: Union[Dict, InlineKeyboardButton]) -> List[InlineKeyboardButton]:
+        """
+        Створює ряд inline кнопок
+        
+        :param buttons: Кнопки у вигляді словників або об'єктів InlineKeyboardButton
+        :return: Список кнопок InlineKeyboardButton
+        """
+        return create_keyboard_row(*buttons)
