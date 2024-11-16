@@ -1,12 +1,11 @@
-from aiogram.types import ReplyKeyboardMarkup
+# File: keyboards/main_menu.py
 from .base import BaseKeyboard
-from keyboards import NavigationMenu, ProfileMenu, MainMenu
 
 class MainMenu(BaseKeyboard):
     """Головне меню бота"""
     
     @classmethod
-    def get_main_menu(cls) -> ReplyKeyboardMarkup:
+    def get_main_menu(cls):
         """Повертає головне меню з двома основними кнопками"""
         buttons = [
             ["🧭 Навігація", "🪧 Мій Кабінет"]
