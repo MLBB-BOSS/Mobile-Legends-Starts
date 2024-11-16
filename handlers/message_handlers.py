@@ -13,7 +13,7 @@ async def handle_navigation(message: Message):
         reply_markup=NavigationMenu.get_navigation_menu()
     )
 
-@router.message(F.text == "🪧 Мій Кабінет")
+@router.message(F.text == "🪧 Мій Кабінет")  # Переконайтесь, що текст точно співпадає
 async def handle_profile(message: Message):
     """Обробляє натискання кнопки Мій Кабінет"""
     await message.answer(
