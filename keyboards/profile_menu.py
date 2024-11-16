@@ -1,11 +1,11 @@
-from aiogram.types import InlineKeyboardMarkup
+# File: keyboards/profile_menu.py
 from .base import BaseKeyboard
 
 class ProfileMenu(BaseKeyboard):
     """Меню особистого кабінету"""
     
     @classmethod
-    def get_profile_menu(cls) -> InlineKeyboardMarkup:
+    def get_profile_menu(cls):
         """Повертає меню особистого кабінету"""
         buttons = [
             [{"text": "📊 Статистика", "callback_data": "statistics"}],
