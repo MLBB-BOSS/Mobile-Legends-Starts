@@ -1,7 +1,8 @@
+# File: core/bot_runner.py
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from config import Config
+from config import config
 from handlers.start_command import router as start_router
 from handlers.hero_commands import router as hero_router
 from handlers.message_handlers import router as message_router
@@ -16,29 +17,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Ініціалізація бота і диспетчера
-bot = Bot(token=Config.BOT_TOKEN)
+bot = Bot(token=config.TELEGRAM_BOT_TOKEN.get_secret_value())
 dp = Dispatcher()
 
-# Функція налаштування роутерів
 def setup_routers() -> None:
     logger.info("Починаємо реєстрацію роутерів...")
     
-    # Реєструємо всі роутери
-    dp.include_router(menu_router)  # Меню має бути першим для обробки кнопок
+    dp.include_router(menu_router)
     dp.include_router(start_router)
     dp.include_router(hero_router)
     dp.include_router(message_router)
     
     logger.info("Всі роутери зареєстровано")
 
-# Головна функція запуску бота
 async def main() -> None:
-    # Налаштовуємо роутери
     setup_routers()
-    
     logger.info("Запускаємо бота...")
-    
-    # Запускаємо бота
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
