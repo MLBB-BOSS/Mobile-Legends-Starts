@@ -3,7 +3,8 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
     InlineKeyboardMarkup,
-    InlineKeyboardButton
+    InlineKeyboardButton,
+    ReplyKeyboardRemove
 )
 from typing import List, Union, Dict
 from .utils import create_keyboard_row
@@ -35,14 +36,13 @@ class BaseKeyboard:
 
         if is_inline:
             return InlineKeyboardMarkup(inline_keyboard=keyboard, **kwargs)
-        return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=resize_keyboard, **kwargs)
+        return ReplyKeyboardMarkup(
+            keyboard=keyboard, 
+            resize_keyboard=resize_keyboard, 
+            **kwargs
+        )
 
-    @classmethod
-    def create_row(cls, *buttons: Union[Dict, InlineKeyboardButton]) -> List[InlineKeyboardButton]:
-        """
-        Створює ряд inline кнопок
-        
-        :param buttons: Кнопки у вигляді словників або об'єктів InlineKeyboardButton
-        :return: Список кнопок InlineKeyboardButton
-        """
-        return create_keyboard_row(*buttons)
+    @staticmethod
+    def remove_keyboard() -> ReplyKeyboardRemove:
+        """Видаляє поточну reply-клавіатуру"""
+        return ReplyKeyboardRemove()
