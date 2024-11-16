@@ -1,3 +1,4 @@
+from aiogram.types import ReplyKeyboardMarkup
 from .base import BaseKeyboard
 
 class MainMenu(BaseKeyboard):
