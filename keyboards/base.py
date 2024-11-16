@@ -1,4 +1,9 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
 from typing import List, Union, Dict
 
 class BaseKeyboard:
@@ -9,6 +14,7 @@ class BaseKeyboard:
         resize_keyboard: bool = True,
         **kwargs
     ) -> Union[ReplyKeyboardMarkup, InlineKeyboardMarkup]:
+        # ... решта коду залишається без змін ...
         """
         Створює клавіатуру на основі списку кнопок
         
