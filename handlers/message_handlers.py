@@ -16,7 +16,7 @@ async def cmd_start(message: Message):
         reply_markup=MainMenu.get_main_menu()
     )
 
-@router.message(F.text == "🧭")
+@router.message(F.text == "🧭 Навігація")
 async def handle_navigation(message: Message):
     """Обробляє натискання кнопки Навігація"""
     logger.info(f"Отримано команду навігації: {message.text}")
@@ -25,7 +25,7 @@ async def handle_navigation(message: Message):
         reply_markup=NavigationMenu.get_navigation_menu()
     )
 
-@router.message(F.text == "🪪")
+@router.message(F.text == "🪪 Мій Кабінет")
 async def handle_profile(message: Message):
     """Обробляє натискання кнопки Мій Кабінет"""
     logger.info(f"Отримано команду профілю: {message.text}")
