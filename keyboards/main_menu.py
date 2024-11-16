@@ -1,5 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup
 from .base import BaseKeyboard
+from keyboards import NavigationMenu, ProfileMenu, MainMenu
 
 class MainMenu(BaseKeyboard):
     """Головне меню бота"""
