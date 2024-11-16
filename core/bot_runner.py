@@ -6,6 +6,7 @@ from handlers.hero_commands import router as hero_router
 from handlers.start_command import router as start_router
 from handlers.message_handlers import router as message_router
 from handlers.menu_handlers import router as menu_router  # Додаємо імпорт меню
+from handlers.menu_handlers import router as menu_router
 
 # Налаштування логування
 logging.basicConfig(
@@ -33,7 +34,9 @@ async def main():
             try:
                 if not router.parent_router:  # Перевіряємо, чи роутер ще не приєднаний
                     dp.include_router(router)
+                     dp.include_router(menu_router)
                     logger.info(f"Успішно зареєстровано роутер: {name}")
+
             except Exception as e:
                 logger.warning(f"Роутер {name} вже зареєстрований або виникла помилка: {e}")
                 continue
