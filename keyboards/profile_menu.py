@@ -8,8 +8,9 @@ class ProfileMenu(BaseKeyboard):
     def get_profile_menu(cls):
         """Повертає меню особистого кабінету"""
         buttons = [
-            ["📊 Статистика", "🏅 Досягнення"],
-            ["⚙️ Налаштування"],
-            ["🔙 Головне меню"]  # Кнопка повернення в головне меню
+            "📊 Статистика",
+            "🏅 Досягнення",
+            "⚙️ Налаштування",
+            "🔙 Головне меню"
         ]
-        return cls.create_keyboard(buttons)
+        return cls.create_keyboard(buttons, row_width=2)
