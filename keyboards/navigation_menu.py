@@ -1,11 +1,11 @@
-from aiogram.types import InlineKeyboardMarkup
+# File: keyboards/navigation_menu.py
 from .base import BaseKeyboard
 
 class NavigationMenu(BaseKeyboard):
     """Меню навігації"""
     
     @classmethod
-    def get_navigation_menu(cls) -> InlineKeyboardMarkup:
+    def get_navigation_menu(cls):
         """Повертає меню навігації"""
         buttons = [
             [{"text": "📚 Гайди", "callback_data": "guides"}],
