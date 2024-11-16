@@ -1,6 +1,6 @@
 from aiogram import Router, types
 from aiogram.filters import CommandStart
-from services.reply_keyboard import get_main_keyboard
+from keyboards.main_menu import MainMenu  # Новий імпорт
 import logging
 
 router = Router()
@@ -25,10 +25,13 @@ _Готовий допомогти тобі стати кращим гравце
 '''
 
     try:
+        menu = MainMenu()
+        keyboard = await menu.get_keyboard()
+        
         await message.answer(
             text=welcome_text, 
             parse_mode="Markdown",
-            reply_markup=get_main_keyboard()  # Додаємо клавіатуру
+            reply_markup=keyboard
         )
         logger.info(f"Відправлено привітання користувачу {user_name} (ID: {message.from_user.id})")
     except Exception as e:
