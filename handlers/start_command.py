@@ -1,4 +1,3 @@
-# handlers/start_command.py
 from aiogram import Router, types
 from aiogram.filters import CommandStart
 from keyboards import MainMenu
@@ -13,7 +12,7 @@ async def start_command(message: types.Message):
     try:
         keyboard = MainMenu.get_main_menu()
         await message.answer(
-            loc.get_message("messages.welcome"),
+            loc.get_message("messages.start_command"),
             reply_markup=keyboard
         )
     except Exception as e:
