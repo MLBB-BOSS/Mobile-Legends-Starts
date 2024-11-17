@@ -1,5 +1,5 @@
 # File: keyboards/hero_menu.py
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from .base import BaseKeyboard
 
 class HeroMenu(BaseKeyboard):
@@ -17,19 +17,28 @@ class HeroMenu(BaseKeyboard):
     @classmethod
     def get_class_keyboard(cls):
         """Повертає клавіатуру з класами героїв"""
-        # Використання create_row для створення рядків кнопок
         buttons = [
-            cls.create_row(
-                {"text": "Tank", "callback_data": "class_tank"},
-                {"text": "Fighter", "callback_data": "class_fighter"}
-            ),
-            cls.create_row(
-                {"text": "Assassin", "callback_data": "class_assassin"},
-                {"text": "Mage", "callback_data": "class_mage"}
-            ),
-            cls.create_row(
-                {"text": "Marksman", "callback_data": "class_marksman"},
-                {"text": "Support", "callback_data": "class_support"}
-            )
+            "Tank", "Fighter",
+            "Assassin", "Mage",
+            "Marksman", "Support"
         ]
-        return InlineKeyboardMarkup(inline_keyboard=buttons)
+        return cls.create_keyboard(
+            buttons=buttons,
+            row_width=2,
+            resize_keyboard=True
+        )
+
+    @classmethod
+    def get_heroes_keyboard(cls, hero_class: str):
+        """Повертає клавіатуру з героями вибраного класу"""
+        if hero_class.lower() not in cls._heroes:
+            return None
+        
+        buttons = cls._heroes[hero_class.lower()]
+        buttons.append("↩️ Назад до класів")
+        
+        return cls.create_keyboard(
+            buttons=buttons,
+            row_width=2,
+            resize_keyboard=True
+        )
