@@ -1,6 +1,8 @@
+# handlers/start_command.py
 from aiogram import Router, types
 from aiogram.filters import CommandStart
 from keyboards import MainMenu
+from utils.localization import loc
 import logging
 
 router = Router()
@@ -11,9 +13,9 @@ async def start_command(message: types.Message):
     try:
         keyboard = MainMenu.get_main_menu()
         await message.answer(
-            "Вітаю! Оберіть розділ:",
+            loc.get_message("messages.welcome"),
             reply_markup=keyboard
         )
     except Exception as e:
         logger.error(f"Помилка при старті: {e}")
-        await message.answer("Вибачте, сталася помилка.")
+        await message.answer(loc.get_message("messages.error"))
