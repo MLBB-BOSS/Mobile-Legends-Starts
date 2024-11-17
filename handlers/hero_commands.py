@@ -1,47 +1,26 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
+from aiogram.types import Message
+from aiogram.filters import Command, Text
 from keyboards import HeroMenu
-import logging
 
-logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(Command("hero"))
+@router.message(Command("heroes"))
 async def show_hero_classes(message: Message):
-    try:
-        keyboard = HeroMenu.get_class_keyboard()
-        await message.answer(
-            "Оберіть клас героя:",
-            reply_markup=keyboard
-        )
-    except Exception as e:
-        logger.error(f"Помилка при показі класів героїв: {e}")
-        await message.answer("Вибачте, сталася помилка.")
+    """Показує меню вибору класу героїв"""
+    keyboard = HeroMenu.get_class_keyboard()
+    await message.answer("Виберіть клас героя:", reply_markup=keyboard)
 
-@router.callback_query(F.data.startswith("class_"))
-async def show_heroes_by_class(callback: CallbackQuery):
-    try:
-        hero_class = callback.data.replace("class_", "")
-        keyboard = HeroMenu.get_heroes_keyboard(hero_class)
-        await callback.message.edit_text(
-            f"Оберіть героя класу {hero_class.title()}:",
-            reply_markup=keyboard
-        )
-        await callback.answer()
-    except Exception as e:
-        logger.error(f"Помилка при показі героїв класу: {e}")
-        await callback.answer("Сталася помилка", show_alert=True)
+@router.message(Text(text=["Tank", "Fighter", "Assassin", "Mage", "Marksman", "Support"]))
+async def show_heroes_by_class(message: Message):
+    """Показує героїв вибраного класу"""
+    keyboard = HeroMenu.get_heroes_keyboard(message.text)
+    if keyboard:
+        await message.answer(f"Герої класу {message.text}:", reply_markup=keyboard)
+    else:
+        await message.answer("Невідомий клас героя")
 
-@router.callback_query(F.data == "back_to_classes")
-async def back_to_classes(callback: CallbackQuery):
-    try:
-        keyboard = HeroMenu.get_class_keyboard()
-        await callback.message.edit_text(
-            "Оберіть клас героя:",
-            reply_markup=keyboard
-        )
-        await callback.answer()
-    except Exception as e:
-        logger.error(f"Помилка при поверненні до класів: {e}")
-        await callback.answer("Сталася помилка", show_alert=True)
+@router.message(Text(text="↩️ Назад до класів"))
+async def back_to_classes(message: Message):
+    """Повертає до меню вибору класу"""
+    await show_hero_classes(message)
