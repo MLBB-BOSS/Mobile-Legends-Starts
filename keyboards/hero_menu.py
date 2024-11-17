@@ -1,4 +1,5 @@
 # File: keyboards/hero_menu.py
+from aiogram.types import InlineKeyboardMarkup
 from .base import BaseKeyboard
 
 class HeroMenu(BaseKeyboard):
