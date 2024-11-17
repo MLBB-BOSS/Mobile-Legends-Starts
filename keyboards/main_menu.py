@@ -1,14 +1,18 @@
-# File: keyboards/main_menu.py
-from .base import BaseKeyboard
+# keyboards/main_menu.py
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from utils.localization import loc
 
-class MainMenu(BaseKeyboard):
-    """Головне меню бота"""
-    
-    @classmethod
-    def get_main_menu(cls):
-        """Повертає головне меню з двома основними кнопками"""
+class MainMenu:
+    @staticmethod
+    def get_main_menu() -> ReplyKeyboardMarkup:
         buttons = [
-            "🧭 Навігація",
-            "🪪 Мій Кабінет"  # Переконайтесь, що текст точно співпадає
+            [
+                KeyboardButton(text=loc.get_message("buttons.guides")),
+                KeyboardButton(text=loc.get_message("buttons.profile"))
+            ],
+            [
+                KeyboardButton(text=loc.get_message("buttons.voting")),
+                KeyboardButton(text=loc.get_message("buttons.characters"))
+            ]
         ]
-        return cls.create_keyboard(buttons, row_width=2)
+        return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
