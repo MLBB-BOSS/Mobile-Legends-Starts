@@ -6,12 +6,8 @@ class MainMenu:
     def get_main_menu() -> ReplyKeyboardMarkup:
         buttons = [
             [
-                KeyboardButton(text=loc.get_message("buttons.guides")),
-                KeyboardButton(text=loc.get_message("buttons.profile"))
-            ],
-            [
-                KeyboardButton(text=loc.get_message("buttons.voting")),
-                KeyboardButton(text=loc.get_message("buttons.characters"))
+                KeyboardButton(text=loc.get_message("buttons.navigation")),  # "🧭 Навігація"
+                KeyboardButton(text=loc.get_message("buttons.profile"))      # "🪪 Мій Кабінет"
             ]
         ]
         return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
