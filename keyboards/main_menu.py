@@ -1,15 +1,14 @@
 # keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
+from config.localization.localize import get_message as _
 
 class MainMenu:
-    @staticmethod
-    def get_main_menu() -> ReplyKeyboardMarkup:
+    def get_main_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text=loc.get_message("buttons.navigation")),
-                    KeyboardButton(text=loc.get_message("buttons.profile"))
+                    KeyboardButton(text=_("buttons.navigation")),
+                    KeyboardButton(text=_("buttons.profile"))
                 ]
             ],
             resize_keyboard=True
