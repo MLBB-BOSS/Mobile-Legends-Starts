@@ -1,19 +1,19 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import get_message as _
+from utils.localization import loc  # Змінений імпорт
 
 class ProfileMenu:
     def get_profile_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text=_("buttons.statistics")),
-                    KeyboardButton(text=_("buttons.achievements"))
+                    KeyboardButton(text=loc.get_message("buttons.statistics")),
+                    KeyboardButton(text=loc.get_message("buttons.achievements"))
                 ],
                 [
-                    KeyboardButton(text=_("buttons.settings")),
-                    KeyboardButton(text=_("buttons.feedback"))
+                    KeyboardButton(text=loc.get_message("buttons.settings")),
+                    KeyboardButton(text=loc.get_message("buttons.feedback"))
                 ],
-                [KeyboardButton(text=_("buttons.back"))]
+                [KeyboardButton(text=loc.get_message("buttons.back"))]
             ],
             resize_keyboard=True
         )
