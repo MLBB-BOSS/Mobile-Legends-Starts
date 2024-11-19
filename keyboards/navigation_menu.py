@@ -1,18 +1,47 @@
-# File: keyboards/navigation_menu.py
-from .base import BaseKeyboard
+# keyboards/navigation_menu.py
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from utils.localization import loc
 
-class NavigationMenu(BaseKeyboard):
-    """Меню навігації"""
-    
-    @classmethod
-    def get_navigation_menu(cls):
-        """Повертає меню навігації"""
-        buttons = [
-            "📚 Гайди",
-            "🧙‍♂️ Персонажі",
-            "🎯 Контр-Піки",
-            "⚔️ Збірки",
-            "🗳 Голосування",
-            "🔙 Головне меню"
-        ]
-        return cls.create_keyboard(buttons, row_width=2)
+class NavigationMenu:
+    @staticmethod
+    def get_main_navigation() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.guides")),
+                    KeyboardButton(text=loc.get_message("buttons.characters"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.counter_picks")),
+                    KeyboardButton(text=loc.get_message("buttons.builds"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.voting")),
+                    KeyboardButton(text=loc.get_message("buttons.back"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_heroes_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.tanks")),
+                    KeyboardButton(text=loc.get_message("buttons.fighters"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.assassins")),
+                    KeyboardButton(text=loc.get_message("buttons.mages"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.marksmen")),
+                    KeyboardButton(text=loc.get_message("buttons.supports"))
+                ],
+                [KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
