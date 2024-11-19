@@ -1,6 +1,6 @@
 # keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
+from utils.localization import loc  # Змінений імпорт
 
 class MainMenu:
     def get_main_menu(self) -> ReplyKeyboardMarkup:
