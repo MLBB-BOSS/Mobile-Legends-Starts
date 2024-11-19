@@ -1,20 +1,17 @@
-from aiogram import Router, types
-from aiogram.filters import CommandStart
-from keyboards import MainMenu
-from utils.localization import loc
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
+from keyboards.main_menu import MainMenu
+from config.localization.localize import get_message as _
 import logging
 
-router = Router()
 logger = logging.getLogger(__name__)
+router = Router()
 
-@router.message(CommandStart())
-async def start_command(message: types.Message):
-    try:
-        keyboard = MainMenu.get_main_menu()
-        await message.answer(
-            loc.get_message("messages.start_command"),
-            reply_markup=keyboard
-        )
-    except Exception as e:
-        logger.error(f"Помилка при старті: {e}")
-        await message.answer(loc.get_message("messages.error"))
+@router.message(Command("start"))
+async def cmd_start(message: Message):
+    logger.info(f"Користувач {message.from_user.id} запустив бота")
+    await message.answer(
+        _("messages.start_command"),
+        reply_markup=MainMenu().get_main_menu()
+    )
