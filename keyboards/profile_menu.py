@@ -1,5 +1,5 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from config.localization.localize import get_message as _
+from utils.localization import get_message as _
 
 class ProfileMenu:
     def get_profile_menu(self) -> ReplyKeyboardMarkup:
