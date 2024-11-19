@@ -1,8 +1,6 @@
-# File: keyboards/__init__.py
-from .keyboard_utils import create_keyboard_row
+# keyboards/__init__.py
 from .main_menu import MainMenu
+from .navigation_menu import NavigationMenu
+from .profile_menu import ProfileMenu
 
-__all__ = [
-    'create_keyboard_row',
-    'MainMenu'
-]
+__all__ = ['MainMenu', 'NavigationMenu', 'ProfileMenu']
