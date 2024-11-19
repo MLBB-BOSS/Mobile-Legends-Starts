@@ -1,6 +1,6 @@
 # keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from config.localization.localize import get_message as _
+from config.localize import get_message as _
 
 class MainMenu:
     def get_main_menu(self) -> ReplyKeyboardMarkup:
