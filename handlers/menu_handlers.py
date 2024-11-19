@@ -3,7 +3,7 @@ from aiogram.types import Message
 from keyboards.main_menu import MainMenu
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.profile_menu import ProfileMenu
-from config.messages.localization import get_message as _
+from config.localization.localize import get_message as _
 import logging
 
 logger = logging.getLogger(__name__)
