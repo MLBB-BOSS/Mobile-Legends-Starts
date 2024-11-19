@@ -1,23 +1,21 @@
-# keyboards/navigation_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
+from config.messages.localization import get_message as _
 
 class NavigationMenu:
-    @staticmethod
-    def get_navigation_menu() -> ReplyKeyboardMarkup:
+    def get_navigation_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text=loc.get_message("buttons.guides")),
-                    KeyboardButton(text=loc.get_message("buttons.characters"))
+                    KeyboardButton(text=_("buttons.guides")),
+                    KeyboardButton(text=_("buttons.characters"))
                 ],
                 [
-                    KeyboardButton(text=loc.get_message("buttons.counter_picks")),
-                    KeyboardButton(text=loc.get_message("buttons.builds"))
+                    KeyboardButton(text=_("buttons.counter_picks")),
+                    KeyboardButton(text=_("buttons.builds"))
                 ],
                 [
-                    KeyboardButton(text=loc.get_message("buttons.voting")),
-                    KeyboardButton(text=loc.get_message("buttons.back"))
+                    KeyboardButton(text=_("buttons.voting")),
+                    KeyboardButton(text=_("buttons.back"))
                 ]
             ],
             resize_keyboard=True
