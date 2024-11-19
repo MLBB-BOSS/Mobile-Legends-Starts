@@ -1,16 +1,22 @@
-# File: keyboards/profile_menu.py
-from .base import BaseKeyboard
+# keyboards/profile_menu.py
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from utils.localization import loc
 
-class ProfileMenu(BaseKeyboard):
-    """Меню особистого кабінету"""
-    
-    @classmethod
-    def get_profile_menu(cls):
-        """Повертає меню особистого кабінету"""
-        buttons = [
-            "📊 Статистика",
-            "🏅 Досягнення",
-            "⚙️ Налаштування",
-            "🔙 Головне меню"
-        ]
-        return cls.create_keyboard(buttons, row_width=2)
+class ProfileMenu:
+    @staticmethod
+    def get_profile_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.statistics")),
+                    KeyboardButton(text=loc.get_message("buttons.achievements"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.settings")),
+                    KeyboardButton(text=loc.get_message("buttons.feedback"))
+                ],
+                [KeyboardButton(text=loc.get_message("buttons.back"))]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
