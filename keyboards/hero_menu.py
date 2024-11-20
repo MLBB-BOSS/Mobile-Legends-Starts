@@ -1,3 +1,5 @@
+# File: keyboards/hero_menu.py
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from utils.localization import loc
 
@@ -11,7 +13,7 @@ class HeroMenu:
                 text=class_name,
                 callback_data=f'hero_class_{class_key}'
             )
-            keyboard.append([button])  # Додаємо кожну кнопку в окремий ряд
+            keyboard.append([button])
         keyboard.append([
             InlineKeyboardButton(
                 text=loc.get_message("buttons.back_to_navigation"),
@@ -29,7 +31,7 @@ class HeroMenu:
                 text=hero_name,
                 callback_data=f'hero_select_{hero_name}'
             )
-            keyboard.append([button])  # Додаємо кожну кнопку в окремий ряд
+            keyboard.append([button])
         keyboard.append([
             InlineKeyboardButton(
                 text=loc.get_message("buttons.back_to_classes"),
@@ -42,8 +44,8 @@ class HeroMenu:
         keyboard = [
             [
                 InlineKeyboardButton(
-                    text=loc.get_message("buttons.back_to_hero_classes"),
-                    callback_data='back_to_hero_classes'
+                    text=loc.get_message("buttons.back_to_hero_list"),
+                    callback_data='back_to_hero_list'
                 )
             ]
         ]
