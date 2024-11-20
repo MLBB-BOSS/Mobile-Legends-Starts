@@ -7,8 +7,9 @@ from handlers.start_command import router as start_router
 from handlers.hero_commands import router as hero_router
 from handlers.message_handlers import router as message_router
 from handlers.menu_handlers import router as menu_router
-from handlers.hero_class_handlers import router as hero_class_router  # New import
-from handlers.statistics_handler import router as statistics_router   # New import
+from handlers.hero_class_handlers import router as hero_class_router
+from handlers.statistics_handler import router as statistics_router
+from handlers.error_handler import router as error_router  # Додали імпорт обробника помилок
 
 # Налаштування логування
 logging.basicConfig(
@@ -25,9 +26,12 @@ dp = Dispatcher()
 def setup_routers() -> None:
     logger.info("Починаємо реєстрацію роутерів...")
     
-    # Додаємо нові роутери перед існуючими, щоб вони мали пріоритет
-    dp.include_router(hero_class_router)    # Новий роутер для класів героїв
-    dp.include_router(statistics_router)    # Новий роутер для статистики
+    # Реєструємо обробник помилок першим
+    dp.include_router(error_router)
+    
+    # Потім всі інші роутери
+    dp.include_router(hero_class_router)
+    dp.include_router(statistics_router)
     dp.include_router(menu_router)
     dp.include_router(start_router)
     dp.include_router(hero_router)
@@ -43,7 +47,6 @@ async def main() -> None:
     except Exception as e:
         logger.error(f"Помилка при запуску бота: {e}")
     finally:
-        # Додаємо закриття сесії при завершенні роботи
         await bot.session.close()
         logger.info("З'єднання з Telegram закрито")
 
