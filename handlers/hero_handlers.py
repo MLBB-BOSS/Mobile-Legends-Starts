@@ -1,70 +1,61 @@
-# handlers/hero_handlers.py
-from aiogram import Router, types, F
+from aiogram import Router, F
+from aiogram.types import Message
+from aiogram.filters import Text
+from keyboards.hero_menu import HeroMenu
 from utils.localization import loc
+import logging
 
+logger = logging.getLogger(__name__)
 router = Router()
+hero_menu = HeroMenu()
 
-@router.message(F.text.in_({
-    loc.get_message("buttons.tanks"),
-    loc.get_message("buttons.fighters"),
-    loc.get_message("buttons.assassins"),
-    loc.get_message("buttons.mages"),
-    loc.get_message("buttons.marksmen"),
-    loc.get_message("buttons.supports")
-}))
-async def handle_hero_class(message: types.Message):
+@router.message(Text(text=loc.get_message("buttons.characters")))
+async def show_hero_classes(message: Message):
     try:
-        class_type = message.text
-        # Get heroes for the selected class from your JSON data
-        heroes = get_heroes_by_class(class_type)
-        
-        if heroes:
-            # Create keyboard with heroes
-            keyboard = create_heroes_keyboard(heroes)
-            await message.answer(
-                loc.get_message("messages.hero_menu.select_hero").format(
-                    class_name=class_type
-                ),
-                reply_markup=keyboard
-            )
-        else:
-            await message.answer(loc.get_message("errors.class_not_found"))
+        keyboard = hero_menu.get_hero_classes_menu()
+        await message.answer(
+            text=loc.get_message("messages.hero_menu.select_class"),
+            reply_markup=keyboard
+        )
     except Exception as e:
-        await message.answer(loc.get_message("errors.general"))
+        logger.error(f"Помилка при показі класів героїв: {e}")
+        await message.answer(text=loc.get_message("errors.general"))
 
-def get_heroes_by_class(class_type: str) -> list:
-    # Map emoji to class names
-    class_map = {
-        "🛡 Танки": "tank",
-        "⚔️ Бійці": "fighter",
-        "🗡 Асасини": "assassin",
-        "🔮 Маги": "mage",
-        "🏹 Стрільці": "marksman",
-        "✨ Підтримка": "support"
-    }
-    
-    class_key = class_map.get(class_type)
-    if class_key and class_key in loc.get_message("heroes.classes"):
-        return loc.get_message(f"heroes.classes.{class_key}.heroes")
-    return []
+@router.message(lambda message: any(
+    message.text == loc.get_message(f"buttons.{class_name}") 
+    for class_name in ["tanks", "fighters", "assassins", "mages", "marksmen", "supports"]
+))
+async def show_heroes_by_class(message: Message):
+    try:
+        # Визначаємо клас героя з повідомлення
+        hero_class = next(
+            class_name for class_name in ["tank", "fighter", "assassin", "mage", "marksman", "support"]
+            if message.text == loc.get_message(f"buttons.{class_name}s")
+        )
+        
+        keyboard = hero_menu.get_heroes_by_class(hero_class)
+        await message.answer(
+            text=loc.get_message("messages.hero_menu.select_hero").format(
+                class_name=loc.get_message(f"heroes.classes.{hero_class}.name")
+            ),
+            reply_markup=keyboard
+        )
+    except Exception as e:
+        logger.error(f"Помилка при показі героїв класу: {e}")
+        await message.answer(text=loc.get_message("errors.general"))
 
-def create_heroes_keyboard(heroes: list) -> types.ReplyKeyboardMarkup:
-    keyboard = []
-    # Create rows with 2 heroes per row
-    for i in range(0, len(heroes), 2):
-        row = [
-            types.KeyboardButton(text=heroes[i])
-        ]
-        if i + 1 < len(heroes):
-            row.append(types.KeyboardButton(text=heroes[i + 1]))
-        keyboard.append(row)
-    
-    # Add back button
-    keyboard.append([
-        types.KeyboardButton(text=loc.get_message("buttons.back_to_hero_classes"))
-    ])
-    
-    return types.ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True
-    )
+@router.message(lambda message: any(
+    message.text == hero 
+    for hero_class in ["fighter", "tank", "assassin", "mage", "marksman", "support"]
+    for hero in loc.get_message(f"heroes.classes.{hero_class}.heroes")
+))
+async def show_hero_info(message: Message):
+    try:
+        hero_info = loc.get_message(f"heroes.info.{message.text}")
+        if hero_info:
+            await message.answer(text=hero_info)
+        else:
+            await message.answer(text=loc.get_message("errors.hero_not_found"))
+    except Exception as e:
+        logger.error(f"Помилка при показі інформації про героя: {e}")
+        await message.answer(text=loc.get_message("errors.general"))
