@@ -1,3 +1,4 @@
+# File: core/bot_runner.py
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -6,8 +7,6 @@ from handlers.start_command import router as start_router
 from handlers.hero_commands import router as hero_router
 from handlers.message_handlers import router as message_router
 from handlers.menu_handlers import router as menu_router
-from handlers.statistics_handler import router as statistics_router
-from handlers.hero_class_handlers import router as hero_class_router
 
 # Налаштування логування
 logging.basicConfig(
@@ -24,9 +23,6 @@ dp = Dispatcher()
 def setup_routers() -> None:
     logger.info("Починаємо реєстрацію роутерів...")
     
-    # Register routers in the correct order
-    dp.include_router(hero_class_router)
-    dp.include_router(statistics_router)
     dp.include_router(menu_router)
     dp.include_router(start_router)
     dp.include_router(hero_router)
