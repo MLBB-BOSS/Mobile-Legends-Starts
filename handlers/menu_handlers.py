@@ -113,4 +113,4 @@ async def go_back(message: Message):
         logger.exception(f"Помилка при поверненні до головного меню: {e}")
         await message.answer(
             loc.get_message("errors.general")
-        )
+            )
