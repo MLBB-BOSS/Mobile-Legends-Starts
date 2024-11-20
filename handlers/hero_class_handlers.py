@@ -1,3 +1,4 @@
+# handlers/hero_class_handlers.py
 from aiogram import Router, types, F
 from utils.localization import loc
 import logging
@@ -52,7 +53,8 @@ def create_hero_keyboard(heroes: list) -> types.ReplyKeyboardMarkup:
     )
 
 # Handle hero selection
-@router.message(lambda message: any(message.text in class_info["heroes"] for class_info in loc.get_message("heroes.classes", {}).values()))
+@router.message(lambda message: any(message.text in class_info["heroes"] 
+                                  for class_info in loc.get_message("heroes.classes").values()))
 async def handle_hero_selection(message: types.Message):
     try:
         hero_name = message.text
