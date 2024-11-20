@@ -5,9 +5,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MainMenu:
-    """
-    Клас для створення головного меню бота
-    """
     def get_main_menu(self) -> ReplyKeyboardMarkup:
         try:
             keyboard = ReplyKeyboardMarkup(
@@ -15,6 +12,10 @@ class MainMenu:
                     [
                         KeyboardButton(text=loc.get_message("buttons.navigation")),
                         KeyboardButton(text=loc.get_message("buttons.profile"))
+                    ],
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.settings")),
+                        KeyboardButton(text=loc.get_message("buttons.feedback"))
                     ]
                 ],
                 resize_keyboard=True
