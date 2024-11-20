@@ -1,14 +1,16 @@
-# File: keyboards/main_menu.py
-
+# keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
+from utils.localization import loc  # Змінений імпорт
 
 class MainMenu:
-    @staticmethod
-    def get_main_menu() -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-        keyboard.row(
-            KeyboardButton(text=loc.get_message("buttons.navigation")),
-            KeyboardButton(text=loc.get_message("buttons.profile"))
+    def get_main_menu(self) -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.navigation")),
+                    KeyboardButton(text=loc.get_message("buttons.profile"))
+                ]
+            ],
+            resize_keyboard=True
         )
         return keyboard
