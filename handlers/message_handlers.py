@@ -8,35 +8,32 @@ router = Router()
 logger = logging.getLogger(__name__)
 
 @router.errors()
-async def handle_errors(event: types.ErrorEvent, exception: Exception) -> None:
+async def handle_errors(update: types.Update, exception: Exception) -> None:
     """
-    Universal error handler
+    Universal error handler with correct parameter signature
     """
     try:
-        logger.error(f"Error occurred: {exception}")
+        logger.error(f"Exception occurred: {exception}")
         
-        if isinstance(exception, TelegramAPIError):
-            # Handle Telegram API errors
-            error_message = loc.get_message("errors.general")
-        else:
-            # Handle other errors
-            error_message = loc.get_message("errors.general")
-        
-        # Try to get the chat_id from the update object
-        if hasattr(event, 'update') and hasattr(event.update, 'message'):
-            chat_id = event.update.message.chat.id
-            await event.update.bot.send_message(
+        # Get chat_id from update if possible
+        chat_id = None
+        if hasattr(update, 'message') and update.message is not None:
+            chat_id = update.message.chat.id
+        elif hasattr(update, 'callback_query') and update.callback_query is not None:
+            chat_id = update.callback_query.message.chat.id
+            
+        if chat_id:
+            await update.bot.send_message(
                 chat_id=chat_id,
-                text=error_message
+                text=loc.get_message("errors.general")
             )
     except Exception as e:
         logger.error(f"Error in error handler: {e}")
 
-# Handle unhandled messages
 @router.message()
 async def handle_unknown_message(message: types.Message):
     """
-    Handler for messages that weren't caught by other handlers
+    Handler for unhandled messages
     """
     try:
         logger.info(f"Unhandled message received: {message.text}")
