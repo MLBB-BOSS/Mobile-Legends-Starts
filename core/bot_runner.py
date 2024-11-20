@@ -10,7 +10,10 @@ from handlers.menu_handlers import router as menu_router
 from handlers.hero_class_handlers import router as hero_class_router
 from handlers.statistics_handler import router as statistics_router
 from handlers.error_handler import router as error_router  # Додали імпорт обробника помилок
+from handlers.hero_handler import router as hero_router
 
+# В функції setup_routers або подібній:
+dp.include_router(hero_router)
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
