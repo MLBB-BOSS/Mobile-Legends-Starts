@@ -5,8 +5,8 @@ import logging
 class LocalizationManager:
     def __init__(self, locale: str = "uk"):
         self.locale = locale
+        self.logger = logging.getLogger(__name__)  # Add this line to initialize the logger
         self.messages = self._load_messages()
-        self.logger = logging.getLogger(__name__)
 
     def _load_messages(self) -> dict:
         try:
