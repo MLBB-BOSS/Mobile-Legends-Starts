@@ -1,7 +1,8 @@
 # File: handlers/menu_handlers.py
 
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
+from aiogram.filters import CommandStart, Text
 from keyboards.main_menu import MainMenu
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.hero_menu import HeroMenu
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 # Обробник для команди /start
-@router.message(commands=['start'])
+@router.message(CommandStart())
 async def start_command(message: Message):
     logger.info(f"Користувач {message.from_user.id} запустив бота")
     await message.answer(
@@ -22,7 +23,7 @@ async def start_command(message: Message):
     )
 
 # Обробник для кнопки "Навігація"
-@router.message(F.text == loc.get_message("buttons.navigation"))
+@router.message(Text(equals=loc.get_message("buttons.navigation")))
 async def show_navigation_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню навігації")
     try:
@@ -38,7 +39,7 @@ async def show_navigation_menu(message: Message):
         )
 
 # Обробник для кнопки "Мій Кабінет"
-@router.message(F.text == loc.get_message("buttons.profile"))
+@router.message(Text(equals=loc.get_message("buttons.profile")))
 async def show_profile_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню профілю")
     try:
@@ -54,7 +55,7 @@ async def show_profile_menu(message: Message):
         )
 
 # Обробник для кнопки "Персонажі"
-@router.message(F.text == loc.get_message("buttons.characters"))
+@router.message(Text(equals=loc.get_message("buttons.characters")))
 async def show_heroes_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню персонажів")
     try:
@@ -70,7 +71,7 @@ async def show_heroes_menu(message: Message):
         )
 
 # Обробник для вибору класу героя
-@router.message(F.text.in_([
+@router.message(Text(equals=[
     loc.get_message("buttons.tanks"),
     loc.get_message("buttons.fighters"),
     loc.get_message("buttons.assassins"),
@@ -104,7 +105,7 @@ async def handle_hero_class_selection(message: Message):
         )
 
 # Обробник для вибору героя
-@router.message(F.text.in_(loc.get_all_hero_names()))
+@router.message(Text(in_=loc.get_all_hero_names()))
 async def handle_hero_selection(message: Message):
     hero_name = message.text
     logger.info(f"Користувач {message.from_user.id} вибрав героя: {hero_name}")
@@ -124,7 +125,7 @@ async def handle_hero_selection(message: Message):
         )
 
 # Обробник для кнопки "Гайди"
-@router.message(F.text == loc.get_message("buttons.guides"))
+@router.message(Text(equals=loc.get_message("buttons.guides")))
 async def show_guides_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню гайдів")
     try:
@@ -140,7 +141,7 @@ async def show_guides_menu(message: Message):
         )
 
 # Обробник для кнопки "Контр-Піки"
-@router.message(F.text == loc.get_message("buttons.counter_picks"))
+@router.message(Text(equals=loc.get_message("buttons.counter_picks")))
 async def show_counter_picks_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню контр-піків")
     try:
@@ -156,7 +157,7 @@ async def show_counter_picks_menu(message: Message):
         )
 
 # Обробник для кнопки "Збірки"
-@router.message(F.text == loc.get_message("buttons.builds"))
+@router.message(Text(equals=loc.get_message("buttons.builds")))
 async def show_builds_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню збірок")
     try:
@@ -172,7 +173,7 @@ async def show_builds_menu(message: Message):
         )
 
 # Обробник для кнопки "Голосування"
-@router.message(F.text == loc.get_message("buttons.voting"))
+@router.message(Text(equals=loc.get_message("buttons.voting")))
 async def show_voting_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню голосування")
     try:
@@ -188,7 +189,7 @@ async def show_voting_menu(message: Message):
         )
 
 # Обробник для кнопки "Назад" до головного меню
-@router.message(F.text == loc.get_message("buttons.back"))
+@router.message(Text(equals=loc.get_message("buttons.back")))
 async def go_back(message: Message):
     logger.info(f"Користувач {message.from_user.id} повернувся до головного меню")
     try:
@@ -203,7 +204,7 @@ async def go_back(message: Message):
         )
 
 # Обробник для кнопки "⬅️ До навігації"
-@router.message(F.text == loc.get_message("buttons.back_to_navigation"))
+@router.message(Text(equals=loc.get_message("buttons.back_to_navigation")))
 async def back_to_navigation(message: Message):
     logger.info(f"Користувач {message.from_user.id} повернувся до меню навігації")
     try:
@@ -219,7 +220,7 @@ async def back_to_navigation(message: Message):
         )
 
 # Обробник для кнопки "↩️ Назад до класів"
-@router.message(F.text == loc.get_message("buttons.back_to_hero_classes"))
+@router.message(Text(equals=loc.get_message("buttons.back_to_hero_classes")))
 async def back_to_hero_classes(message: Message):
     logger.info(f"Користувач {message.from_user.id} повернувся до меню класів героїв")
     try:
