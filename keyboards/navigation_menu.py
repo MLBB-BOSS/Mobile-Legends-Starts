@@ -1,35 +1,98 @@
+# File: keyboards/navigation_menu.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
-import logging
-
-logger = logging.getLogger(__name__)
 
 class NavigationMenu:
-    """
-    Клас для створення меню навігації
-    """
-    def get_navigation_menu(self) -> ReplyKeyboardMarkup:
-        try:
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=[
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.characters")),
-                        KeyboardButton(text=loc.get_message("buttons.guides"))
-                    ],
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.statistics")),
-                        KeyboardButton(text=loc.get_message("buttons.achievements"))
-                    ],
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.back_to_main"))
-                    ]
+    @staticmethod
+    def get_main_navigation() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.guides")),
+                    KeyboardButton(text=loc.get_message("buttons.characters"))
                 ],
-                resize_keyboard=True
-            )
-            return keyboard
-        except Exception as e:
-            logger.error(f"Помилка створення меню навігації: {e}")
-            return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text=loc.get_message("buttons.back"))]],
-                resize_keyboard=True
-            )
+                [
+                    KeyboardButton(text=loc.get_message("buttons.counter_picks")),
+                    KeyboardButton(text=loc.get_message("buttons.builds"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.voting")),
+                    KeyboardButton(text=loc.get_message("buttons.back"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_heroes_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.tanks")),
+                    KeyboardButton(text=loc.get_message("buttons.fighters"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.assassins")),
+                    KeyboardButton(text=loc.get_message("buttons.mages"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.marksmen")),
+                    KeyboardButton(text=loc.get_message("buttons.supports"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_guides_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_counter_picks_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_builds_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    @staticmethod
+    def get_voting_menu() -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
