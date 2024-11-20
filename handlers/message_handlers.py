@@ -1,4 +1,3 @@
-# handlers/message_handlers.py
 from aiogram import Router, types, F
 from aiogram.exceptions import TelegramAPIError
 from utils.localization import loc
@@ -10,12 +9,12 @@ logger = logging.getLogger(__name__)
 @router.errors()
 async def handle_errors(update: types.Update, exception: Exception) -> None:
     """
-    Universal error handler with correct parameter signature
+    Універсальний обробник помилок з правильним підписом параметрів
     """
     try:
-        logger.error(f"Exception occurred: {exception}")
+        logger.error(f"Виникла помилка: {exception}")
         
-        # Get chat_id from update if possible
+        # Отримання chat_id з update, якщо можливо
         chat_id = None
         if hasattr(update, 'message') and update.message is not None:
             chat_id = update.message.chat.id
@@ -28,20 +27,20 @@ async def handle_errors(update: types.Update, exception: Exception) -> None:
                 text=loc.get_message("errors.general")
             )
     except Exception as e:
-        logger.error(f"Error in error handler: {e}")
+        logger.error(f"Помилка в обробнику помилок: {e}")
 
 @router.message()
 async def handle_unknown_message(message: types.Message):
     """
-    Handler for unhandled messages
+    Обробник необроблених повідомлень
     """
     try:
-        logger.info(f"Unhandled message received: {message.text}")
+        logger.info(f"Отримано необроблене повідомлення: {message.text}")
         await message.answer(
             loc.get_message("messages.unhandled_message").format(
                 message=message.text
             )
         )
     except Exception as e:
-        logger.error(f"Error handling unknown message: {e}")
+        logger.error(f"Помилка обробки необробленого повідомлення: {e}")
         await message.answer(loc.get_message("errors.general"))
