@@ -1,8 +1,9 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc  # Змінений імпорт
+from utils.localization import loc
 
 class NavigationMenu:
-    def get_navigation_menu(self) -> ReplyKeyboardMarkup:
+    @staticmethod
+    def get_main_navigation() -> ReplyKeyboardMarkup:  # Перейменовуємо метод
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
