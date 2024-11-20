@@ -6,8 +6,8 @@ from handlers.start_command import router as start_router
 from handlers.hero_commands import router as hero_router
 from handlers.message_handlers import router as message_router
 from handlers.menu_handlers import router as menu_router
-from handlers.statistics_handler import router as statistics_router  # Add this
-from handlers.hero_class_handlers import router as hero_class_router  # Add this
+from handlers.statistics_handler import router as statistics_router
+from handlers.hero_class_handlers import router as hero_class_router
 
 # Налаштування логування
 logging.basicConfig(
@@ -24,33 +24,25 @@ dp = Dispatcher()
 def setup_routers() -> None:
     logger.info("Починаємо реєстрацію роутерів...")
     
-    # Order matters - more specific handlers should go first
-    dp.include_router(statistics_router)     # Add statistics router
-    dp.include_router(hero_class_router)     # Add hero class router
+    # Register routers in the correct order
+    dp.include_router(hero_class_router)
+    dp.include_router(statistics_router)
     dp.include_router(menu_router)
     dp.include_router(start_router)
     dp.include_router(hero_router)
-    dp.include_router(message_router)         # Keep this last as fallback
+    dp.include_router(message_router)
     
     logger.info("Всі роутери зареєстровано")
 
 async def main() -> None:
-    try:
-        setup_routers()
-        logger.info("Запускаємо бота...")
-        await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"Помилка при запуску бота: {e}")
-        raise
-    finally:
-        logger.info("Закриваємо з'єднання з Telegram...")
-        await bot.session.close()
+    setup_routers()
+    logger.info("Запускаємо бота...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Бот зупинений користувачем")
+        logger.info("Бот зупинений")
     except Exception as e:
-        logger.error(f"Критична помилка: {e}")
-        raise
+        logger.error(f"Виникла помилка: {e}")
