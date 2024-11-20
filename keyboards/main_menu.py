@@ -1,3 +1,4 @@
+# keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
 import logging
