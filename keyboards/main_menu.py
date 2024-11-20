@@ -5,10 +5,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MainMenu:
+    """
+    Клас для створення головного меню бота
+    """
     def get_main_menu(self) -> ReplyKeyboardMarkup:
-        """
-        Створює головне меню
-        """
         try:
             keyboard = ReplyKeyboardMarkup(
                 keyboard=[
@@ -23,6 +23,6 @@ class MainMenu:
         except Exception as e:
             logger.error(f"Помилка створення головного меню: {e}")
             return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text="Меню")]],
+                keyboard=[[KeyboardButton(text=loc.get_message("buttons.menu"))]],
                 resize_keyboard=True
             )
