@@ -1,15 +1,8 @@
-# services/states.py
-from aiogram.fsm.state import State, StatesGroup
-
-class RegistrationStates(StatesGroup):
-    waiting_for_nickname = State()
-    waiting_for_game_id = State()
-
-# handlers/registration.py
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
+from services.states import RegistrationStates  # Додано імпорт станів реєстрації
 
 router = Router()
 
