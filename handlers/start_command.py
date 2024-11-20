@@ -1,8 +1,7 @@
-# handlers/start_command.py
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.menu import get_main_menu_keyboard
+from keyboards.main_menu import MainMenu  # Змінений імпорт
 from utils.localization import loc
 import logging
 
@@ -13,7 +12,7 @@ router = Router()
 async def cmd_start(message: Message):
     try:
         welcome_text = loc.get_message("messages.start_command")
-        keyboard = get_main_menu_keyboard()
+        keyboard = MainMenu().get_main_menu()  # Змінений виклик
         
         await message.answer(
             text=welcome_text,
