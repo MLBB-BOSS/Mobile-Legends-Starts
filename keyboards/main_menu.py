@@ -1,9 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class MainMenuKeyboard:
-    """
-    Клас для створення головної клавіатури
-    """
+    """Клас для створення головної клавіатури"""
     @staticmethod
     def get_keyboard() -> ReplyKeyboardMarkup:
         buttons = [
