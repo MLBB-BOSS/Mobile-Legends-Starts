@@ -2,10 +2,12 @@
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
+import logging
+
+logger = logging.getLogger(__name__)
 
 class NavigationMenu:
-    @staticmethod
-    def get_main_navigation() -> ReplyKeyboardMarkup:
+    def get_main_navigation(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -25,8 +27,7 @@ class NavigationMenu:
         )
         return keyboard
 
-    @staticmethod
-    def get_heroes_menu() -> ReplyKeyboardMarkup:
+    def get_heroes_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -49,8 +50,7 @@ class NavigationMenu:
         )
         return keyboard
 
-    @staticmethod
-    def get_guides_menu() -> ReplyKeyboardMarkup:
+    def get_guides_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -61,8 +61,7 @@ class NavigationMenu:
         )
         return keyboard
 
-    @staticmethod
-    def get_counter_picks_menu() -> ReplyKeyboardMarkup:
+    def get_counter_picks_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -73,8 +72,7 @@ class NavigationMenu:
         )
         return keyboard
 
-    @staticmethod
-    def get_builds_menu() -> ReplyKeyboardMarkup:
+    def get_builds_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
@@ -85,8 +83,7 @@ class NavigationMenu:
         )
         return keyboard
 
-    @staticmethod
-    def get_voting_menu() -> ReplyKeyboardMarkup:
+    def get_voting_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
