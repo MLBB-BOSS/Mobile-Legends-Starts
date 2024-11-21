@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 @router.errors()
-async def handle_errors(event: types.Update, exception: Exception) -> None:
+async def handle_errors(update: types.Update, exception: Exception) -> None:
     """
     Універсальний обробник помилок з правильним підписом параметрів
     """
@@ -19,15 +19,23 @@ async def handle_errors(event: types.Update, exception: Exception) -> None:
 
         # Отримання chat_id з update, якщо можливо
         chat_id = None
-        if hasattr(event, 'message') and event.message is not None:
-            chat_id = event.message.chat.id
-        elif hasattr(event, 'callback_query') and event.callback_query is not None:
-            chat_id = event.callback_query.message.chat.id
+        if isinstance(update, types.Message):
+            chat_id = update.chat.id
+        elif isinstance(update, types.CallbackQuery):
+            chat_id = update.message.chat.id
+        elif hasattr(update, 'message') and update.message:
+            chat_id = update.message.chat.id
+        elif hasattr(update, 'callback_query') and update.callback_query:
+            chat_id = update.callback_query.message.chat.id
 
         if chat_id:
-            await event.bot.send_message(
+            error_message = loc.get_message("errors.general")
+            if not error_message:  # Fallback message if localization fails
+                error_message = "Виникла помилка. Будь ласка, спробуйте пізніше."
+                
+            await update.bot.send_message(
                 chat_id=chat_id,
-                text=loc.get_message("errors.general")
+                text=error_message
             )
     except Exception as e:
         logger.error(f"Помилка в обробнику помилок: {e}")
@@ -39,11 +47,18 @@ async def handle_unknown_message(message: types.Message):
     """
     try:
         logger.info(f"Отримано необроблене повідомлення: {message.text}")
+        
+        # Get the message with fallback
         response_text = loc.get_message("messages.unhandled_message", message=message.text)
+        if not response_text:  # Fallback message if localization fails
+            response_text = "Вибачте, я не розумію це повідомлення."
+            
         await message.answer(
-            response_text,
+            text=response_text,
             reply_markup=MainMenu().get_main_menu()
         )
     except Exception as e:
         logger.exception(f"Помилка обробки необробленого повідомлення: {e}")
-        await message.answer(loc.get_message("errors.general"))
+        await message.answer(
+            text="Виникла помилка. Будь ласка, спробуйте пізніше."
+        )
