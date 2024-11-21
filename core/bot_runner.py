@@ -2,6 +2,8 @@ import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 import logging
 import aiogram
 
@@ -29,8 +31,11 @@ if not API_TOKEN:
 
 async def main():
     try:
-        # Створюємо об'єкт бота
-        bot = Bot(token=API_TOKEN, parse_mode='HTML')
+        # Створюємо об'єкт бота з новим синтаксисом для parse_mode
+        bot = Bot(
+            token=API_TOKEN,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        )
         storage = MemoryStorage()
         dp = Dispatcher(storage=storage)
 
@@ -47,8 +52,10 @@ async def main():
         await dp.start_polling(bot)
     except Exception as e:
         logger.exception(f"Помилка під час запуску бота: {e}")
+        raise  # Re-raise the exception to ensure proper cleanup
     finally:
-        await bot.session.close()
+        if 'bot' in locals():  # Check if bot was created before trying to close session
+            await bot.session.close()
 
 if __name__ == '__main__':
     asyncio.run(main())
