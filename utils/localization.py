@@ -1,4 +1,5 @@
 # utils/localization.py
+
 import json
 from pathlib import Path
 import logging
@@ -12,8 +13,8 @@ class LocalizationManager:
 
     def _load_messages(self) -> dict:
         try:
-            file_path = Path(__file__).parent.parent / "config" / "messages" / "locales" / f"{self.locale}.json"
-            
+            file_path = Path(__file__).parent / "messages" / f"{self.locale}.json"
+
             if not file_path.exists():
                 logger.error(f"Файл локалізації не знайдено: {file_path}")
                 return {}
@@ -42,7 +43,7 @@ class LocalizationManager:
                     current = current.get(part)
                     if current is None:
                         logger.warning(f"Ключ не знайдено: {key}")
-                        return key
+                        return self.get_message("errors.general")
                 else:
                     break
 
@@ -50,11 +51,11 @@ class LocalizationManager:
                 return current.format(**kwargs)
             elif isinstance(current, (list, dict)):
                 return str(current)
-            return key
+            return self.get_message("errors.general")
 
         except Exception as e:
             logger.error(f"Помилка отримання повідомлення для ключа {key}: {e}")
-            return key
+            return self.get_message("errors.general")
 
     def get_hero_classes(self) -> list:
         """Отримати список класів героїв"""
@@ -63,6 +64,15 @@ class LocalizationManager:
             return list(classes.keys()) if isinstance(classes, dict) else []
         except Exception as e:
             logger.error(f"Помилка отримання списку класів героїв: {e}")
+            return []
+
+    def get_all_hero_names(self) -> list:
+        """Отримати список усіх імен героїв"""
+        try:
+            heroes_info = self.messages.get('heroes', {}).get('info', {})
+            return list(heroes_info.keys())
+        except Exception as e:
+            logger.error(f"Помилка отримання списку імен героїв: {e}")
             return []
 
     def get_hero_info(self, hero_name: str) -> str:
