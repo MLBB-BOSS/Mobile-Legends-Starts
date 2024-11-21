@@ -1,8 +1,6 @@
-# handlers/menu_handlers.py
-
 import logging
 from aiogram import Router, types
-from aiogram.filters import StringFilter as F Text  # Альтернатива
+from aiogram.filters import String
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 from keyboards.hero_menu import HeroMenu
@@ -10,7 +8,7 @@ from keyboards.hero_menu import HeroMenu
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(Text(equals=loc.get_message("buttons.show_heroes")))
+@router.message(String(equals=loc.get_message("buttons.show_heroes")))
 async def show_heroes(message: types.Message):
     try:
         await message.answer(
