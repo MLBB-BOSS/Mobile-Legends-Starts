@@ -15,7 +15,7 @@ class LocalizationManager:
     def _load_messages(self) -> dict:
         try:
             base_path = Path(__file__).parent.parent
-            file_path = base_path / "config" / "messages" / "locales" / f"{self.locale}.json"
+            file_path = base_path / "messages" / f"{self.locale}.json"
 
             with open(file_path, "r", encoding="utf-8") as file:
                 messages = json.load(file)
@@ -32,6 +32,10 @@ class LocalizationManager:
             return {}
 
     def get_message(self, key: str, **kwargs) -> str:
+        """
+        Отримати повідомлення за ключем
+        Приклад: loc.get_message("messages.welcome")
+        """
         try:
             keys = key.split('.')
             value = self.messages
@@ -61,6 +65,9 @@ class LocalizationManager:
             return f"Error getting message for key '{key}'"
 
     def get_all_hero_names(self) -> list:
+        """
+        Повертає список всіх імен героїв з локалізації
+        """
         try:
             hero_classes = self.get_message("heroes.classes")
             hero_names = []
@@ -74,3 +81,9 @@ class LocalizationManager:
         except Exception as e:
             self.logger.error(f"Error getting all hero names: {e}")
             return []
+
+# Створюємо глобальний екземпляр
+loc = LocalizationManager()
+logger = logging.getLogger(__name__)
+logger.info(f"Значення 'buttons.profile': {loc.get_message('buttons.profile')}")
+logger.info(f"Значення 'messages.unhandled_message': {loc.get_message('messages.unhandled_message', message='Тестове повідомлення')}")
