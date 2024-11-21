@@ -3,6 +3,7 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.hero_menu import HeroMenu
+from keyboards.main_menu import MainMenu
 from utils.localization import loc
 import logging
 
