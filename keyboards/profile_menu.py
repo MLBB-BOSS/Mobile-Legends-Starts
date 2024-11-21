@@ -1,26 +1,19 @@
-# File: keyboards/profile_menu.py
-
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
-import logging
-
-logger = logging.getLogger(__name__)
-
+# keyboards/profile_menu.py
 class ProfileMenu:
     def get_profile_menu(self) -> ReplyKeyboardMarkup:
         try:
             keyboard = ReplyKeyboardMarkup(
                 keyboard=[
                     [
-                        KeyboardButton(text=loc.get_message("buttons.statistics")),
-                        KeyboardButton(text=loc.get_message("buttons.achievements"))
+                        KeyboardButton(text=loc.get_message("buttons.statistics") or "📊 Статистика"),
+                        KeyboardButton(text=loc.get_message("buttons.achievements") or "🏆 Досягнення")
                     ],
                     [
-                        KeyboardButton(text=loc.get_message("buttons.settings")),
-                        KeyboardButton(text=loc.get_message("buttons.feedback"))
+                        KeyboardButton(text=loc.get_message("buttons.settings") or "⚙️ Налаштування"),
+                        KeyboardButton(text=loc.get_message("buttons.feedback") or "📝 Зворотній зв'язок")
                     ],
                     [
-                        KeyboardButton(text=loc.get_message("buttons.back"))
+                        KeyboardButton(text=loc.get_message("buttons.back") or "↩️ Назад")
                     ]
                 ],
                 resize_keyboard=True
@@ -29,6 +22,6 @@ class ProfileMenu:
         except Exception as e:
             logger.error(f"Помилка створення профільного меню: {e}")
             return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text=loc.get_message("buttons.back"))]],
+                keyboard=[[KeyboardButton(text=loc.get_message("buttons.back") or "↩️ Назад")]],
                 resize_keyboard=True
             )
