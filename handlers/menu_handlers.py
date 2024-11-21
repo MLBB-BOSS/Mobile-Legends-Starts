@@ -8,16 +8,16 @@ from keyboards.hero_menu import HeroMenu
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(Text(text=loc.get_message("buttons.show_heroes")))
+@router.message(Text(equals=loc.get_message("buttons.show_heroes")))
 async def show_heroes(message: types.Message):
     try:
         await message.answer(
-            "Оберіть клас героя:",
+            loc.get_message("messages.select_hero_class"),
             reply_markup=HeroMenu().get_hero_classes_menu()
         )
-        logger.info(f"User {message.from_user.id} requested to show heroes.")
+        logger.info(f"Користувач {message.from_user.id} запитав показати героїв.")
     except Exception as e:
-        logger.exception(f"Error in show_heroes handler: {e}")
+        logger.exception(f"Помилка в show_heroes хендлері: {e}")
         await message.answer(
             loc.get_message("messages.errors.general"),
             reply_markup=MainMenu().get_main_menu()
