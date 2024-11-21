@@ -1,5 +1,3 @@
-# File: utils/localization.py
-
 import json
 from pathlib import Path
 import logging
