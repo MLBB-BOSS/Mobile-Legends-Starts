@@ -1,2 +1,1 @@
-# Example update in other files
-from utils.localization_setup import loc
+from .localization_setup import loc
