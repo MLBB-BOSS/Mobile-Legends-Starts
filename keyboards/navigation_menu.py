@@ -100,4 +100,4 @@ class NavigationMenu:
                     [KeyboardButton(text="⬅️ До класів героїв")]
                 ],
                 resize_keyboard=True
-                    )
+            )
