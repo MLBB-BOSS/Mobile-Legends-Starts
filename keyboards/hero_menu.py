@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class HeroMenu:
-    def get_hero_classes_menu(self) -> ReplyKeyboardMarkup:
+    def get_heroes_menu(self) -> ReplyKeyboardMarkup:
         try:
             keyboard = ReplyKeyboardMarkup(
                 keyboard=[
@@ -37,7 +37,7 @@ class HeroMenu:
                 resize_keyboard=True
             )
 
-    def get_heroes_by_class(self, hero_class: str) -> ReplyKeyboardMarkup:
+    def get_heroes_menu_by_class(self, hero_class: str) -> ReplyKeyboardMarkup:
         try:
             heroes = loc.get_message(f"heroes.classes.{hero_class}.heroes")
 
