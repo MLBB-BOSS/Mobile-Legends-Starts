@@ -1,33 +1,16 @@
 # File: keyboards/main_menu.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
-import logging
+from .base import BaseKeyboard
+from aiogram.types import ReplyKeyboardMarkup
 
-logger = logging.getLogger(__name__)
-
-class MainMenu:
-    @staticmethod
-    def get_main_menu() -> ReplyKeyboardMarkup:
-        """Creates and returns the main menu keyboard"""
-        try:
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=[
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.navigation")),
-                        KeyboardButton(text=loc.get_message("buttons.profile"))
-                    ],
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.settings")),
-                        KeyboardButton(text=loc.get_message("buttons.help"))
-                    ]
-                ],
-                resize_keyboard=True
-            )
-            return keyboard
-        except Exception as e:
-            logger.error(f"Error creating main menu: {e}")
-            return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text="❓ Меню")]],
-                resize_keyboard=True
-            )
+class MainMenuKeyboard(BaseKeyboard):
+    @classmethod
+    def get_keyboard(cls) -> ReplyKeyboardMarkup:
+        """Main menu keyboard"""
+        buttons = [
+            "buttons.navigation",
+            "buttons.profile",
+            "buttons.settings",
+            "buttons.help"
+        ]
+        return cls.create_keyboard(buttons, row_width=2, add_back=False)
