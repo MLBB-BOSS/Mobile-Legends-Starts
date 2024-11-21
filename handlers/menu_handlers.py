@@ -5,15 +5,18 @@ import logging
 logger = logging.getLogger(__name__)
 logger.debug("Початок обробки імпортів у menu_handlers.py")
 
-from aiogram import Router, types
-from aiogram.filters import Text  # Коректний імпорт
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from utils.localization import loc
-from keyboards.main_menu import MainMenu
-from keyboards.hero_menu import HeroMenu
-
-logger.debug("Імпорти виконано успішно у menu_handlers.py")
+try:
+    from aiogram import Router, types
+    from aiogram.filters import Text  # Коректний імпорт
+    from aiogram.fsm.context import FSMContext
+    from aiogram.fsm.state import State, StatesGroup
+    from utils.localization import loc
+    from keyboards.main_menu import MainMenu
+    from keyboards.hero_menu import HeroMenu
+    logger.debug("Імпорти виконано успішно у menu_handlers.py")
+except ImportError as e:
+    logger.exception(f"Помилка імпорту у menu_handlers.py: {e}")
+    raise
 
 # Визначення станів FSM (якщо використовується)
 class HeroStates(StatesGroup):
