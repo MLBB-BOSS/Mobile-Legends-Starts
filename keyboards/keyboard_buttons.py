@@ -1,4 +1,3 @@
-# keyboards/keyboard_buttons.py
 from enum import Enum, auto
 
 class MenuLevel(Enum):
@@ -7,6 +6,7 @@ class MenuLevel(Enum):
     HEROES = auto()
     TOURNAMENTS = auto()
     PROFILE = auto()
+    SETTINGS = auto()
 
 class Buttons(str, Enum):
     # Головне меню (MAIN)
@@ -20,25 +20,6 @@ class Buttons(str, Enum):
     CHARACTERS = "👥 Персонажі"
     MAPS = "🗺 Мапи"
     GUIDES = "📖 Гайди"
-    
-    # Меню героїв (HEROES)
-    TANK = "🛡️ Танки"
-    FIGHTER = "⚔️ Файтери"
-    ASSASSIN = "🗡️ Асасіни"
-    MAGE = "🔮 Маги"
-    MARKSMAN = "🏹 Стрільці"
-    SUPPORT = "🛠️ Підтримка"
-    
-    # Меню турнірів (TOURNAMENTS)
-    ACTIVE = "🎮 Активні турніри"
-    UPCOMING = "📅 Майбутні турніри"
-    PAST = "📜 Минулі турніри"
-    CREATE = "➕ Створити турнір"
-    
-    # Меню профілю (PROFILE)
-    STATS = "📊 Статистика"
-    ACHIEVEMENTS = "🏆 Досягнення"
-    INVENTORY = "🎒 Інвентар"
     
     # Навігаційні кнопки
     BACK = "🔙 Назад"
