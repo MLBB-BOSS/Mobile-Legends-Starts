@@ -1,24 +1,30 @@
-import logging
 from aiogram import Router, types
 from aiogram.filters import Text
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 from keyboards.hero_menu import HeroMenu
+import logging
 
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(Text(equals=loc.get_message("buttons.show_heroes")))
-async def show_heroes(message: types.Message):
+# Отримуємо назви класів з локалізації
+HERO_CLASSES = {loc.get_message(f"heroes.classes.{key}.name"): key for key in loc.get_message("heroes.classes").keys()}
+
+@router.message(Text(equals=HERO_CLASSES.keys()))
+async def handle_hero_class_selection(message: types.Message):
+    logger.info(f"Користувач {message.from_user.id} вибрав клас героїв: {message.text}")
     try:
+        class_key = HERO_CLASSES[message.text]
+        heroes = loc.get_message(f"heroes.classes.{class_key}.heroes")
+
+        keyboard = HeroMenu().get_heroes_by_class(class_key)
         await message.answer(
-            loc.get_message("messages.select_hero_class"),
-            reply_markup=HeroMenu().get_hero_classes_menu()
+            loc.get_message("messages.hero_menu.select_hero").format(
+                class_name=message.text
+            ),
+            reply_markup=keyboard
         )
-        logger.info(f"Користувач {message.from_user.id} запитав показати героїв.")
     except Exception as e:
-        logger.exception(f"Помилка в show_heroes хендлері: {e}")
-        await message.answer(
-            loc.get_message("messages.errors.general"),
-            reply_markup=MainMenu().get_main_menu()
-        )
+        logger.exception(f"Помилка при обробці вибору класу героїв: {e}")
+        await message.answer(loc.get_message("messages.errors.general"))
