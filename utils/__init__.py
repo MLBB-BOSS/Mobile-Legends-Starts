@@ -1,4 +1,6 @@
-from .localization import LocalizationManager
+# File: utils/__init__.py
 
-# Remove the import of loc here to avoid circular import
-__all__ = ['LocalizationManager']
+from .localization import LocalizationManager
+from .localization_instance import loc
+
+__all__ = ['LocalizationManager', 'loc']
