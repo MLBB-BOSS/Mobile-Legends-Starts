@@ -17,7 +17,7 @@ logger.info(f"aiogram version: {aiogram.__version__}")
 
 # Спробуємо імпортувати Text окремо
 try:
-    from aiogram.filters import F Text
+    from aiogram.filters import Text
     logger.info("Успішно імпортовано Text з aiogram.filters")
 except ImportError as e:
     logger.exception(f"Не вдалося імпортувати Text з aiogram.filters: {e}")
