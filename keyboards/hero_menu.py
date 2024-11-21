@@ -1,5 +1,3 @@
-# keyboards/hero_menu.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
 import logging
@@ -8,21 +6,24 @@ logger = logging.getLogger(__name__)
 
 class HeroMenu:
     """
-    Клас для створення меню класів героїв
+    Клас для створення меню класів героїв та списку героїв
     """
     def get_hero_classes_menu(self) -> ReplyKeyboardMarkup:
         try:
-            classes = loc.get_hero_classes()
+            classes = loc.get_message("heroes.classes")
             buttons = [
-                [KeyboardButton(text=cls.capitalize())] for cls in classes
+                KeyboardButton(text=class_info["name"]) for class_info in classes.values()
             ]
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=buttons,
+            # Розподіляємо кнопки по рядках
+            keyboard = []
+            for i in range(0, len(buttons), 2):
+                keyboard.append(buttons[i:i+2])
+
+            return ReplyKeyboardMarkup(
+                keyboard=keyboard,
                 resize_keyboard=True,
                 one_time_keyboard=True
             )
-            logger.info("Меню класів героїв успішно створено.")
-            return keyboard
         except Exception as e:
             logger.error(f"Помилка створення меню класів героїв: {e}")
             return ReplyKeyboardMarkup(
@@ -32,22 +33,20 @@ class HeroMenu:
 
     def get_heroes_by_class(self, hero_class: str) -> ReplyKeyboardMarkup:
         try:
-            heroes = loc.messages['heroes']['classes'][hero_class.lower()]['heroes']
-            buttons = [
-                [KeyboardButton(text=hero)] for hero in heroes
-            ]
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=buttons,
+            heroes = loc.get_message(f"heroes.classes.{hero_class}.heroes")
+            buttons = [KeyboardButton(text=hero) for hero in heroes]
+            # Розподіляємо кнопки по рядках
+            keyboard = []
+            for i in range(0, len(buttons), 2):
+                keyboard.append(buttons[i:i+2])
+
+            # Додаємо кнопку "Назад"
+            keyboard.append([KeyboardButton(text=loc.get_message("buttons.back_to_hero_classes"))])
+
+            return ReplyKeyboardMarkup(
+                keyboard=keyboard,
                 resize_keyboard=True,
                 one_time_keyboard=True
-            )
-            logger.info(f"Меню героїв для класу {hero_class} успішно створено.")
-            return keyboard
-        except KeyError:
-            logger.error(f"Клас героїв {hero_class} не знайдено.")
-            return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text=loc.get_message("buttons.menu"))]],
-                resize_keyboard=True
             )
         except Exception as e:
             logger.error(f"Помилка створення меню героїв для класу {hero_class}: {e}")
