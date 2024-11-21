@@ -1,7 +1,7 @@
 # File: keyboards/__init__.py
 
-from keyboards.base import BaseKeyboard
-from keyboards.main_menu import MainMenu
-from keyboards.navigation_menu import NavigationMenu
+from .main_menu import MainMenu
+from .navigation_menu import NavigationMenu
+from .profile_menu import ProfileMenu
 
-__all__ = ['BaseKeyboard', 'MainMenu', 'NavigationMenu']
+__all__ = ['MainMenu', 'NavigationMenu', 'ProfileMenu']
