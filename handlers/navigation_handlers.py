@@ -5,7 +5,7 @@ from aiogram.types import Message
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.main_menu import MainMenu
 from keyboards.profile_menu import ProfileMenu
-from utils.localization import loc
+from utils.localization_instance import loc  # Оновлено шлях
 import logging
 
 logger = logging.getLogger(__name__)
@@ -156,8 +156,18 @@ async def show_statistics(message: Message):
 
 # Обробник помилок
 @router.errors()
-async def handle_errors(update: Message, exception: Exception):
-    await update.answer(
-        loc.get_message("errors.general"),
-        reply_markup=MainMenu().get_main_menu()
-    )
+async def handle_errors(update: types.Update, exception: Exception):
+    logger.error(f"Виникла помилка: {exception}")
+    try:
+        if update.message:
+            await update.message.answer(
+                loc.get_message("errors.general"),
+                reply_markup=MainMenu().get_main_menu()
+            )
+        elif update.callback_query:
+            await update.callback_query.answer(
+                loc.get_message("errors.general"),
+                show_alert=True
+            )
+    except Exception as e:
+        logger.error(f"Помилка при обробці помилки: {e}")
