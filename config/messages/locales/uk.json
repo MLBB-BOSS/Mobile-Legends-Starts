@@ -1,5 +1,4 @@
 {
-  {
   "messages": {
     "start_command": "👋 Вітаю у світі Mobile Legends!",
     "navigation_menu": "🧭 Оберіть розділ меню навігації:",
@@ -17,95 +16,5 @@
     "marksmen": "🏹 Стрільці",
     "supports": "💪 Підтримка",
     "back_to_navigation": "⬅️ До навігації"
-  }
-}": {
-    "guides": "📚 Гайди",
-    "profile": "🪪 Мій Кабінет",
-    "voting": "🗳 Голосування",
-    "characters": "🧙‍♂️ Персонажі",
-    "back": "↩️ Назад",
-    "menu": "📱 Меню",
-    "navigation": "🧭 Навігація",
-    "statistics": "📊 Статистика",
-    "achievements": "🏅 Досягнення",
-    "settings": "⚙️ Налаштування",
-    "feedback": "📨 Зворотний зв'язок",
-    "counter_picks": "🎯 Контр-Піки",
-    "builds": "⚔️ Збірки",
-    "back_to_navigation": "⬅️ До навігації",
-    "tanks": "🛡 Танки",
-    "fighters": "⚔️ Бійці",
-    "assassins": "🗡 Асасини",
-    "mages": "🔮 Маги",
-    "marksmen": "🏹 Стрільці",
-    "supports": "💪 Підтримка",
-    "back_to_classes": "↩️ Назад до класів",
-    "main_menu": "🏠 Головне меню",
-    "back_to_hero_classes": "↩️ Назад до класів",
-    "back_to_hero_list": "↩️ Назад до списку героїв"
-  },
-  "messages": {
-    "welcome": "🎮 Вітаю у MLBB-BOSS!\n\nЯ допоможу вам:\n• Брати участь у турнірах\n• Відстежувати прогрес\n• Покращувати навички\n\nОберіть розділ:",
-    "error": "❌ Вибачте, сталася помилка.",
-    "unhandled_message": "⚠️ Отримано необроблене повідомлення: {message}",
-    "start_command": "👋 Вітаю у світі Mobile Legends!\n\nЯ ваш особистий помічник для:\n• Участі в турнірах\n• Вивчення героїв\n• Покращення навичок\n\nОберіть розділ:",
-    "hero_not_found": "❌ Героя не знайдено в базі даних",
-    "select_hero": "🦸‍♂️ Герої класу {class_name}:",
-    "menu_welcome": "📱 Головне меню MLBB-BOSS",
-    "navigation_menu": "🧭 Оберіть потрібний розділ:",
-    "profile_menu": "👤 Ваш особистий кабінет:",
-    "select_hero_class": "🎯 Оберіть клас героя:\n\nКожен клас має свою унікальну роль!",
-    "guides_menu": "📚 Оберіть розділ гайдів:",
-    "statistics_info": "📊 Ваша статистика:\n\n🎮 Загальна кількість ігор: {games}\n✨ Перемоги: {wins}\n📈 Відсоток перемог: {winrate}%",
-    "settings_menu": "⚙️ Налаштування профілю:",
-    "feedback_menu": "📨 Оберіть тип зворотного зв'язку:",
-    "hero_menu": {
-      "select_class": "🦸‍♂️ Виберіть клас героя:",
-      "select_hero": "📝 Герої {class_name}:",
-      "hero_details": "🌟 {hero_name}\n\n📋 Клас: {hero_class}\n⚔️ Складність: {difficulty}\n🎯 Роль: {role}"
-    }
-  },
-  "heroes": {
-    "classes": {
-      "fighter": {
-        "name": "⚔️ Бійці",
-        "heroes": ["Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger", "Gatotkaca", "Grock", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg", "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito", "Phoveus", "Aulus", "Fredrinn", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz", "Badang", "Guinevere"]
-      },
-      "tank": {
-        "name": "🛡 Танки",
-        "heroes": ["Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolita", "Gatotkaca", "Grock", "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha", "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"]
-      },
-      "assassin": {
-        "name": "🗡 Асасини",
-        "heroes": ["Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt", "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"]
-      },
-      "marksman": {
-        "name": "🏹 Стрільці",
-        "heroes": ["Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude", "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov", "Roger", "Karrie", "Irithel", "Lesley"]
-      },
-      "mage": {
-        "name": "🔮 Маги",
-        "heroes": ["Vale", "Lunox", "Kadita", "Cecilion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley", "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"]
-      },
-      "support": {
-        "name": "💪 Підтримка",
-        "heroes": ["Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"]
-      }
-    },
-    "info": {
-      "Balmond": "🌟 Balmond\n\n📋 Клас: Бійці\n⚔️ Складність: Легка\n🎯 Роль: Воїн",
-      "Alucard": "🌟 Alucard\n\n📋 Клас: Бійці\n⚔️ Складність: Середня\n🎯 Роль: Воїн",
-      "Bane": "🌟 Bane\n\n📋 Клас: Бійці\n⚔️ Складність: Середня\n🎯 Роль: Нападник",
-      "Zilong": "🌟 Zilong\n\n📋 Клас: Бійці\n⚔️ Складність: Легка\n🎯 Роль: Воїн",
-      "Freya": "🌟 Freya\n\n📋 Клас: Бійці\n⚔️ Складність: Середня\n🎯 Роль: Воїн"
-      // Додайте інформацію про інших героїв аналогічно, без коментарів
-    }
-  },
-  "errors": {
-    "general": "❌ Сталася помилка. Спробуйте пізніше.",
-    "not_found": "❌ Не знайдено",
-    "invalid_input": "⚠️ Невірний формат введених даних",
-    "hero_not_found": "❌ Героя не знайдено в базі даних",
-    "class_not_found": "❌ Вказаний клас героїв не існує"
   }
 }
