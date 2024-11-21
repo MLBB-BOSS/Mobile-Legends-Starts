@@ -1,39 +1,50 @@
-# File: handlers/navigation_handlers.py
-
-import logging
-from aiogram import Router, F, types
+# handlers/navigation_handlers.py
+from aiogram import Router, F
+from aiogram.types import Message
 from keyboards.navigation_keyboard import NavigationKeyboard
-from utils.localization import loc
+from keyboards.keyboard_buttons import Buttons
 
-logger = logging.getLogger(__name__)
 router = Router()
+kb = NavigationKeyboard()
 
-@router.message(F.text == "🧭 Навігація")
-async def show_navigation_menu(message: types.Message):
-    """Handle navigation menu"""
-    try:
-        keyboard = NavigationKeyboard()
-        await message.answer(
-            text=loc.get_message("navigation_menu"),
-            reply_markup=keyboard.get_navigation_menu()
-        )
-        logger.debug(f"Navigation menu shown to user {message.from_user.id}")
-    except Exception as e:
-        logger.error(f"Error showing navigation menu: {e}")
-        await message.answer(loc.get_message("error.general"))
+@router.message(F.text == Buttons.NAVIGATION)
+async def show_navigation_menu(message: Message):
+    await message.answer(
+        "Оберіть розділ навігації:",
+        reply_markup=kb.get_navigation_menu()
+    )
 
-@router.message(F.text == "👥 Персонажі")
-async def show_heroes_menu(message: types.Message):
-    """Handle heroes submenu"""
-    try:
-        keyboard = NavigationKeyboard()
-        await message.answer(
-            text=loc.get_message("heroes_menu"),
-            reply_markup=keyboard.get_characters_menu()
-        )
-        logger.debug(f"Heroes menu shown to user {message.from_user.id}")
-    except Exception as e:
-        logger.error(f"Error showing heroes menu: {e}")
-        await message.answer(loc.get_message("error.general"))
+@router.message(F.text == Buttons.CHARACTERS)
+async def show_characters_menu(message: Message):
+    await message.answer(
+        "Оберіть категорію героїв:",
+        reply_markup=kb.get_characters_menu()
+    )
 
-# Add other navigation submenu handlers
+@router.message(F.text == Buttons.MAPS)
+async def show_maps_menu(message: Message):
+    await message.answer(
+        "Оберіть карту:",
+        reply_markup=kb.get_maps_menu()
+    )
+
+@router.message(F.text == Buttons.TOURNAMENTS)
+async def show_tournaments_menu(message: Message):
+    await message.answer(
+        "Оберіть турнір:",
+        reply_markup=kb.get_tournaments_menu()
+    )
+
+@router.message(F.text == Buttons.GUIDES)
+async def show_guides_menu(message: Message):
+    await message.answer(
+        "Оберіть гайд:",
+        reply_markup=kb.get_guides_menu()
+    )
+
+@router.message(F.text == Buttons.BACK_TO_MAIN)
+async def back_to_main_menu(message: Message):
+    await message.answer(
+        "Головне меню:",
+        reply_markup=kb.get_main_menu()
+    )
