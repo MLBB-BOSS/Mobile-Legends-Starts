@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 import logging
-import aiogram
+import aiogram  # Додайте цей імпорт для перевірки версії
 
 # Встановлюємо рівень логування
 logging.basicConfig(level=logging.DEBUG)
@@ -39,7 +39,7 @@ async def main():
         dp.include_router(menu_router)
         dp.include_router(message_router)
 
-        logger.info("Початок полінгу бота.")
+        logger.info("Бот стартував.")
         await dp.start_polling(bot)
     except Exception as e:
         logger.exception(f"Помилка під час запуску бота: {e}")
