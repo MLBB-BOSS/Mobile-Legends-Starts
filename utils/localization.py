@@ -7,7 +7,7 @@ class Localization:
         self.messages = self.load_messages()
 
     def load_messages(self):
-        path = os.path.join('utils', 'messages', f'{self.locale}.json')
+        path = os.path.join('config', 'messages', 'locales', f'{self.locale}.json')
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 return json.load(f)
@@ -23,4 +23,14 @@ class Localization:
                 return ''
         return message
 
+class LocalizationManager:
+    def __init__(self):
+        self.localizations = {}
+
+    def load_locale(self, locale='uk'):
+        if locale not in self.localizations:
+            self.localizations[locale] = Localization(locale)
+        return self.localizations[locale]
+
 loc = Localization()
+manager = LocalizationManager()
