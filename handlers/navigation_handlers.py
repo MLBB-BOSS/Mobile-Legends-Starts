@@ -1,6 +1,4 @@
-# File: handlers/navigation_handlers.py
-
-from aiogram import Router, F
+from aiogram import Router, F, types
 from aiogram.types import Message
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.main_menu import MainMenu
