@@ -44,7 +44,8 @@ class LocalizationManager:
                     if current is None:
                         if key != "messages.errors.general":
                             logger.warning(f"Ключ не знайдено: {key}")
-                            return self.get_message("messages.errors.general")
+                            # Повертаємо повідомлення про загальну помилку без рекурсії
+                            return self.messages.get("messages", {}).get("errors", {}).get("general", "Сталася непередбачена помилка.")
                         else:
                             logger.error(f"Ключ не знайдено: {key}")
                             return "Сталася непередбачена помилка."
@@ -55,14 +56,11 @@ class LocalizationManager:
                 return current.format(**kwargs)
             elif isinstance(current, (list, dict)):
                 return str(current)
-            return self.get_message("messages.errors.general")
+            return self.messages.get("messages", {}).get("errors", {}).get("general", "Сталася непередбачена помилка.")
 
         except Exception as e:
             logger.error(f"Помилка отримання повідомлення для ключа {key}: {e}")
-            if key != "messages.errors.general":
-                return self.get_message("messages.errors.general")
-            else:
-                return "Сталася непередбачена помилка."
+            return "Сталася непередбачена помилка."
 
     def get_hero_classes(self) -> list:
         """Отримати список класів героїв"""
