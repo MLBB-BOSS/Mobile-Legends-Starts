@@ -2,8 +2,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class BaseKeyboard:
-    """Base class for all keyboards"""
-    
     def create_reply_markup(
         self,
         keyboard: list[list[str]],
