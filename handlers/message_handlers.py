@@ -1,6 +1,4 @@
-# handlers/message_handlers.py
-
-from aiogram import Router, types, F  # Added F here
+from aiogram import Router, types, F  # Add F here
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from utils.localization import loc
@@ -11,12 +9,11 @@ import logging
 logger = logging.getLogger(__name__)
 router = Router()
 
-# Визначення станів FSM (якщо використовується)
 class HeroStates(StatesGroup):
     SelectingClass = State()
     SelectingHero = State()
 
-@router.message(F.text == loc.get_message("buttons.show_heroes"))
+@router.message(F.text == loc.get_message("buttons.show_heroes"))  # Updated filter syntax
 async def show_heroes(message: types.Message):
     try:
         await message.answer(
@@ -30,5 +27,3 @@ async def show_heroes(message: types.Message):
             loc.get_message("messages.errors.general"),
             reply_markup=MainMenu().get_main_menu()
         )
-
-# Додайте інші хендлери за потреби
