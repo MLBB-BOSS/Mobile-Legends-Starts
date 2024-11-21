@@ -1,5 +1,7 @@
 # keyboards/keyboard_buttons.py
-class KeyboardButtons:
+from enum import Enum
+
+class Buttons(str, Enum):  # Повертаємо назву класу до Buttons
     # Головне меню
     NAVIGATION = "🧭 Навігація"
     HEROES = "🎯 Герої"
