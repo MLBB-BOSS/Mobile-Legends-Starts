@@ -5,6 +5,7 @@ from aiogram.types import Message
 from keyboards.main_menu import MainMenu
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.profile_menu import ProfileMenu
+from keyboards.hero_menu import HeroMenu  # Додано імпорт HeroMenu
 from utils.localization import loc
 import logging
 
@@ -47,7 +48,7 @@ async def show_heroes_menu(message: Message):
     try:
         await message.answer(
             loc.get_message("messages.select_hero_class"),
-            reply_markup=NavigationMenu().get_heroes_menu()
+            reply_markup=HeroMenu().get_heroes_menu()  # Використовуємо HeroMenu замість NavigationMenu
         )
     except Exception as e:
         logger.exception(f"Помилка при відображенні меню персонажів: {e}")
@@ -61,7 +62,7 @@ async def show_counter_picks_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню контр-піків")
     try:
         await message.answer(
-            "Меню контр-піків в розробці.",
+            loc.get_message("messages.counter_picks_menu"),
             reply_markup=NavigationMenu().get_counter_picks_menu()
         )
     except Exception as e:
@@ -76,7 +77,7 @@ async def show_builds_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню збірок")
     try:
         await message.answer(
-            "Меню збірок в розробці.",
+            loc.get_message("messages.builds_menu"),
             reply_markup=NavigationMenu().get_builds_menu()
         )
     except Exception as e:
@@ -91,7 +92,7 @@ async def show_voting_menu(message: Message):
     logger.info(f"Користувач {message.from_user.id} відкрив меню голосування")
     try:
         await message.answer(
-            "Меню голосування в розробці.",
+            loc.get_message("messages.voting_menu"),
             reply_markup=NavigationMenu().get_voting_menu()
         )
     except Exception as e:
@@ -109,14 +110,14 @@ async def show_statistics(message: Message):
         "wins": 0,
         "winrate": 0
     }
-    
     try:
+        games_message = loc.get_message("messages.statistics_info.games").format(games=stats["games"])
+        wins_message = loc.get_message("messages.statistics_info.wins").format(wins=stats["wins"])
+        winrate_message = loc.get_message("messages.statistics_info.winrate").format(winrate=stats["winrate"])
+        full_message = f"{games_message}\n{wins_message}\n{winrate_message}"
+        
         await message.answer(
-            loc.get_message("messages.statistics_info").format(
-                games=stats["games"],
-                wins=stats["wins"],
-                winrate=stats["winrate"]
-            ),
+            full_message,
             reply_markup=ProfileMenu().get_profile_menu()
         )
     except Exception as e:
