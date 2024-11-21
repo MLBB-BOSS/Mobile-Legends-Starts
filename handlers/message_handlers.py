@@ -1,7 +1,9 @@
 # handlers/message_handlers.py
 
 from aiogram import Router, types
-from aiogram.filters import Text  # Коректний імпорт
+from aiogram.filters.text import Text  # Коректний імпорт
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 import logging
