@@ -2,49 +2,35 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.navigation_keyboard import NavigationKeyboard
-from keyboards.keyboard_buttons import Buttons
+from keyboards.keyboard_buttons import KeyboardButtons as kb
 
 router = Router()
-kb = NavigationKeyboard()
+nav_kb = NavigationKeyboard()
 
-@router.message(F.text == Buttons.NAVIGATION)
-async def show_navigation_menu(message: Message):
+@router.message(F.text == kb.NAVIGATION)
+async def show_navigation(message: Message):
     await message.answer(
-        "Оберіть розділ навігації:",
-        reply_markup=kb.get_navigation_menu()
+        "Оберіть розділ:",
+        reply_markup=nav_kb.get_navigation_menu()
     )
 
-@router.message(F.text == Buttons.CHARACTERS)
-async def show_characters_menu(message: Message):
-    await message.answer(
-        "Оберіть категорію героїв:",
-        reply_markup=kb.get_characters_menu()
-    )
-
-@router.message(F.text == Buttons.MAPS)
-async def show_maps_menu(message: Message):
-    await message.answer(
-        "Оберіть карту:",
-        reply_markup=kb.get_maps_menu()
-    )
-
-@router.message(F.text == Buttons.TOURNAMENTS)
-async def show_tournaments_menu(message: Message):
-    await message.answer(
-        "Оберіть турнір:",
-        reply_markup=kb.get_tournaments_menu()
-    )
-
-@router.message(F.text == Buttons.GUIDES)
-async def show_guides_menu(message: Message):
-    await message.answer(
-        "Оберіть гайд:",
-        reply_markup=kb.get_guides_menu()
-    )
-
-@router.message(F.text == Buttons.BACK_TO_MAIN)
-async def back_to_main_menu(message: Message):
+@router.message(F.text == kb.MAIN_MENU)
+async def show_main_menu(message: Message):
     await message.answer(
         "Головне меню:",
-        reply_markup=kb.get_main_menu()
+        reply_markup=nav_kb.get_main_menu()
+    )
+
+@router.message(F.text == kb.CHARACTERS)
+async def show_characters(message: Message):
+    await message.answer(
+        "Розділ персонажів:",
+        reply_markup=nav_kb.get_navigation_menu()
+    )
+
+@router.message(F.text == kb.MAPS)
+async def show_maps(message: Message):
+    await message.answer(
+        "Розділ мап:",
+        reply_markup=nav_kb.get_navigation_menu()
     )
