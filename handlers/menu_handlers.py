@@ -5,154 +5,66 @@ from aiogram.types import Message
 from keyboards.main_menu import MainMenu
 from keyboards.navigation_menu import NavigationMenu
 from keyboards.profile_menu import ProfileMenu
-from keyboards.hero_menu import HeroMenu  # Додано імпорт HeroMenu
+from keyboards.hero_menu import HeroMenu
 from utils.localization import loc
 import logging
 
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(F.text == loc.get_message("buttons.navigation"))
-async def show_navigation_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню навігації")
-    try:
-        await message.answer(
-            loc.get_message("messages.navigation_menu"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню навігації: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=MainMenu().get_main_menu()
-        )
+# ... Ваші попередні обробники ...
 
-@router.message(F.text == loc.get_message("buttons.guides"))
-async def show_guides_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню гайдів")
-    try:
-        await message.answer(
-            loc.get_message("messages.guides_menu"),
-            reply_markup=NavigationMenu().get_guides_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню гайдів: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
+# Обробник вибору класу героя
+@router.message(F.text.in_([
+    loc.get_message("buttons.tanks"),
+    loc.get_message("buttons.fighters"),
+    loc.get_message("buttons.assassins"),
+    loc.get_message("buttons.mages"),
+    loc.get_message("buttons.marksmen"),
+    loc.get_message("buttons.supports")
+]))
+async def select_hero_class(message: Message):
+    hero_class_button = message.text
+    hero_class = None
 
-@router.message(F.text == loc.get_message("buttons.characters"))
-async def show_heroes_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню персонажів")
-    try:
-        await message.answer(
-            loc.get_message("messages.select_hero_class"),
-            reply_markup=HeroMenu().get_heroes_menu()  # Використовуємо HeroMenu замість NavigationMenu
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню персонажів: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
+    # Знаходимо ключ класу героя за текстом кнопки
+    for key in loc.get_message("heroes.classes").keys():
+        if loc.get_message(f"buttons.{key}") == hero_class_button:
+            hero_class = key
+            break
 
-@router.message(F.text == loc.get_message("buttons.counter_picks"))
-async def show_counter_picks_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню контр-піків")
-    try:
+    if hero_class is None:
         await message.answer(
-            loc.get_message("messages.counter_picks_menu"),
-            reply_markup=NavigationMenu().get_counter_picks_menu()
+            loc.get_message("errors.class_not_found"),
+            reply_markup=HeroMenu().get_heroes_menu()
         )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню контр-піків: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
+        return
 
-@router.message(F.text == loc.get_message("buttons.builds"))
-async def show_builds_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню збірок")
-    try:
-        await message.answer(
-            loc.get_message("messages.builds_menu"),
-            reply_markup=NavigationMenu().get_builds_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню збірок: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
+    logger.info(f"Користувач {message.from_user.id} обрав клас героїв: {hero_class}")
 
-@router.message(F.text == loc.get_message("buttons.voting"))
-async def show_voting_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив меню голосування")
-    try:
-        await message.answer(
-            loc.get_message("messages.voting_menu"),
-            reply_markup=NavigationMenu().get_voting_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні меню голосування: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=NavigationMenu().get_main_navigation()
-        )
+    await message.answer(
+        loc.get_message("messages.hero_menu.select_hero").format(class_name=loc.get_message(f"heroes.classes.{hero_class}.name")),
+        reply_markup=HeroMenu().get_heroes_by_class(hero_class)
+    )
 
-@router.message(F.text == loc.get_message("buttons.statistics"))
-async def show_statistics(message: Message):
-    logger.info(f"Користувач {message.from_user.id} запросив статистику")
-    stats = {
-        "games": 0,
-        "wins": 0,
-        "winrate": 0
-    }
-    try:
-        games_message = loc.get_message("messages.statistics_info.games").format(games=stats["games"])
-        wins_message = loc.get_message("messages.statistics_info.wins").format(wins=stats["wins"])
-        winrate_message = loc.get_message("messages.statistics_info.winrate").format(winrate=stats["winrate"])
-        full_message = f"{games_message}\n{wins_message}\n{winrate_message}"
-        
-        await message.answer(
-            full_message,
-            reply_markup=ProfileMenu().get_profile_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні статистики: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=MainMenu().get_main_menu()
-        )
+# Обробник вибору героя
+@router.message(F.text.in_(
+    [hero_name for hero_name in loc.get_all_hero_names()]
+))
+async def show_hero_info(message: Message):
+    hero_name = message.text
+    hero_info = loc.get_message(f"heroes.info.{hero_name}")
 
-@router.message(F.text == loc.get_message("buttons.back"))
-async def go_back(message: Message):
-    logger.info(f"Користувач {message.from_user.id} повернувся до головного меню")
-    try:
+    if not hero_info:
         await message.answer(
-            loc.get_message("messages.menu_welcome"),
-            reply_markup=MainMenu().get_main_menu()
+            loc.get_message("errors.hero_not_found"),
+            reply_markup=HeroMenu().get_heroes_menu()
         )
-    except Exception as e:
-        logger.exception(f"Помилка при поверненні до головного меню: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=MainMenu().get_main_menu()
-        )
+        return
 
-@router.message(F.text == loc.get_message("buttons.profile"))
-async def show_profile_menu(message: Message):
-    logger.info(f"Користувач {message.from_user.id} відкрив профільний кабінет")
-    try:
-        await message.answer(
-            loc.get_message("messages.profile_menu"),
-            reply_markup=ProfileMenu().get_profile_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при відображенні профільного меню: {e}")
-        await message.answer(
-            loc.get_message("errors.general"),
-            reply_markup=MainMenu().get_main_menu()
-        )
+    logger.info(f"Користувач {message.from_user.id} обрав героя: {hero_name}")
+
+    await message.answer(
+        hero_info,
+        reply_markup=HeroMenu().get_hero_info_menu()
+    )
