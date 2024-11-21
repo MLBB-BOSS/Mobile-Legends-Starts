@@ -1,10 +1,10 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import Message
 from keyboards.main_menu import MainMenuKeyboard
 
 router = Router()
 
-@router.message(F.text == "/start")
+@router.message(commands=["start"])
 async def start_command(message: Message):
     """Обробник для команди /start"""
     await message.answer(
