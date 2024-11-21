@@ -1,5 +1,3 @@
-# keyboards/main_menu.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class MainMenu:
@@ -7,7 +5,7 @@ class MainMenu:
     def get_main_menu():
         return ReplyKeyboardMarkup(
             keyboard=[
-                [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Профіль")]
+                [KeyboardButton(text="Навігація"), KeyboardButton(text="Профіль")]
             ],
             resize_keyboard=True
         )
