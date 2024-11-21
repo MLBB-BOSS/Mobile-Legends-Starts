@@ -7,7 +7,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 import logging
 
-API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')  # Використовуйте правильну назву
+# Зчитуємо токен бота з змінної середовища
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 if not API_TOKEN:
     raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
@@ -16,19 +17,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def main():
+    # Використовуємо DefaultBotProperties для встановлення parse_mode
     default_properties = DefaultBotProperties(parse_mode='HTML')
     bot = Bot(token=API_TOKEN, default=default_properties)
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
     # Реєструємо роутери
-    # dp.include_router(...)
+    # Приклад: dp.include_router(menu_router)
 
     try:
         logger.info("Бот стартував.")
         await dp.start_polling(bot)
     finally:
-        await bot.close()
+        await bot.session.close()
 
 if __name__ == '__main__':
     asyncio.run(main())
