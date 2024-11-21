@@ -6,7 +6,7 @@ from aiogram.types import BotCommand
 from handlers.start_command import router as start_router
 from handlers.navigation_handlers import router as navigation_router
 
-API_TOKEN = "ВАШ_TELEGRAM_BOT_TOKEN"  # Замініть на ваш токен
+API_TOKEN = "TELEGRAM_BOT_TOKEN"  # Замініть на ваш токен
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
