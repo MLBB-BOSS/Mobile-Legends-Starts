@@ -1,4 +1,4 @@
-Аfrom utils.localization_instance import loc
+from utils.localization_instance import loc
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class NavigationMenu:
@@ -36,4 +36,4 @@ class NavigationMenu:
             ],
             resize_keyboard=True
         )
-        return keyboard 
+        return keyboard
