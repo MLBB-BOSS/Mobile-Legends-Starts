@@ -1,3 +1,4 @@
 from .localization import LocalizationManager, loc
 
-__all__ = ['LocalizationManager', 'loc']
+# Ініціалізуйте LocalizationManager, якщо потрібно
+manager = LocalizationManager()
