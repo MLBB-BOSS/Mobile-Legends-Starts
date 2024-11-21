@@ -1,4 +1,4 @@
-# File: keyboards/main_menu.py
+# keyboards/main_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
@@ -12,15 +12,19 @@ class MainMenu:
     """
     def get_main_menu(self) -> ReplyKeyboardMarkup:
         try:
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=[
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.navigation")),
-                        KeyboardButton(text=loc.get_message("buttons.profile"))
-                    ]
+            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+            buttons = [
+                [
+                    KeyboardButton(text=loc.get_message("buttons.navigation")),
+                    KeyboardButton(text=loc.get_message("buttons.profile"))
                 ],
-                resize_keyboard=True
-            )
+                [
+                    KeyboardButton(text=loc.get_message("buttons.settings")),
+                    KeyboardButton(text=loc.get_message("buttons.help"))
+                ]
+            ]
+            keyboard.keyboard = buttons
+            logger.info("Головне меню успішно створено.")
             return keyboard
         except Exception as e:
             logger.error(f"Помилка створення головного меню: {e}")
