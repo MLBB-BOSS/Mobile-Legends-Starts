@@ -1,15 +1,20 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class MainMenuKeyboard:
-    """Клас для створення головної клавіатури"""
+    """
+    Клас для створення головного меню
+    """
     @staticmethod
     def get_keyboard() -> ReplyKeyboardMarkup:
-        buttons = [
-            [KeyboardButton(text="🧭 Навігація")],
-            [KeyboardButton(text="🪪 Профіль")]
-        ]
+        # Створюємо кнопки
+        navigation_button = KeyboardButton(text="🧭 Навігація")
+        profile_button = KeyboardButton(text="🪪 Профіль")
+
+        # Розміщуємо кнопки в один рядок
         return ReplyKeyboardMarkup(
-            keyboard=buttons,
-            resize_keyboard=True,
-            one_time_keyboard=True
+            keyboard=[
+                [navigation_button, profile_button]
+            ],
+            resize_keyboard=True,  # Робимо клавіатуру компактною
+            one_time_keyboard=False  # Клавіатура не зникає після вибору
         )
