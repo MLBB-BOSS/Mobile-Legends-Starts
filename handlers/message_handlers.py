@@ -1,9 +1,6 @@
-# File: handlers/message_handlers.py
-
 from aiogram import Router, F
 from aiogram.types import Message
-from keyboards.main_menu import MainMenu
-from utils.localization import loc
+from utils import LocalizationManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +10,9 @@ router = Router()
 async def unhandled_message(message: Message):
     logger.info(f"Отримано необроблене повідомлення: {message.text}")
     try:
-        # Передаємо 'message' як аргумент для форматування
+        # Local import to avoid circular import
+        from utils.localization_instance import loc
+        from keyboards.main_menu import MainMenu
         response_text = loc.get_message("messages.unhandled_message", message=message.text)
         await message.answer(
             response_text,
