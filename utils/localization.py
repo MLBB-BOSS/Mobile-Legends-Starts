@@ -15,7 +15,15 @@ class Localization:
 
     def _load_messages(self) -> None:
         try:
-            locale_path = os.path.join(os.path.dirname(__file__), "..", "locales", f"{self.default_language}.json")
+            # Update the path to match your project structure
+            locale_path = os.path.join(
+                os.path.dirname(__file__), 
+                "..", 
+                "config",
+                "messages",
+                "locales",
+                f"{self.default_language}.json"
+            )
             with open(locale_path, 'r', encoding='utf-8') as file:
                 self.messages = json.load(file)
             logger.info(f"Loaded messages for language: {self.default_language}")
