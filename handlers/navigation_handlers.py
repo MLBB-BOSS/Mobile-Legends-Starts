@@ -7,7 +7,7 @@ from keyboards.navigation_menu import NavigationMenu
 
 router = Router()
 
-@router.message(Text("🧭 Навігація"))
+@router.message(Text("🌍 Навігація"))
 async def show_navigation_menu(message: Message):
     await message.answer(
         "Оберіть категорію:",
