@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+from aiogram.types import BotCommand, BotCommandScopeDefault  # Додаємо необхідні імпорти
 import logging
 import aiogram
 
@@ -38,35 +39,51 @@ if not API_TOKEN:
 
 async def setup_bot_commands(bot: Bot):
     """Встановлює команди бота"""
-    commands = [
-        ("start", "Запустити бота"),
-        ("help", "Отримати допомогу"),
-        ("menu", "Показати головне меню")
-    ]
-    await bot.set_my_commands(commands)
+    try:
+        commands = [
+            BotCommand(command="start", description="Запустити бота"),
+            BotCommand(command="help", description="Отримати допомогу"),
+            BotCommand(command="menu", description="Показати головне меню")
+        ]
+        
+        await bot.set_my_commands(
+            commands=commands,
+            scope=BotCommandScopeDefault()
+        )
+        logger.info("Команди бота успішно встановлені")
+    except Exception as e:
+        logger.error(f"Помилка при встановленні команд бота: {e}")
+        raise
 
 async def on_startup(bot: Bot):
     """Дії при запуску бота"""
-    await setup_bot_commands(bot)
-    logger.info("Бот успішно запущено")
+    try:
+        await setup_bot_commands(bot)
+        logger.info("Бот успішно запущено")
+    except Exception as e:
+        logger.error(f"Помилка при запуску бота: {e}")
+        raise
 
 async def on_shutdown(bot: Bot):
     """Дії при зупинці бота"""
-    logger.warning("Бот зупиняється...")
-    await bot.session.close()
-    logger.info("Бот успішно зупинено")
+    try:
+        logger.warning("Бот зупиняється...")
+        await bot.session.close()
+        logger.info("Бот успішно зупинено")
+    except Exception as e:
+        logger.error(f"Помилка при зупинці бота: {e}")
 
 async def main():
-    # Створюємо об'єкт бота
-    bot = Bot(
-        token=API_TOKEN,
-        default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML,
-            link_preview=False  # Вимикаємо превью посилань за замовчуванням
-        )
-    )
-    
     try:
+        # Створюємо об'єкт бота
+        bot = Bot(
+            token=API_TOKEN,
+            default=DefaultBotProperties(
+                parse_mode=ParseMode.HTML,
+                link_preview=False
+            )
+        )
+        
         # Ініціалізуємо сховище та диспетчер
         storage = MemoryStorage()
         dp = Dispatcher(storage=storage)
@@ -82,7 +99,6 @@ async def main():
             navigation_router
         ]
 
-        # Реєструємо роутери
         for router in routers:
             dp.include_router(router)
 
@@ -91,12 +107,16 @@ async def main():
         dp.shutdown.register(on_shutdown)
         
         # Запускаємо поллінг
-        await dp.start_polling(bot, allowed_updates=[
-            "message",
-            "callback_query",
-            "chat_member",
-            "my_chat_member"
-        ])
+        logger.info("Запуск бота...")
+        await dp.start_polling(
+            bot,
+            allowed_updates=[
+                "message",
+                "callback_query",
+                "chat_member",
+                "my_chat_member"
+            ]
+        )
         
     except Exception as e:
         logger.exception(f"Критична помилка: {e}")
@@ -110,7 +130,8 @@ async def main():
 if __name__ == '__main__':
     try:
         asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
+    except KeyboardInterrupt:
         logger.info("Бот зупинений користувачем")
     except Exception as e:
         logger.critical(f"Неочікувана помилка: {e}")
+        raise
