@@ -8,10 +8,19 @@ class Localization:
 
     def load_messages(self):
         path = os.path.join('utils', 'messages', f'{self.locale}.json')
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Файл локалізації {path} не знайдено.")
 
     def get_message(self, key):
-        return self.messages.get(key, '')
+        keys = key.split('.')
+        message = self.messages
+        for k in keys:
+            message = message.get(k)
+            if message is None:
+                return ''
+        return message
 
 loc = Localization()
