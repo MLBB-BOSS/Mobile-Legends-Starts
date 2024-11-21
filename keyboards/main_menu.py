@@ -1,30 +1,27 @@
-# File: keyboards/main_menu.py
+# File: keyboards/profile_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization import loc
+from utils.localization_instance import loc  # Оновлено шлях
 import logging
 
 logger = logging.getLogger(__name__)
 
-class MainMenu:
-    """
-    Клас для створення головного меню бота
-    """
-    def get_main_menu(self) -> ReplyKeyboardMarkup:
-        try:
-            keyboard = ReplyKeyboardMarkup(
-                keyboard=[
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.navigation")),
-                        KeyboardButton(text=loc.get_message("buttons.profile"))
-                    ]
+class ProfileMenu:
+    def get_profile_menu(self) -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.statistics")),
+                    KeyboardButton(text=loc.get_message("buttons.achievements"))
                 ],
-                resize_keyboard=True
-            )
-            return keyboard
-        except Exception as e:
-            logger.error(f"Помилка створення головного меню: {e}")
-            return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text=loc.get_message("buttons.menu"))]],
-                resize_keyboard=True
-            )
+                [
+                    KeyboardButton(text=loc.get_message("buttons.settings")),
+                    KeyboardButton(text=loc.get_message("buttons.feedback"))
+                ],
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
