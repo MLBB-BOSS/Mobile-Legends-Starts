@@ -1,3 +1,5 @@
+# File: handlers/start_command.py
+
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.main_menu import MainMenu
@@ -7,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(F.text == '/start')
+@router.message(commands=['start'])
 async def cmd_start(message: Message):
     logger.info(f"Користувач {message.from_user.id} запустив команду /start")
     try:
