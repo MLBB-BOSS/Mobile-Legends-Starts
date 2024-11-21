@@ -1,16 +1,17 @@
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.default import DefaultBotProperties
 import logging
 from handlers import start_router
 
 # Логування
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Зчитуємо токен з середовища
+# Отримуємо токен з середовища
 API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 if not API_TOKEN:
     raise ValueError("Не встановлено змінну TELEGRAM_BOT_TOKEN")
