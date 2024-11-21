@@ -1,6 +1,7 @@
 import json
 import os
 
+
 class Localization:
     def __init__(self, locale='uk'):
         self.locale = locale
@@ -9,7 +10,7 @@ class Localization:
     def load_messages(self):
         # Використання абсолютного шляху
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(base_dir, 'messages', f'{self.locale}.json')
+        path = os.path.join(base_dir, '..', 'config', 'messages', 'locales', f'{self.locale}.json')
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 return json.load(f)
@@ -25,4 +26,6 @@ class Localization:
                 return ''
         return message
 
+
+# Example initialization
 loc = Localization()
