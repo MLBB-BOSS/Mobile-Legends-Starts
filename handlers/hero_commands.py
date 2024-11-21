@@ -4,7 +4,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.hero_menu import HeroMenu
 from keyboards.main_menu import MainMenu
-from utils.localization import loc
+from utils.localization_instance import loc  # Update this import
 import logging
 
 logger = logging.getLogger(__name__)
