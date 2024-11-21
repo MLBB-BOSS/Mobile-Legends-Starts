@@ -1,7 +1,7 @@
 # handlers/message_handlers.py
 
 from aiogram import Router, types
-from aiogram.dispatcher.filters.text import Text
+from aiogram.filters import Text
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 import logging
@@ -14,7 +14,7 @@ async def navigation_handler(message: types.Message):
     try:
         await message.answer(
             "Ви обрали Навігацію.",
-            # Додайте відповідну клавіатуру або повідомлення
+            reply_markup=MainMenu().get_main_menu()
         )
         logger.info(f"Користувач {message.from_user.id} обрав Навігацію.")
     except Exception as e:
@@ -23,4 +23,4 @@ async def navigation_handler(message: types.Message):
             loc.get_message("messages.errors.general")
         )
 
-# Додайте інші хендлери для інших кнопок або повідомлень
+# Додайте інші хендлери за потреби
