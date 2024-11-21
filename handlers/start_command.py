@@ -1,13 +1,12 @@
-# handlers/start_command.py
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.navigation_keyboard import NavigationKeyboard
+from keyboards import MenuKeyboard
 import logging
 
 logger = logging.getLogger(__name__)
 router = Router()
-kb = NavigationKeyboard()
+kb = MenuKeyboard()
 
 @router.message(Command("start"))
 async def cmd_start(message: Message):
