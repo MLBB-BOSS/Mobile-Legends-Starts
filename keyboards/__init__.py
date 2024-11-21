@@ -1,3 +1,5 @@
-from .main_menu import MainMenuKeyboard
+# keyboards/__init__.py
 
-__all__ = ["MainMenuKeyboard"]
+from .main_menu import MainMenu
+
+__all__ = ["MainMenu"]
