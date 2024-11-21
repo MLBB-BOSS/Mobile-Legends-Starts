@@ -19,7 +19,7 @@
         "hero_menu": {
             "select_hero": "Будь ласка, оберіть героя з класу {class_name}:"
         },
-        "unhandled_message": "Вибачте, я не розпізнав це повідомлення: \"{message}\". Будь ласка, спробуйте іншу команду."
+        "select_hero_class": "Оберіть клас героя:"
     },
     "heroes": {
         "classes": {
