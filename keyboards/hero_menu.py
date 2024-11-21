@@ -1,4 +1,5 @@
-# keyboards/hero_menu.py
+# File: keyboards/hero_menu.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
 import logging
@@ -39,18 +40,18 @@ class HeroMenu:
     def get_heroes_by_class(self, hero_class: str) -> ReplyKeyboardMarkup:
         try:
             heroes = loc.get_message(f"heroes.classes.{hero_class}.heroes")
-            
+
             # Розбиваємо список героїв на групи по 2
             keyboard_buttons = []
             for i in range(0, len(heroes), 2):
                 row = [KeyboardButton(text=hero) for hero in heroes[i:i+2]]
                 keyboard_buttons.append(row)
-            
+
             # Додаємо кнопку "Назад"
             keyboard_buttons.append([
                 KeyboardButton(text=loc.get_message("buttons.back_to_hero_classes"))
             ])
-            
+
             return ReplyKeyboardMarkup(
                 keyboard=keyboard_buttons,
                 resize_keyboard=True
