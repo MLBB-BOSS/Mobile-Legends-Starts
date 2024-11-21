@@ -1,8 +1,11 @@
-from enum import Enum, auto
+from enum import Enum
 
 class Buttons(Enum):
-    NAVIGATION = auto()
-    HEROES = auto()
-    TOURNAMENTS = auto()
-    PROFILE = auto()
-    SETTINGS = auto()
+    NAVIGATION = "🧭 Навігація"
+    HEROES = "🛡️ Герої"
+    TOURNAMENTS = "📊 Турніри"
+    PROFILE = "👤 Профіль"
+    SETTINGS = "⚙️ Налаштування"
+
+    def __str__(self):
+        return self.value
