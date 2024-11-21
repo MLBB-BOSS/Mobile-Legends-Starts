@@ -1,33 +1,34 @@
 # File: keyboards/main_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from utils.localization import loc
-import logging
-
-logger = logging.getLogger(__name__)
 
 class MainMenu:
-    @staticmethod
-    def get_main_menu() -> ReplyKeyboardMarkup:
-        """Creates and returns the main menu keyboard"""
+    def __init__(self):
+        self.builder = ReplyKeyboardBuilder()
+
+    def get_main_menu(self) -> ReplyKeyboardMarkup:
+        """Create and return the main menu keyboard"""
         try:
-            keyboard = ReplyKeyboardMarkup(
+            self.builder.row(
+                KeyboardButton(text=loc.get_message("buttons.navigation")),
+                KeyboardButton(text=loc.get_message("buttons.characters"))
+            )
+            
+            return self.builder.as_markup(
+                resize_keyboard=True,
+                one_time_keyboard=False
+            )
+        except Exception as e:
+            logger.error(f"Error creating main menu: {str(e)}")
+            # Return a basic fallback keyboard if localization fails
+            return ReplyKeyboardMarkup(
                 keyboard=[
                     [
-                        KeyboardButton(text=loc.get_message("buttons.navigation")),
-                        KeyboardButton(text=loc.get_message("buttons.profile"))
-                    ],
-                    [
-                        KeyboardButton(text=loc.get_message("buttons.settings")),
-                        KeyboardButton(text=loc.get_message("buttons.help"))
+                        KeyboardButton(text="📱 Навігація"),
+                        KeyboardButton(text="👥 Герої")
                     ]
                 ],
-                resize_keyboard=True
-            )
-            return keyboard
-        except Exception as e:
-            logger.error(f"Error creating main menu: {e}")
-            return ReplyKeyboardMarkup(
-                keyboard=[[KeyboardButton(text="❓ Меню")]],
                 resize_keyboard=True
             )
