@@ -1,5 +1,4 @@
-from aiogram import Router, types
-from aiogram.filters import Text
+from aiogram import Router, types, F  # Add F here
 from utils.localization import loc
 import logging
 
@@ -12,7 +11,7 @@ classes = loc.get_message("heroes.classes")
 for class_info in classes.values():
     ALL_HEROES.extend(class_info["heroes"])
 
-@router.message(Text(equals=ALL_HEROES))
+@router.message(F.text.in_(ALL_HEROES))  # Updated filter syntax
 async def handle_hero_selection(message: types.Message):
     hero_name = message.text
     logger.info(f"Користувач {message.from_user.id} вибрав героя: {hero_name}")
