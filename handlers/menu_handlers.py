@@ -1,37 +1,95 @@
-from aiogram import Router, types, F  # Add F here
+# File: keyboards/profile_menu.py
+
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.localization import loc
-from keyboards.hero_menu import HeroMenu
 import logging
 
 logger = logging.getLogger(__name__)
-router = Router()
 
-HERO_CLASSES = {
-    "Танк": "tank",
-    "Бійці": "fighter",
-    "Асасини": "assassin",
-    "Маги": "mage",
-    "Стрільці": "marksman",
-    "Підтримка": "support"
-}
+class ProfileMenu:
+    def get_profile_menu(self) -> ReplyKeyboardMarkup:
+        """
+        Creates and returns the profile menu keyboard markup.
+        Returns a simplified fallback keyboard if there's an error.
+        """
+        try:
+            keyboard = ReplyKeyboardMarkup(
+                keyboard=[
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.statistics") or "📊 Статистика"),
+                        KeyboardButton(text=loc.get_message("buttons.achievements") or "🏆 Досягнення")
+                    ],
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.settings") or "⚙️ Налаштування"),
+                        KeyboardButton(text=loc.get_message("buttons.feedback") or "📝 Зворотній зв'язок")
+                    ],
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.back") or "↩️ Назад")
+                    ]
+                ],
+                resize_keyboard=True
+            )
+            return keyboard
+        except Exception as e:
+            logger.error(f"Помилка створення профільного меню: {e}")
+            # Fallback keyboard with just the back button
+            return ReplyKeyboardMarkup(
+                keyboard=[
+                    [KeyboardButton(text="↩️ Назад")]
+                ],
+                resize_keyboard=True
+            )
 
-@router.message(F.text.in_(HERO_CLASSES.keys()))  # Updated filter syntax
-async def handle_hero_class_selection(message: types.Message):
-    logger.info(f"Користувач {message.from_user.id} вибрав клас героїв: {message.text}")
-    try:
-        class_key = HERO_CLASSES[message.text]
-        heroes = loc.get_message(f"heroes.classes.{class_key}.heroes")
-        keyboard = HeroMenu().get_heroes_by_class(class_key)
-        
-        await message.answer(
-            loc.get_message("messages.hero_menu.select_hero").format(
-                class_name=message.text
-            ),
-            reply_markup=keyboard
-        )
-    except KeyError:
-        logger.warning(f"Невідомий клас героїв: {message.text}")
-        await message.answer(loc.get_message("messages.errors.class_not_found"))
-    except Exception as e:
-        logger.exception(f"Помилка при обробці вибору класу героїв: {e}")
-        await message.answer(loc.get_message("messages.errors.general"))
+    def get_statistics_menu(self) -> ReplyKeyboardMarkup:
+        """
+        Creates and returns the statistics submenu keyboard markup.
+        """
+        try:
+            keyboard = ReplyKeyboardMarkup(
+                keyboard=[
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.personal_stats") or "👤 Особиста статистика"),
+                        KeyboardButton(text=loc.get_message("buttons.global_stats") or "🌐 Загальна статистика")
+                    ],
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.back") or "↩️ Назад")
+                    ]
+                ],
+                resize_keyboard=True
+            )
+            return keyboard
+        except Exception as e:
+            logger.error(f"Помилка створення меню статистики: {e}")
+            return ReplyKeyboardMarkup(
+                keyboard=[
+                    [KeyboardButton(text="↩️ Назад")]
+                ],
+                resize_keyboard=True
+            )
+
+    def get_achievements_menu(self) -> ReplyKeyboardMarkup:
+        """
+        Creates and returns the achievements submenu keyboard markup.
+        """
+        try:
+            keyboard = ReplyKeyboardMarkup(
+                keyboard=[
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.my_achievements") or "🏆 Мої досягнення"),
+                        KeyboardButton(text=loc.get_message("buttons.leaderboard") or "🏅 Рейтинг")
+                    ],
+                    [
+                        KeyboardButton(text=loc.get_message("buttons.back") or "↩️ Назад")
+                    ]
+                ],
+                resize_keyboard=True
+            )
+            return keyboard
+        except Exception as e:
+            logger.error(f"Помилка створення меню досягнень: {e}")
+            return ReplyKeyboardMarkup(
+                keyboard=[
+                    [KeyboardButton(text="↩️ Назад")]
+                ],
+                resize_keyboard=True
+            )
