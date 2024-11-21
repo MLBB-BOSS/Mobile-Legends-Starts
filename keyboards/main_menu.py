@@ -1,11 +1,17 @@
-from aiogram.types import InlineKeyboardButton
-from .base_keyboard import BaseKeyboard
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-class MainMenuKeyboard(BaseKeyboard):
+class MainMenuKeyboard:
+    """
+    Клас для створення головної клавіатури
+    """
     @staticmethod
-    def get_keyboard():
+    def get_keyboard() -> ReplyKeyboardMarkup:
         buttons = [
-            [InlineKeyboardButton(text="🧭 Навігація", callback_data="menu_navigation")],
-            [InlineKeyboardButton(text="🪪 Профіль", callback_data="menu_profile")],
+            [KeyboardButton(text="🧭 Навігація")],
+            [KeyboardButton(text="🪪 Профіль")]
         ]
-        return BaseKeyboard.create_inline_keyboard(buttons)
+        return ReplyKeyboardMarkup(
+            keyboard=buttons,
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
