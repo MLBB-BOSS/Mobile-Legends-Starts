@@ -9,8 +9,8 @@ import logging
 
 # Імпортуємо ваші роутери
 from handlers.menu_handlers import router as menu_router
-from handlers.message_handlers import router as message_router  # Якщо у вас є цей файл
-from handlers.start_command import router as start_router  # Якщо у вас є хендлер для команди /start
+from handlers.message_handlers import router as message_router
+from handlers.start_command import router as start_router
 
 # Зчитуємо токен бота з змінної середовища
 API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
