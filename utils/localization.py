@@ -3,7 +3,7 @@
 import json
 import os
 import logging
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,9 @@ class Localization:
                 current = current[part]
 
             if isinstance(current, str):
+                # Handle both message_text and text parameters for backward compatibility
+                if 'message_text' in kwargs and 'text' not in kwargs:
+                    kwargs['text'] = kwargs.pop('message_text')
                 return current.format(**kwargs)
             return str(current)
         except KeyError:
@@ -48,17 +51,64 @@ class Localization:
             logger.error(f"Error getting message for key {key}: {str(e)}")
             return key
 
+    def get_hero_info(self, hero_name: str) -> str:
+        """Get hero information by name"""
+        try:
+            return self.messages["heroes"]["info"][hero_name]
+        except KeyError:
+            return f"Інформація про героя {hero_name} недоступна."
+
+    def get_hero_class_name(self, class_key: str) -> str:
+        """Get hero class name by key"""
+        try:
+            return self.messages["heroes"]["classes"][class_key]["name"]
+        except KeyError:
+            return class_key.capitalize()
+
+    def get_heroes_by_class(self, class_key: str) -> list:
+        """Get list of heroes by class"""
+        try:
+            return self.messages["heroes"]["classes"][class_key]["heroes"]
+        except KeyError:
+            return []
+
     def _get_default_messages(self) -> Dict[str, Any]:
         return {
-            "messages": {
-                "unhandled_message": "Вибачте, я не розумію команду: {text}",
-                "welcome": "Ласкаво просимо до MLS Bot!",
-                "error": "Виникла помилка. Спробуйте ще раз.",
-            },
             "buttons": {
-                "navigation": "📱 Навігація",
-                "characters": "👥 Герої",
+                "navigation": "🧭 Навігація",
+                "profile": "🪪 Мій Кабінет",
+                "settings": "⚙️ Налаштування",
+                "help": "❓ Допомога",
+                "menu": "Меню",
+                "show_heroes": "Показати героїв",
+                "back_to_hero_classes": "⬅️ До класів героїв",
+                "back_to_hero_list": "⬅️ До списку героїв",
+                "statistics": "📊 Статистика",
+                "achievements": "🏆 Досягнення",
+                "feedback": "📝 Зворотній зв'язок",
                 "back": "↩️ Назад",
+                "guides": "📖 Гайди",
+                "characters": "👥 Персонажі",
+                "counter_picks": "⚔️ Контр-піки",
+                "builds": "🛠️ Білди",
+                "voting": "📊 Голосування",
+                "back_to_navigation": "↩️ До навігації"
+            },
+            "messages": {
+                "welcome": "Вітаємо у MLBB-BOSS! Це бот для організації та підтримки турнірів у грі Mobile Legends. Оберіть опцію з меню нижче.",
+                "help": "Доступні команди:\n/start - Запустити бота\n/help - Отримати допомогу\n/profile - Мій профіль\n/settings - Налаштування\n\nДля додаткової інформації звертайтесь до адміністратора.",
+                "unhandled_message": "Вибачте, я не розумію це повідомлення: {text}",
+                "hero_menu": {
+                    "select_hero": "Будь ласка, оберіть героя з класу {class_name}:"
+                },
+                "select_hero_class": "Оберіть клас героя:"
+            },
+            "errors": {
+                "general": "Виникла непередбачена помилка. Будь ласка, спробуйте пізніше.",
+                "class_not_found": "Вибраний клас героїв не знайдено. Будь ласка, оберіть з доступного списку.",
+                "hero_not_found": "Вибраного героя не знайдено. Будь ласка, спробуйте інший вибір.",
+                "not_registered": "Ви не зареєстровані. Використайте команду /start для реєстрації.",
+                "permission_denied": "У вас немає доступу до цієї функції."
             }
         }
 
