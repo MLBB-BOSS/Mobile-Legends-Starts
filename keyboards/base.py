@@ -1,16 +1,7 @@
-# File: keyboards/main_menu.py
+# File: keyboards/__init__.py
 
-from .base import BaseKeyboard
-from aiogram.types import ReplyKeyboardMarkup
+from keyboards.base import BaseKeyboard
+from keyboards.main_menu import MainMenu
+from keyboards.navigation_menu import NavigationMenu
 
-class MainMenu(BaseKeyboard):
-    @classmethod
-    def get_keyboard(cls) -> ReplyKeyboardMarkup:
-        """Main menu keyboard"""
-        buttons = [
-            "buttons.navigation",
-            "buttons.profile",
-            "buttons.settings",
-            "buttons.help"
-        ]
-        return cls.create_keyboard(buttons, row_width=2, add_back=False)
+__all__ = ['BaseKeyboard', 'MainMenu', 'NavigationMenu']
