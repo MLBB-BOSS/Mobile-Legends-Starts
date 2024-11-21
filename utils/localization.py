@@ -1,76 +1,78 @@
-# File: utils/localization.py
-
+# utils/localization.py
 import json
 from pathlib import Path
 import logging
 
+logger = logging.getLogger(__name__)
+
 class LocalizationManager:
     def __init__(self, locale: str = "uk"):
         self.locale = locale
-        self.logger = logging.getLogger(__name__)
         self.messages = self._load_messages()
-        if not self.messages:
-            self.logger.error(f"No messages loaded for locale '{self.locale}'")
 
     def _load_messages(self) -> dict:
         try:
-            base_path = Path(__file__).parent.parent
-            file_path = base_path / "config" / "messages" / "locales" / f"{self.locale}.json"
-
-            with open(file_path, "r", encoding="utf-8") as file:
+            file_path = Path(__file__).parent.parent / "config" / "messages" / "locales" / f"{self.locale}.json"
+            
+            if not file_path.exists():
+                logger.error(f"Файл локалізації не знайдено: {file_path}")
+                return {}
+                
+            with open(file_path, 'r', encoding='utf-8') as file:
                 messages = json.load(file)
-                self.logger.info(f"Localization file loaded: {file_path}")
+                logger.info(f"Локалізація успішно завантажена: {self.locale}")
                 return messages
-        except FileNotFoundError:
-            self.logger.error(f"Localization file not found: {file_path}")
-            return {}
+                
         except json.JSONDecodeError as e:
-            self.logger.error(f"Error decoding JSON from {file_path}: {e}")
+            logger.error(f"Помилка декодування JSON: {e}")
             return {}
         except Exception as e:
-            self.logger.error(f"Error loading messages: {e}")
+            logger.error(f"Помилка завантаження локалізації: {e}")
             return {}
 
     def get_message(self, key: str, **kwargs) -> str:
+        """
+        Отримати локалізоване повідомлення за ключем
+        Приклад: get_message("messages.welcome")
+        """
         try:
-            keys = key.split('.')
-            value = self.messages
-            for k in keys:
-                if isinstance(value, dict):
-                    value = value.get(k)
+            current = self.messages
+            for part in key.split('.'):
+                if isinstance(current, dict):
+                    current = current.get(part)
+                    if current is None:
+                        logger.warning(f"Ключ не знайдено: {key}")
+                        return key
                 else:
-                    self.logger.warning(f"Expected dict at key '{k}' but got {type(value)}")
-                    return f"Message key '{key}' not found"
+                    break
 
-                if value is None:
-                    self.logger.warning(f"Message key '{key}' not found at '{k}'")
-                    return f"Message key '{key}' not found"
+            if isinstance(current, str):
+                return current.format(**kwargs)
+            elif isinstance(current, (list, dict)):
+                return str(current)
+            return key
 
-            if isinstance(value, str):
-                return value.format(**kwargs)
-            elif isinstance(value, dict):
-                return value
-            else:
-                self.logger.warning(f"Unsupported type for key '{key}': {type(value)}")
-                return f"Message key '{key}' not found"
-        except KeyError as e:
-            self.logger.error(f"Missing key in localization for '{key}': {e}")
-            return f"Error getting message for key '{key}'"
         except Exception as e:
-            self.logger.error(f"Error getting message for key {key}: {e}")
-            return f"Error getting message for key '{key}'"
+            logger.error(f"Помилка отримання повідомлення для ключа {key}: {e}")
+            return key
 
-    def get_all_hero_names(self) -> list:
+    def get_hero_classes(self) -> list:
+        """Отримати список класів героїв"""
         try:
-            hero_classes = self.get_message("heroes.classes")
-            hero_names = []
-            if isinstance(hero_classes, dict):
-                for class_info in hero_classes.values():
-                    heroes = class_info.get("heroes", [])
-                    hero_names.extend(heroes)
-            else:
-                self.logger.warning("heroes.classes is not a dictionary")
-            return hero_names
+            classes = self.messages.get("heroes", {}).get("classes", {})
+            return list(classes.keys()) if isinstance(classes, dict) else []
         except Exception as e:
-            self.logger.error(f"Error getting all hero names: {e}")
+            logger.error(f"Помилка отримання списку класів героїв: {e}")
             return []
+
+    def get_hero_info(self, hero_name: str) -> str:
+        """Отримати інформацію про героя"""
+        try:
+            return self.messages.get("heroes", {}).get("info", {}).get(hero_name, 
+                   self.get_message("errors.hero_not_found"))
+        except Exception as e:
+            logger.error(f"Помилка отримання інформації про героя {hero_name}: {e}")
+            return self.get_message("errors.general")
+
+# Створюємо глобальний екземпляр
+loc = LocalizationManager()
