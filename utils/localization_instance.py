@@ -1,5 +1,3 @@
 # File: utils/localization_instance.py
 
-from .localization import LocalizationManager
-
-loc = LocalizationManager()
+from .localization_setup import loc
