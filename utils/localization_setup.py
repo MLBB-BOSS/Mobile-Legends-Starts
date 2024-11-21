@@ -1,4 +1,2 @@
-# File: utils/localization_setup.py
-from .localization import LocalizationManager
-
-loc = LocalizationManager()
+# Example update in other files
+from utils.localization_setup import loc
