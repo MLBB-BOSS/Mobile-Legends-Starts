@@ -7,6 +7,11 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 import logging
 
+# Імпортуємо ваші роутери
+from handlers.menu_handlers import router as menu_router
+from handlers.message_handlers import router as message_router  # Якщо у вас є цей файл
+from handlers.start_command import router as start_router  # Якщо у вас є хендлер для команди /start
+
 # Зчитуємо токен бота з змінної середовища
 API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
@@ -24,7 +29,9 @@ async def main():
     dp = Dispatcher(storage=storage)
 
     # Реєструємо роутери
-    # Приклад: dp.include_router(menu_router)
+    dp.include_router(start_router)
+    dp.include_router(menu_router)
+    dp.include_router(message_router)
 
     try:
         logger.info("Бот стартував.")
