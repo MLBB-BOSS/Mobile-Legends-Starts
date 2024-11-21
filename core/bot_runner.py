@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Завантаження перемінних середовища з .env файлу
 load_dotenv()
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Змінено з "BOT_TOKEN" на "TELEGRAM_BOT_TOKEN"
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Або "BOT_TOKEN" залежно від вибраного способу
 
 if not BOT_TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN не встановлено у перемінних середовища!")
