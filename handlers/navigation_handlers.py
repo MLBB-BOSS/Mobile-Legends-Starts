@@ -137,7 +137,7 @@ async def show_statistics(message: Message):
         "wins": 0,
         "winrate": 0
     }
-
+    
     try:
         await message.answer(
             loc.get_message("messages.statistics_info").format(
@@ -154,16 +154,10 @@ async def show_statistics(message: Message):
             reply_markup=MainMenu().get_main_menu()
         )
 
-@router.message(F.text == loc.get_message("buttons.back"))
-async def go_back(message: Message):
-    logger.info(f"Користувач {message.from_user.id} повернувся до головного меню")
-    try:
-        await message.answer(
-            loc.get_message("messages.menu_welcome"),
-            reply_markup=MainMenu().get_main_menu()
-        )
-    except Exception as e:
-        logger.exception(f"Помилка при поверненні до головного меню: {e}")
-        await message.answer(
-            loc.get_message("errors.general")
-        )
+# Обробник помилок
+@router.errors()
+async def handle_errors(update: Message, exception: Exception):
+    await update.answer(
+        loc.get_message("errors.general"),
+        reply_markup=MainMenu().get_main_menu()
+    )
