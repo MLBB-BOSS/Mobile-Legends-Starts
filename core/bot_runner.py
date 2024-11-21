@@ -7,7 +7,7 @@ from handlers.menu_handlers import router as menu_router
 from handlers.message_handlers import router as message_router  # Припустимо, ви маєте інший роутер
 import logging
 
-API_TOKEN = 'YOUR_BOT_API_TOKEN'
+API_TOKEN = 'TELEGRAM_BOT_TOKEN'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
