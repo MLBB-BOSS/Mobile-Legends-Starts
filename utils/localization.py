@@ -17,13 +17,28 @@ class Localization:
         except FileNotFoundError:
             raise FileNotFoundError(f"Файл локалізації {path} не знайдено.")
 
-    def get_message(self, key):
+    def get_message(self, key, **kwargs):
+        """
+        Get a localized message with optional parameter substitution.
+        
+        Args:
+            key (str): The dot-separated path to the message
+            **kwargs: Variables to substitute in the message
+        """
         keys = key.split('.')
         message = self.messages
         for k in keys:
             message = message.get(k)
             if message is None:
-                return ''
+                return "Помилка: повідомлення не знайдено"
+        
+        # If we have a string message and kwargs, try to format it
+        if isinstance(message, str) and kwargs:
+            try:
+                return message.format(**kwargs)
+            except KeyError as e:
+                logger.error(f"Missing key in message format: {e}")
+                return message
         return message
 
 
