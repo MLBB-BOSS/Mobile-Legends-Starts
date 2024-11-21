@@ -7,10 +7,11 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 import logging
 
-# Імпортуємо ваші роутери
+# Імпортуємо роутери
 from handlers.start_command import router as start_router
 from handlers.menu_handlers import router as menu_router
 from handlers.message_handlers import router as message_router
+# Додайте інші роутери за потреби
 
 API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
@@ -21,6 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def main():
+    # Використовуємо DefaultBotProperties для встановлення parse_mode
     default_properties = DefaultBotProperties(parse_mode='HTML')
     bot = Bot(token=API_TOKEN, default=default_properties)
     storage = MemoryStorage()
@@ -30,6 +32,7 @@ async def main():
     dp.include_router(start_router)
     dp.include_router(menu_router)
     dp.include_router(message_router)
+    # Додайте інші роутери тут
 
     try:
         logger.info("Бот стартував.")
