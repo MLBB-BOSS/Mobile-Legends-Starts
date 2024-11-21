@@ -154,4 +154,4 @@ async def show_profile_menu(message: Message):
         await message.answer(
             loc.get_message("errors.general"),
             reply_markup=MainMenu().get_main_menu()
-                        )
+        )
