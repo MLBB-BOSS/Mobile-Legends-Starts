@@ -2,6 +2,7 @@
 
 from aiogram import Router, types, F
 from aiogram.exceptions import TelegramAPIError
+from keyboards.main_menu import MainMenu
 from utils.localization import loc
 import logging
 
