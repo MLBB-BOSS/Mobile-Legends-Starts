@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from aiogram.filters import Text
+from aiogram import F
 from utils.localization import loc
 from keyboards.hero_menu import HeroMenu
 import logging
@@ -20,7 +20,7 @@ HERO_CLASSES = {
     "Підтримка": "support"
 }
 
-@router.message(Text(equals=HERO_CLASSES.keys()))
+@router.message(F.text.in_(HERO_CLASSES.keys()))
 async def handle_hero_class_selection(message: types.Message):
     """
     Handle user selection of a hero class.
