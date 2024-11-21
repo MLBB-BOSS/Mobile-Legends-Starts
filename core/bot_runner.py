@@ -8,7 +8,7 @@ from handlers.menu_handlers import router as menu_router
 from handlers.message_handlers import router as message_router  # Припустимо, у вас є інший роутер
 import logging
 
-API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN_TOOLRAMBOT')  # Використовуйте правильну назву
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')  # Використовуйте правильну назву
 
 if not API_TOKEN:
     raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN_TOOLRAMBOT")
