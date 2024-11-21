@@ -10,15 +10,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 router = Router()
-nav_menu = NavigationMenu()
-main_menu = MainMenu()
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message):
     try:
+        keyboard = MainMenu.get_keyboard()  # Changed from instance method to class method
         await message.answer(
             text=loc.get_message("messages.welcome"),
-            reply_markup=main_menu.get_main_menu()
+            reply_markup=keyboard
         )
         logger.info(f"User {message.from_user.id} started the bot")
     except Exception as e:
