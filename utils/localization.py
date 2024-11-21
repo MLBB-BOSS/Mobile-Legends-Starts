@@ -13,6 +13,7 @@ class LocalizationManager:
 
     def _load_messages(self) -> dict:
         try:
+            # Вказуємо правильний шлях до файлу локалізації
             file_path = Path(__file__).parent / "messages" / f"{self.locale}.json"
 
             if not file_path.exists():
