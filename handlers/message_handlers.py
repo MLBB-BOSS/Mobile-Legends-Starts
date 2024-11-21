@@ -1,7 +1,6 @@
 # handlers/message_handlers.py
 
-from aiogram import Router, types
-from aiogram.filters import Text  # Коректний імпорт
+from aiogram import Router, types, F  # Added F here
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from utils.localization import loc
@@ -17,7 +16,7 @@ class HeroStates(StatesGroup):
     SelectingClass = State()
     SelectingHero = State()
 
-@router.message(Text(equals=loc.get_message("buttons.show_heroes")))
+@router.message(F.text == loc.get_message("buttons.show_heroes"))
 async def show_heroes(message: types.Message):
     try:
         await message.answer(
