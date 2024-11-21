@@ -1,15 +1,13 @@
 from aiogram import Router, types
-from aiogram.filters import Text
+from aiogram.filters.text import Text  # Виправлений імпорт
 from utils.localization import loc
-from keyboards.main_menu import MainMenu
 from keyboards.hero_menu import HeroMenu
 import logging
 
 logger = logging.getLogger(__name__)
 router = Router()
 
-# Отримуємо назви класів з локалізації
-HERO_CLASSES = {loc.get_message(f"heroes.classes.{key}.name"): key for key in loc.get_message("heroes.classes").keys()}
+# Припускаємо, що HERO_CLASSES вже визначений у вашому локалізаційному менеджері
 
 @router.message(Text(equals=HERO_CLASSES.keys()))
 async def handle_hero_class_selection(message: types.Message):
