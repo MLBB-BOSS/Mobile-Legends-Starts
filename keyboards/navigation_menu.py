@@ -1,6 +1,6 @@
-class NavigationMenu:
-    # Existing methods...
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+class NavigationMenu:
     def get_builds_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
@@ -15,3 +15,5 @@ class NavigationMenu:
             resize_keyboard=True
         )
         return keyboard
+
+    # Existing methods...
