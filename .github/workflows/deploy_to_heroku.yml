@@ -3,8 +3,7 @@ name: Deploy to Heroku
 on:
   push:
     branches:
-      - aiogram-3x
-default  # Запускати лише для гілки main
+      - aiogram-3x  # Запускати лише для гілки aiogram-3x
 
 jobs:
   deploy:
