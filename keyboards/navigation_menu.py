@@ -1,12 +1,11 @@
 # File: keyboards/navigation_menu.py
 
-from .base import BaseKeyboard
 from aiogram.types import ReplyKeyboardMarkup
+from keyboards.base import BaseKeyboard
 
 class NavigationMenu(BaseKeyboard):
     @classmethod
     def get_keyboard(cls) -> ReplyKeyboardMarkup:
-        """Navigation menu keyboard"""
         buttons = [
             "buttons.guides",
             "buttons.characters",
