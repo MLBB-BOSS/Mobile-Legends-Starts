@@ -9,7 +9,8 @@ class BaseKeyboard:
     def create_keyboard(
         button_keys: List[str], 
         row_width: int = 3, 
-        add_back: bool = True
+        add_back: bool = True,
+        back_key: str = "buttons.back"
     ) -> ReplyKeyboardMarkup:
         """
         Create keyboard with localized buttons
@@ -18,6 +19,7 @@ class BaseKeyboard:
             button_keys: List of localization keys for buttons
             row_width: Number of buttons per row
             add_back: Whether to add back button
+            back_key: Localization key for back button
         """
         keyboard = []
         row = []
@@ -33,15 +35,10 @@ class BaseKeyboard:
             keyboard.append(row)
             
         if add_back:
-            back_text = loc.get_message("buttons.common.back")
+            back_text = loc.get_message(back_key)
             keyboard.append([KeyboardButton(text=back_text)])
             
         return ReplyKeyboardMarkup(
             keyboard=keyboard,
             resize_keyboard=True
-        )
-
-    @staticmethod
-    def remove_keyboard() -> ReplyKeyboardRemove:
-        """Remove current keyboard"""
-        return ReplyKeyboardRemove()
+            )
