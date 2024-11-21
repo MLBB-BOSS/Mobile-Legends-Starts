@@ -1,3 +1,3 @@
-from .start_command import router as start_router
+from .main_menu import MainMenuKeyboard
 
-__all__ = ["start_router"]
+__all__ = ["MainMenuKeyboard"]
