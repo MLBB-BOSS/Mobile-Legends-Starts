@@ -1,9 +1,14 @@
-from aiogram import Router, F
+# File: handlers/navigation_handlers.py
+from aiogram import Router
 from aiogram.types import Message
+from aiogram.filters import Text
+from keyboards.navigation_menu import NavigationMenu
 
 router = Router()
 
-@router.message(F.text == "Навігація")
+@router.message(Text("Навігація"))
 async def handle_navigation(message: Message):
-    """Обробник кнопки 'Навігація'"""
-    await message.reply("Це розділ навігації.")
+    await message.answer(
+        "Це розділ навігації. Оберіть опцію:",
+        reply_markup=NavigationMenu.get_navigation_menu()
+    )
