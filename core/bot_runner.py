@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 import logging
-import aiogram  # Додайте цей імпорт для перевірки версії
+import aiogram
 
 # Встановлюємо рівень логування
 logging.basicConfig(level=logging.DEBUG)
