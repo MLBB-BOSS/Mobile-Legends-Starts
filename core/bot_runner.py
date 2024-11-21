@@ -1,3 +1,4 @@
+import os
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -6,7 +7,12 @@ from aiogram.types import BotCommand
 from handlers.start_command import router as start_router
 from handlers.navigation_handlers import router as navigation_router
 
-API_TOKEN = "TELEGRAM_BOT_TOKEN"  # Замініть на ваш токен
+# Отримуємо токен з середовища
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+# Перевірка токена
+if not API_TOKEN:
+    raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у перемінних середовища!")
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
