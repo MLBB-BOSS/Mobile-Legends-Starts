@@ -1,11 +1,11 @@
+# keyboards/keyboard_buttons.py
+
 from enum import Enum
 
 class Buttons(Enum):
     NAVIGATION = "🧭 Навігація"
-    HEROES = "🛡️ Герої"
-    TOURNAMENTS = "📊 Турніри"
-    PROFILE = "👤 Профіль"
-    SETTINGS = "⚙️ Налаштування"
+    PROFILE = "🪪 Профіль"
 
-    def __str__(self):
-        return self.value
+class MenuLevel(Enum):
+    MAIN = "main"
+    PROFILE = "profile"
