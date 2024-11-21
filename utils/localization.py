@@ -1,4 +1,5 @@
-from utils.localization_instance import loc
+# File: utils/localization.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class NavigationMenu:
@@ -6,15 +7,15 @@ class NavigationMenu:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text=loc.get_message("buttons.guides")),
-                    KeyboardButton(text=loc.get_message("buttons.characters"))
+                    KeyboardButton(text="buttons.guides"),
+                    KeyboardButton(text="buttons.characters")
                 ],
                 [
-                    KeyboardButton(text=loc.get_message("buttons.counter_picks")),
-                    KeyboardButton(text=loc.get_message("buttons.builds"))
+                    KeyboardButton(text="buttons.counter_picks"),
+                    KeyboardButton(text="buttons.builds")
                 ],
                 [
-                    KeyboardButton(text=loc.get_message("buttons.back"))
+                    KeyboardButton(text="buttons.back")
                 ]
             ],
             resize_keyboard=True
@@ -27,11 +28,11 @@ class NavigationMenu:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text=loc.get_message("buttons.build1")),
-                    KeyboardButton(text=loc.get_message("buttons.build2"))
+                    KeyboardButton(text="buttons.build1"),
+                    KeyboardButton(text="buttons.build2")
                 ],
                 [
-                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                    KeyboardButton(text="buttons.back_to_navigation")
                 ]
             ],
             resize_keyboard=True
