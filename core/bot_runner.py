@@ -1,3 +1,6 @@
+# core/bot_runner.py - головний файл для запуску Telegram-бота
+# Використовує aiogram для обробки повідомлень та команд
+
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
@@ -6,10 +9,6 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import BotCommand, BotCommandScopeDefault
 import logging
-from dotenv import load_dotenv
-
-# Завантажуємо змінні середовища
-load_dotenv()
 
 # Встановлюємо рівень логування
 logging.basicConfig(
@@ -18,7 +17,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Отримуємо токен з змінних середовища
+# Отримуємо токен з змінних середовища (Heroku Config Vars)
 API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 if not API_TOKEN:
