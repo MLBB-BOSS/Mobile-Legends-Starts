@@ -15,6 +15,14 @@ logger = logging.getLogger(__name__)
 # Перевірка версії aiogram
 logger.info(f"aiogram version: {aiogram.__version__}")
 
+# Спробуємо імпортувати Text окремо
+try:
+    from aiogram.filters import Text
+    logger.info("Успішно імпортовано Text з aiogram.filters")
+except ImportError as e:
+    logger.exception(f"Не вдалося імпортувати Text з aiogram.filters: {e}")
+    raise
+
 # Імпортуємо роутери
 from handlers.start_command import router as start_router
 from handlers.menu_handlers import router as menu_router
