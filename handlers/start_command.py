@@ -1,12 +1,17 @@
 # handlers/start_command.py
 
-from aiogram import Router, types
-from aiogram.filters.command import Command  # Коректний імпорт
-from utils.localization import loc
-from keyboards.main_menu import MainMenu
 import logging
 
 logger = logging.getLogger(__name__)
+logger.debug("Початок обробки імпортів у start_command.py")
+
+from aiogram import Router, types
+from aiogram.filters import Command  # Коректний імпорт
+from utils.localization import loc
+from keyboards.main_menu import MainMenu
+
+logger.debug("Імпорти виконано успішно у start_command.py")
+
 router = Router()
 
 @router.message(Command('start'))
