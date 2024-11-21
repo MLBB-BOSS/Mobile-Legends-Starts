@@ -139,4 +139,19 @@ async def go_back(message: Message):
         await message.answer(
             loc.get_message("errors.general"),
             reply_markup=MainMenu().get_main_menu()
-                          )
+        )
+
+@router.message(F.text == loc.get_message("buttons.profile"))
+async def show_profile_menu(message: Message):
+    logger.info(f"Користувач {message.from_user.id} відкрив профільний кабінет")
+    try:
+        await message.answer(
+            loc.get_message("messages.profile_menu"),
+            reply_markup=ProfileMenu().get_profile_menu()
+        )
+    except Exception as e:
+        logger.exception(f"Помилка при відображенні профільного меню: {e}")
+        await message.answer(
+            loc.get_message("errors.general"),
+            reply_markup=MainMenu().get_main_menu()
+        )
