@@ -1,16 +1,24 @@
 # handlers/menu_handlers.py
 
-from aiogram import Router, types
-from aiogram.filters.text import Text  # Коректний імпорт
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from utils.localization import loc
-from keyboards.hero_menu import HeroMenu
-from keyboards.main_menu import MainMenu
 import logging
 
 logger = logging.getLogger(__name__)
-router = Router()
+logger.debug("Початок обробки імпортів у menu_handlers.py")
+
+from aiogram import Router, types
+from aiogram.filters import Text  # Коректний імпорт
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from utils.localization import loc
+from keyboards.main_menu import MainMenu
+from keyboards.hero_menu import HeroMenu
+
+logger.debug("Імпорти виконано успішно у menu_handlers.py")
+
+# Визначення станів FSM (якщо використовується)
+class HeroStates(StatesGroup):
+    SelectingClass = State()
+    SelectingHero = State()
 
 @router.message(Text(equals=loc.get_message("buttons.show_heroes")))
 async def show_heroes(message: types.Message):
