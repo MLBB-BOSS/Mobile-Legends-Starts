@@ -1,8 +1,6 @@
-# File: keyboards/__init__.py
+# keyboards/__init__.py
+from .base_keyboard import BaseKeyboard
+from .main_keyboard import MainKeyboard
+from .inline_keyboard import InlineKeyboard
 
-from .main_menu import MainMenu
-from .navigation_menu import NavigationMenu
-from .profile_menu import ProfileMenu
-from .hero_menu import HeroMenu
-
-__all__ = ['MainMenu', 'NavigationMenu', 'ProfileMenu', 'HeroMenu']
+__all__ = ['BaseKeyboard', 'MainKeyboard', 'InlineKeyboard']
