@@ -2,7 +2,7 @@
 
 import logging
 from aiogram import Router, types
-from aiogram.filters import StringFilter as Text  # Альтернатива
+from aiogram.filters import StringFilter as F. Text  # Альтернатива
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 from keyboards.hero_menu import HeroMenu
