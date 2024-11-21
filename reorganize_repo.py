@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import logging
+from models.character import Characters, Character
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -71,18 +72,21 @@ def consolidate_characters():
                     with open(filepath, 'r') as f:
                         try:
                             character_data = json.load(f)
-                            character_name = character_data.get('name')
+                            character = Character(**character_data)
+                            character_name = character.name
                             if character_name:
                                 consolidated_data[class_name] = consolidated_data.get(class_name, {})
-                                consolidated_data[class_name][character_name] = character_data
+                                consolidated_data[class_name][character_name] = character.dict()
                                 os.remove(filepath)
                                 logging.info(f"Added {character_name} to {characters_file}")
                             else:
                                 logging.warning(f"No 'name' field in {filepath}")
                         except json.JSONDecodeError:
                             logging.error(f"Error decoding JSON from {filepath}")
+                        except Exception as e:
+                            logging.error(f"Validation error in {filepath}: {e}")
     with open(characters_file, 'w') as cf:
-        json.dump(consolidated_data, cf, indent=4)
+        json.dump(consolidated_data, cf, indent=4, ensure_ascii=False)
         logging.info(f"Consolidated all characters into {characters_file}")
 
 def main():
