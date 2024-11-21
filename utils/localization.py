@@ -1,46 +1,38 @@
+# File: utils/localization.py
+
 import json
 import os
+import logging
+from typing import Any, Dict
 
+logger = logging.getLogger(__name__)
 
 class Localization:
-    def __init__(self, locale='uk'):
-        self.locale = locale
-        self.messages = self.load_messages()
+    def __init__(self, default_language: str = "uk"):
+        self.default_language = default_language
+        self.messages: Dict[str, Any] = {}
+        self._load_messages()
 
-    def load_messages(self):
-        # Використання абсолютного шляху
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        path = os.path.join(base_dir, '..', 'config', 'messages', 'locales', f'{self.locale}.json')
+    def _load_messages(self) -> None:
         try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Файл локалізації {path} не знайдено.")
+            locale_path = os.path.join(os.path.dirname(__file__), "..", "locales", f"{self.default_language}.json")
+            with open(locale_path, 'r', encoding='utf-8') as file:
+                self.messages = json.load(file)
+            logger.info(f"Loaded messages for language: {self.default_language}")
+        except Exception as e:
+            logger.error(f"Failed to load messages: {e}")
+            self.messages = {}
 
-    def get_message(self, key, **kwargs):
-        """
-        Get a localized message with optional parameter substitution.
-        
-        Args:
-            key (str): The dot-separated path to the message
-            **kwargs: Variables to substitute in the message
-        """
-        keys = key.split('.')
-        message = self.messages
-        for k in keys:
-            message = message.get(k)
-            if message is None:
-                return "Помилка: повідомлення не знайдено"
-        
-        # If we have a string message and kwargs, try to format it
-        if isinstance(message, str) and kwargs:
-            try:
-                return message.format(**kwargs)
-            except KeyError as e:
-                logger.error(f"Missing key in message format: {e}")
-                return message
-        return message
+    def get_message(self, key: str) -> str:
+        """Get message by dot-separated key path"""
+        try:
+            value = self.messages
+            for k in key.split('.'):
+                value = value[k]
+            return str(value)
+        except (KeyError, TypeError) as e:
+            logger.error(f"Missing localization key: {key}, Error: {e}")
+            return key
 
-
-# Example initialization
+# Global instance
 loc = Localization()
