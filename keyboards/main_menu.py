@@ -1,11 +1,15 @@
-from aiogram import Router, F
-from aiogram.types import Message
-from keyboards.navigation_keyboard import NavigationKeyboard
-from keyboards.keyboard_buttons import Buttons
+# keyboards/main_menu.py - головне меню, кнопки "Навігація" і "Профіль"
 
-router = Router()
-nav_kb = NavigationKeyboard()
+from aiogram.types import InlineKeyboardButton
+from keyboards.base import BaseKeyboard
+from utils.localization import Localization
 
-@router.message(F.text == str(Buttons.NAVIGATION))
-async def handle_navigation_menu(message: Message):
-    await message.answer("Оберіть опцію з меню навігації:", reply_markup=nav_kb.get_main_menu())
+class MainMenuKeyboard(BaseKeyboard):
+    @staticmethod
+    def get_keyboard(lang="uk"):
+        loc = Localization(lang)
+        buttons = [
+            [InlineKeyboardButton(text=loc.get_message("buttons.navigation"), callback_data="menu_navigation")],
+            [InlineKeyboardButton(text=loc.get_message("buttons.profile"), callback_data="menu_profile")]
+        ]
+        return BaseKeyboard.create_inline_keyboard(buttons)
