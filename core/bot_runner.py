@@ -1,13 +1,17 @@
 # core/bot_runner.py
 
+import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from handlers.menu_handlers import router as menu_router
-from handlers.message_handlers import router as message_router  # Припустимо, ви маєте інший роутер
+from handlers.message_handlers import router as message_router  # Припустимо, у вас є інший роутер
 import logging
 
-API_TOKEN = 'TELEGRAM_BOT_TOKEN'
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN_TOOLRAMBOT')  # Використовуйте правильну назву
+
+if not API_TOKEN:
+    raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN_TOOLRAMBOT")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
