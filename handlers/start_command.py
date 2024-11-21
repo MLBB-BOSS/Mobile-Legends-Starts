@@ -6,4 +6,7 @@ router = Router()
 
 @router.message(commands=["start"])
 async def start_command(message: Message):
-    await message.answer("Ласкаво просимо до бота!", reply_markup=MainMenuKeyboard.get_keyboard())
+    await message.answer(
+        "Ласкаво просимо до бота!",
+        reply_markup=MainMenuKeyboard.get_keyboard()
+    )
