@@ -7,8 +7,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram import Router
 from handlers.start_command import router as start_router
 from handlers.hero_commands import router as hero_router
+from handlers.navigation_handlers import router as navigation_router
 from handlers.message_handlers import router as message_router
-from handlers.menu_handlers import router as menu_router
 from handlers.error_handler import router as error_router
 from dotenv import load_dotenv
 import os
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Завантаження перемінних середовища з .env файлу
 load_dotenv()
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Або "BOT_TOKEN" залежно від вибраного способу
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Або "BOT_TOKEN" залежно від вашого налаштування
 
 if not BOT_TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN не встановлено у перемінних середовища!")
@@ -40,7 +40,7 @@ main_router = Router()
 # Включення всіх роутерів
 main_router.include_router(start_router)
 main_router.include_router(hero_router)
-main_router.include_router(menu_router)
+main_router.include_router(navigation_router)
 main_router.include_router(message_router)
 main_router.include_router(error_router)
 
