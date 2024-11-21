@@ -17,6 +17,21 @@ class HeroStates(StatesGroup):
     SelectingClass = State()
     SelectingHero = State()
 
+@router.message(F.text == loc.get_message("buttons.show_heroes"))
+async def show_heroes(message: Message, state: FSMContext):
+    try:
+        hero_names = loc.get_all_hero_names()
+        if hero_names:
+            await message.answer(f"Доступні герої: {', '.join(hero_names)}")
+        else:
+            await message.answer(loc.get_message("messages.errors.hero_not_found"))
+    except Exception as e:
+        logger.exception(f"Помилка у show_heroes хендлері: {e}")
+        await message.answer(
+            loc.get_message("messages.errors.general"),
+            reply_markup=MainMenu().get_main_menu()
+        )
+
 @router.message(F.text == loc.get_message("buttons.back_to_hero_classes"))
 async def back_to_hero_classes(message: Message, state: FSMContext):
     try:
@@ -93,9 +108,10 @@ async def select_hero(message: Message, state: FSMContext):
         selected_hero = message.text
         hero_info = loc.get_hero_info(selected_hero)
         if hero_info == loc.get_message("messages.errors.hero_not_found"):
+            selected_class = (await state.get_data()).get("selected_class")
             await message.answer(
                 loc.get_message("messages.errors.hero_not_found"),
-                reply_markup=HeroMenu(locale=loc.locale).get_heroes_by_class(state_data.get("selected_class"))
+                reply_markup=HeroMenu(locale=loc.locale).get_heroes_by_class(selected_class)
             )
         else:
             await message.answer(
@@ -125,4 +141,4 @@ async def unhandled_message(message: Message, state: FSMContext):
         await message.answer(
             loc.get_message("messages.errors.general"),
             reply_markup=MainMenu().get_main_menu()
-        )
+            )
