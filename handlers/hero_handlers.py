@@ -29,7 +29,7 @@ async def handle_hero_class(message: Message):
             keyboard = create_heroes_keyboard(heroes)
             await message.answer(
                 loc.get_message("messages.hero_menu.select_hero").format(
-                    class_name=class_type
+                    class_name=loc.get_message(f"heroes.classes.{class_type}.name")
                 ),
                 reply_markup=keyboard
             )
