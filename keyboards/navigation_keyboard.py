@@ -1,20 +1,10 @@
-# keyboards/navigation_keyboard.py
-from aiogram.types import ReplyKeyboardMarkup
-from keyboards.base_keyboard import BaseKeyboard
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from keyboards.keyboard_buttons import Buttons
 
-class NavigationKeyboard(BaseKeyboard):
+class NavigationKeyboard:
     def get_main_menu(self) -> ReplyKeyboardMarkup:
         buttons = [
-            [Buttons.NAVIGATION, Buttons.HEROES],
-            [Buttons.PROFILE, Buttons.SETTINGS]
+            [KeyboardButton(str(Buttons.NAVIGATION)), KeyboardButton(str(Buttons.HEROES))],
+            [KeyboardButton(str(Buttons.PROFILE)), KeyboardButton(str(Buttons.SETTINGS))]
         ]
-        return self.create_keyboard(buttons)
-
-    def get_navigation_menu(self) -> ReplyKeyboardMarkup:
-        buttons = [
-            [Buttons.CHARACTERS, Buttons.MAPS],
-            [Buttons.TOURNAMENTS, Buttons.GUIDES],
-            [Buttons.MAIN_MENU]
-        ]
-        return self.create_keyboard(buttons)
+        return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
