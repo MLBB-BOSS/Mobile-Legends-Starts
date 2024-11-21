@@ -5,7 +5,7 @@ import logging
 class LocalizationManager:
     def __init__(self, locale: str = "uk"):
         self.locale = locale
-        self.logger = logging.getLogger(__name__)  # Add this line to initialize the logger
+        self.logger = logging.getLogger(__name__)
         self.messages = self._load_messages()
 
     def _load_messages(self) -> dict:
@@ -15,6 +15,12 @@ class LocalizationManager:
             
             with open(file_path, "r", encoding="utf-8") as file:
                 return json.load(file)
+        except FileNotFoundError:
+            self.logger.error(f"Localization file not found: {file_path}")
+            return {}
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Error decoding JSON from {file_path}: {e}")
+            return {}
         except Exception as e:
             self.logger.error(f"Error loading messages: {e}")
             return {}
@@ -32,10 +38,11 @@ class LocalizationManager:
             
             if isinstance(value, str):
                 return value.format(**kwargs)
-            return key
+            self.logger.warning(f"Message key not found: {key}")
+            return f"Message key '{key}' not found"
         except Exception as e:
             self.logger.error(f"Error getting message for key {key}: {e}")
-            return key
+            return f"Error getting message for key '{key}'"
 
 # Створюємо глобальний екземпляр
 loc = LocalizationManager()
