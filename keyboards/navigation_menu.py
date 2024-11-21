@@ -27,29 +27,6 @@ class NavigationMenu:
         )
         return keyboard
 
-    def get_heroes_menu(self) -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(
-            keyboard=[
-                [
-                    KeyboardButton(text=loc.get_message("buttons.tanks")),
-                    KeyboardButton(text=loc.get_message("buttons.fighters"))
-                ],
-                [
-                    KeyboardButton(text=loc.get_message("buttons.assassins")),
-                    KeyboardButton(text=loc.get_message("buttons.mages"))
-                ],
-                [
-                    KeyboardButton(text=loc.get_message("buttons.marksmen")),
-                    KeyboardButton(text=loc.get_message("buttons.supports"))
-                ],
-                [
-                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
-                ]
-            ],
-            resize_keyboard=True
-        )
-        return keyboard
-
     def get_guides_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
@@ -86,6 +63,21 @@ class NavigationMenu:
     def get_voting_menu(self) -> ReplyKeyboardMarkup:
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
+                [
+                    KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
+                ]
+            ],
+            resize_keyboard=True
+        )
+        return keyboard
+
+    def get_achievements_menu(self) -> ReplyKeyboardMarkup:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text="Досягнення 1"),
+                    KeyboardButton(text="Досягнення 2")
+                ],
                 [
                     KeyboardButton(text=loc.get_message("buttons.back_to_navigation"))
                 ]
