@@ -1,13 +1,15 @@
-# core/bot_runner.py
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram.types import BotCommand, BotCommandScopeDefault  # Додаємо необхідні імпорти
+from aiogram.types import BotCommand, BotCommandScopeDefault
 import logging
-import aiogram
+from dotenv import load_dotenv  # Для роботи з .env
+
+# Завантажуємо змінні середовища
+load_dotenv()
 
 # Встановлюємо рівень логування
 logging.basicConfig(
@@ -17,7 +19,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Перевірка версії aiogram
+import aiogram
 logger.info(f"aiogram version: {aiogram.__version__}")
+
+# Отримуємо токен з змінних середовища
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+if not API_TOKEN:
+    logger.critical("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
+    raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
 
 # Імпортуємо роутери
 from handlers import (
@@ -29,13 +39,6 @@ from handlers import (
     hero_router,
     navigation_router
 )
-
-# Отримуємо токен з змінних середовища
-API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-
-if not API_TOKEN:
-    logger.critical("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
-    raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
 
 async def setup_bot_commands(bot: Bot):
     """Встановлює команди бота"""
