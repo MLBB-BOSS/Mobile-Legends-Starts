@@ -109,7 +109,7 @@ async def show_statistics(message: Message):
         "wins": 0,
         "winrate": 0
     }
-
+    
     try:
         await message.answer(
             loc.get_message("messages.statistics_info").format(
@@ -154,4 +154,4 @@ async def show_profile_menu(message: Message):
         await message.answer(
             loc.get_message("errors.general"),
             reply_markup=MainMenu().get_main_menu()
-        )
+)
