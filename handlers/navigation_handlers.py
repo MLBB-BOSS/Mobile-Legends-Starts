@@ -1,22 +1,23 @@
 # handlers/navigation_handlers.py
-from aiogram import Router, F
+
+from aiogram import Router
 from aiogram.types import Message
-from keyboards.navigation_keyboard import NavigationKeyboard
-from keyboards.keyboard_buttons import Buttons
+from aiogram.filters import Text
+from keyboards.navigation_menu import NavigationMenu
 
 router = Router()
-nav_kb = NavigationKeyboard()
 
-@router.message(F.text == Buttons.NAVIGATION)
-async def show_navigation(message: Message):
+@router.message(Text("🧭 Навігація"))
+async def show_navigation_menu(message: Message):
     await message.answer(
-        "Оберіть розділ:",
-        reply_markup=nav_kb.get_navigation_menu()
+        "Оберіть категорію:",
+        reply_markup=NavigationMenu.get_navigation_menu()
     )
 
-@router.message(F.text == Buttons.MAIN_MENU)
-async def show_main_menu(message: Message):
+@router.message(Text("🔄 Назад"))
+async def back_to_main_menu(message: Message):
+    from keyboards.main_menu import MainMenu
     await message.answer(
-        "Головне меню:",
-        reply_markup=nav_kb.get_main_menu()
+        "Повернення до головного меню:",
+        reply_markup=MainMenu.get_main_menu()
     )
