@@ -1,7 +1,7 @@
 # handlers/start_command.py
 
 from aiogram import Router, types
-from aiogram.filters import Command  # Коректний імпорт
+from aiogram.filters.command import Command  # Коректний імпорт
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 import logging
