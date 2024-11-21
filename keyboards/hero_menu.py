@@ -1,3 +1,5 @@
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
 def get_hero_classes_menu(self) -> ReplyKeyboardMarkup:
     try:
         keyboard = ReplyKeyboardMarkup(
