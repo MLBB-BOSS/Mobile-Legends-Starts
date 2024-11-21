@@ -1,26 +1,18 @@
 # File: keyboards/base.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-from typing import List, Optional
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from typing import List
 from utils.localization import loc
 
 class BaseKeyboard:
     @staticmethod
     def create_keyboard(
         button_keys: List[str], 
-        row_width: int = 3, 
+        row_width: int = 2, 
         add_back: bool = True,
         back_key: str = "buttons.back"
     ) -> ReplyKeyboardMarkup:
-        """
-        Create keyboard with localized buttons
-        
-        Args:
-            button_keys: List of localization keys for buttons
-            row_width: Number of buttons per row
-            add_back: Whether to add back button
-            back_key: Localization key for back button
-        """
+        """Create keyboard with localized buttons"""
         keyboard = []
         row = []
         
@@ -41,4 +33,4 @@ class BaseKeyboard:
         return ReplyKeyboardMarkup(
             keyboard=keyboard,
             resize_keyboard=True
-            )
+        )
