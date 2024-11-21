@@ -1,48 +1,13 @@
-name: Deploy to Heroku
-
-on:
-  push:
-    branches:
-      - aiogram-3x
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    # 1. Завантаження репозиторію
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    # 2. Встановлення Python
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-
-    # 3. Встановлення залежностей
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    # 4. Вхід у Heroku
-    - name: Login to Heroku
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
-      run: |
-        echo "machine api.heroku.com" > ~/.netrc
-        echo "  login ${{ secrets.HEROKU_EMAIL }}" >> ~/.netrc
-        echo "  password ${{ secrets.HEROKU_API_KEY }}" >> ~/.netrc
-        echo "machine git.heroku.com" >> ~/.netrc
-        echo "  login ${{ secrets.HEROKU_EMAIL }}" >> ~/.netrc
-        echo "  password ${{ secrets.HEROKU_API_KEY }}" >> ~/.netrc
-
-    # 5. Розгортання на Heroku
-    - name: Deploy to Heroku
-      env:
-        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-      run: |
-        git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-        git push heroku HEAD:main --force
+remote: 
+remote: !	Push rejected, source repository is a shallow clone. Unshallow it with `git fetch --all --unshallow` and try pushing again.        
+remote: 
+To https://git.heroku.com/***.git
+ ! [remote rejected] HEAD -> main (shallow update not allowed)
+error: failed to push some refs to 'https://git.heroku.com/***.git'
+Error: Process completed with exit code 1.
+0s
+0s
+Post job cleanup.
+/usr/bin/git version
+git version 2.47.0
+Temporarily overriding HOME='/home/runner/work/_temp/128ebf9e-cf24-
