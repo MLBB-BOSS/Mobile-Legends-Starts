@@ -1,13 +1,11 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from .base import BaseKeyboard
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.navigation_keyboard import NavigationKeyboard
+from keyboards.keyboard_buttons import Buttons
 
-class MainMenu(BaseKeyboard):
-    @staticmethod
-    def get_keyboard():
-        buttons = [
-            [InlineKeyboardButton(text="🛡️ Герої", callback_data="menu_heroes")],
-            [InlineKeyboardButton(text="⚜️ Білди", callback_data="menu_builds")],
-            [InlineKeyboardButton(text="📊 Турніри", callback_data="menu_tournaments")],
-            [InlineKeyboardButton(text="⚙️ Налаштування", callback_data="menu_settings")],
-        ]
-        return BaseKeyboard.create_inline_keyboard(buttons)
+router = Router()
+nav_kb = NavigationKeyboard()
+
+@router.message(F.text == str(Buttons.NAVIGATION))
+async def handle_navigation_menu(message: Message):
+    await message.answer("Оберіть опцію з меню навігації:", reply_markup=nav_kb.get_main_menu())
