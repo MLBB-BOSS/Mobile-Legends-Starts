@@ -1,46 +1,24 @@
-import os
-import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 import logging
-import aiogram
+from aiogram import Router, types
+from aiogram.filters import Text
+from utils.localization import loc
+from keyboards.main_menu import MainMenu
+from keyboards.hero_menu import HeroMenu
 
-# Set logging level
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+router = Router()
 
-# Check aiogram version
-logger.info(f"aiogram version: {aiogram.__version__}")
-
-# Import routers
-from handlers.start_command import router as start_router
-from handlers.menu_handlers import router as menu_router
-from handlers.message_handlers import router as message_router
-
-API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-
-if not API_TOKEN:
-    logger.critical("Environment variable TELEGRAM_BOT_TOKEN is not set")
-    raise ValueError("Environment variable TELEGRAM_BOT_TOKEN is not set")
-
-async def main():
+@router.message(Text(text=loc.get_message("buttons.show_heroes")))
+async def show_heroes(message: types.Message):
     try:
-        # Create bot object
-        bot = Bot(token=API_TOKEN, parse_mode='HTML')
-        storage = MemoryStorage()
-        dp = Dispatcher(storage=storage)
-
-        # Register routers
-        dp.include_router(start_router)
-        dp.include_router(menu_router)
-        dp.include_router(message_router)
-
-        logger.info("Bot started.")
-        await dp.start_polling(bot)
+        await message.answer(
+            "Оберіть клас героя:",
+            reply_markup=HeroMenu().get_hero_classes_menu()
+        )
+        logger.info(f"User {message.from_user.id} requested to show heroes.")
     except Exception as e:
-        logger.exception(f"Error while running the bot: {e}")
-    finally:
-        await bot.session.close()
-
-if __name__ == '__main__':
-    asyncio.run(main())
+        logger.exception(f"Error in show_heroes handler: {e}")
+        await message.answer(
+            loc.get_message("messages.errors.general"),
+            reply_markup=MainMenu().get_main_menu()
+        )
