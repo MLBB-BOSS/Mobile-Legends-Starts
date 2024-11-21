@@ -31,7 +31,11 @@
         "select_hero_class": "Оберіть клас героя:",
         "hero_menu.select_hero": "Оберіть героя з класу {class_name}:",
         "profile_menu": "Оберіть опцію профілю:",
-        "statistics_info": "Статистика:\nГрає: {games}\nПеремог: {wins}\nВідсоток перемог: {winrate}%",
+        "statistics_info": {
+            "games": "Грає: {games}",
+            "wins": "Перемог: {wins}",
+            "winrate": "Відсоток перемог: {winrate}%"
+        },
         "unhandled_message": "Вибачте, я не розумію це повідомлення: \"{message}\"",
         "errors": {
             "general": "Виникла помилка. Спробуйте пізніше.",
@@ -92,4 +96,4 @@
             "Rafaela": "Інформація про героя Rafaela."
         }
     }
-}
+        }
