@@ -5,14 +5,11 @@ from aiogram.types import ReplyKeyboardMarkup
 
 class ProfileKeyboard(BaseKeyboard):
     @classmethod
-    def main_menu(cls) -> ReplyKeyboardMarkup:
-        """Profile main menu"""
+    def get_keyboard(cls) -> ReplyKeyboardMarkup:
+        """Profile menu keyboard"""
         buttons = [
-            "buttons.profile.info",
-            "buttons.profile.statistics",
-            "buttons.profile.badges",
-            "buttons.profile.favorites",
-            "buttons.profile.gallery",
-            "buttons.profile.update"
+            "buttons.statistics",
+            "buttons.achievements",
+            "buttons.feedback"
         ]
         return cls.create_keyboard(buttons, row_width=3)
