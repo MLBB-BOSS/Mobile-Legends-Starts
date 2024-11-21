@@ -1,24 +1,24 @@
-# File: handlers/start_command.py
+# handlers/start_command.py
 
-from aiogram import Router, F
-from aiogram.types import Message
-from keyboards.main_menu import MainMenu
+from aiogram import Router, types
+from aiogram.filters import Command
 from utils.localization import loc
+from keyboards.main_menu import MainMenu
 import logging
 
 logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(F.text.startswith('/start'))
-async def cmd_start(message: Message):
-    logger.info(f"Користувач {message.from_user.id} запустив бота")
+@router.message(Command('start'))
+async def cmd_start(message: types.Message):
     try:
         await message.answer(
-            loc.get_message("messages.start_command"),
+            loc.get_message("messages.welcome"),
             reply_markup=MainMenu().get_main_menu()
         )
+        logger.info(f"Користувач {message.from_user.id} почав роботу з ботом.")
     except Exception as e:
-        logger.exception(f"Помилка в команді /start: {e}")
+        logger.exception(f"Помилка в хендлері команди /start: {e}")
         await message.answer(
-            loc.get_message("errors.general")
+            loc.get_message("messages.errors.general")
         )
