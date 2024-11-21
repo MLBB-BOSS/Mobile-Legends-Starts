@@ -1,64 +1,43 @@
 # File: handlers/error_handler.py
 
-from aiogram import Router, types, F
-from aiogram.exceptions import TelegramAPIError
-from keyboards.main_menu import MainMenu
-from utils.localization import loc
+from aiogram import Router, types
+from aiogram.filters import ExceptionTypeFilter
 import logging
+from utils.localization import loc
 
 logger = logging.getLogger(__name__)
 router = Router()
 
 @router.errors()
-async def handle_errors(update: types.Update, exception: Exception) -> None:
-    """
-    Універсальний обробник помилок з правильним підписом параметрів
-    """
+async def handle_error(update: types.Update, exception: Exception) -> bool:
+    """Handle all errors that occur during message processing"""
     try:
-        logger.error(f"Виникла помилка: {exception}")
-
-        # Отримання chat_id з update, якщо можливо
-        chat_id = None
-        if isinstance(update, types.Message):
-            chat_id = update.chat.id
-        elif isinstance(update, types.CallbackQuery):
-            chat_id = update.message.chat.id
-        elif hasattr(update, 'message') and update.message:
-            chat_id = update.message.chat.id
-        elif hasattr(update, 'callback_query') and update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-
-        if chat_id:
-            error_message = loc.get_message("errors.general")
-            if not error_message:  # Fallback message if localization fails
-                error_message = "Виникла помилка. Будь ласка, спробуйте пізніше."
-                
-            await update.bot.send_message(
-                chat_id=chat_id,
-                text=error_message
-            )
+        logger.error(f"Error handling update {update.update_id}: {exception}", exc_info=True)
+        
+        # Get the message object if available
+        message = update.message or update.callback_query.message if update.callback_query else None
+        
+        if message:
+            error_text = loc.get_message("errors.general")
+            await message.answer(error_text)
+        
+        # Return True to indicate that the error was handled
+        return True
+        
     except Exception as e:
-        logger.error(f"Помилка в обробнику помилок: {e}")
+        logger.error(f"Error in error handler: {e}", exc_info=True)
+        return False
 
 @router.message()
 async def handle_unknown_message(message: types.Message):
-    """
-    Обробник необроблених повідомлень
-    """
+    """Handle any message that wasn't caught by other handlers"""
     try:
-        logger.info(f"Отримано необроблене повідомлення: {message.text}")
-        
-        # Get the message with fallback
-        response_text = loc.get_message("messages.unhandled_message", message=message.text)
-        if not response_text:  # Fallback message if localization fails
-            response_text = "Вибачте, я не розумію це повідомлення."
-            
-        await message.answer(
-            text=response_text,
-            reply_markup=MainMenu().get_main_menu()
+        logger.info(f"Received unhandled message: {message.text}")
+        response_text = loc.get_message(
+            "messages.unhandled_message",
+            message_text=message.text
         )
+        await message.answer(response_text)
     except Exception as e:
-        logger.exception(f"Помилка обробки необробленого повідомлення: {e}")
-        await message.answer(
-            text="Виникла помилка. Будь ласка, спробуйте пізніше."
-        )
+        logger.error(f"Error handling unknown message: {e}", exc_info=True)
+        await message.answer(loc.get_message("errors.general"))
