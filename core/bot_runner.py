@@ -1,10 +1,7 @@
-# core/bot_runner.py
-
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.client.bot import DefaultBotProperties
 import logging
 import aiogram
 
@@ -15,12 +12,12 @@ logger = logging.getLogger(__name__)
 # Перевірка версії aiogram
 logger.info(f"aiogram version: {aiogram.__version__}")
 
-# Спробуємо імпортувати Text окремо
+# Спробуємо імпортувати String замість Text
 try:
-    from aiogram.filters import Text
-    logger.info("Успішно імпортовано Text з aiogram.filters")
+    from aiogram.filters import String
+    logger.info("Успішно імпортовано String з aiogram.filters")
 except ImportError as e:
-    logger.exception(f"Не вдалося імпортувати Text з aiogram.filters: {e}")
+    logger.exception(f"Не вдалося імпортувати String з aiogram.filters: {e}")
     raise
 
 # Імпортуємо роутери
@@ -36,9 +33,8 @@ if not API_TOKEN:
 
 async def main():
     try:
-        # Використовуємо DefaultBotProperties для встановлення parse_mode
-        default_properties = DefaultBotProperties(parse_mode='HTML')
-        bot = Bot(token=API_TOKEN, default=default_properties)
+        # Створюємо об'єкт бота
+        bot = Bot(token=API_TOKEN, parse_mode='HTML')
         storage = MemoryStorage()
         dp = Dispatcher(storage=storage)
 
