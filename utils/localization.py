@@ -1,33 +1,27 @@
+# File: test_localization.py
 
-from pathlib import Path
-import json
+from utils.localization_instance import loc
 
-class LocalizationManager:
-    def __init__(self, locale: str, logger):
-        self.locale = locale
-        self.logger = logger
-        self.messages = self._load_messages()
+def test_localization():
+    keys = [
+        "buttons.navigation",
+        "buttons.voting",
+        "buttons.profile",
+        "messages.start_command",
+        "messages.navigation_menu",
+        "messages.select_hero_class",
+        "messages.guides_menu",
+        "messages.counter_picks_menu",
+        "messages.builds_menu",
+        "messages.voting_menu",
+        "messages.profile_menu",
+        "messages.menu_welcome",
+        "messages.unhandled_message"
+    ]
 
-    def _load_messages(self) -> dict:
-        try:
-            # Оновлений шлях до файлу
-            base_path = Path(__file__).parent.parent
-            file_path = base_path / "config" / "messages" / "locales" / f"{self.locale}.json"
+    for key in keys:
+        message = loc.get_message(key)
+        print(f"{key}: {message}")
 
-            with open(file_path, "r", encoding="utf-8") as file:
-                messages = json.load(file)
-                self.logger.info(f"Localization file loaded: {file_path}")
-                return messages
-        except FileNotFoundError:
-            self.logger.error(f"Localization file not found: {file_path}")
-            return {}
-        except json.JSONDecodeError as e:
-            self.logger.error(f"Error decoding JSON from {file_path}: {e}")
-            return {}
-        except Exception as e:
-            self.logger.error(f"Error loading messages: {e}")
-            return {}
-
-    def get_message(self, key: str, **kwargs) -> str:
-        message = self.messages.get(key, "")
-        return message.format(**kwargs) if kwargs else message
+if __name__ == "__main__":
+    test_localization()
