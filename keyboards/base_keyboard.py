@@ -2,18 +2,14 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class BaseKeyboard:
-    def create_reply_markup(
-        self,
-        keyboard: list[list[str]],
-        resize_keyboard: bool = True,
-        one_time_keyboard: bool = False
-    ) -> ReplyKeyboardMarkup:
-        markup = ReplyKeyboardMarkup(
-            resize_keyboard=resize_keyboard,
-            one_time_keyboard=one_time_keyboard
-        )
-        
-        for row in keyboard:
-            markup.row(*[KeyboardButton(text=button) for button in row])
+    def create_keyboard(self, buttons: list[list[str]]) -> ReplyKeyboardMarkup:
+        keyboard = []
+        for row in buttons:
+            keyboard_row = [KeyboardButton(text=str(button)) for button in row]
+            keyboard.append(keyboard_row)
             
-        return markup
+        return ReplyKeyboardMarkup(
+            keyboard=keyboard,
+            resize_keyboard=True,
+            one_time_keyboard=False
+        )
