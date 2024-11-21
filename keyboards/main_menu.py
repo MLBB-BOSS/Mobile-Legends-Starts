@@ -1,11 +1,12 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from utils.localization_instance import loc
 import logging
 
 logger = logging.getLogger(__name__)
 
 class MainMenu:
     def get_main_menu(self) -> ReplyKeyboardMarkup:
+        # Local import to avoid circular import
+        from utils.localization_instance import loc
         keyboard = ReplyKeyboardMarkup(
             keyboard=[
                 [
