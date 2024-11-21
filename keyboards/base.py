@@ -1,48 +1,47 @@
 # File: keyboards/base.py
 
-from aiogram.types import (
-    ReplyKeyboardMarkup,
-    KeyboardButton,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-    ReplyKeyboardRemove
-)
-from typing import List, Union, Dict
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from typing import List, Optional
+from utils.localization import loc
 
 class BaseKeyboard:
     @staticmethod
     def create_keyboard(
-        buttons: List[Union[str, Dict[str, str]]],
-        row_width: int = 2,
-        resize_keyboard: bool = True,
-        **kwargs
+        button_keys: List[str], 
+        row_width: int = 3, 
+        add_back: bool = True
     ) -> ReplyKeyboardMarkup:
         """
-        Створює клавіатуру на основі списку кнопок
-
-        :param buttons: Список кнопок
-        :param row_width: Кількість кнопок в ряду (за замовчуванням 2)
-        :param resize_keyboard: Чи змінювати розмір клавіатури
-        :return: Об'єкт клавіатури
+        Create keyboard with localized buttons
+        
+        Args:
+            button_keys: List of localization keys for buttons
+            row_width: Number of buttons per row
+            add_back: Whether to add back button
         """
-        # Конвертуємо кнопки в об'єкти KeyboardButton
-        button_objects = []
-        for button in buttons:
-            if isinstance(button, str):
-                button_objects.append(KeyboardButton(text=button))
-            elif isinstance(button, dict):
-                button_objects.append(KeyboardButton(**button))
-            else:
-                button_objects.append(button)
-
-        # Створюємо розмітку клавіатури
-        keyboard_markup = []
-        for i in range(0, len(button_objects), row_width):
-            keyboard_markup.append(button_objects[i:i + row_width])
-
-        # Створюємо клавіатуру з розміткою
+        keyboard = []
+        row = []
+        
+        for key in button_keys:
+            button_text = loc.get_message(key)
+            row.append(KeyboardButton(text=button_text))
+            if len(row) == row_width:
+                keyboard.append(row)
+                row = []
+        
+        if row:
+            keyboard.append(row)
+            
+        if add_back:
+            back_text = loc.get_message("buttons.common.back")
+            keyboard.append([KeyboardButton(text=back_text)])
+            
         return ReplyKeyboardMarkup(
-            keyboard=keyboard_markup,
-            resize_keyboard=resize_keyboard,
-            **kwargs
+            keyboard=keyboard,
+            resize_keyboard=True
         )
+
+    @staticmethod
+    def remove_keyboard() -> ReplyKeyboardRemove:
+        """Remove current keyboard"""
+        return ReplyKeyboardRemove()
