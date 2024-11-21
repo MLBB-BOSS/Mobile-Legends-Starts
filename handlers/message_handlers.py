@@ -1,7 +1,7 @@
 # handlers/message_handlers.py
 
 from aiogram import Router, types
-from aiogram.filters.text import Text  # Оновлений імпорт
+from aiogram.filters import Text  # Коректний імпорт
 from utils.localization import loc
 from keyboards.main_menu import MainMenu
 import logging
