@@ -1,4 +1,8 @@
-class MainMenuKeyboard:
+# keyboards/main_menu.py
+
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+class MainMenu:
     @staticmethod
     def get_main_menu():
         return ReplyKeyboardMarkup(
