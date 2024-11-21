@@ -1,13 +1,5 @@
-# File: config.py
-
 import os
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Bot token from environment variables
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-
-# Other configuration constants
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("Не встановлено змінну TELEGRAM_BOT_TOKEN")
