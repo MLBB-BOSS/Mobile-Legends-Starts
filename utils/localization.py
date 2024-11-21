@@ -42,8 +42,12 @@ class LocalizationManager:
                 if isinstance(current, dict):
                     current = current.get(part)
                     if current is None:
-                        logger.warning(f"Ключ не знайдено: {key}")
-                        return self.get_message("errors.general")
+                        if key != "messages.errors.general":
+                            logger.warning(f"Ключ не знайдено: {key}")
+                            return self.get_message("messages.errors.general")
+                        else:
+                            logger.error(f"Ключ не знайдено: {key}")
+                            return "Сталася непередбачена помилка."
                 else:
                     break
 
@@ -51,11 +55,14 @@ class LocalizationManager:
                 return current.format(**kwargs)
             elif isinstance(current, (list, dict)):
                 return str(current)
-            return self.get_message("errors.general")
+            return self.get_message("messages.errors.general")
 
         except Exception as e:
             logger.error(f"Помилка отримання повідомлення для ключа {key}: {e}")
-            return self.get_message("errors.general")
+            if key != "messages.errors.general":
+                return self.get_message("messages.errors.general")
+            else:
+                return "Сталася непередбачена помилка."
 
     def get_hero_classes(self) -> list:
         """Отримати список класів героїв"""
@@ -79,10 +86,10 @@ class LocalizationManager:
         """Отримати інформацію про героя"""
         try:
             return self.messages.get("heroes", {}).get("info", {}).get(hero_name, 
-                   self.get_message("errors.hero_not_found"))
+                   self.get_message("messages.errors.hero_not_found"))
         except Exception as e:
             logger.error(f"Помилка отримання інформації про героя {hero_name}: {e}")
-            return self.get_message("errors.general")
+            return self.get_message("messages.errors.general")
 
 # Створюємо глобальний екземпляр
 loc = LocalizationManager()
