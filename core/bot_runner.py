@@ -1,3 +1,4 @@
+# core/bot_runner.py
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
@@ -23,6 +24,7 @@ from handlers.hero_class_handlers import router as hero_class_router
 from handlers.hero_handlers import router as hero_router
 from handlers.navigation_handlers import router as navigation_router
 
+# Отримуємо токен з змінних середовища
 API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
 if not API_TOKEN:
@@ -31,30 +33,41 @@ if not API_TOKEN:
 
 async def main():
     try:
-        # Створюємо об'єкт бота з новим синтаксисом для parse_mode
+        # Створюємо об'єкт бота
         bot = Bot(
             token=API_TOKEN,
             default=DefaultBotProperties(parse_mode=ParseMode.HTML)
         )
+        
+        # Ініціалізуємо сховище та диспетчер
         storage = MemoryStorage()
         dp = Dispatcher(storage=storage)
 
-        # Реєструємо роутери
-        dp.include_router(start_router)
-        dp.include_router(menu_router)
-        dp.include_router(message_router)
-        dp.include_router(error_router)
-        dp.include_router(hero_class_router)
-        dp.include_router(hero_router)
-        dp.include_router(navigation_router)
+        # Реєструємо всі роутери
+        routers = [
+            start_router,
+            menu_router,
+            message_router,
+            error_router,
+            hero_class_router,
+            hero_router,
+            navigation_router
+        ]
+
+        for router in routers:
+            dp.include_router(router)
 
         logger.info("Бот стартував.")
+        
+        # Запускаємо поллінг
         await dp.start_polling(bot)
+        
     except Exception as e:
         logger.exception(f"Помилка під час запуску бота: {e}")
-        raise  # Re-raise the exception to ensure proper cleanup
+        raise
+        
     finally:
-        if 'bot' in locals():  # Check if bot was created before trying to close session
+        if 'bot' in locals():
             await bot.session.close()
 
 if __name__ == '__main__':
