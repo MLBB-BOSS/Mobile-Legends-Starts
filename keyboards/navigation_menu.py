@@ -4,14 +4,13 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_navigation_menu():
     """
-    Повертає клавіатуру для навігації з кнопками.
+    Повертає клавіатуру для розділу «Навігація».
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="Персонажі"), KeyboardButton(text="Гайди")],
-            [KeyboardButton(text="Контр-піки"), KeyboardButton(text="Білди")],
-            [KeyboardButton(text="Назад")]  # Кнопка для повернення
+            [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
+            [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
+            [KeyboardButton(text="🔄 Повернутися до Головного Меню")]
         ],
-        resize_keyboard=True,  # Робить кнопки компактними
-        one_time_keyboard=False  # Залишає клавіатуру після вибору
+        resize_keyboard=True
     )
