@@ -1,6 +1,8 @@
+# command: handlers/navigation_handlers.py
+
 from aiogram.types import Message
 from aiogram import Router
-from aiogram.filters.text import Text  # Оновлений імпорт
+from aiogram.filters import Text  # Оновлений імпорт для вашої версії
 import logging
 
 router = Router()
