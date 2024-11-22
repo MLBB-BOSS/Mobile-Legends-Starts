@@ -1,17 +1,22 @@
-# handlers/router.py - маршрутизація для команд /start і /menu
-
 from aiogram import Router
-from aiogram.types import Message
-from keyboards.main_menu import MainMenuKeyboard
-from utils.localization import Localization
+
+from handlers.menu_handlers import menu_router
+from handlers.navigation_handlers import navigation_router
+from handlers.profile_handlers import profile_router
+from handlers.hero_class_handlers import hero_class_router
+from handlers.heroes_handlers import heroes_router
+from handlers.message_handlers import message_router
+from handlers.error_handler import error_router
+from handlers.start_command import start_router
 
 router = Router()
 
-@router.message(commands=["start", "menu"])
-async def send_main_menu(message: Message):
-    lang = "uk"
-    loc = Localization(lang)
-    await message.answer(
-        text=loc.get_message("messages.main_menu"),
-        reply_markup=MainMenuKeyboard.get_keyboard(lang=lang)
-    )
+# Додаємо всі обробники
+router.include_router(menu_router)
+router.include_router(navigation_router)
+router.include_router(profile_router)
+router.include_router(hero_class_router)
+router.include_router(heroes_router)
+router.include_router(message_router)
+router.include_router(error_router)
+router.include_router(start_router)
