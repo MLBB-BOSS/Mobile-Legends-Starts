@@ -1,9 +1,9 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router, F, types
+from aiogram.types import CallbackQuery
 
-class NavigationMenu:
-    @staticmethod
-    def get_navigation_menu() -> InlineKeyboardMarkup:
-        markup = InlineKeyboardMarkup()
-        markup.add(InlineKeyboardButton(text="Option 1", callback_data="option_1"))
-        markup.add(InlineKeyboardButton(text="Option 2", callback_data="option_2"))
-        return markup
+router = Router()
+
+@router.callback_query(F.data == "example_callback")
+async def example_callback_handler(callback: CallbackQuery):
+    await callback.message.answer("Оброблено!")
+    await callback.answer()
