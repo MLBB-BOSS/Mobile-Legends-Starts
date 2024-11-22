@@ -1,10 +1,11 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.types import Message
+from aiogram.filters import Command
 from keyboards.main_menu import MainMenu
 
 router = Router()
 
-@router.message(F.command == "start")
+@router.message(Command("start"))
 async def start_command(message: Message):
     """Обробка команди /start"""
     user_name = message.from_user.first_name
