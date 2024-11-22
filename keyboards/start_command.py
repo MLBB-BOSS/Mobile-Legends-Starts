@@ -1,4 +1,5 @@
 # keyboards/start_command.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class StartMenu:
