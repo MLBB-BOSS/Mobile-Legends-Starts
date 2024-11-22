@@ -1,20 +1,13 @@
-from aiogram import Router, F
-from aiogram.types import Message
-from keyboards.profile_menu import ProfileMenu
-from keyboards.statistics_menu import StatisticsMenu
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-router = Router()
-
-@router.message(F.text == "📊 Статистика")
-async def handle_statistics(message: Message):
-    await message.reply(
-        "Меню 'Статистика'. Оберіть опцію:",
-        reply_markup=StatisticsMenu.get_statistics_menu()
-    )
-
-@router.message(F.text == "🔄 Назад")
-async def handle_back_to_profile(message: Message):
-    await message.reply(
-        "Повернення до меню профілю. Оберіть опцію:",
-        reply_markup=ProfileMenu.get_profile_menu()
-    )
+class ProfileMenu:
+    @staticmethod
+    def get_profile_menu():
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="📊 Статистика"), KeyboardButton(text="⚙️ Налаштування")],
+                [KeyboardButton(text="💌 Зворотний зв'язок"), KeyboardButton(text="❓ Допомога")],
+                [KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
