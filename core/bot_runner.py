@@ -1,5 +1,3 @@
-# command: core/bot_runner.py
-
 import os
 import asyncio
 import logging
@@ -8,9 +6,7 @@ from aiogram.types import BotCommand
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.bot import DefaultBotProperties
 
-from handlers.start_command import router as start_router
-from handlers.navigation_handlers import router as navigation_router
-from handlers.profile_handlers import router as profile_router
+from handlers import start_router, navigation_router, profile_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
