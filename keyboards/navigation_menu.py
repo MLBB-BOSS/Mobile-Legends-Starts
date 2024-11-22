@@ -6,8 +6,8 @@ class NavigationMenu:
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
-                [KeyboardButton(text="⚔️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
-                [KeyboardButton(text="🔙 Назад")]
+                [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
+                [KeyboardButton(text="🔄 Назад")],
             ],
             resize_keyboard=True
         )
