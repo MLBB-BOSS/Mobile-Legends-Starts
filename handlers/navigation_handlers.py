@@ -5,15 +5,9 @@ from keyboards.main_menu import MainMenu
 
 router = Router()
 
-@router.message(F.text == "🧭 Навігація")
-async def handle_navigation(message: Message):
-    await message.reply(
-        "Це розділ навігації. Оберіть опцію:",
-        reply_markup=NavigationMenu.get_navigation_menu()
-    )
-
 @router.message(F.text == "🔙 Назад")
-async def handle_back(message: Message):
+async def handle_back_to_main_menu(message: Message):
+    """Обробка кнопки 'Назад' для повернення до головного меню."""
     await message.reply(
         "Повернення до головного меню. Оберіть дію:",
         reply_markup=MainMenu.get_main_menu()
