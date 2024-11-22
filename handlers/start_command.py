@@ -1,15 +1,21 @@
-from aiogram import Router
+# command: handlers/start_command.py
+
 from aiogram.types import Message
+from aiogram import Router
 from aiogram.filters import Command
-from keyboards.main_menu import MainMenu
+import logging
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 @router.message(Command("start"))
-async def start_command(message: Message):
-    """Обробка команди /start"""
-    user_name = message.from_user.first_name
-    await message.reply(
-        f"Ласкаво просимо до бота, {user_name}! Оберіть дію:",
-        reply_markup=MainMenu.get_main_menu()
-    )
+async def handle_start_command(message: Message):
+    logger.info("Отримано команду /start")
+    from keyboards.menus import MainMenu
+    keyboard = MainMenu.get_main_menu()
+    await message.answer("Вітаю! Це головне меню:", reply_markup=keyboard)
+
+@router.message(Command("help"))
+async def handle_help_command(message: Message):
+    logger.info("Отримано команду /help")
+    await message.answer("Довідка: цей бот дозволяє ... (інструкції тут).")
