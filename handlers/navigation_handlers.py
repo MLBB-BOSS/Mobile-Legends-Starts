@@ -1,35 +1,30 @@
 from aiogram.types import Message
-from aiogram import Router
-from aiogram.filters.text import Text  # Оновлений імпорт
+from aiogram import Router, F
 import logging
 
 router = Router()
 logger = logging.getLogger(__name__)
 
-@router.message(Text("🧭 Навігація"))
-async def show_navigation_menu(message: Message):
-    logger.info("Натиснуто кнопку '🧭 Навігація'")
-    from keyboards.menus import NavigationMenu
-    keyboard = NavigationMenu.get_navigation_menu()
-    await message.answer("Оберіть розділ навігації:", reply_markup=keyboard)
+@router.message(F.text == "🪪 Мій профіль")
+async def show_profile_menu(message: Message):
+    logger.info("Натиснуто кнопку '🪪 Мій профіль'")
+    from keyboards.menus import ProfileMenu
+    keyboard = ProfileMenu.get_profile_menu()
+    await message.answer("Ваш профіль. Оберіть дію:", reply_markup=keyboard)
 
-@router.message(Text("🔄 Назад"))
+@router.message(F.text == "📊 Статистика")
+async def show_statistics(message: Message):
+    logger.info("Натиснуто кнопку '📊 Статистика'")
+    await message.answer("Ваша статистика: ... (дані тут)")
+
+@router.message(F.text == "⚙️ Налаштування")
+async def show_settings(message: Message):
+    logger.info("Натиснуто кнопку '⚙️ Налаштування'")
+    await message.answer("Налаштування вашого профілю: ... (дані тут)")
+
+@router.message(F.text == "🔄 Назад")
 async def handle_back_to_main_menu(message: Message):
-    logger.info("Натиснуто кнопку '🔄 Назад' у меню навігації")
+    logger.info("Натиснуто кнопку '🔄 Назад' у меню профілю")
     from keyboards.menus import MainMenu
     keyboard = MainMenu.get_main_menu()
     await message.answer("Повернення до головного меню. Оберіть дію:", reply_markup=keyboard)
-
-@router.message(Text("Місця"))
-async def show_places_sub_menu(message: Message):
-    logger.info("Натиснуто кнопку 'Місця'")
-    from keyboards.menus import SubMenu
-    keyboard = SubMenu.get_sub_menu()
-    await message.answer("Ви обрали 'Місця'. Оберіть дію:", reply_markup=keyboard)
-
-@router.message(Text("Події"))
-async def show_events_sub_menu(message: Message):
-    logger.info("Натиснуто кнопку 'Події'")
-    from keyboards.menus import SubMenu
-    keyboard = SubMenu.get_sub_menu()
-    await message.answer("Ви обрали 'Події'. Оберіть дію:", reply_markup=keyboard)
