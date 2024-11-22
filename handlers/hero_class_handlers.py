@@ -1,80 +1,16 @@
-# File: handlers/hero_class_handlers.py
+# handlers/hero_class_handlers.py
 
-from aiogram import Router, types, F
-from utils.localization import loc
-from keyboards.main_menu import MainMenu
-import logging
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.hero_menu import get_hero_class_menu
+from keyboards.navigation_menu import get_navigation_menu
 
-logger = logging.getLogger(__name__)
-router = Router()
+hero_class_router = Router()
 
-# Map buttons to hero classes based on localization
-HERO_CLASSES = {
-    loc.get_message("buttons.tanks"): "tank",
-    loc.get_message("buttons.fighters"): "fighter",
-    loc.get_message("buttons.assassins"): "assassin",
-    loc.get_message("buttons.mages"): "mage",
-    loc.get_message("buttons.marksmen"): "marksman",
-    loc.get_message("buttons.supports"): "support"
-}
+@hero_class_router.message(F.text.in_(["🛡️ Танк", "🔮 Маг", "🏹 Стрілець", "⚔️ Асасін", "🧬 Підтримка", "🤺 Боєць"]))
+async def handle_hero_class_selection(message: Message):
+    await message.answer(f"Ви обрали клас: {message.text}. Деталі цього класу ще на стадії розробки.")
 
-@router.message(F.text.in_(HERO_CLASSES.keys()))
-async def handle_hero_class_selection(message: types.Message):
-    logger.info(f"Користувач {message.from_user.id} вибрав клас героїв: {message.text}")
-    try:
-        class_type = HERO_CLASSES[message.text]
-        heroes = loc.get_message(f"heroes.classes.{class_type}.heroes")
-
-        keyboard = create_hero_keyboard(heroes)
-        await message.answer(
-            loc.get_message("messages.hero_menu.select_hero").format(
-                class_name=loc.get_message(f"heroes.classes.{class_type}.name")
-            ),
-            reply_markup=keyboard
-        )
-    except Exception as e:
-        logger.exception(f"Error handling hero class selection: {e}")
-        await message.answer(loc.get_message("errors.general"))
-
-def create_hero_keyboard(heroes: list) -> types.ReplyKeyboardMarkup:
-    keyboard = []
-    # Create rows with 2 heroes per row
-    for i in range(0, len(heroes), 2):
-        row = [types.KeyboardButton(text=heroes[i])]
-        if i + 1 < len(heroes):
-            row.append(types.KeyboardButton(text=heroes[i + 1]))
-        keyboard.append(row)
-
-    # Add back button using localized text
-    keyboard.append([
-        types.KeyboardButton(text=loc.get_message("buttons.back_to_hero_classes"))
-    ])
-
-    return types.ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True
-    )
-
-# Handle hero selection
-@router.message(lambda message: any(message.text in class_info["heroes"] 
-                                  for class_info in loc.get_message("heroes.classes").values()))
-async def handle_hero_selection(message: types.Message):
-    logger.info(f"Користувач {message.from_user.id} вибрав героя: {message.text}")
-    try:
-        hero_name = message.text
-        hero_info = loc.get_message(f"heroes.info.{hero_name}")
-
-        keyboard = types.ReplyKeyboardMarkup(
-            keyboard=[[
-                types.KeyboardButton(text=loc.get_message("buttons.back_to_hero_list"))
-            ]],
-            resize_keyboard=True
-        )
-
-        await message.answer(
-            text=hero_info,
-            reply_markup=keyboard
-        )
-    except Exception as e:
-        logger.exception(f"Error handling hero selection: {e}")
-        await message.answer(loc.get_message("errors.hero_not_found"))
+@hero_class_router.message(F.text == "🔄 Назад")
+async def hero_classes_back_to_navigation(message: Message):
+    await message.answer("Повернення до навігації:", reply_markup=get_navigation_menu())
