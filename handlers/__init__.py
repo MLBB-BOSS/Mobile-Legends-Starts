@@ -1,4 +1,3 @@
-from .characters_menu import get_characters_menu
 from .counter_picks_menu import get_counter_picks_menu  # Імпорт має відповідати файлу
 from .game_modes_menu import get_game_modes_menu
 from .help_menu import get_help_menu
