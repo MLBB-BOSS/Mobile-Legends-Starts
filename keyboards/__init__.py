@@ -1,4 +1,4 @@
-from .base_keyboard import BaseKeyboard
+from .achievements_menu import get_achievements_menu
 from .builds_menu import get_builds_menu
 from .characters_menu import get_characters_menu
 from .counter_picks_menu import get_counter_picks_menu
@@ -14,7 +14,7 @@ from .statistics_menu import get_statistics_menu
 from .voting_menu import get_voting_menu
 
 __all__ = [
-    "BaseKeyboard",
+    "get_achievements_menu",
     "get_builds_menu",
     "get_characters_menu",
     "get_counter_picks_menu",
