@@ -1,15 +1,12 @@
-# keyboards/help_menu.py
+# keyboards/hero_menu.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-class HelpMenu:
-    """Клавіатура для розділу 'Допомога' (3-й рівень)"""
-    @staticmethod
-    def get_help_menu() -> ReplyKeyboardMarkup:
-        return ReplyKeyboardMarkup(
-            keyboard=[
-                [KeyboardButton(text="📄 Інструкції"), KeyboardButton(text="❔ FAQ")],
-                [KeyboardButton(text="📞 Підтримка")],
-                [KeyboardButton(text="🔄 Назад до Профілю")],
-            ],
-            resize_keyboard=True
-        )
+def get_hero_menu() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="Герой 1"), KeyboardButton(text="Герой 2")],
+            [KeyboardButton(text="Назад")],
+        ],
+        resize_keyboard=True
+    )
