@@ -1,52 +1,32 @@
 import os
-import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.types import BotCommand
-from handlers.start_command import router as start_router
+from aiogram.fsm.storage.memory import MemoryStorage
 from handlers.navigation_handlers import router as navigation_router
-from handlers.profile_handlers import router as profile_router
+from handlers.profile_handlers import router as profile_router  # Інші обробники, якщо потрібні
 
-# Отримуємо токен з середовища
-API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-if not API_TOKEN:
-    raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у перемінних середовища!")
-
-# Налаштування логування
+# Увімкнення логів
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
-async def setup_bot_commands(bot: Bot):
-    """Налаштування команд бота"""
-    commands = [
-        BotCommand(command="/start", description="Запустити бота"),
-        BotCommand(command="/help", description="Отримати допомогу"),
-    ]
-    await bot.set_my_commands(commands)
+# Зчитуємо токен бота з змінної середовища
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Увага: змінна середовища TELEGRAM_BOT_TOKEN
 
-async def on_startup(dispatcher: Dispatcher, bot: Bot):
-    """Дії при запуску бота"""
-    await setup_bot_commands(bot)
-    logger.info("Бот запущено.")
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("Змінна TELEGRAM_BOT_TOKEN не задана! Переконайтесь, що змінна середовища присутня на Heroku.")
 
+# Ініціалізуємо бота і диспетчер
+bot = Bot(token=TELEGRAM_BOT_TOKEN, parse_mode="HTML")
+dp = Dispatcher(storage=MemoryStorage())
+
+# Реєстрація роутерів
+dp.include_router(navigation_router)
+dp.include_router(profile_router)
+
+# Запуск бота
 async def main():
-    """Основна функція для запуску бота"""
-    bot = Bot(token=API_TOKEN)
-    dp = Dispatcher()
-
-    # Реєструємо роутери
-    dp.include_router(start_router)
-    dp.include_router(navigation_router)
-    dp.include_router(profile_router)
-
-    dp.startup.register(on_startup)
-
-    logger.info("Запуск полінгу...")
+    logging.info("Бот запущено...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Бот зупинено.")
+    import asyncio
+    asyncio.run(main())
