@@ -1,37 +1,31 @@
-# handlers/__init__.py
-from .start_command import router as start_router
-from .navigation_handlers import router as navigation_router
-from .profile_handlers import router as profile_router
-from .statistics_handlers import router as statistics_router
-from .achievements_handlers import router as achievements_router
-from .settings_handlers import router as settings_router
-from .feedback_handlers import router as feedback_router
-from .help_handlers import router as help_router
-from .heroes_handlers import router as heroes_router
-from .guides_handlers import router as guides_router
-from .counter_picks_handlers import router as counter_picks_router
-from .builds_handlers import router as builds_router
-from .voting_handlers import router as voting_router
-from .map_handlers import router as map_router
-from .game_modes_handlers import router as game_modes_router
-# Додайте інші хендлери тут
+from .base_keyboard import BaseKeyboard
+from .builds_menu import get_builds_menu
+from .characters_menu import get_characters_menu
+from .counter_picks_menu import get_counter_picks_menu  # Імпорт має відповідати файлу
+from .game_modes_menu import get_game_modes_menu
+from .help_menu import get_help_menu
+from .hero_menu import get_hero_menu
+from .main_menu import get_main_menu
+from .map_menu import get_map_menu
+from .navigation_menu import get_navigation_menu
+from .profile_menu import get_profile_menu
+from .settings_menu import get_settings_menu
+from .statistics_menu import get_statistics_menu
+from .voting_menu import get_voting_menu
 
 __all__ = [
-    'start_router',
-    'navigation_router',
-    'profile_router',
-    'characters_router',
-    'statistics_router',
-    'achievements_router',
-    'settings_router',
-    'feedback_router',
-    'help_router',
-    'heroes_router',
-    'guides_router',
-    'counter_picks_router',
-    'builds_router',
-    'voting_router',
-    'map_router',
-    'game_modes_router',
-    # Додайте інші хендлери тут
+    "BaseKeyboard",
+    "get_builds_menu",
+    "get_characters_menu",
+    "get_counter_picks_menu",  # Додайте функцію до __all__
+    "get_game_modes_menu",
+    "get_help_menu",
+    "get_hero_menu",
+    "get_main_menu",
+    "get_map_menu",
+    "get_navigation_menu",
+    "get_profile_menu",
+    "get_settings_menu",
+    "get_statistics_menu",
+    "get_voting_menu",
 ]
