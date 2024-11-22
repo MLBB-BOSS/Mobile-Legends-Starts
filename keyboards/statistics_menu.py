@@ -8,7 +8,7 @@ class StatisticsMenu:
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="📊 Загальна Активність"), KeyboardButton(text="🥇 Рейтинг")],
-                [KeyboardButton(text="🎮 Ігрова Статистика"), KeyboardButton(text="🔄 Назад")],
+                [KeyboardButton(text="🎮 Ігрова Статистика"), KeyboardButton(text="🔄 Назад до Профілю")],
             ],
             resize_keyboard=True
         )
