@@ -1,26 +1,12 @@
-from aiogram import Router, F
+# handlers/navigation_handlers.py
 from aiogram.types import Message
-from keyboards.navigation_menu import NavigationMenu
-from keyboards.characters_menu import CharactersMenu
+from aiogram import Router
 
 router = Router()
 
-@router.message(F.text == "🧭 Навігація")
-async def handle_navigation(message: Message):
-    await message.reply(
-        "Це розділ навігації. Оберіть опцію:",
-        reply_markup=NavigationMenu.get_navigation_menu()
-    )
-
-@router.message(F.text == "🛡️ Персонажі")
-async def handle_characters(message: Message):
-    await message.reply(
-        "Це меню 'Персонажі'. Оберіть категорію:",
-        reply_markup=CharactersMenu.get_characters_menu()
-    )
-
-@router.message(F.text == "🔄 Назад")
+@router.message(lambda message: message.text == "🔄 Назад")
 async def handle_back_to_main_menu(message: Message):
+    from keyboards.menus import NavigationMenu  # Імпорт з одного файлу
     await message.reply(
         "Повернення до головного меню. Оберіть дію:",
         reply_markup=NavigationMenu.get_main_menu()
