@@ -1,5 +1,4 @@
-# keyboards/__init__.py
-
+from .menus import NavigationMenu, ProfileMenu
 from .main_menu import MainMenu
 
-__all__ = ["MainMenu"]
+__all__ = ["MainMenu", "NavigationMenu", "ProfileMenu"]
