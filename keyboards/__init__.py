@@ -1,4 +1,3 @@
-from .achievements_menu import get_achievements_menu
 from .builds_menu import get_builds_menu
 from .counter_picks_menu import get_counter_picks_menu
 from .game_modes_menu import get_game_modes_menu
