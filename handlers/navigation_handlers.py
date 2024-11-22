@@ -1,6 +1,6 @@
 from aiogram.types import Message
 from aiogram import Router
-from aiogram.filters import Text
+from aiogram.filters.text import Text  # Оновлений імпорт
 import logging
 
 router = Router()
