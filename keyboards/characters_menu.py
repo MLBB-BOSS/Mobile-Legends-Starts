@@ -1,4 +1,3 @@
-# keyboards/characters_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class CharactersMenu:
