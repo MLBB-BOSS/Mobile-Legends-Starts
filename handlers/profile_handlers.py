@@ -1,22 +1,20 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.profile_menu import ProfileMenu
-from keyboards.main_menu import MainMenu
+from keyboards.statistics_menu import StatisticsMenu
 
 router = Router()
 
-@router.message(F.text == "🪪 Профіль")
-async def handle_profile(message: Message):
-    """Обробка кнопки 'Профіль'."""
+@router.message(F.text == "📊 Статистика")
+async def handle_statistics(message: Message):
     await message.reply(
-        "Це розділ профілю. Оберіть опцію:",
-        reply_markup=ProfileMenu.get_profile_menu()
+        "Меню 'Статистика'. Оберіть опцію:",
+        reply_markup=StatisticsMenu.get_statistics_menu()
     )
 
-@router.message(F.text == "🔙 Назад")
-async def handle_back_to_main_menu_from_profile(message: Message):
-    """Обробка кнопки 'Назад' для повернення до головного меню з профілю."""
+@router.message(F.text == "🔄 Назад")
+async def handle_back_to_profile(message: Message):
     await message.reply(
-        "Повернення до головного меню. Оберіть дію:",
-        reply_markup=MainMenu.get_main_menu()
+        "Повернення до меню профілю. Оберіть опцію:",
+        reply_markup=ProfileMenu.get_profile_menu()
     )
