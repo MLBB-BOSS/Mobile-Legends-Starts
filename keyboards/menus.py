@@ -1,3 +1,5 @@
+# command: keyboards/menus.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import logging
 
