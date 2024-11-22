@@ -1,4 +1,3 @@
-# File: keyboards/navigation_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class NavigationMenu:
@@ -8,7 +7,7 @@ class NavigationMenu:
             keyboard=[
                 [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
                 [KeyboardButton(text="⚔️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
-                [KeyboardButton(text="🔄 Назад")]
+                [KeyboardButton(text="🔙 Назад")]
             ],
             resize_keyboard=True
         )
