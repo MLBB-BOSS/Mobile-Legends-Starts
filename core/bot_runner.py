@@ -1,3 +1,4 @@
+# core/bot_runner.py
 import os
 import asyncio
 import logging
@@ -6,7 +7,7 @@ from aiogram.types import BotCommand
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.bot import DefaultBotProperties
 
-from handlers import start_router, navigation_router, profile_router
+from handlers import start_router, navigation_router, profile_router, characters_router, statistics_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,6 +39,9 @@ async def main():
     dp.include_router(start_router)
     dp.include_router(navigation_router)
     dp.include_router(profile_router)
+    dp.include_router(characters_router)
+    dp.include_router(statistics_router)
+    # Додайте інші роутери тут
 
     dp.startup.register(on_startup)
 
