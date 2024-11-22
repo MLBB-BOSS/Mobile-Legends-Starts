@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 # Створення екземпляра Router
 router = Router()
 
-@router.message(F.text == "/start")
+@router.message(commands=["start"])  # Більш стандартний спосіб обробки команд
 async def handle_start_command(message: Message):
     start_menu = StartMenu.get_start_menu()
     await message.answer("Вітаю! Це стартова команда.", reply_markup=start_menu)
