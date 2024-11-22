@@ -13,7 +13,7 @@ from handlers import (
     profile_router,
     characters_router,
     statistics_router,
-    achievements_router,
+    achievements_router,  # Переконайтеся, що ім'я відповідає
     settings_router,
     feedback_router,
     help_router,
@@ -58,7 +58,7 @@ async def main():
     dp.include_router(profile_router)
     dp.include_router(characters_router)
     dp.include_router(statistics_router)
-    dp.include_router(achievements_router)
+    dp.include_router(achievements_router)  # Переконайтеся, що ім'я відповідає
     dp.include_router(settings_router)
     dp.include_router(feedback_router)
     dp.include_router(help_router)
