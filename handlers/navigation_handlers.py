@@ -5,6 +5,13 @@ from keyboards.characters_menu import CharactersMenu
 
 router = Router()
 
+@router.message(F.text == "🧭 Навігація")
+async def handle_navigation(message: Message):
+    await message.reply(
+        "Це розділ навігації. Оберіть опцію:",
+        reply_markup=NavigationMenu.get_navigation_menu()
+    )
+
 @router.message(F.text == "🛡️ Персонажі")
 async def handle_characters(message: Message):
     await message.reply(
@@ -16,5 +23,5 @@ async def handle_characters(message: Message):
 async def handle_back_to_main_menu(message: Message):
     await message.reply(
         "Повернення до головного меню. Оберіть дію:",
-        reply_markup=NavigationMenu.get_navigation_menu()
+        reply_markup=NavigationMenu.get_main_menu()
     )
