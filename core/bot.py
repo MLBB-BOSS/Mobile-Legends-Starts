@@ -1,42 +1,53 @@
 import os
 import asyncio
-from aiogram import Bot, Dispatcher, types
-from aiogram.enums import ParseMode
-from aiogram.filters import Command
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import logging
+from aiogram import Bot, Dispatcher
+from aiogram.types import BotCommand
 
-# Configure logging
+from handlers.start_command import router as start_router
+from handlers.navigation_handlers import router as navigation_router
+from handlers.profile_handlers import router as profile_router
+
+# Отримуємо токен з середовища
+API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+# Перевірка токена
+if not API_TOKEN:
+    raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у перемінних середовища!")
+
+# Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load BOT_TOKEN
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-if not BOT_TOKEN:
-    raise ValueError("Не встановлено змінну TELEGRAM_BOT_TOKEN")
+async def setup_bot_commands(bot: Bot):
+    """Налаштування команд бота"""
+    commands = [
+        BotCommand(command="/start", description="Запустити бота"),
+    ]
+    await bot.set_my_commands(commands)
 
-# Initialize bot and dispatcher
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
-dp = Dispatcher()
+async def on_startup(dispatcher: Dispatcher, bot: Bot):
+    """Дії при запуску бота"""
+    await setup_bot_commands(bot)
+    logger.info("Бот запущено.")
 
-# /start command handler
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🧭 Навігація")],
-            [KeyboardButton(text="🪪 Профіль")]
-        ],
-        resize_keyboard=True
-    )
-    await message.reply("Ласкаво просимо до бота!", reply_markup=keyboard)
-
-# Main function
 async def main():
-    try:
-        await dp.start_polling(bot)
-    finally:
-        await bot.session.close()
+    """Основна функція для запуску бота"""
+    bot = Bot(token=API_TOKEN)
+    dp = Dispatcher()
+
+    # Реєструємо роутери
+    dp.include_router(start_router)
+    dp.include_router(navigation_router)
+    dp.include_router(profile_router)
+
+    dp.startup.register(on_startup)
+
+    logger.info("Запуск полінгу...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинено.")
