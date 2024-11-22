@@ -2,7 +2,6 @@
 from .start_command import router as start_router
 from .navigation_handlers import router as navigation_router
 from .profile_handlers import router as profile_router
-from .characters_handlers import router as characters_router
 from .statistics_handlers import router as statistics_router
 from .achievements_handlers import router as achievements_router
 from .settings_handlers import router as settings_router
