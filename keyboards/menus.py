@@ -1,48 +1,39 @@
+# keyboards/menus.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class MainMenu:
+    """Клавіатура головного меню"""
     @staticmethod
     def get_main_menu() -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(
+        return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Мій профіль")],
-                [KeyboardButton(text="🔄 Назад")]
+                [KeyboardButton(text="ℹ️ Допомога")],
             ],
             resize_keyboard=True
         )
-        return keyboard
 
 class NavigationMenu:
+    """Клавіатура для навігації (2-й рівень)"""
     @staticmethod
     def get_navigation_menu() -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(
+        return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="Місця"), KeyboardButton(text="Події")],
-                [KeyboardButton(text="🔄 Назад")]
+                [KeyboardButton(text="Персонажі"), KeyboardButton(text="Гайди")],
+                [KeyboardButton(text="🔄 Назад")],
             ],
             resize_keyboard=True
         )
-        return keyboard
-
-class SubMenu:
-    @staticmethod
-    def get_sub_menu() -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(
-            keyboard=[
-                [KeyboardButton(text="🔄 Назад")]
-            ],
-            resize_keyboard=True
-        )
-        return keyboard
 
 class ProfileMenu:
+    """Клавіатура для профілю (2-й рівень)"""
     @staticmethod
     def get_profile_menu() -> ReplyKeyboardMarkup:
-        keyboard = ReplyKeyboardMarkup(
+        return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="📊 Статистика"), KeyboardButton(text="⚙️ Налаштування")],
-                [KeyboardButton(text="🔄 Назад")]
+                [KeyboardButton(text="🔄 Назад")],
             ],
             resize_keyboard=True
         )
-        return keyboard
