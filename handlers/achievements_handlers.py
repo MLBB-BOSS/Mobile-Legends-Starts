@@ -14,3 +14,6 @@ async def show_achievements_menu(message: Message):
     await message.answer("Оберіть тип досягнень:", reply_markup=keyboard)
 
 # Додайте інші хендлери для підменю Досягнень
+
+# Експортуємо router як achievements_router
+achievements_router = router
