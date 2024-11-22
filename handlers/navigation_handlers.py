@@ -1,12 +1,12 @@
 # handlers/navigation_handlers.py
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram import Router
+from keyboards.navigation_menu import NavigationMenu
 
 router = Router()
 
-@router.message(lambda message: message.text == "🔄 Назад")
+@router.message(F.text == "🔄 Назад")
 async def handle_back_to_main_menu(message: Message):
-    from keyboards.menus import NavigationMenu  # Імпорт з одного файлу
     await message.reply(
         "Повернення до головного меню. Оберіть дію:",
         reply_markup=NavigationMenu.get_main_menu()
