@@ -1,14 +1,16 @@
+# keyboards/heroes_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-class HeroMenu:
-    def get_hero_classes_menu(self) -> ReplyKeyboardMarkup:
-        buttons = [
-            [KeyboardButton(text="🛡️ Танк"), KeyboardButton(text="🔮 Маг")],
-            [KeyboardButton(text="🏹 Стрілець"), KeyboardButton(text="⚔️ Асасін")],
-            [KeyboardButton(text="🔙 Назад до меню")]
-        ]
+class HeroesMenu:
+    """Клавіатура для розділу 'Герої' (3-й рівень)"""
+    @staticmethod
+    def get_heroes_menu() -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(
-            keyboard=buttons,
-            resize_keyboard=True,
-            one_time_keyboard=True
+            keyboard=[
+                [KeyboardButton(text="🔎 Пошук Героя")],
+                [KeyboardButton(text="🛡️ Танк"), KeyboardButton(text="🔮 Маг")],
+                [KeyboardButton(text="🏹 Стрілець"), KeyboardButton(text="⚔️ Асасін")],
+                [KeyboardButton(text="🧬 Підтримка"), KeyboardButton(text="🔄 Назад до Навігації")],
+            ],
+            resize_keyboard=True
         )
