@@ -1,10 +1,11 @@
 # handlers/__init__.py
+
 from .start_command import router as start_router
 from .navigation_handlers import router as navigation_router
 from .profile_handlers import router as profile_router
 from .characters_handlers import router as characters_router
 from .statistics_handlers import router as statistics_router
-from .achievements_handlers import router as achievements_router
+from .achievements_handlers import router as achievements_router  # Переконайтеся, що це ім'я коректне
 from .settings_handlers import router as settings_router
 from .feedback_handlers import router as feedback_router
 from .help_handlers import router as help_router
@@ -23,7 +24,7 @@ __all__ = [
     'profile_router',
     'characters_router',
     'statistics_router',
-    'achievements_router',
+    'achievements_router',  # Переконайтеся, що ім'я відповідає
     'settings_router',
     'feedback_router',
     'help_router',
