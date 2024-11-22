@@ -1,21 +1,20 @@
 from aiogram import Router, F
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import Message
+from keyboards.profile_menu import ProfileMenu
+from keyboards.main_menu import MainMenu
 
 router = Router()
 
-# Клавіатура другого рівня для Профілю
-def get_profile_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="📈 Статистика"), KeyboardButton(text="⚙️ Налаштування")],
-            [KeyboardButton(text="💌 Зворотний зв'язок"), KeyboardButton(text="🔙 Назад")],
-        ],
-        resize_keyboard=True
-    )
-
 @router.message(F.text == "🪪 Профіль")
 async def handle_profile(message: Message):
-    await message.answer(
+    await message.reply(
         "Це розділ профілю. Оберіть опцію:",
-        reply_markup=get_profile_keyboard()
+        reply_markup=ProfileMenu.get_profile_menu()
+    )
+
+@router.message(F.text == "🔙 Назад")
+async def handle_back(message: Message):
+    await message.reply(
+        "Повернення до головного меню. Оберіть дію:",
+        reply_markup=MainMenu.get_main_menu()
     )
