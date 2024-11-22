@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 @router.message(F.text == "🛡️ Танк")
 async def handle_tank(message: Message):
     logger.info("Натиснуто кнопку '🛡️ Танк'")
-    await message.reply("Герої класу 'Танк':\n- Герой 1\n- Герой 2", reply_markup=None)  # Замініть reply_markup при необхідності
+    await message.reply("Герої класу 'Танк':\n- Герой 1\n- Герой 2", reply_markup=None)
 
 @router.message(F.text == "🔮 Маг")
 async def handle_mage(message: Message):
