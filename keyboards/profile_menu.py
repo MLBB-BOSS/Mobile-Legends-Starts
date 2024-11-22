@@ -1,3 +1,4 @@
+# keyboards/profile_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class ProfileMenu:
@@ -6,7 +7,6 @@ class ProfileMenu:
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="📊 Статистика"), KeyboardButton(text="⚙️ Налаштування")],
-                [KeyboardButton(text="💌 Зворотний зв'язок"), KeyboardButton(text="❓ Допомога")],
                 [KeyboardButton(text="🔄 Назад")],
             ],
             resize_keyboard=True
