@@ -3,7 +3,6 @@ from .builds_menu import get_builds_menu
 from .characters_menu import get_characters_menu
 from .counter_picks_menu import get_counter_picks_menu
 from .game_modes_menu import get_game_modes_menu
-from .help_menu import get_help_menu
 from .hero_menu import get_hero_menu
 from .main_menu import get_main_menu
 from .map_menu import get_map_menu
