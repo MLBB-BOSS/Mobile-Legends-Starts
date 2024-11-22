@@ -1,13 +1,31 @@
-# handlers/profile_handlers.py
-from aiogram import Router, F
 from aiogram.types import Message
-from keyboards.profile_menu import ProfileMenu
+from aiogram import Router
+from aiogram.filters import Text
+import logging
 
 router = Router()
+logger = logging.getLogger(__name__)
 
-@router.message(F.text == "🪪 Мій профіль")
-async def handle_my_profile(message: Message):
-    await message.reply(
-        "Це меню вашого профілю. Оберіть опцію:",
-        reply_markup=ProfileMenu.get_profile_menu()
-    )
+@router.message(Text("🪪 Мій профіль"))
+async def show_profile_menu(message: Message):
+    logger.info("Натиснуто кнопку '🪪 Мій профіль'")
+    from keyboards.menus import ProfileMenu
+    keyboard = ProfileMenu.get_profile_menu()
+    await message.answer("Ваш профіль. Оберіть дію:", reply_markup=keyboard)
+
+@router.message(Text("📊 Статистика"))
+async def show_statistics(message: Message):
+    logger.info("Натиснуто кнопку '📊 Статистика'")
+    await message.answer("Ваша статистика: ... (дані тут)")
+
+@router.message(Text("⚙️ Налаштування"))
+async def show_settings(message: Message):
+    logger.info("Натиснуто кнопку '⚙️ Налаштування'")
+    await message.answer("Налаштування вашого профілю: ... (дані тут)")
+
+@router.message(Text("🔄 Назад"))
+async def handle_back_to_main_menu(message: Message):
+    logger.info("Натиснуто кнопку '🔄 Назад' у меню профілю")
+    from keyboards.menus import MainMenu
+    keyboard = MainMenu.get_main_menu()
+    await message.answer("Повернення до головного меню. Оберіть дію:", reply_markup=keyboard)
