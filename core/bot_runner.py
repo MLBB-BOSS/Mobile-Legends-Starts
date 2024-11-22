@@ -10,21 +10,7 @@ from aiogram.client.bot import DefaultBotProperties
 
 from handlers import (
     start_router,
-    navigation_router,
-    profile_router,
-    characters_router,
-    statistics_router,
-    achievements_router,  # Переконайтеся, що ім'я відповідає
-    settings_router,
-    feedback_router,
-    help_router,
-    heroes_router,
-    guides_router,
-    counter_picks_router,
-    builds_router,
-    voting_router,
-    map_router,
-    game_modes_router
+    # Додайте інші роутери тут
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -55,21 +41,6 @@ async def main():
     dp = Dispatcher()
 
     dp.include_router(start_router)
-    dp.include_router(navigation_router)
-    dp.include_router(profile_router)
-    dp.include_router(characters_router)
-    dp.include_router(statistics_router)
-    dp.include_router(achievements_router)  # Переконайтеся, що ім'я відповідає
-    dp.include_router(settings_router)
-    dp.include_router(feedback_router)
-    dp.include_router(help_router)
-    dp.include_router(heroes_router)
-    dp.include_router(guides_router)
-    dp.include_router(counter_picks_router)
-    dp.include_router(builds_router)
-    dp.include_router(voting_router)
-    dp.include_router(map_router)
-    dp.include_router(game_modes_router)
     # Додайте інші роутери тут
 
     dp.startup.register(on_startup)
