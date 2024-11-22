@@ -3,6 +3,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
+from aiogram.client.session.default import DefaultBotProperties  # Новий імпорт для властивостей
 
 from handlers.start_command import router as start_router
 from handlers.navigation_handlers import router as navigation_router
@@ -38,7 +39,10 @@ async def on_startup(dispatcher: Dispatcher, bot: Bot):
 
 async def main():
     """Основна функція для запуску бота"""
-    bot = Bot(token=API_TOKEN, parse_mode="HTML")  # Увімкнуто HTML-розмітку для повідомлень
+    bot = Bot(
+        token=API_TOKEN,
+        default=DefaultBotProperties(parse_mode="HTML")  # Новий спосіб налаштування parse_mode
+    )
     dp = Dispatcher()
 
     # Реєструємо роутери
