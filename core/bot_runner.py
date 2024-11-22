@@ -3,17 +3,22 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.bot import DefaultBotProperties  # Використовується для властивостей бота
 
 from handlers.start_command import router as start_router
 from handlers.navigation_handlers import router as navigation_router
-from handlers.profile_handlers import router as profile_router  # Додано для профілю
+from handlers.profile_handlers import router as profile_router
 
-# Отримуємо токен з середовища
-API_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# Отримання токену з .env або середовища
+from dotenv import load_dotenv
 
-# Перевірка токена
+load_dotenv()  # Завантаження змінних з .env, якщо присутній
+API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+# Перевірка наявності токену
 if not API_TOKEN:
-    raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у перемінних середовища!")
+    raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у змінних середовища!")
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +26,9 @@ logger = logging.getLogger(__name__)
 
 
 async def setup_bot_commands(bot: Bot):
-    """Налаштування команд бота"""
+    """
+    Налаштування команд бота.
+    """
     commands = [
         BotCommand(command="/start", description="Запустити бота"),
         BotCommand(command="/help", description="Отримати довідку"),
@@ -31,26 +38,28 @@ async def setup_bot_commands(bot: Bot):
 
 
 async def on_startup(dispatcher: Dispatcher, bot: Bot):
-    """Дії при запуску бота"""
+    """
+    Дії при старті бота.
+    """
     await setup_bot_commands(bot)
     logger.info("Бот успішно запущено.")
 
 
 async def main():
-    """Основна функція для запуску бота"""
-    from aiogram.client.session import AiohttpSession
-
+    """
+    Основна функція для запуску бота.
+    """
     bot = Bot(
         token=API_TOKEN,
-        session=AiohttpSession(),
-        parse_mode="HTML"  # Увімкнуто HTML-розмітку
+        session=AiohttpSession(),  # Сесія для HTTP-запитів
+        default=DefaultBotProperties(parse_mode="HTML")  # HTML-розмітка за замовчуванням
     )
     dp = Dispatcher()
 
-    # Реєструємо роутери
+    # Реєстрація роутерів
     dp.include_router(start_router)
     dp.include_router(navigation_router)
-    dp.include_router(profile_router)  # Додано для профілю
+    dp.include_router(profile_router)
 
     dp.startup.register(on_startup)
 
