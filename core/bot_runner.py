@@ -4,31 +4,20 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.bot import DefaultBotProperties  # Властивості бота
+from aiogram.client.bot import DefaultBotProperties
 
 from handlers.start_command import router as start_router
 from handlers.navigation_handlers import router as navigation_router
 from handlers.profile_handlers import router as profile_router
-from handlers.callback_handlers import router as callback_router  # Додано
 
-# Завантаження змінних середовища
-from dotenv import load_dotenv
+logging.basicConfig(level=logging.INFO)  # DEBUG для детальнішого логування
+logger = logging.getLogger(__name__)
 
-load_dotenv()
 API_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-# Перевірка наявності токену
 if not API_TOKEN:
     raise ValueError("Не знайдено TELEGRAM_BOT_TOKEN у змінних середовища!")
 
-# Налаштування логування
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 async def setup_bot_commands(bot: Bot):
-    """
-    Налаштування команд бота.
-    """
     commands = [
         BotCommand(command="/start", description="Запустити бота"),
         BotCommand(command="/help", description="Отримати довідку"),
@@ -37,28 +26,21 @@ async def setup_bot_commands(bot: Bot):
     logger.info("Команди бота успішно встановлені.")
 
 async def on_startup(dispatcher: Dispatcher, bot: Bot):
-    """
-    Дії при старті бота.
-    """
     await setup_bot_commands(bot)
     logger.info("Бот успішно запущено.")
 
 async def main():
-    """
-    Основна функція для запуску бота.
-    """
     bot = Bot(
         token=API_TOKEN,
-        session=AiohttpSession(),  # Сесія для HTTP-запитів
-        default=DefaultBotProperties(parse_mode="HTML")  # HTML-розмітка за замовчуванням
+        session=AiohttpSession(),
+        default=DefaultBotProperties(parse_mode="HTML")
     )
     dp = Dispatcher()
 
-    # Реєстрація роутерів
+    # Реєстрація маршрутизаторів
     dp.include_router(start_router)
     dp.include_router(navigation_router)
     dp.include_router(profile_router)
-    dp.include_router(callback_router)  # Реєстрація callback_handlers
 
     dp.startup.register(on_startup)
 
