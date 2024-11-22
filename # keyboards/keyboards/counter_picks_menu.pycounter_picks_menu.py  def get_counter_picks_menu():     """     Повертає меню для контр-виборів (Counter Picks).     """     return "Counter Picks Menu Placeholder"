@@ -1,0 +1,7 @@
+# keyboards/counter_picks_menu.py
+
+def get_counter_picks_menu():
+    """
+    Повертає меню для контр-виборів (Counter Picks).
+    """
+    return "Counter Picks Menu Placeholder"
