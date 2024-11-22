@@ -5,16 +5,16 @@ from aiogram.types import Message
 from keyboards.menus import get_main_menu
 import logging
 
-# Ініціалізація логування
+# Налаштування логування
 logger = logging.getLogger(__name__)
 
-# Створення маршрутизатора
+# Ініціалізація маршрутизатора
 start_router = Router()
 
 @start_router.message(F.text == "/start")
 async def handle_start_command(message: Message):
     """
-    Обробляє команду /start: надсилає привітальне повідомлення і відображає головне меню.
+    Обробляє команду /start.
     """
     logger.info(f"Користувач {message.from_user.id} викликав /start")
     keyboard = get_main_menu()
