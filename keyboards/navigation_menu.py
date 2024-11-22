@@ -1,13 +1,13 @@
+# keyboards/navigation_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 class NavigationMenu:
     @staticmethod
-    def get_navigation_menu():
+    def get_main_menu():
         return ReplyKeyboardMarkup(
             keyboard=[
-                [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
-                [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
-                [KeyboardButton(text="🔄 Назад")],
+                [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Мій профіль")],
+                [KeyboardButton(text="ℹ️ Допомога")],
             ],
             resize_keyboard=True
         )
