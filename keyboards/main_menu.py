@@ -1,12 +1,15 @@
+# keyboards/help_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-class MainMenu:
+class HelpMenu:
+    """Клавіатура для розділу 'Допомога' (3-й рівень)"""
     @staticmethod
-    def get_main_menu():
-        """Повертає головне меню з кнопками"""
+    def get_help_menu() -> ReplyKeyboardMarkup:
         return ReplyKeyboardMarkup(
             keyboard=[
-                [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Профіль")]
+                [KeyboardButton(text="📄 Інструкції"), KeyboardButton(text="❔ FAQ")],
+                [KeyboardButton(text="📞 Підтримка")],
+                [KeyboardButton(text="🔄 Назад до Профілю")],
             ],
             resize_keyboard=True
         )
