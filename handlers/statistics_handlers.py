@@ -1,3 +1,5 @@
+# command: handlers/start_command.py
+
 from aiogram.types import Message
 from aiogram import Router
 import logging
