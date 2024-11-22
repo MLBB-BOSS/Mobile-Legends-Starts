@@ -1,17 +1,23 @@
-import json
-import os
-
 class Localization:
-    def __init__(self, lang="uk"):
+    """
+    Локалізація повідомлень для різних мов.
+    """
+    def __init__(self, lang: str = "uk"):
         self.lang = lang
-        self.messages = self.load_locale()
+        self.messages = {
+            "uk": {
+                "messages.main_menu": "Вітаємо в головному меню! Оберіть дію:"
+            },
+            "en": {
+                "messages.main_menu": "Welcome to the main menu! Choose an action:"
+            }
+        }
 
-    def load_locale(self):
-        path = f"config/locales/{self.lang}.json"
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        return {}
+    def get_message(self, key: str) -> str:
+        """
+        Отримує локалізоване повідомлення за ключем.
 
-    def get_message(self, key: str):
-        return self.messages.get(key, f"[{key}]")
+        :param key: Ключ повідомлення.
+        :return: Локалізований текст.
+        """
+        return self.messages.get(self.lang, {}).get(key, "Message not found.")
