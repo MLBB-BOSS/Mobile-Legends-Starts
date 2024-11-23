@@ -1,19 +1,21 @@
-# handlers/heroes_handlers.py
-from aiogram.types import Message
+# handlers/hero_handlers.py
+
 from aiogram import Router, F
-import logging
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
-router = Router()
-logger = logging.getLogger(__name__)
+hero_router = Router()
 
-@router.message(F.text == "🛡️ Герої")
-async def show_heroes_menu(message: Message):
-    logger.info("Натиснуто кнопку '🛡️ Герої'")
-    from keyboards.heroes_menu import HeroesMenu
-    keyboard = HeroesMenu.get_heroes_menu()
-    await message.answer("Оберіть героя або класифікацію:", reply_markup=keyboard)
-
-# Додайте інші хендлери для розділу Герої
-
-# Експортуємо router як heroes_router
-heroes_router = router
+@hero_router.message(F.text.in_({"🛡️ Танк", "🔮 Маг", "🏹 Стрілець", "⚔️ Асасін", "🧬 Підтримка"}))
+async def show_hero_options(message: Message):
+    """
+    Відображає додаткові дії для обраного класу героїв.
+    """
+    selected_class = message.text
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Гайди", callback_data=f"guides_{selected_class}")],
+            [InlineKeyboardButton(text="Контр-піки", callback_data=f"counterpicks_{selected_class}")],
+            [InlineKeyboardButton(text="Білди", callback_data=f"builds_{selected_class}")]
+        ]
+    )
+    await message.answer(f"Ви обрали {selected_class}. Що бажаєте зробити?", reply_markup=keyboard)
