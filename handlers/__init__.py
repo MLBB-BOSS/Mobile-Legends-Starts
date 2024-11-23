@@ -5,5 +5,5 @@ from .heroes import heroes_router  # Додати цей імпорт
 __all__ = [
     "menu_router",
     "navigation_router",
-    "heroes_router",
+    "hero_router",
 ]
