@@ -3,7 +3,6 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.navigation_menu import get_navigation_menu
-from keyboards.heroes_menu import get_hero_class_menu
 
 navigation_router = Router()
 
