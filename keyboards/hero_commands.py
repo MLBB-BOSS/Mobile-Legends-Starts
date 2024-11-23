@@ -1,15 +1,26 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+# File: handlers/hero_commands.py
 
-def get_hero_class_menu():
-    """
-    Повертає клавіатуру для вибору класу героїв.
-    """
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🛡️ Танк"), KeyboardButton(text="🔮 Маг")],
-            [KeyboardButton(text="🏹 Стрілець"), KeyboardButton(text="⚔️ Асасін")],
-            [KeyboardButton(text="🧬 Підтримка"), KeyboardButton(text="🤺 Боєць")],
-            [KeyboardButton(text="🔄 Назад")]
-        ],
-        resize_keyboard=True
-    )
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.hero_menu import HeroMenu
+from keyboards.main_menu import MainMenu
+from utils.localization_instance import loc  # Update this import
+import logging
+
+logger = logging.getLogger(__name__)
+router = Router()
+
+@router.message(F.text == loc.get_message("buttons.characters"))
+async def show_hero_classes(message: Message):
+    logger.info(f"Користувач {message.from_user.id} запросив класи героїв")
+    try:
+        keyboard = HeroMenu().get_hero_classes_menu()
+        await message.answer(
+            loc.get_message("messages.select_hero_class"),
+            reply_markup=keyboard
+        )
+    except Exception as e:
+        logger.exception(f"Помилка при показі класів героїв: {e}")
+        await message.answer(
+            loc.get_message("errors.general"),
+            reply_markup=MainMenu().get_main_menu()
