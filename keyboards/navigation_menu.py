@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_navigation_menu():
     """
-    Повертає клавіатуру для розділу «Навігація».
+    Повертає клавіатуру для навігації.
     """
     return ReplyKeyboardMarkup(
         keyboard=[
