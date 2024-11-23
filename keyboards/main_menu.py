@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_menu():
     """
-    Повертає головне меню з кнопкою «Навігація» та іншими опціями.
+    Повертає головну клавіатуру.
     """
     return ReplyKeyboardMarkup(
         keyboard=[
