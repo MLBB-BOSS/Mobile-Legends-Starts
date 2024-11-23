@@ -1,27 +1,76 @@
-import logging
-from aiogram import Router, F
-from aiogram.types import Message
-from keyboards.main_menu import get_main_menu
-from keyboards.navigation_menu import get_navigation_menu
+# keyboards/menus.py
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-# Ініціалізація роутера
-menu_router = Router()
+class MainMenu:
+    """Клавіатура головного меню"""
+    @staticmethod
+    def get_main_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Мій профіль")],
+            ],
+            resize_keyboard=True
+        )
 
-# Налаштування логування
-logger = logging.getLogger(__name__)
+class NavigationMenu:
+    """Клавіатура для навігації (2-й рівень)"""
+    @staticmethod
+    def get_navigation_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="Місця"), KeyboardButton(text="Події")],
+                [KeyboardButton(text="Персонажі"), KeyboardButton(text="Гайди")],
+                [KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
 
-@menu_router.message(F.text == "/start")
-async def show_main_menu(message: Message):
-    """
-    Показує головне меню.
-    """
-    logger.info(f"Користувач {message.from_user.id} викликав команду /start")
-    await message.answer("Ласкаво просимо! Оберіть опцію:", reply_markup=get_main_menu())
+class ProfileMenu:
+    """Клавіатура для профілю (2-й рівень)"""
+    @staticmethod
+    def get_profile_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="📊 Статистика"), KeyboardButton(text="⚙️ Налаштування")],
+                [KeyboardButton(text="ℹ️ Допомога")],  # Додано кнопку «Допомога»
+                [KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
 
-@menu_router.message(F.text == "🧭 Навігація")
-async def show_navigation_menu(message: Message):
-    """
-    Показує меню навігації.
-    """
-    logger.info(f"Користувач {message.from_user.id} відкрив меню навігації")
-    await message.answer("Оберіть розділ:", reply_markup=get_navigation_menu())
+class CharactersMenu:
+    """Клавіатура для розділу 'Персонажі' (3-й рівень)"""
+    @staticmethod
+    def get_characters_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="🛡️ Танк"), KeyboardButton(text="🔮 Маг")],
+                [KeyboardButton(text="🏹 Стрілець"), KeyboardButton(text="⚔️ Асасін")],
+                [KeyboardButton(text="🤝 Підтримка"), KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
+
+class StatisticsMenu:
+    """Клавіатура для розділу 'Статистика' (3-й рівень)"""
+    @staticmethod
+    def get_statistics_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="📊 Загальна Активність"), KeyboardButton(text="🥇 Рейтинг")],
+                [KeyboardButton(text="🎮 Ігрова Статистика"), KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
+
+class HelpMenu:
+    """Клавіатура для розділу 'Допомога' (3-й рівень)"""
+    @staticmethod
+    def get_help_menu() -> ReplyKeyboardMarkup:
+        return ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="Як користуватися ботом"), KeyboardButton(text="Контакти")],
+                [KeyboardButton(text="🔄 Назад")],
+            ],
+            resize_keyboard=True
+        )
