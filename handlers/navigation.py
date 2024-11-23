@@ -1,8 +1,7 @@
-# handlers/navigation.py
-
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.navigation_menu import get_navigation_menu
+from keyboards.hero_menu import get_hero_class_menu  # Додати цей імпорт
 
 navigation_router = Router()
 
