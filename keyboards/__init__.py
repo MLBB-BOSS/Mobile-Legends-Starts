@@ -6,4 +6,3 @@ __all__ = [
     "get_main_menu",
     "get_navigation_menu",
     "get_hero_class_menu",
-]
