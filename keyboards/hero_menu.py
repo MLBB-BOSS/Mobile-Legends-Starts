@@ -1,10 +1,10 @@
-# keyboards/hero_menu.py
+# keyboards/heroes_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_hero_class_menu():
     """
-    Повертає клавіатуру для вибору класу персонажів.
+    Повертає клавіатуру для вибору класу героїв.
     """
     return ReplyKeyboardMarkup(
         keyboard=[
