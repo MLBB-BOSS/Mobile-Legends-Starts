@@ -1,8 +1,8 @@
 from aiogram import Router
-from keyboards.start_command import StartMenu
 
 router = Router()
 
+# Ваші маршрути
 @router.message(lambda message: message.text == "🧭 Навігація")
 async def handle_navigation(message):
     await message.answer("Це навігація.")
