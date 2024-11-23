@@ -1,4 +1,4 @@
-# handlers/heroes.py
+# handlers/heroes_handlers.py
 from aiogram.types import Message
 from aiogram import Router, F
 import logging
