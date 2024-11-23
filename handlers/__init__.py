@@ -6,4 +6,3 @@ __all__ = [
     "menu_router",
     "navigation_router",
     "heroes_router",
-]
