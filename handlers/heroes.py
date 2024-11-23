@@ -1,4 +1,4 @@
-# handlers/hero_handlers.py
+# handlers/heroes.py
 
 from aiogram import Router, F
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
@@ -8,7 +8,7 @@ hero_router = Router()
 @hero_router.message(F.text.in_({"🛡️ Танк", "🔮 Маг", "🏹 Стрілець", "⚔️ Асасін", "🧬 Підтримка"}))
 async def show_hero_options(message: Message):
     """
-    Відображає додаткові дії для обраного класу героїв.
+    Показує дії для обраного класу героїв.
     """
     selected_class = message.text
     keyboard = InlineKeyboardMarkup(
@@ -19,3 +19,10 @@ async def show_hero_options(message: Message):
         ]
     )
     await message.answer(f"Ви обрали {selected_class}. Що бажаєте зробити?", reply_markup=keyboard)
+
+@hero_router.callback_query()
+async def handle_hero_callbacks(callback):
+    """
+    Обробляє інлайн-кнопки для героїв.
+    """
+    await callback.answer(f"Ви обрали: {callback.data}. Ця функція в розробці!")
