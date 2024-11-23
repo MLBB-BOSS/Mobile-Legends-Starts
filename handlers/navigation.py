@@ -1,9 +1,9 @@
-# handlers/navigation_handlers.py
+# handlers/navigation.py
 
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.navigation_menu import get_navigation_menu
-from keyboards.hero_menu import get_hero_class_menu
+from keyboards.heroes_menu import get_hero_class_menu
 
 navigation_router = Router()
 
@@ -17,7 +17,7 @@ async def show_hero_classes(message: Message):
 @navigation_router.message(F.text == "🔄 Повернутися до Головного Меню")
 async def back_to_main_menu(message: Message):
     """
-    Повертає користувача до головного меню.
+    Повертає до головного меню.
     """
     from keyboards.main_menu import get_main_menu
-    await message.answer("Повертаємося до головного меню.", reply_markup=get_main_menu())
+    await message.answer("Повертаємося до головного меню:", reply_markup=get_main_menu())
