@@ -1,10 +1,8 @@
-# File: handlers/hero_commands.py
-
 from aiogram import Router, F
 from aiogram.types import Message
-from keyboards.hero_menu import HeroMenu
-from keyboards.main_menu import MainMenu
-from utils.localization_instance import loc  # Update this import
+from keyboards.hero_menu import get_hero_class_menu  # Використовуємо функцію замість класу
+from keyboards.main_menu import get_main_menu  # Використовуємо функцію замість класу
+from utils.localization_instance import loc  # Імпортуємо локалізацію
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,7 +12,8 @@ router = Router()
 async def show_hero_classes(message: Message):
     logger.info(f"Користувач {message.from_user.id} запросив класи героїв")
     try:
-        keyboard = HeroMenu().get_hero_classes_menu()
+        # Використовуємо функцію для отримання клавіатури
+        keyboard = get_hero_class_menu()
         await message.answer(
             loc.get_message("messages.select_hero_class"),
             reply_markup=keyboard
@@ -23,4 +22,5 @@ async def show_hero_classes(message: Message):
         logger.exception(f"Помилка при показі класів героїв: {e}")
         await message.answer(
             loc.get_message("errors.general"),
-            reply_markup=MainMenu().get_main_menu()
+            reply_markup=get_main_menu()
+        )
