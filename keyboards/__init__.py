@@ -1,11 +1,9 @@
-# keyboards/__init__.py
-
-from .menu import menu_router
-from .navigation import navigation_router
-from .hero_class_handlers import hero_class_router  # Оновлено назву імпорту
+from .main_menu import get_main_menu
+from .navigation_menu import get_navigation_menu
+from .heroes_menu import get_hero_class_menu
 
 __all__ = [
-    "menu_router",
-    "navigation_router",
-    "hero_class_router",  # Оновлено відповідно до правильного роутера
+    "get_main_menu",
+    "get_navigation_menu",
+    "get_hero_class_menu",
 ]
