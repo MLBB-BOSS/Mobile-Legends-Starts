@@ -1,3 +1,9 @@
-git add handlers/__init__.py
-git commit -m "Виправлено помилку: закриття списку __all__ у файлі handlers/__init__.py"
-git push
+from .menu import menu_router
+from .navigation import navigation_router
+from .heroes import heroes_router
+
+__all__ = [
+    "menu_router",
+    "navigation_router",
+    "heroes_router",
+]
