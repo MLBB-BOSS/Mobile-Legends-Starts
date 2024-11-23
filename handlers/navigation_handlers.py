@@ -7,15 +7,17 @@ from keyboards.hero_menu import get_hero_class_menu
 
 navigation_router = Router()
 
-@navigation_router.message(F.text == "Персонажі")
-async def show_hero_classes_menu(message: Message):
+@navigation_router.message(F.text == "🛡️ Персонажі")
+async def show_hero_classes(message: Message):
+    """
+    Відображає класи персонажів.
+    """
     await message.answer("Оберіть клас героя:", reply_markup=get_hero_class_menu())
 
-@navigation_router.message(F.text.in_(["Гайди", "Контрпіки"]))
-async def show_placeholder(message: Message):
-    await message.answer(f"Функція '{message.text}' ще на стадії розробки.")
-
-@navigation_router.message(F.text == "🔄 Назад")
-async def navigation_back_to_main(message: Message):
-    from keyboards.menus import get_main_menu
-    await message.answer("Повернення до головного меню:", reply_markup=get_main_menu())
+@navigation_router.message(F.text == "🔄 Повернутися до Головного Меню")
+async def back_to_main_menu(message: Message):
+    """
+    Повертає користувача до головного меню.
+    """
+    from keyboards.main_menu import get_main_menu
+    await message.answer("Повертаємося до головного меню.", reply_markup=get_main_menu())
