@@ -1,22 +1,24 @@
 # config.py
 # Created: 2024-11-24
+# Author: MLBB-BOSS
+# Description: Конфігураційний файл для налаштування бота та бази даних
 
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
 class Settings(BaseSettings):
-    # Отримуємо токен напряму з змінних середовища
-    TELEGRAM_BOT_TOKEN: str = os.getenv('TELEGRAM_BOT_TOKEN', '')
+    # Токен бота Telegram, отриманий від BotFather
+    TELEGRAM_BOT_TOKEN: str = os.environ.get('TELEGRAM_BOT_TOKEN')
     
-    # Отримуємо URL бази даних з змінних середовища 
-    DATABASE_URL: str = os.getenv('DATABASE_URL', '')
+    # URL підключення до бази даних PostgreSQL
+    DATABASE_URL: str = os.environ.get('DATABASE_URL')
 
     @property
     def async_database_url(self) -> str:
-        # Конвертуємо URL для asyncpg
+        """Конвертує стандартний URL бази даних в асинхронний формат для asyncpg"""
+        if not self.DATABASE_URL:
+            return ''
+        
         if self.DATABASE_URL.startswith('postgres://'):
             return self.DATABASE_URL.replace('postgres://', 'postgresql+asyncpg://', 1)
         elif self.DATABASE_URL.startswith('postgresql://'):
@@ -24,8 +26,13 @@ class Settings(BaseSettings):
         return self.DATABASE_URL
 
     class Config:
+        case_sensitive = True
         env_file = '.env'
         env_file_encoding = 'utf-8'
 
 # Створюємо екземпляр налаштувань
 settings = Settings()
+
+# Перевірка наявності критичних змінних
+if not settings.TELEGRAM_BOT_TOKEN:
+    raise ValueError("Не встановлено TELEGRAM_BOT_TOKEN")
