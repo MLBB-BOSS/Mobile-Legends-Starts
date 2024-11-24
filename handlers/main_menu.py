@@ -1,6 +1,6 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, Text
+from aiogram.filters.command import Command
 
 from keyboards import main_menu_keyboard
 from utils import get_localized_text
@@ -12,7 +12,7 @@ router = Router()
 def register_handlers_main_menu(dp):
     dp.include_router(router)
 
-@router.message(Command("start"))
+@router.message(Command(commands=["start"]))
 async def cmd_start(message: Message):
     # Додавання користувача до бази даних
     async with async_session() as session:
@@ -30,7 +30,7 @@ async def cmd_start(message: Message):
         reply_markup=main_menu_keyboard()
     )
 
-@router.message(Text(equals="Мій профіль"))
+@router.message(F.text == "Мій профіль")
 async def my_profile(message: Message):
     # Отримання інформації про користувача з бази даних
     async with async_session() as session:
@@ -41,7 +41,7 @@ async def my_profile(message: Message):
             response = "Користувача не знайдено."
     await message.answer(response)
 
-@router.message(Text(equals="Навігація"))
+@router.message(F.text == "Навігація")
 async def navigation(message: Message):
     from keyboards import navigation_menu_keyboard
     await message.answer(
