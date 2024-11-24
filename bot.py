@@ -12,7 +12,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import settings
-from handlers.menu_handlers import router as menu_router
+from handlers.main_menu import router as main_menu_router
 from handlers.navigation_handlers import router as navigation_router
 from handlers.profile_handlers import router as profile_router
 from database import create_db_and_tables, DatabaseMiddleware
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 async def register_all_routers(dp: Dispatcher) -> None:
     """Реєстрація всіх роутерів"""
     routers = [
-        menu_router,
+        main_menu_router,
         navigation_router,
         profile_router,
     ]
