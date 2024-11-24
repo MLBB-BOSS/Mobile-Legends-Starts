@@ -8,13 +8,13 @@ import logging
 import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import settings
 from handlers.main_menu import router as main_menu_router
 from handlers.navigation import router as navigation_router
-from handlers.profile import router as profile_router
+from handlers.user_handlers import router as user_router
 from database import create_db_and_tables, DatabaseMiddleware
 
 # Налаштування логування
@@ -31,7 +31,7 @@ async def register_all_routers(dp: Dispatcher) -> None:
     routers = [
         main_menu_router,
         navigation_router,
-        profile_router,
+        user_router,
     ]
     for router in routers:
         dp.include_router(router)
@@ -56,26 +56,18 @@ async def main():
             raise ValueError("TELEGRAM_BOT_TOKEN не знайдено в змінних середовища")
             
         # Налаштування бота
-        default_settings = DefaultBotProperties(
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True
-        )
-        
-        # Ініціалізація сховища станів
-        storage = MemoryStorage()
-        
-        # Ініціалізація бота
+        session = AiohttpSession()
         bot = Bot(
             token=settings.TELEGRAM_BOT_TOKEN,
-            default=default_settings
+            parse_mode=ParseMode.HTML,
+            session=session
         )
         
-        # Створення диспетчера
-        dp = Dispatcher(storage=storage)
+        # Ініціалізація диспетчера зі сховищем станів
+        dp = Dispatcher(storage=MemoryStorage())
 
         # Підключення middleware
-        dp.message.middleware(DatabaseMiddleware())
-        dp.callback_query.middleware(DatabaseMiddleware())
+        dp.update.middleware(DatabaseMiddleware())
 
         # Реєстрація роутерів
         await register_all_routers(dp)
@@ -89,14 +81,13 @@ async def main():
         logger.info("Бот успішно запущений")
         
         # Запуск бота
-        await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
         
     except Exception as e:
         logger.error(f"Помилка при запуску бота: {e}")
         sys.exit(1)
     finally:
-        # Закриття з'єднань при завершенні
+        # Закриття сесії при завершенні
         if 'bot' in locals():
             await bot.session.close()
 
