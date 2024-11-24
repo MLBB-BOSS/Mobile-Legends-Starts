@@ -2,7 +2,6 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
 
 from config import settings
 from handlers import register_handlers
@@ -15,15 +14,10 @@ logging.basicConfig(
 )
 
 async def main():
-    # Ініціалізація бота з DefaultBotProperties
-    default_settings = DefaultBotProperties(
-        parse_mode=ParseMode.HTML,
-        link_preview=False
-    )
-    
+    # Спрощена ініціалізація бота
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        default=default_settings
+        parse_mode=ParseMode.HTML  # Тільки базові налаштування
     )
     
     # Створення диспетчера
