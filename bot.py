@@ -6,8 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 
 from config import settings
 from handlers import register_handlers
-from database import create_db_and_tables
-from middleware.database import DatabaseMiddleware
+from database import create_db_and_tables, DatabaseMiddleware
 
 # Налаштування логування
 logging.basicConfig(
