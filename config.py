@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     @property
     def async_database_url(self) -> str:
-        # Перевіряємо, чи це Heroku DATABASE_URL
+        # Конвертуємо URL для asyncpg
         if self.DATABASE_URL.startswith('postgres://'):
             return self.DATABASE_URL.replace('postgres://', 'postgresql+asyncpg://', 1)
         elif self.DATABASE_URL.startswith('postgresql://'):
