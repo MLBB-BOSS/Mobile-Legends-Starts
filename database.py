@@ -1,65 +1,64 @@
-# UTC:23:14
+# UTC:23:32
 # 2024-11-24
 # database.py
 # Author: MLBB-BOSS
-# Description: Файл для роботи з базою даних
-# The era of artificial intelligence.
+# Description: Database configuration
 
 import logging
 from typing import AsyncGenerator
-
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import async_sessionmaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
 from config import settings
-from models.base import Base
 
-# Налаштування логування
+# Configure logging
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна бази даних
+# Create async engine
 engine = create_async_engine(
-    settings.DATABASE_URL, 
+    settings.db_url,
     echo=settings.DEBUG,
-    pool_size=5,  # Розмір пулу з'єднань
-    max_overflow=10  # Максимальна кількість додаткових з'єднань
+    pool_size=20,
+    pool_pre_ping=True,
+    pool_recycle=300
 )
 
-# Створення сесії для роботи з базою даних
-async_session = async_sessionmaker(
-    engine, 
-    class_=AsyncSession, 
+# Create session factory
+AsyncSessionFactory = sessionmaker(
+    engine,
+    class_=AsyncSession,
     expire_on_commit=False
 )
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """Функція для отримання сесії бази даних"""
-    session = async_session()
+    """Database session generator"""
+    session = AsyncSessionFactory()
     try:
         yield session
     except SQLAlchemyError as e:
-        logger.error(f"Помилка бази даних: {str(e)}")
+        logger.error(f"Database error: {str(e)}")
         await session.rollback()
         raise
     finally:
         await session.close()
 
 async def init_db() -> None:
-    """Функція для ініціалізації бази даних"""
+    """Initialize database tables"""
+    from models.base import Base
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("Таблиці бази даних успішно створені")
+        logger.info("Database initialized successfully")
     except SQLAlchemyError as e:
-        logger.error(f"Помилка при створенні таблиць: {str(e)}")
+        logger.error(f"Database initialization error: {str(e)}")
         raise
 
 async def close_db() -> None:
-    """Функція для закриття з'єднань з базою даних"""
+    """Close database connections"""
     try:
         await engine.dispose()
-        logger.info("З'єднання з базою даних закриті")
+        logger.info("Database connections closed")
     except SQLAlchemyError as e:
-        logger.error(f"Помилка при закритті з'єднань: {str(e)}")
+        logger.error(f"Error closing database: {str(e)}")
         raise
