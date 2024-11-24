@@ -1,4 +1,4 @@
-# UTC:21:18
+# UTC:21:40
 # 2024-11-24
 # handlers/main_menu.py
 # Author: MLBB-BOSS
@@ -8,7 +8,9 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.base import get_main_keyboard, get_navigation_keyboard, get_profile_keyboard
+from keyboards.main_menu import get_main_keyboard
+from keyboards.navigation_menu import get_navigation_keyboard
+from keyboards.profile_menu import get_profile_keyboard
 
 router = Router()
 
