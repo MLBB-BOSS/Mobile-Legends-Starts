@@ -1,4 +1,4 @@
-# UTC:23:29
+# UTC:23:40
 # 2024-11-24
 # config.py
 # Author: MLBB-BOSS
@@ -9,12 +9,11 @@ import os
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-# Завантаження змінних середовища з .env файлу (якщо він існує)
 load_dotenv()
 
 class Settings(BaseSettings):
     # Telegram Bot settings
-    TELEGRAM_BOT_TOKEN: str
+    BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")  # Змінено для сумісності
     
     # Database settings
     DATABASE_URL: str
@@ -25,12 +24,9 @@ class Settings(BaseSettings):
     
     @property
     def db_url(self) -> str:
-        """
-        Повертає правильний URL для підключення до бази даних.
-        Конвертує postgres:// в postgresql+asyncpg:// для Heroku
-        """
+        """Повертає коректний URL для бази даних"""
         url = self.DATABASE_URL
-        if url.startswith("postgres://"):
+        if url and url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         return url
     
