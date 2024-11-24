@@ -2,6 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 
 from config import settings
 from handlers import register_handlers
@@ -14,10 +15,15 @@ logging.basicConfig(
 )
 
 async def main():
-    # Спрощена ініціалізація бота
+    # Створення налаштувань бота за замовчуванням
+    default_settings = DefaultBotProperties(
+        parse_mode=ParseMode.HTML
+    )
+    
+    # Ініціалізація бота з новим синтаксисом
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        parse_mode=ParseMode.HTML  # Тільки базові налаштування
+        default=default_settings  # Використовуємо default замість безпосередньої передачі parse_mode
     )
     
     # Створення диспетчера
@@ -38,7 +44,7 @@ async def main():
         # Видалення webhook на випадок, якщо він був встановлений
         await bot.delete_webhook(drop_pending_updates=True)
         
-        # Запуск polling з новим синтаксисом
+        # Запуск polling
         await dp.start_polling(
             bot,
             allowed_updates=dp.resolve_used_update_types(),
