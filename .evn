@@ -1,2 +1,0 @@
-TELEGRAM_BOT_TOKEN=7721474356:AAEYb4YIEAKCCxMl3uxT8t__KAiwQ4UopkQ
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/database_name
