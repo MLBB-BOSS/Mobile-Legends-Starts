@@ -1,12 +1,19 @@
+# UTC:20:26
+# 2024-11-24
 # requirements.txt
-# Created: 2024-11-24
-# Author: MLBB-BOSS
-# Description: Залежності проекту
+# Author:MLBB-BOSS
+# Description: Heroku configuration.
+# The era of artificial intelligence.
 
-aiogram>=3.14.0
-pydantic>=2.3.0
-pydantic-settings>=2.1.1
-python-dotenv>=1.0.0
+# Core Framework and Utilities
+aiogram==3.14.0
+aiohttp==3.8.5
+
+# Data and Configuration Management
+pydantic==2.3.0
+pydantic-settings==2.1.1
+python-dotenv==1.0.0
+
+# Database Tools
 sqlalchemy==2.0.20
-asyncpg>=0.28.0
-aiohttp>=3.8.5
+asyncpg==0.28.0
