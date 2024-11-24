@@ -9,9 +9,12 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import settings
-from handlers import register_handlers
+from handlers.menu_handlers import router as menu_router
+from handlers.navigation_handlers import router as navigation_router
+from handlers.profile_handlers import router as profile_router
 from database import create_db_and_tables, DatabaseMiddleware
 
 # Налаштування логування
@@ -23,6 +26,29 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+async def register_all_routers(dp: Dispatcher) -> None:
+    """Реєстрація всіх роутерів"""
+    routers = [
+        menu_router,
+        navigation_router,
+        profile_router,
+    ]
+    for router in routers:
+        dp.include_router(router)
+    logger.info("Всі роутери успішно зареєстровано")
+
+async def setup_bot_commands(bot: Bot) -> None:
+    """Налаштування команд бота"""
+    commands = [
+        ("start", "Запустити бота"),
+        ("help", "Отримати допомогу"),
+        ("menu", "Головне меню"),
+        ("profile", "Мій профіль"),
+        ("navigation", "Навігація по контенту")
+    ]
+    await bot.set_my_commands(commands)
+    logger.info("Команди бота налаштовано")
+
 async def main():
     try:
         # Перевіряємо наявність токену
@@ -31,8 +57,12 @@ async def main():
             
         # Налаштування бота
         default_settings = DefaultBotProperties(
-            parse_mode=ParseMode.HTML
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True
         )
+        
+        # Ініціалізація сховища станів
+        storage = MemoryStorage()
         
         # Ініціалізація бота
         bot = Bot(
@@ -41,14 +71,17 @@ async def main():
         )
         
         # Створення диспетчера
-        dp = Dispatcher()
+        dp = Dispatcher(storage=storage)
 
         # Підключення middleware
         dp.message.middleware(DatabaseMiddleware())
         dp.callback_query.middleware(DatabaseMiddleware())
 
-        # Реєстрація хендлерів
-        register_handlers(dp)
+        # Реєстрація роутерів
+        await register_all_routers(dp)
+        
+        # Налаштування команд бота
+        await setup_bot_commands(bot)
 
         # Ініціалізація бази даних
         await create_db_and_tables()
@@ -62,6 +95,13 @@ async def main():
     except Exception as e:
         logger.error(f"Помилка при запуску бота: {e}")
         sys.exit(1)
+    finally:
+        # Закриття з'єднань при завершенні
+        if 'bot' in locals():
+            await bot.session.close()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинений")
