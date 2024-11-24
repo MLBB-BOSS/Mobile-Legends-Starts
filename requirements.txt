@@ -1,4 +1,5 @@
-# UTC:21:00
+
+# UTC:23:49
 # 2024-11-24
 # requirements.txt
 # Author: MLBB-BOSS
@@ -6,7 +7,7 @@
 # The era of artificial intelligence.
 
 # Core Framework and Utilities
-aiogram>=3.14.0
+aiogram==3.14.0  # Фіксуємо версію для стабільності
 
 # Data and Configuration Management
 pydantic>=2.3.0
@@ -14,5 +15,8 @@ pydantic-settings>=2.3.0
 python-dotenv>=1.0.0
 
 # Database Tools
-sqlalchemy==2.0.20
+SQLAlchemy>=2.0.20  # Змінено з == на >= для сумісності
 asyncpg>=0.28.0
+
+# Additional Dependencies
+typing-extensions>=4.7.1  # Додано для кращої сумісності з Python 3.11
