@@ -2,8 +2,9 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 
-from config import BOT_TOKEN
+from config import settings
 from handlers import register_handlers
+from database import create_db_and_tables
 
 # Налаштування логування
 logging.basicConfig(
@@ -13,11 +14,14 @@ logging.basicConfig(
 
 async def main():
     # Ініціалізація бота та диспетчера
-    bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+    bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode="HTML")
     dp = Dispatcher()
 
     # Реєстрація хендлерів
     register_handlers(dp)
+
+    # Створення таблиць у базі даних
+    await create_db_and_tables()
 
     # Запуск бота
     try:
