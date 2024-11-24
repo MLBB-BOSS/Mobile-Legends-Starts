@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
+from aiogram.client.bot import DefaultBotSettings
 
 from config import settings
 from handlers import register_handlers
@@ -13,8 +14,11 @@ logging.basicConfig(
 )
 
 async def main():
-    # Ініціалізація бота та диспетчера
-    bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode="HTML")
+    # Ініціалізація бота з використанням DefaultBotSettings
+    bot = Bot(
+        token=settings.TELEGRAM_BOT_TOKEN,
+        default=DefaultBotSettings(parse_mode="HTML")
+    )
     dp = Dispatcher()
 
     # Реєстрація хендлерів
