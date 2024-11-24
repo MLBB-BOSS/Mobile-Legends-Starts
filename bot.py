@@ -1,6 +1,9 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
+
 from config import settings
 from handlers import register_handlers
 from database import create_db_and_tables
@@ -12,10 +15,15 @@ logging.basicConfig(
 )
 
 async def main():
-    # Ініціалізація бота
+    # Ініціалізація бота з DefaultBotProperties
+    default_settings = DefaultBotProperties(
+        parse_mode=ParseMode.HTML,
+        link_preview=False  # Опціонально, якщо потрібно вимкнути попередній перегляд посилань
+    )
+    
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        parse_mode="HTML"
+        default=default_settings
     )
     
     # Створення диспетчера
@@ -32,12 +40,15 @@ async def main():
         # Видалення webhook на випадок, якщо він був встановлений
         await bot.delete_webhook(drop_pending_updates=True)
         
-        # Запуск polling
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        # Запуск polling з новим синтаксисом
+        await dp.start_polling(
+            bot,
+            allowed_updates=dp.resolve_used_update_types(),
+            polling_timeout=30
+        )
     except Exception as e:
         logging.exception("Виникла помилка при запуску бота")
     finally:
-        # Закриття сесії бота
         await bot.session.close()
 
 if __name__ == "__main__":
