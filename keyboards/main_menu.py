@@ -1,62 +1,26 @@
 # keyboards/main_menu.py
 # Created: 2024-11-24
 # Author: MLBB-BOSS
-# Description: Клавіатури для головного меню та підменю
+# Description: Клавіатури для головного меню
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-class NavigationKeyboards:
+class MainMenuKeyboard:
     @staticmethod
-    def main_navigation() -> ReplyKeyboardMarkup:
-        """Головне меню навігації"""
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, keyboard=[
-            [KeyboardButton(text="🛡️ Персонажі")],
-            [KeyboardButton(text="📖 Гайди")],
-            [KeyboardButton(text="⚔️ Контр-піки"), KeyboardButton(text="🛠️ Білди")],
-            [KeyboardButton(text="🔙 Назад до головного меню")]
-        ])
-        return keyboard
-
-    @staticmethod
-    def heroes_submenu() -> ReplyKeyboardMarkup:
-        """Меню для вибору класу героїв"""
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, keyboard=[
-            [KeyboardButton(text="🔍 Пошук персонажа")],
-            [KeyboardButton(text="🛡️ Танк"), KeyboardButton(text="🔮 Маг")],
-            [KeyboardButton(text="🏹 Стрілець"), KeyboardButton(text="🗡️ Асасін")],
-            [KeyboardButton(text="🤝 Підтримка")],
-            [KeyboardButton(text="🔙 Назад до навігації")]
-        ])
-        return keyboard
-
-class ProfileKeyboards:
-    @staticmethod
-    def main_profile() -> ReplyKeyboardMarkup:
-        """Головне меню профілю"""
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, keyboard=[
-            [KeyboardButton(text="📈 Статистика"), KeyboardButton(text="🏅 Досягнення")],
-            [KeyboardButton(text="⚙️ Налаштування"), KeyboardButton(text="💌 Зворотний зв'язок")],
-            [KeyboardButton(text="🔙 Назад до головного меню")]
-        ])
-        return keyboard
-
-    @staticmethod
-    def stats_submenu() -> ReplyKeyboardMarkup:
-        """Меню статистики"""
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, keyboard=[
-            [KeyboardButton(text="📊 Загальна активність")],
-            [KeyboardButton(text="🥇 Рейтинг"), KeyboardButton(text="🎮 Ігрова статистика")],
-            [KeyboardButton(text="🔙 Назад до профілю")]
-        ])
-        return keyboard
-
-    @staticmethod
-    def settings_submenu() -> ReplyKeyboardMarkup:
-        """Меню налаштувань профілю"""
-        keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False, keyboard=[
-            [KeyboardButton(text="🌐 Мова інтерфейсу")],
-            [KeyboardButton(text="🆔 Змінити Username"), KeyboardButton(text="🎯 Оновити ID гравця")],
-            [KeyboardButton(text="🔔 Налаштування сповіщень")],
-            [KeyboardButton(text="🔙 Назад до профілю")]
-        ])
-        return keyboard
+    def get_keyboard() -> InlineKeyboardMarkup:
+        """Створення клавіатури головного меню"""
+        builder = InlineKeyboardBuilder()
+        
+        # Додавання кнопок
+        builder.add(
+            InlineKeyboardButton(text="🎮 Турніри", callback_data="tournaments"),
+            InlineKeyboardButton(text="👤 Профіль", callback_data="profile"),
+            InlineKeyboardButton(text="🏆 Рейтинг", callback_data="rating"),
+            InlineKeyboardButton(text="📊 Статистика", callback_data="stats"),
+            InlineKeyboardButton(text="ℹ️ Допомога", callback_data="help")
+        )
+        
+        # Налаштування розміщення кнопок
+        builder.adjust(2, 2, 1)
+        return builder.as_markup()
