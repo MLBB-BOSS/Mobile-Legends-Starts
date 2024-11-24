@@ -18,7 +18,7 @@ async def main():
     # Ініціалізація бота з DefaultBotProperties
     default_settings = DefaultBotProperties(
         parse_mode=ParseMode.HTML,
-        link_preview=False  # Опціонально, якщо потрібно вимкнути попередній перегляд посилань
+        link_preview=False
     )
     
     bot = Bot(
