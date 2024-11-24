@@ -1,9 +1,12 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
-load_dotenv()
+class Settings(BaseSettings):
+    TELEGRAM_BOT_TOKEN: str = Field(..., env='TELEGRAM_BOT_TOKEN')
+    DATABASE_URL: str = Field(..., env='DATABASE_URL')
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
 
-if not BOT_TOKEN:
-    raise ValueError("Необхідно встановити TELEGRAM_BOT_TOKEN у файлі .env")
+settings = Settings()
