@@ -7,6 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from config import settings
 from handlers import register_handlers
 from database import create_db_and_tables
+from middleware.database import DatabaseMiddleware
 
 # Налаштування логування
 logging.basicConfig(
@@ -28,6 +29,10 @@ async def main():
     
     # Створення диспетчера
     dp = Dispatcher()
+
+    # Додаємо middleware для роботи з базою даних
+    dp.message.middleware(DatabaseMiddleware())
+    dp.callback_query.middleware(DatabaseMiddleware())
 
     # Реєстрація хендлерів
     register_handlers(dp)
