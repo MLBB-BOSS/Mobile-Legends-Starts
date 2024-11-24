@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from typing import Any
 
 from models.user import User
 from keyboards.main_menu import main_menu_keyboard
@@ -10,7 +11,7 @@ from keyboards.main_menu import main_menu_keyboard
 router = Router()
 
 @router.message(Command("start"))
-async def cmd_start(message: Message, session: AsyncSession) -> None:
+async def cmd_start(message: Message, session: AsyncSession, **kwargs: Any) -> None:
     try:
         # Шукаємо користувача за telegram_id
         result = await session.execute(
