@@ -1,4 +1,4 @@
-# UTC:23:04
+# UTC:23:17
 # 2024-11-24
 # bot.py
 # Author: MLBB-BOSS
@@ -17,7 +17,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
 from database import init_db, close_db
 from handlers import main_menu_router, navigation_router, user_handlers_router
-from middlewares.database import DatabaseMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def main():
-    # Initialize resources using AsyncExitStack
+    # Initialize resources using AsyncExitStack for proper cleanup
     async with AsyncExitStack() as stack:
         try:
             # Initialize database
@@ -42,10 +41,6 @@ async def main():
             # Setup dispatcher with storage
             dp = Dispatcher(storage=MemoryStorage())
             
-            # Setup middlewares
-            dp.message.middleware(DatabaseMiddleware())
-            dp.callback_query.middleware(DatabaseMiddleware())
-            
             # Register routers
             dp.include_router(main_menu_router)
             dp.include_router(navigation_router)
@@ -53,7 +48,10 @@ async def main():
             
             # Start polling
             logger.info("Starting Mobile Legends Tournament Bot...")
-            await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+            await dp.start_polling(
+                bot,
+                allowed_updates=dp.resolve_used_update_types()
+            )
             
         except Exception as e:
             logger.error(f"Critical error: {e}", exc_info=True)
@@ -64,3 +62,6 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logger.info("Bot stopped")
+    except Exception as e:
+        logger.critical(f"Unexpected error: {e}", exc_info=True)
+        sys.exit(1)
