@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 
 DATABASE_URL = settings.async_database_url
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+engine = create_async_engine(DATABASE_URL, echo=True)  # echo=True для дебагу SQL запитів
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 Base = declarative_base()
 
@@ -19,7 +19,9 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 async def create_db_and_tables():
     async with engine.begin() as conn:
         # Імпортуємо моделі тут, щоб уникнути циклічних імпортів
-        from models import User  # noqa
+        from models.user import User  # noqa
         
-        # Створюємо таблиці
+        # Видаляємо існуючі таблиці та створюємо нові
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+        print("Database tables created successfully!")
