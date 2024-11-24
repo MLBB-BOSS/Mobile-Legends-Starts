@@ -4,8 +4,8 @@ from database import Base
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    telegram_id = Column(BigInteger, unique=True, index=True)
+    id = Column(BigInteger, primary_key=True)
+    telegram_id = Column(BigInteger, unique=True, nullable=False)
     username = Column(String(100), nullable=True)
 
     def __repr__(self):
