@@ -1,3 +1,6 @@
+# config.py
+# Created: 2024-11-24
+
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 import os
@@ -5,7 +8,10 @@ import os
 load_dotenv()
 
 class Settings(BaseSettings):
-    TELEGRAM_BOT_TOKEN: str
+    # Отримуємо токен напряму з змінних середовища
+    TELEGRAM_BOT_TOKEN: str = os.getenv('TELEGRAM_BOT_TOKEN', '')
+    
+    # Отримуємо URL бази даних з змінних середовища 
     DATABASE_URL: str = os.getenv('DATABASE_URL', '')
 
     @property
@@ -21,4 +27,5 @@ class Settings(BaseSettings):
         env_file = '.env'
         env_file_encoding = 'utf-8'
 
+# Створюємо екземпляр налаштувань
 settings = Settings()
