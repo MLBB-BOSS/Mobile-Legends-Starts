@@ -1,23 +1,24 @@
 from aiogram import Router
 from aiogram.types import Message
+from aiogram.filters import Text
 
 from keyboards import main_menu_keyboard
-from utils.localization import get_localized_text
+from utils import get_localized_text
 
 router = Router()
 
 def register_handlers_navigation(dp):
     dp.include_router(router)
 
-@router.message(text="Опція 1")
+@router.message(Text(equals="Опція 1"))
 async def option_one(message: Message):
     await message.answer(get_localized_text("option_one_response"))
 
-@router.message(text="Опція 2")
+@router.message(Text(equals="Опція 2"))
 async def option_two(message: Message):
     await message.answer(get_localized_text("option_two_response"))
 
-@router.message(text="Повернутися до головного меню")
+@router.message(Text(equals="Повернутися до головного меню"))
 async def back_to_main_menu(message: Message):
     await message.answer(
         get_localized_text("back_to_main_menu"),
