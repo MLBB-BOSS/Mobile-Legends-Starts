@@ -1,46 +1,64 @@
-from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from typing import Any
+# handlers/menu_handlers.py
+# Created: 2024-11-24
+# Author: MLBB-BOSS
+# Description: Обробники для меню навігації та профілю
 
-from models.user import User
-from keyboards.main_menu import main_menu_keyboard
+from aiogram import Router, F
+from aiogram.types import CallbackQuery
+from aiogram.filters import Command
+
+from keyboards.menu_keyboards import NavigationKeyboards, ProfileKeyboards
 
 router = Router()
 
-@router.message(Command("start"))
-async def cmd_start(message: Message, session: AsyncSession, **kwargs: Any) -> None:
-    try:
-        # Шукаємо користувача за telegram_id
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
-        user = result.scalar_one_or_none()
-        
-        if not user:
-            # Створюємо нового користувача
-            user = User(
-                telegram_id=message.from_user.id,
-                username=message.from_user.username
-            )
-            session.add(user)
-            await session.commit()
-            
-            await message.answer(
-                text=f"Вітаю, {message.from_user.first_name}! Ви успішно зареєстровані.",
-                reply_markup=main_menu_keyboard()
-            )
-        else:
-            await message.answer(
-                text=f"З поверненням, {message.from_user.first_name}!",
-                reply_markup=main_menu_keyboard()
-            )
-            
-    except Exception as e:
-        print(f"Error in start handler: {e}")
-        await session.rollback()
-        await message.answer(
-            text="Сталася помилка при обробці команди. Спробуйте пізніше."
-        )
+# Обробники для навігації
+@router.callback_query(F.data == "nav_main")
+async def show_navigation_menu(callback: CallbackQuery):
+    """Показує головне меню навігації"""
+    await callback.message.edit_text(
+        "🧭 Оберіть розділ навігації:",
+        reply_markup=NavigationKeyboards.main_navigation()
+    )
+
+@router.callback_query(F.data == "nav_heroes")
+async def show_heroes_menu(callback: CallbackQuery):
+    """Показує меню вибору героїв"""
+    await callback.message.edit_text(
+        "🛡️ Оберіть клас героя або скористайтесь пошуком:",
+        reply_markup=NavigationKeyboards.heroes_submenu()
+    )
+
+# Обробники для профілю
+@router.callback_query(F.data == "profile_main")
+async def show_profile_menu(callback: CallbackQuery):
+    """Показує головне меню профілю"""
+    await callback.message.edit_text(
+        "🪪 Ваш профіль - оберіть розділ:",
+        reply_markup=ProfileKeyboards.main_profile()
+    )
+
+@router.callback_query(F.data == "profile_stats")
+async def show_stats_menu(callback: CallbackQuery):
+    """Показує меню статистики"""
+    await callback.message.edit_text(
+        "📈 Оберіть тип статистики для перегляду:",
+        reply_markup=ProfileKeyboards.stats_submenu()
+    )
+
+@router.callback_query(F.data == "profile_settings")
+async def show_settings_menu(callback: CallbackQuery):
+    """Показує меню налаштувань"""
+    await callback.message.edit_text(
+        "⚙️ Налаштування профілю:",
+        reply_markup=ProfileKeyboards.settings_submenu()
+    )
+
+# Повернення до головного меню
+@router.callback_query(F.data == "main_menu")
+async def return_to_main_menu(callback: CallbackQuery):
+    """Повертає до головного меню"""
+    from keyboards.main_keyboard import get_main_keyboard  # Імпортуємо головну клавіатуру
+    await callback.message.edit_text(
+        "🏠 Головне меню:",
+        reply_markup=get_main_keyboard()
+    )
