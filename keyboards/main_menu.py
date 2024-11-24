@@ -5,13 +5,8 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
     
     builder.row(
-        KeyboardButton(text="🦸‍♂️ Герої"),
-        KeyboardButton(text="📊 Статистика")
-    )
-    
-    builder.row(
-        KeyboardButton(text="ℹ️ Інформація"),
-        KeyboardButton(text="⚙️ Налаштування")
+        KeyboardButton(text="🧭 Навігація"),
+        KeyboardButton(text="🪪 Мій профіль")
     )
 
     return builder.as_markup(
