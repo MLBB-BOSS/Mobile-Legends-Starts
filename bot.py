@@ -1,42 +1,50 @@
+# UTC:20:42
+# 2024-11-24
 # bot.py
-# Created: 2024-11-24
 # Author: MLBB-BOSS
-# Description: Головний файл бота для управління турнірами Mobile Legends
+# Description: Main bot initialization and configuration
+# The era of artificial intelligence.
 
 import asyncio
 import logging
+import sys
+import os
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from config import settings
-from handlers import register_all_handlers
-from database import create_tables
+# Import routers
+from handlers import main_menu_router
 
-# Налаштування логування
-logging.basicConfig(level=logging.INFO)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
 
+# Bot token from environment
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    logger.error("No BOT_TOKEN provided!")
+    sys.exit(1)
+
 async def main():
+    # Initialize bot and dispatcher
+    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+    dp = Dispatcher(storage=MemoryStorage())
+    
+    # Register routers
+    dp.include_router(main_menu_router)
+    
     try:
-        # Ініціалізація бота та диспетчера
-        bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
-        dp = Dispatcher(storage=MemoryStorage())
-        
-        # Реєстрація всіх хендлерів
-        register_all_handlers(dp)
-        
-        # Створення таблиць бази даних
-        await create_tables()
-        
-        logger.info("Bot started successfully!")
+        logger.info("Starting bot...")
         await dp.start_polling(bot)
-        
     except Exception as e:
-        logger.error(f"Error starting bot: {e}")
+        logger.error(f"Critical error: {e}")
     finally:
-        if 'bot' in locals():
-            await bot.session.close()
+        await bot.session.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
