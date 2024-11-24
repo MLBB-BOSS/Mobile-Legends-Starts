@@ -1,3 +1,8 @@
+# requirements.txt
+# Created: 2024-11-24
+# Author: MLBB-BOSS
+# Description: Залежності проекту
+
 aiogram>=3.14.0
 pydantic>=2.3.0
 pydantic-settings>=2.1.1
