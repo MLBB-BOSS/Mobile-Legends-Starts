@@ -1,4 +1,4 @@
-# UTC:20:42
+# UTC:21:18
 # 2024-11-24
 # handlers/main_menu.py
 # Author: MLBB-BOSS
@@ -7,38 +7,39 @@
 
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-from keyboards.main_menu import main_menu_keyboard
+from aiogram.types import Message
+from keyboards.base import get_main_keyboard, get_navigation_keyboard, get_profile_keyboard
 
 router = Router()
 
 @router.message(Command("start"))
 async def cmd_start(message: Message):
-    """Handler for /start command"""
     await message.answer(
-        "Вітаємо в MLS Bot! 🎮\n"
+        "Вітаю в MLS Bot! 🎮\n"
         "Ваш помічник у світі Mobile Legends!\n"
-        "Оберіть опцію:",
-        reply_markup=main_menu_keyboard()
+        "Оберіть опцію з меню нижче:",
+        reply_markup=get_main_keyboard()
     )
 
-@router.callback_query(F.data == "help")
-async def help_handler(callback: CallbackQuery):
-    """Handler for help button"""
-    await callback.answer(
-        "Це бот для організації турнірів Mobile Legends.\n"
-        "Використовуйте меню для навігації.",
-        show_alert=True
+@router.message(F.text == "🧭 Навігація")
+async def navigation_menu(message: Message):
+    await message.answer(
+        "Меню навігації:\n"
+        "Оберіть потрібний розділ:",
+        reply_markup=get_navigation_keyboard()
     )
 
-@router.callback_query(F.data == "tournaments")
-async def tournaments_handler(callback: CallbackQuery):
-    """Handler for tournaments button"""
-    await callback.answer("Відкриваю список турнірів...")
-    # Add tournament logic here
+@router.message(F.text == "🪪 Профіль")
+async def profile_menu(message: Message):
+    await message.answer(
+        "Ваш профіль:\n"
+        "Оберіть потрібний розділ:",
+        reply_markup=get_profile_keyboard()
+    )
 
-@router.callback_query(F.data == "profile")
-async def profile_handler(callback: CallbackQuery):
-    """Handler for profile button"""
-    await callback.answer("Відкриваю ваш профіль...")
-    # Add profile logic here
+@router.message(F.text == "🔙 Назад до Головного")
+async def return_to_main(message: Message):
+    await message.answer(
+        "Головне меню:",
+        reply_markup=get_main_keyboard()
+    )
