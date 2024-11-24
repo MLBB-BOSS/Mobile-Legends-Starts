@@ -1,45 +1,25 @@
 # database.py
+# Created: 2024-11-24
+# Author: MLBB-BOSS
+# Description: Файл для роботи з базою даних
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import declarative_base
-from typing import AsyncGenerator, Any, Awaitable, Callable, Dict
-from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 from config import settings
 
-# Налаштування бази даних
-DATABASE_URL = settings.async_database_url
-engine = create_async_engine(DATABASE_URL, echo=True)
-async_session = async_sessionmaker(engine, expire_on_commit=False)
-Base = declarative_base()
+# Створення асинхронного двигуна бази даних
+engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 
-# Функція для отримання сесії
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+# Створення сесії для роботи з базою даних
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+async def get_session() -> AsyncSession:
+    """Функція для отримання сесії бази даних"""
     async with async_session() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+        yield session
 
-# Middleware для бази даних
-class DatabaseMiddleware(BaseMiddleware):
-    async def __call__(
-        self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-        event: TelegramObject,
-        data: Dict[str, Any]
-    ) -> Any:
-        async for session in get_session():
-            data['session'] = session
-            try:
-                return await handler(event, data)
-            finally:
-                await session.close()
-
-# Функція для створення таблиць
-async def create_db_and_tables():
+async def create_tables():
+    """Функція для створення всіх таблиць в базі даних"""
+    from models.base import Base
     async with engine.begin() as conn:
-        # Імпортуємо моделі тут, щоб уникнути циклічних імпортів
-        from models.user import User  # noqa
-        
         await conn.run_sync(Base.metadata.create_all)
