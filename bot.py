@@ -25,9 +25,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot token from environment
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 if not BOT_TOKEN:
-    logger.error("No BOT_TOKEN provided!")
+    logger.error("No TELEGRAM_BOT_TOKEN provided!")
     sys.exit(1)
 
 async def main():
