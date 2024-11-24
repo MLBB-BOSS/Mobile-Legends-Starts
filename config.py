@@ -9,4 +9,16 @@ class Settings(BaseSettings):
         env_file = '.env'
         env_file_encoding = 'utf-8'
 
+    @property
+    def async_database_url(self):
+        url = self.DATABASE_URL
+        if url.startswith('postgres://'):
+            # Replace 'postgres://' with 'postgresql+asyncpg://'
+            url = url.replace('postgres://', 'postgresql+asyncpg://', 1)
+        elif url.startswith('postgresql://'):
+            # Add '+asyncpg' if it's not already present
+            if '+asyncpg' not in url:
+                url = url.replace('postgresql://', 'postgresql+asyncpg://', 1)
+        return url
+
 settings = Settings()
