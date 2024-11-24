@@ -1,26 +1,32 @@
+# UTC:20:42
+# 2024-11-24
 # keyboards/main_menu.py
-# Created: 2024-11-24
 # Author: MLBB-BOSS
-# Description: Клавіатури для головного меню
+# Description: Keyboards for main menu interface
+# The era of artificial intelligence.
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-class MainMenuKeyboard:
-    @staticmethod
-    def get_keyboard() -> InlineKeyboardMarkup:
-        """Створення клавіатури головного меню"""
-        builder = InlineKeyboardBuilder()
-        
-        # Додавання кнопок
-        builder.add(
-            InlineKeyboardButton(text="🎮 Турніри", callback_data="tournaments"),
-            InlineKeyboardButton(text="👤 Профіль", callback_data="profile"),
-            InlineKeyboardButton(text="🏆 Рейтинг", callback_data="rating"),
-            InlineKeyboardButton(text="📊 Статистика", callback_data="stats"),
-            InlineKeyboardButton(text="ℹ️ Допомога", callback_data="help")
-        )
-        
-        # Налаштування розміщення кнопок
-        builder.adjust(2, 2, 1)
-        return builder.as_markup()
+def main_menu_keyboard() -> InlineKeyboardMarkup:
+    """Creates main menu keyboard"""
+    builder = InlineKeyboardBuilder()
+    
+    buttons = [
+        ("🎮 Турніри", "tournaments"),
+        ("👤 Профіль", "profile"),
+        ("🏆 Рейтинг", "rating"),
+        ("ℹ️ Допомога", "help")
+    ]
+    
+    for text, callback_data in buttons:
+        builder.add(InlineKeyboardButton(
+            text=text,
+            callback_data=callback_data
+        ))
+    
+    builder.adjust(2, 2)
+    return builder.as_markup()
+
+# Export the keyboard function
+__all__ = ['main_menu_keyboard']
