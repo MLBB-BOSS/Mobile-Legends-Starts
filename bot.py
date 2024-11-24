@@ -13,8 +13,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import settings
 from handlers.main_menu import router as main_menu_router
-from handlers.navigation_handlers import router as navigation_router
-from handlers.profile_handlers import router as profile_router
+from handlers.navigation import router as navigation_router
+from handlers.profile import router as profile_router
 from database import create_db_and_tables, DatabaseMiddleware
 
 # Налаштування логування
