@@ -49,7 +49,7 @@ jobs:
           branch: "aiogram-3x"
         env:
           HD_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          HD_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Прибрали DATABASE_URL, оскільки він керується Heroku
 
       - name: Notification
         if: always()
