@@ -16,7 +16,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 
 from config import settings
-from database import init_db, close_db
+from database import init_db  # Removed close_db from import
 from handlers import main_menu_router, navigation_router, user_handlers_router
 
 # Configure logging
@@ -33,7 +33,7 @@ async def main():
         try:
             # Initialize database
             await init_db()
-            stack.push_async_callback(close_db)
+            # Removed stack.push_async_callback(close_db) line since SQLAlchemy handles connections
             
             # Initialize bot and dispatcher
             bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
