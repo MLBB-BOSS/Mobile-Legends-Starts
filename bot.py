@@ -16,7 +16,8 @@ from database import init_db, reset_db, DatabaseMiddleware, async_session
 from handlers import (
     main_menu_router,
     navigation_router,
-    profile_router
+    profile_router,
+    mp3_player_router  # Додано новий обробник для MP3 плеєра
 )
 
 # Configure logging
@@ -34,7 +35,8 @@ async def register_routers(dp: Dispatcher):
     routers = [
         main_menu_router,
         navigation_router,
-        profile_router
+        profile_router,
+        mp3_player_router  # Реєстрація нового обробника для MP3 плеєра
     ]
     
     for router in routers:
