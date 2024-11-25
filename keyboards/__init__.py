@@ -1,16 +1,10 @@
-# UTC:22:06
-# 2024-11-24
-# keyboards/__init__.py
-# Author: MLBB-BOSS
-# Description: Keyboards module initialization
-# The era of artificial intelligence.
-
-from .main_menu import get_main_keyboard as main_menu_keyboard
-from .navigation_menu import get_navigation_keyboard as navigation_keyboard
-from .profile_menu import get_profile_keyboard as profile_keyboard
+# handlers/__init__.py
+from .main_menu import router as main_menu_router
+from .navigation import router as navigation_router
+from .profile_handlers import router as profile_handlers_router  # Змініть імпорт на .profile_handlers
 
 __all__ = [
-    'main_menu_keyboard',
-    'navigation_keyboard', 
-    'profile_keyboard'
+    'main_menu_router',
+    'navigation_router',
+    'profile_handlers_router'
 ]
