@@ -1,9 +1,3 @@
-# UTC:23:32
-# 2024-11-24
-# database.py
-# Author: MLBB-BOSS
-# Description: Database configuration
-
 import logging
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -52,6 +46,24 @@ async def init_db() -> None:
         logger.info("Database initialized successfully")
     except SQLAlchemyError as e:
         logger.error(f"Database initialization error: {str(e)}")
+        raise
+
+async def reset_db() -> None:
+    """Reset (drop and recreate) the database"""
+    from models.base import Base
+    try:
+        async with engine.begin() as conn:
+            # Drop all existing tables
+            logger.warning("Dropping all tables...")
+            await conn.run_sync(Base.metadata.drop_all)
+            logger.info("All tables dropped successfully.")
+
+            # Recreate tables
+            logger.info("Recreating tables...")
+            await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database reset and tables recreated successfully.")
+    except SQLAlchemyError as e:
+        logger.error(f"Database reset error: {str(e)}")
         raise
 
 async def close_db() -> None:
