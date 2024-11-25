@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Створення асинхронного двигуна з використанням AFDATABASE_URL
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    settings.AFDATABASE_URL,
     echo=settings.DEBUG,
 )
 
