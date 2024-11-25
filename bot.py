@@ -16,7 +16,7 @@ from handlers import main_menu_router, navigation_router, profile_handlers_route
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(name)s: %(message)s',
     stream=sys.stdout
 )
 logger = logging.getLogger(__name__)
