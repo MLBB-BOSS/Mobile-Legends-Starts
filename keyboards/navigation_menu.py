@@ -8,19 +8,16 @@
 # keyboards/navigation_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-import logging
-
-logger = logging.getLogger(__name__)
 
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
-    """Підменю Навігація"""
-    logger.info("Creating navigation keyboard with buttons: 🛡️ Персонажі, 📚 Гайди, ⚖️ Контр-піки, ⚜️ Білди, 📊 Голосування, 🔙 Назад")
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
-            [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
-            [KeyboardButton(text="📊 Голосування"), KeyboardButton(text="🔙 Назад")]
-        ],
-        resize_keyboard=True
-    )
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = [
+        KeyboardButton("🛡️ Персонажі"),
+        KeyboardButton("📚 Гайди"),
+        KeyboardButton("⚖️ Контр-піки"),
+        KeyboardButton("⚜️ Білди"),
+        KeyboardButton("📊 Голосування"),
+        KeyboardButton("🔙 Назад")
+    ]
+    keyboard.add(*buttons)
     return keyboard
