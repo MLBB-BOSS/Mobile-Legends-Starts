@@ -15,10 +15,10 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     """
     Головне меню
     """
-    logger.info("Creating main keyboard with buttons: 🧭 Навігація, 🛡️ Профіль")
+    logger.info("Creating main keyboard with buttons: 🧭 Навігація, 🪪 Профіль")
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🛡️ Профіль")]
+            [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Профіль")]
         ],
         resize_keyboard=True
     )
