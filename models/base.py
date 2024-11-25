@@ -1,15 +1,9 @@
-# models/user.py
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime
-from models.base import Base
+# models/base.py
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
-class User(Base):
-    __tablename__ = 'users'
+class Base(AsyncAttrs, DeclarativeBase):
+    """Base class for all models"""
     
-    id = Column(Integer, primary_key=True, autoincrement=True)  # Унікальний ID
-    user_id = Column(Integer, unique=True, nullable=False)  # Telegram ID
-    username = Column(String(50), nullable=True)  # Ім'я користувача
-    created_at = Column(DateTime, default=datetime.utcnow)  # Дата створення
-
-    def __repr__(self):
-        return f"<User(id={self.id}, user_id={self.user_id}, username={self.username})>"
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__table__.columns}
