@@ -1,4 +1,10 @@
+# UTC:22:00
+# 2024-11-25
 # bot.py
+# Author: MLBB-BOSS
+# Description: Main bot initialization and dispatcher setup
+# The era of artificial intelligence.
+
 import asyncio
 import logging
 import sys
@@ -11,7 +17,7 @@ from aiogram.client.bot import DefaultBotProperties
 
 from config import settings
 from database import init_db, close_db
-from handlers import main_menu_router, navigation_router, user_handlers_router
+from handlers import main_menu_router, navigation_router, user_handlers_router, profile_handlers_router
 
 # Configure logging
 logging.basicConfig(
@@ -40,6 +46,7 @@ async def main():
             dp.include_router(main_menu_router)
             dp.include_router(navigation_router)
             dp.include_router(user_handlers_router)
+            dp.include_router(profile_handlers_router)  # Include the profile handlers router
             
             # Start polling
             logger.info("Starting Mobile Legends Tournament Bot...")
