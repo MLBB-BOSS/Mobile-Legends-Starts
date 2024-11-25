@@ -1,5 +1,5 @@
 # bot.py
-# UTC:22:01
+# UTC:22:20
 # 2024-11-25
 # Author: MLBB-BOSS
 # Description: Main bot file
@@ -16,8 +16,7 @@ from database import init_db, reset_db, DatabaseMiddleware, async_session
 from handlers import (
     main_menu_router,
     navigation_router,
-    profile_router,
-    characters_router
+    profile_router
 )
 
 # Configure logging
@@ -35,8 +34,7 @@ async def register_routers(dp: Dispatcher):
     routers = [
         main_menu_router,
         navigation_router,
-        profile_router,
-        characters_router
+        profile_router
     ]
     
     for router in routers:
