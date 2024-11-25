@@ -22,16 +22,16 @@ router = Router()
 @router.message(Command("start"))
 async def cmd_start(message: Message, db: AsyncSession):
     try:
-        # Шукаємо користувача за user_id
+        # Шукаємо користувача за telegram_id замість user_id
         result = await db.execute(
-            select(User).where(User.user_id == message.from_user.id)
+            select(User).where(User.telegram_id == message.from_user.id)
         )
         user = result.scalar_one_or_none()
 
         if not user:
-            # Створюємо нового користувача
+            # Створюємо нового користувача з telegram_id замість user_id
             user = User(
-                user_id=message.from_user.id,
+                telegram_id=message.from_user.id,  # Використовуємо telegram_id
                 username=message.from_user.username
             )
             db.add(user)
@@ -50,6 +50,8 @@ async def cmd_start(message: Message, db: AsyncSession):
         logger.error(f"Error in start handler: {e}")
         await db.rollback()
         await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+
+# Інші обробники залишаються без змін
 
 @router.message(F.text == "🧭 Навігація")
 async def navigation_menu(message: Message):
