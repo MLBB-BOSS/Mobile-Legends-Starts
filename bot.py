@@ -5,7 +5,12 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from config import settings
 from database import init_db, reset_db, DatabaseMiddleware, async_session
-from handlers import main_menu_router, navigation_router, profile_handlers_router
+from handlers import (
+    main_menu_router, 
+    navigation_router, 
+    profile_handlers_router,
+    characters_router  # Додамо новий роутер
+)
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +41,7 @@ async def main():
         dp.include_router(main_menu_router)
         dp.include_router(navigation_router)
         dp.include_router(profile_handlers_router)
+        dp.include_router(characters_router)  # Додамо новий роутер
         
         # Reset and Initialize database
         logger.info("Resetting database...")
