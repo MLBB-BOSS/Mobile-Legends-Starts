@@ -1,15 +1,28 @@
+# bot.py
+# UTC:21:56
+# 2024-11-25
+# Author: MLBB-BOSS
+# Description: Main bot file
+# The era of artificial intelligence.
+
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+
 from config import settings
 from database import init_db, reset_db, DatabaseMiddleware, async_session
 from handlers import (
     main_menu_router,
     navigation_router,
-    profile_handlers_router,
-    characters_router
+    profile_router,
+    characters_router,
+    guides_router,
+    counterpicks_router,
+    builds_router,
+    voting_router,
+    help_router
 )
 
 # Configure logging
@@ -18,6 +31,29 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+async def register_routers(dp: Dispatcher):
+    """Реєстрація всіх роутерів"""
+    logger.info("Registering routers...")
+    
+    # Основні роутери
+    routers = [
+        main_menu_router,
+        navigation_router,
+        profile_router,
+        characters_router,
+        guides_router,
+        counterpicks_router,
+        builds_router,
+        voting_router,
+        help_router
+    ]
+    
+    for router in routers:
+        dp.include_router(router)
+        logger.info(f"Router {router.__class__.__name__} registered")
+    
+    logger.info("All routers registered successfully")
 
 async def main():
     # Log startup info
@@ -37,11 +73,8 @@ async def main():
         # Register middlewares
         dp.update.middleware(DatabaseMiddleware(async_session))
         
-        # Register all handlers
-        dp.include_router(main_menu_router)
-        dp.include_router(navigation_router)
-        dp.include_router(profile_handlers_router)
-        dp.include_router(characters_router)
+        # Register all routers
+        await register_routers(dp)
         
         # Reset and Initialize database
         logger.info("Resetting database...")
