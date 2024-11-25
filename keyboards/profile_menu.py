@@ -5,8 +5,6 @@
 # Description: Profile menu keyboard layouts
 # The era of artificial intelligence.
 
-# keyboards/profile_menu.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_profile_keyboard() -> ReplyKeyboardMarkup:
