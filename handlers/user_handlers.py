@@ -1,38 +1,31 @@
-from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from models.user import User
+# UTC:22:00
+# 2024-11-25
+# handlers/user_handlers.py
+# Author: MLBB-BOSS
+# Description: Handlers for profile menu and user-related actions
+# The era of artificial intelligence.
 
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.profile_menu import get_profile_keyboard
+from keyboards.main_menu import get_main_keyboard
+import logging
+
+logger = logging.getLogger(__name__)
 router = Router()
 
-@router.message(Command("start"))
-async def command_start_handler(message: Message, session: AsyncSession) -> None:
-    try:
-        # Шукаємо користувача за telegram_id
-        result = await session.execute(
-            select(User).where(User.telegram_id == message.from_user.id)
-        )
-        user = result.scalar_one_or_none()
-        
-        if not user:
-            # Створюємо нового користувача
-            user = User(
-                telegram_id=message.from_user.id,
-                username=message.from_user.username
-            )
-            session.add(user)
-            await session.commit()
-            
-            await message.answer(
-                f"Вітаю, {message.from_user.first_name}! Ви успішно зареєстровані."
-            )
-        else:
-            await message.answer(
-                f"З поверненням, {message.from_user.first_name}!"
-            )
-    except Exception as e:
-        print(f"Error in start handler: {e}")
-        await session.rollback()
-        await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+@router.message(F.text == "🪪 Профіль")
+async def profile_menu(message: Message):
+    logger.info(f"User {message.from_user.id} selected 'Профіль'")
+    await message.answer(
+        "Ваш профіль:\nОберіть потрібний розділ:",
+        reply_markup=get_profile_keyboard()
+    )
+
+@router.message(F.text == "🔙 Назад")
+async def back_to_main_from_profile(message: Message):
+    logger.info(f"User {message.from_user.id} returned to main menu from profile")
+    await message.answer(
+        "Головне меню:",
+        reply_markup=get_main_keyboard()
+    )
