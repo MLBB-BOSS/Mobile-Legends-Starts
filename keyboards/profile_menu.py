@@ -5,13 +5,32 @@
 # Description: Profile menu keyboard layouts
 # The era of artificial intelligence.
 
+# keyboards/profile_menu.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_profile_keyboard() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    # Створюємо кнопки
     buttons = [
-        KeyboardButton("🔙 Назад"),
-        # Додайте інші кнопки за потреби
+        [
+            KeyboardButton(text="📈 Статистика"),
+            KeyboardButton(text="🏆 Досягнення")
+        ],
+        [
+            KeyboardButton(text="💌 Зворотний Зв'язок"),
+            KeyboardButton(text="⚙️ Налаштування")
+        ],
+        [
+            KeyboardButton(text="❓ Допомога"),
+            KeyboardButton(text="🔙 Назад до Головного")
+        ]
     ]
-    keyboard.add(*buttons)
+    
+    # Створюємо клавіатуру
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=buttons,
+        resize_keyboard=True,
+        input_field_placeholder="Оберіть опцію профілю"
+    )
+    
     return keyboard
