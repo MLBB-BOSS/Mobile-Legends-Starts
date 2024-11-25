@@ -12,5 +12,5 @@ from .profile_handlers import router as profile_handlers_router  # Додано 
 __all__ = [
     'main_menu_router',
     'navigation_router',
-    'profile_handlers_router'  # Видалено user_handlers_router
+    'profile_handlers_router'
 ]
