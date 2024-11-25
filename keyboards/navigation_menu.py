@@ -14,12 +14,12 @@ logger = logging.getLogger(__name__)
 
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
     """Підменю Навігація"""
-    logger.info("Creating navigation keyboard with buttons: 🛡️ Персонажі, 📚 Гайди, ⚖️ Контр-піки, ⚜️ Білди, 📊 Голосування, 🔙 Назад до Головного")
+    logger.info("Creating navigation keyboard with buttons: 🛡️ Персонажі, 📚 Гайди, ⚖️ Контр-піки, ⚜️ Білди, 📊 Голосування, 🔙 Назад")
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
             [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
-            [KeyboardButton(text="📊 Голосування"), KeyboardButton(text="🔙 Назад до Головного")]
+            [KeyboardButton(text="📊 Голосування"), KeyboardButton(text="🔙 Назад")]
         ],
         resize_keyboard=True
     )
