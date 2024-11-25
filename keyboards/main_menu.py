@@ -4,16 +4,19 @@
 # Author: MLBB-BOSS
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
-# keyboards/main_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_keyboard() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = [
-        KeyboardButton("🪪 Профіль"),
-        KeyboardButton("🧭 Навігація"),
-        # Додайте інші кнопки за потреби
-    ]
-    keyboard.add(*buttons)
+    # Створюємо кнопки
+    profile_btn = KeyboardButton(text="🪪 Профіль")
+    navigation_btn = KeyboardButton(text="🧭 Навігація")
+    
+    # Створюємо клавіатуру та додаємо рядки з кнопками
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[[profile_btn, navigation_btn]],  # Розміщуємо кнопки в одному рядку
+        resize_keyboard=True,
+        input_field_placeholder="Виберіть опцію"
+    )
+    
     return keyboard
