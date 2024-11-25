@@ -1,10 +1,4 @@
-# UTC:22:42
-# 2024-11-24
 # models/user.py
-# Author: MLBB-BOSS
-# Description: User model
-# The era of artificial intelligence.
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime
 from models.base import Base
