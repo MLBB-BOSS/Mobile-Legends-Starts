@@ -4,12 +4,13 @@
 # Author: MLBB-BOSS
 # Description: Navigation menu handlers
 # The era of artificial intelligence.
+# handlers/navigation.py
 
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.navigation_menu import get_navigation_keyboard
 from keyboards.main_menu import get_main_keyboard
-from utils import get_localized_text
+from utils import get_localized_text  # Переконайтесь, що цей модуль існує
 import logging
 
 logger = logging.getLogger(__name__)
