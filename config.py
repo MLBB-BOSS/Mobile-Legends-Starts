@@ -13,7 +13,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     # Telegram Bot settings
-    BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")  # Змінено для сумісності
+    BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")
     
     # Database settings
     DATABASE_URL: str
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     @property
     def db_url(self) -> str:
         """Повертає коректний URL для бази даних"""
-        url = self.AFDATABASE_URL
+        url = self.DATABASE_URL
         if url and url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         return url
