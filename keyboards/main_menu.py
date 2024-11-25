@@ -5,19 +5,14 @@
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
 
-# keyboards/main_menu.py
-import logging
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-logger = logging.getLogger(__name__)
-
 def get_main_keyboard() -> ReplyKeyboardMarkup:
-    """
-    Головне меню
-    """
-    logger.info(f"KeyboardButton class: {KeyboardButton}")
+    """Головне меню"""
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton("🧭 Навігація"), KeyboardButton("🛡️ Профіль")]],
+        rows=[
+            [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🛡️ Профіль")]
+        ],
         resize_keyboard=True
     )
     return keyboard
