@@ -1,10 +1,3 @@
-# handlers/profile_handlers.py
-# UTC:22:00
-# 2024-11-25
-# Author: MLBB-BOSS
-# Description: Handlers for profile menu and user-related actions
-# The era of artificial intelligence.
-# handlers/profile_handlers.py
 # UTC:22:00
 # 2024-11-25
 # Author: MLBB-BOSS
