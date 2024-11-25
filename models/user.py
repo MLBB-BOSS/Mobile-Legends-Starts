@@ -7,6 +7,7 @@
 
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime  # Необхідний імпорт
 
 class UserSchema(BaseModel):
     id: int
