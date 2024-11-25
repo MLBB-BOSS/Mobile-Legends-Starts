@@ -6,10 +6,10 @@ from aiogram.client.default import DefaultBotProperties
 from config import settings
 from database import init_db, reset_db, DatabaseMiddleware, async_session
 from handlers import (
-    main_menu_router, 
-    navigation_router, 
+    main_menu_router,
+    navigation_router,
     profile_handlers_router,
-    characters_router  # Додамо новий роутер
+    characters_router
 )
 
 # Configure logging
@@ -41,7 +41,7 @@ async def main():
         dp.include_router(main_menu_router)
         dp.include_router(navigation_router)
         dp.include_router(profile_handlers_router)
-        dp.include_router(characters_router)  # Додамо новий роутер
+        dp.include_router(characters_router)
         
         # Reset and Initialize database
         logger.info("Resetting database...")
@@ -52,10 +52,16 @@ async def main():
         await init_db()
         logger.info("Database initialized successfully")
         
-        # Start polling
+        # Start polling in an infinite loop
         logger.info("Starting bot polling...")
-        await dp.start_polling(bot)
-        
+        while True:
+            try:
+                await dp.start_polling(bot)
+            except Exception as polling_error:
+                logger.error(f"Polling error: {polling_error}", exc_info=True)
+                logger.info("Waiting 5 seconds before retry...")
+                await asyncio.sleep(5)
+                
     except Exception as e:
         logger.error(f"Critical error during startup: {e}", exc_info=True)
         raise
@@ -66,8 +72,16 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        # Create event loop
+        loop = asyncio.get_event_loop()
+        # Run the main function forever
+        loop.run_until_complete(main())
+        loop.run_forever()
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
     except Exception as e:
         logger.error(f"Bot stopped due to error: {e}", exc_info=True)
+    finally:
+        # Properly close the event loop
+        if 'loop' in locals():
+            loop.close()
