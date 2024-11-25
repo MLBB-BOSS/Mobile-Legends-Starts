@@ -11,8 +11,8 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     """
     Головне меню
     """
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.keyboard.append(
-        [KeyboardButton("🧭 Навігація"), KeyboardButton("🛡️ Профіль")]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton("🧭 Навігація"), KeyboardButton("🛡️ Профіль")]],
+        resize_keyboard=True
     )
     return keyboard
