@@ -1,65 +1,59 @@
-# database.py
+import asyncio
 import logging
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from aiogram import BaseMiddleware
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 from config import settings
+from database import init_db, DatabaseMiddleware, async_session
+from handlers import main_menu, navigation, user_handlers
 
-# Налаштування логування
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна з використанням db_url
-engine = create_async_engine(
-    settings.db_url,
-    echo=settings.DEBUG,
-)
-
-# Фабрика асинхронних сесій, перейменована на async_session
-async_session = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
-
-async def init_db():
-    """Ініціалізація бази даних"""
-    from models.base import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database initialized")
-
-async def reset_db():
-    """Скидання та створення нової бази даних"""
-    from models.base import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database reset successfully")
-
-async def close_db():
-    """Закриття підключення до бази даних."""
+async def main():
+    # Log startup info
+    logger.info("Starting bot initialization...")
+    
+    # Initialize bot and dispatcher with error logging
     try:
-        await engine.dispose()
-        logger.info("Підключення до бази даних закрито")
+        if not settings.BOT_TOKEN:
+            raise ValueError("No bot token provided. Please set TELEGRAM_BOT_TOKEN environment variable.")
+        
+        bot = Bot(token=settings.BOT_TOKEN, parse_mode=ParseMode.HTML)
+        dp = Dispatcher()
+        
+        # Register middlewares
+        dp.update.middleware(DatabaseMiddleware(async_session))
+        
+        # Register all handlers
+        dp.include_router(main_menu.router)
+        dp.include_router(navigation.router)
+        dp.include_router(user_handlers.router)
+        
+        # Initialize database
+        logger.info("Initializing database...")
+        await init_db()
+        logger.info("Database initialized successfully")
+        
+        # Start polling
+        logger.info("Starting bot polling...")
+        await dp.start_polling(bot)
+        
     except Exception as e:
-        logger.error(f"Помилка при закритті бази даних: {e}", exc_info=True)
+        logger.error(f"Critical error during startup: {e}", exc_info=True)
+        raise
+    finally:
+        logger.info("Shutting down...")
+        if 'bot' in locals():
+            await bot.session.close()
 
-class DatabaseMiddleware(BaseMiddleware):
-    """
-    Middleware для управління сесіями бази даних.
-    Відкриває сесію перед обробкою оновлення та закриває після.
-    """
-    def __init__(self, session_factory):
-        super().__init__()
-        self.session_factory = session_factory
-
-    async def __call__(self, handler, event, data):
-        # Відкриваємо нову сесію та додаємо її до data
-        async with self.session_factory() as session:
-            data['db'] = session
-            try:
-                # Викликаємо хендлер
-                return await handler(event, data)
-            finally:
-                # Сесія автоматично закривається при виході з контекстного менеджера
-                pass
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    except Exception as e:
+        logger.error(f"Bot stopped due to error: {e}", exc_info=True)
