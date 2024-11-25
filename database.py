@@ -13,8 +13,8 @@ engine = create_async_engine(
     echo=settings.DEBUG,
 )
 
-# Фабрика асинхронних сесій
-AsyncSessionFactory = sessionmaker(
+# Фабрика асинхронних сесій, перейменована на async_session
+async_session = sessionmaker(
     bind=engine,
     class_=AsyncSession,
     expire_on_commit=False
