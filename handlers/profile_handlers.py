@@ -1,4 +1,10 @@
+# UTC:22:00
+# 2024-11-25
 # handlers/profile_handlers.py
+# Author: MLBB-BOSS
+# Description: Handlers for profile menu and user-related actions
+# The era of artificial intelligence.
+
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.profile_menu import get_profile_keyboard
