@@ -5,7 +5,6 @@
 # Description: Navigation menu keyboard layouts
 # The era of artificial intelligence.
 # keyboards/navigation_menu.py
-# keyboards/navigation_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
