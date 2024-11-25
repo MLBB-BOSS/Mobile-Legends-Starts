@@ -1,10 +1,4 @@
-# UTC:22:00
-# 2024-11-25
 # bot.py
-# Author: MLBB-BOSS
-# Description: Main bot initialization and dispatcher setup
-# The era of artificial intelligence.
-
 import asyncio
 import logging
 import sys
@@ -16,8 +10,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.bot import DefaultBotProperties
 
 from config import settings
-from database import init_db, close_db, async_session  # Переконайтеся, що async_session експортується
-from middlewares.database import DatabaseMiddleware  # Імпорт Middleware
+from database import init_db, close_db, async_session, DatabaseMiddleware  # Імпорт DatabaseMiddleware з database.py
 from handlers import main_menu_router, navigation_router, profile_handlers_router  # Видалено user_handlers_router
 
 # Configure logging
@@ -44,7 +37,8 @@ async def main():
             dp = Dispatcher(storage=MemoryStorage())
 
             # Register middlewares
-            dp.message.middleware(DatabaseMiddleware(async_session))  # Реєстрація Middleware для повідомлень
+            dp.message.middleware(DatabaseMiddleware(async_session))  # Реєстрація DatabaseMiddleware для повідомлень
+            dp.callback_query.middleware(DatabaseMiddleware(async_session))  # Реєстрація DatabaseMiddleware для callback-запитів
 
             # Register routers
             dp.include_router(main_menu_router)
