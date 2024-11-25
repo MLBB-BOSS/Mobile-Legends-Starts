@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     @property
     def db_url(self) -> str:
         """Повертає коректний URL для бази даних"""
-        url = self.DATABASE_URL
+        url = self.AFDATABASE_URL
         if url and url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         return url
