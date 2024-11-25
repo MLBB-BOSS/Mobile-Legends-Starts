@@ -3,7 +3,6 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from aiogram import BaseMiddleware
-from aiogram.types import Message, CallbackQuery
 from config import settings
 
 # Налаштування логування
