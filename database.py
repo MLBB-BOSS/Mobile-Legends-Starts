@@ -54,18 +54,13 @@ class DatabaseMiddleware(BaseMiddleware):
         super().__init__()
         self.session_factory = session_factory
 
-    async def on_pre_process_message(self, message: Message, data: dict):
-        data['db'] = self.session_factory()
-
-    async def on_post_process_message(self, message: Message, result, data: dict):
-        db = data.get('db')
-        if db:
-            await db.close()
-
-    async def on_pre_process_callback_query(self, callback_query: CallbackQuery, data: dict):
-        data['db'] = self.session_factory()
-
-    async def on_post_process_callback_query(self, callback_query: CallbackQuery, result, data: dict):
-        db = data.get('db')
-        if db:
-            await db.close()
+    async def __call__(self, handler, event, data):
+        # Відкриваємо нову сесію та додаємо її до data
+        async with self.session_factory() as session:
+            data['db'] = session
+            try:
+                # Викликаємо хендлер
+                return await handler(event, data)
+            finally:
+                # Закриваємо сесію (асинхронний контекстний менеджер автоматично закриває)
+                pass
