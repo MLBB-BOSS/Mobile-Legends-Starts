@@ -5,6 +5,7 @@
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
 
+# keyboards/main_menu.py
 import logging
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
