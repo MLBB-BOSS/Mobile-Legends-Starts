@@ -1,18 +1,7 @@
-# UTC:23:17
-# 2024-11-24
-# bot.py
-# Author: MLBB-BOSS
-# Description: Main bot initialization and configuration
-# The era of artificial intelligence.
-
-import asyncio
-import logging
-import sys
-from contextlib import AsyncExitStack
-
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.client.bot import DefaultBotProperties
 
 from config import settings
 from database import init_db, close_db
@@ -35,7 +24,7 @@ async def main():
             stack.push_async_callback(close_db)
             
             # Initialize bot and dispatcher
-            bot = Bot(token=settings.BOT_TOKEN, parse_mode=ParseMode.HTML)
+            bot = Bot(token=settings.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
             stack.push_async_callback(bot.session.close)
             
             # Setup dispatcher with storage
