@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from config import settings
 from database import init_db, DatabaseMiddleware, async_session
-from handlers import main_menu, navigation, user_handlers
+from handlers import main_menu_router, navigation_router, profile_handlers_router
 
 # Configure logging
 logging.basicConfig(
@@ -17,7 +17,6 @@ async def main():
     # Log startup info
     logger.info("Starting bot initialization...")
     
-    # Initialize bot and dispatcher with error logging
     try:
         if not settings.BOT_TOKEN:
             raise ValueError("No bot token provided. Please set TELEGRAM_BOT_TOKEN environment variable.")
@@ -29,9 +28,9 @@ async def main():
         dp.update.middleware(DatabaseMiddleware(async_session))
         
         # Register all handlers
-        dp.include_router(main_menu.router)
-        dp.include_router(navigation.router)
-        dp.include_router(user_handlers.router)
+        dp.include_router(main_menu_router)
+        dp.include_router(navigation_router)
+        dp.include_router(profile_handlers_router)
         
         # Initialize database
         logger.info("Initializing database...")
