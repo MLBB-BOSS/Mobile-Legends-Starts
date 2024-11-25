@@ -9,8 +9,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_keyboard() -> ReplyKeyboardMarkup:
     """Головне меню"""
-    keyboard = ReplyKeyboardMarkup(keyboard=[], resize_keyboard=True)
-    keyboard.row(
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(
         KeyboardButton("🧭 Навігація"),
         KeyboardButton("🪪 Профіль")
     )
