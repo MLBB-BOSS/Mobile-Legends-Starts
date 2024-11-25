@@ -17,7 +17,7 @@ from aiogram.client.bot import DefaultBotProperties
 
 from config import settings
 from database import init_db, close_db
-from handlers import main_menu_router, navigation_router, user_handlers_router, profile_handlers_router
+from handlers import main_menu_router, navigation_router, profile_handlers_router  # Видалено user_handlers_router
 
 # Configure logging
 logging.basicConfig(
@@ -45,8 +45,7 @@ async def main():
             # Register routers
             dp.include_router(main_menu_router)
             dp.include_router(navigation_router)
-            dp.include_router(user_handlers_router)
-            dp.include_router(profile_handlers_router)  # Include the profile handlers router
+            dp.include_router(profile_handlers_router)  # Додано профільні хендлери
             
             # Start polling
             logger.info("Starting Mobile Legends Tournament Bot...")
