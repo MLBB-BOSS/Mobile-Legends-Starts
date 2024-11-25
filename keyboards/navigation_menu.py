@@ -4,22 +4,18 @@
 # Author: MLBB-BOSS
 # Description: Navigation menu keyboard layouts
 # The era of artificial intelligence.
+# keyboards/navigation_menu.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
     """Підменю Навігація"""
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.row(
-        KeyboardButton("🛡️ Персонажі"),
-        KeyboardButton("📚 Гайди")
-    )
-    keyboard.row(
-        KeyboardButton("⚖️ Контр-піки"),
-        KeyboardButton("⚜️ Білди")
-    )
-    keyboard.row(
-        KeyboardButton("📊 Голосування"),
-        KeyboardButton("🔙 Назад до Головного")
+    keyboard = ReplyKeyboardMarkup(
+        rows=[
+            [KeyboardButton(text="🛡️ Персонажі"), KeyboardButton(text="📚 Гайди")],
+            [KeyboardButton(text="⚖️ Контр-піки"), KeyboardButton(text="⚜️ Білди")],
+            [KeyboardButton(text="📊 Голосування"), KeyboardButton(text="🔙 Назад до Головного")]
+        ],
+        resize_keyboard=True
     )
     return keyboard
