@@ -62,5 +62,5 @@ class DatabaseMiddleware(BaseMiddleware):
                 # Викликаємо хендлер
                 return await handler(event, data)
             finally:
-                # Закриваємо сесію (асинхронний контекстний менеджер автоматично закриває)
+                # Сесія автоматично закривається при виході з контекстного менеджера
                 pass
