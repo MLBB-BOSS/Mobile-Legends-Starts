@@ -7,9 +7,9 @@ from config import settings
 # Налаштування логування
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна з використанням AFDATABASE_URL
+# Створення асинхронного двигуна з використанням db_url
 engine = create_async_engine(
-    settings.AFDATABASE_URL,
+    settings.db_url,
     echo=settings.DEBUG,
 )
 
