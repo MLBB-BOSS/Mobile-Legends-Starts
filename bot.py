@@ -1,10 +1,4 @@
-# UTC:23:04
-# 2024-11-24
 # bot.py
-# Author: MLBB-BOSS
-# Description: Main bot initialization and configuration
-# The era of artificial intelligence.
-
 import asyncio
 import logging
 import sys
