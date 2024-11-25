@@ -1,5 +1,5 @@
 # bot.py
-# UTC:21:56
+# UTC:22:01
 # 2024-11-25
 # Author: MLBB-BOSS
 # Description: Main bot file
@@ -17,12 +17,7 @@ from handlers import (
     main_menu_router,
     navigation_router,
     profile_router,
-    characters_router,
-    guides_router,
-    counterpicks_router,
-    builds_router,
-    voting_router,
-    help_router
+    characters_router
 )
 
 # Configure logging
@@ -41,12 +36,7 @@ async def register_routers(dp: Dispatcher):
         main_menu_router,
         navigation_router,
         profile_router,
-        characters_router,
-        guides_router,
-        counterpicks_router,
-        builds_router,
-        voting_router,
-        help_router
+        characters_router
     ]
     
     for router in routers:
