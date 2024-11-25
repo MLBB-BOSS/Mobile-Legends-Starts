@@ -130,6 +130,18 @@ async def return_to_navigation(message: Message):
         logger.error(f"Error in return to navigation handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
+@router.message(F.text == "🎵 MP3 Плеєр")
+async def show_mp3_player(message: Message):
+    try:
+        logger.info(f"User {message.from_user.id} selected 'MP3 Плеєр'")
+        await message.answer(
+            "MP3 Плеєр у розробці.\nТут буде функціонал для відтворення музики.",
+            reply_markup=get_navigation_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Error in MP3 player handler: {e}")
+        await message.answer("Сталася помилка. Спробуйте пізніше.")
+
 # Обробники для підменю персонажів
 @router.message(F.text.in_({
     "🗡️ Бійці", "🏹 Стрільці", "🔮 Маги",
