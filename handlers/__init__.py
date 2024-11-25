@@ -7,7 +7,7 @@
 
 from .main_menu import router as main_menu_router
 from .navigation import router as navigation_router
-from .profile import router as profile_handlers_router
+from .profile_handlers import router as profile_handlers_router
 from .characters import router as characters_router
 
 __all__ = [
