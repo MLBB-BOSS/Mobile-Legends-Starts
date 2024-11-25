@@ -7,13 +7,13 @@ from config import settings
 # Налаштування логування
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна
+# Створення асинхронного двигуна з використанням AFDATABASE_URL
 engine = create_async_engine(
-    settings.db_url,
+    settings.AFDATABASE_URL,
     echo=settings.DEBUG,
 )
 
-# Фабрика сесій
+# Фабрика асинхронних сесій
 AsyncSessionFactory = sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -34,3 +34,11 @@ async def reset_db():
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database reset successfully")
+
+async def close_db():
+    """Закриття підключення до бази даних."""
+    try:
+        await engine.dispose()
+        logger.info("Підключення до бази даних закрито")
+    except Exception as e:
+        logger.error(f"Помилка при закритті бази даних: {e}", exc_info=True)
