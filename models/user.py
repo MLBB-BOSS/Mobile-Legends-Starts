@@ -4,7 +4,6 @@
 # Author: MLBB-BOSS
 # Description: User model
 # The era of artificial intelligence.
-# models/user.py
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime
