@@ -1,10 +1,9 @@
+# handlers/navigation.py
 # UTC:22:00
 # 2024-11-25
-# handlers/navigation.py
 # Author: MLBB-BOSS
 # Description: Navigation menu handlers
 # The era of artificial intelligence.
-# handlers/navigation.py
 
 from aiogram import Router, F
 from aiogram.types import Message
