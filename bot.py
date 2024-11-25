@@ -2,6 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 from config import settings
 from database import init_db, DatabaseMiddleware, async_session
 from handlers import main_menu_router, navigation_router, profile_handlers_router
@@ -21,7 +22,11 @@ async def main():
         if not settings.BOT_TOKEN:
             raise ValueError("No bot token provided. Please set TELEGRAM_BOT_TOKEN environment variable.")
         
-        bot = Bot(token=settings.BOT_TOKEN, parse_mode=ParseMode.HTML)
+        # Updated Bot initialization for aiogram 3.7.0
+        bot = Bot(
+            token=settings.BOT_TOKEN,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        )
         dp = Dispatcher()
         
         # Register middlewares
