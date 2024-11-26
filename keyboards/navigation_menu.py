@@ -12,7 +12,8 @@ def get_navigation_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         [
             KeyboardButton(text="🛡️ Персонажі"),
-            KeyboardButton(text="📖 Гайди")
+            KeyboardButton(text="📖 Гайди"),
+            KeyboardButton(text="🧭 Навігація")
         ]
     ]
     return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
