@@ -90,6 +90,7 @@ def get_voting_keyboard() -> ReplyKeyboardMarkup:
         input_field_placeholder="Оберіть опцію голосування"
     )
     return keyboard
+    
 
 def get_help_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
