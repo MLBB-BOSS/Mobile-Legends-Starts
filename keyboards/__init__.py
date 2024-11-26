@@ -23,4 +23,4 @@ __all__ = [
     'get_voting_keyboard',
     'get_help_keyboard',
     'get_mp3_player_keyboard'
-](keyboard=buttons, resize_keyboard=True)
+]
