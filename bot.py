@@ -4,8 +4,13 @@ from aiogram.types import Message
 from handlers.main_menu import router as main_menu_router
 from handlers.navigation import router as navigation_router
 from handlers.heroes import router as heroes_router
+import os  # Додаємо для роботи з змінними оточення
 
-TOKEN = "TELEGRAM_BOT_TOKEN"
+# Отримуємо токен з змінної оточення
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if not TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN не встановлено в змінних оточення!")
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
