@@ -1,18 +1,19 @@
+# keyboards/main_menu.py
 # UTC:21:03
 # 2024-11-25
-# keyboards/main_menu.py
 # Author: MLBB-BOSS
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_buttons(button_texts):
     return [KeyboardButton(text=text) for text in button_texts]
 
 def get_main_keyboard() -> ReplyKeyboardMarkup:
-    buttons = create_buttons(["🧭 Навігація", "🪪 Профіль"])
+    buttons = [create_buttons(["🧭 Навігація", "🪪 Профіль"])]
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[buttons],
+        keyboard=buttons,
         resize_keyboard=True,
         input_field_placeholder="Виберіть опцію"
     )
@@ -30,19 +31,6 @@ def get_profile_keyboard() -> ReplyKeyboardMarkup:
     )
     return keyboard
 
-def get_characters_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        create_buttons(["🗡️ Бійці", "🏹 Стрільці", "🔮 Маги"]),
-        create_buttons(["🛡️ Танки", "🏥 Саппорти", "🗲 Гібриди"]),
-        create_buttons(["🔥 Метові", "◀️ Назад до Навігації"])
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=buttons,
-        resize_keyboard=True,
-        input_field_placeholder="Оберіть тип героя"
-    )
-    return keyboard
-
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         create_buttons(["🛡️ Персонажі", "📖 Гайди", "⚔️ Контр-піки"]),
@@ -53,6 +41,19 @@ def get_navigation_keyboard() -> ReplyKeyboardMarkup:
         keyboard=buttons,
         resize_keyboard=True,
         input_field_placeholder="Оберіть розділ навігації"
+    )
+    return keyboard
+
+def get_characters_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
+        create_buttons(["🗡️ Бійці", "🏹 Стрільці", "🔮 Маги"]),
+        create_buttons(["🛡️ Танки", "🏥 Саппорти", "🗲 Гібриди"]),
+        create_buttons(["🔥 Метові", "◀️ Назад до Навігації"])
+    ]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=buttons,
+        resize_keyboard=True,
+        input_field_placeholder="Оберіть тип героя"
     )
     return keyboard
 
