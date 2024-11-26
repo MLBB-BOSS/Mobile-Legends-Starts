@@ -4,8 +4,6 @@
 # Author: MLBB-BOSS
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
-# keyboards/main_menu.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_buttons(button_texts):
