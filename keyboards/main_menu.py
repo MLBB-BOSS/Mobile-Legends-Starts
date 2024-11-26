@@ -4,6 +4,7 @@
 # Author: MLBB-BOSS
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_buttons(button_texts):
@@ -100,4 +101,4 @@ def get_help_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         input_field_placeholder="Оберіть розділ допомоги"
     )
-    return keyboard
+    return keyboard)
