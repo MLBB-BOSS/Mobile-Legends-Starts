@@ -30,19 +30,6 @@ def get_profile_keyboard() -> ReplyKeyboardMarkup:
     )
     return keyboard
 
-def get_navigation_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        create_buttons(["🛡️ Персонажі", "📖 Гайди", "⚔️ Контр-піки"]),
-        create_buttons(["🛠️ Білди", "📊 Голосування", "❓ Допомога"]),
-        create_buttons(["🔙 Назад"])
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=buttons,
-        resize_keyboard=True,
-        input_field_placeholder="Оберіть розділ навігації"
-    )
-    return keyboard
-
 def get_guides_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         create_buttons(["🆕 Нові гайди", "🌟 Популярні гайди", "📘 Для початківців"]),
