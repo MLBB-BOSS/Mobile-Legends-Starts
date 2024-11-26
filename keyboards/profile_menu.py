@@ -8,27 +8,21 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_profile_keyboard() -> ReplyKeyboardMarkup:
-    # Створюємо кнопки
     buttons = [
         [
             KeyboardButton(text="📈 Статистика"),
-            KeyboardButton(text="🏆 Досягнення")
+            KeyboardButton(text="🏆 Досягнення"),
+            KeyboardButton(text="💌 Зворотний Зв'язок")
         ],
         [
-            KeyboardButton(text="💌 Зворотний Зв'язок"),
-            KeyboardButton(text="⚙️ Налаштування")
-        ],
-        [
+            KeyboardButton(text="⚙️ Налаштування"),
             KeyboardButton(text="❓ Допомога"),
             KeyboardButton(text="🔙 Назад до Головного")
         ]
     ]
-    
-    # Створюємо клавіатуру
     keyboard = ReplyKeyboardMarkup(
         keyboard=buttons,
         resize_keyboard=True,
         input_field_placeholder="Оберіть опцію профілю"
     )
-    
     return keyboard
