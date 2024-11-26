@@ -7,7 +7,8 @@ from keyboards.navigation_menu import (
     get_counterpicks_keyboard,
     get_builds_keyboard,
     get_voting_keyboard,
-    get_help_keyboard
+    get_help_keyboard,
+    get_second_level_keyboard
 )
 from keyboards.main_menu import get_main_keyboard
 import logging
@@ -31,7 +32,7 @@ async def show_navigation(message: Message):
         logger.error(f"Error in navigation menu handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
-@router.message(F.text == "🛡️ Персонажі")
+@router.message(F.text == "🥷 Персонажі")
 async def show_characters_menu(message: Message):
     logger.info(f"Entering show_characters_menu handler for user {message.from_user.id}")
     try:
@@ -47,7 +48,7 @@ async def show_characters_menu(message: Message):
         logger.error(f"Error in characters menu handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
-@router.message(F.text == "📖 Гайди")
+@router.message(F.text == "📚 Гайди")
 async def show_guides(message: Message):
     logger.info(f"Entering show_guides handler for user {message.from_user.id}")
     try:
@@ -63,13 +64,13 @@ async def show_guides(message: Message):
         logger.error(f"Error in guides handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
-@router.message(F.text == "⚔️ Контр-піки")
+@router.message(F.text == "⚔️ Контрпіки")
 async def show_counterpicks(message: Message):
     logger.info(f"Entering show_counterpicks handler for user {message.from_user.id}")
     try:
         if not message or not message.from_user:
             raise ValueError("Invalid message or user data")
-        logger.info(f"User {message.from_user.id} selected 'Контр-піки'")
+        logger.info(f"User {message.from_user.id} selected 'Контрпіки'")
         await message.answer(
             "Оберіть опцію контр-піків:",
             reply_markup=get_counterpicks_keyboard()
@@ -79,7 +80,7 @@ async def show_counterpicks(message: Message):
         logger.error(f"Error in counterpicks handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
-@router.message(F.text == "🛠️ Білди")
+@router.message(F.text == "🔧 Білди")
 async def show_builds(message: Message):
     logger.info(f"Entering show_builds handler for user {message.from_user.id}")
     try:
@@ -111,7 +112,7 @@ async def show_voting(message: Message):
         logger.error(f"Error in voting handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
-@router.message(F.text == "❓ Допомога")
+@router.message(F.text == "🆘 Допомога")
 async def show_help(message: Message):
     logger.info(f"Entering show_help handler for user {message.from_user.id}")
     try:
@@ -175,6 +176,38 @@ async def show_mp3_player(message: Message):
         logger.error(f"Error in MP3 player handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
 
+@router.message(F.text == "⚙️ Білди")
+async def show_builds(message: Message):
+    logger.info(f"Entering show_builds handler for user {message.from_user.id}")
+    try:
+        if not message or not message.from_user:
+            raise ValueError("Invalid message or user data")
+        logger.info(f"User {message.from_user.id} selected 'Білди'")
+        await message.answer(
+            "Оберіть опцію білдів:",
+            reply_markup=get_builds_keyboard()
+        )
+        logger.info(f"Builds menu displayed for user {message.from_user.id}")
+    except Exception as e:
+        logger.error(f"Error in builds handler: {e}")
+        await message.answer("Сталася помилка. Спробуйте пізніше.")
+
+@router.message(F.text == "💡 Стратегії")
+async def show_strategies(message: Message):
+    logger.info(f"Entering show_strategies handler for user {message.from_user.id}")
+    try:
+        if not message or not message.from_user:
+            raise ValueError("Invalid message or user data")
+        logger.info(f"User {message.from_user.id} selected 'Стратегії'")
+        await message.answer(
+            "Оберіть розділ стратегій:",
+            reply_markup=get_second_level_keyboard()
+        )
+        logger.info(f"Strategies menu displayed for user {message.from_user.id}")
+    except Exception as e:
+        logger.error(f"Error in strategies handler: {e}")
+        await message.answer("Сталася помилка. Спробуйте пізніше.")
+
 # Обробники для підменю персонажів
 @router.message(F.text.in_({
     "🗡️ Бійці", "🏹 Стрільці", "🔮 Маги",
@@ -221,5 +254,3 @@ async def handle_guide_type(message: Message):
     except Exception as e:
         logger.error(f"Error in guide type handler: {e}")
         await message.answer("Сталася помилка. Спробуйте пізніше.")
-
-# Додамо інші обробники для підменю по мірі їх розробки...
