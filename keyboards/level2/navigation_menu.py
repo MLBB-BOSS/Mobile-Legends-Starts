@@ -1,13 +1,33 @@
 # /keyboards/level2/navigation_menu.py
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup
 
-def get_navigation_menu():
+TEXTS = {
+    "heroes": "🛡️ Персонажі",
+    "guides": "📚 Гайди",
+    "counter_picks": "⚖️ Контр-піки",
+    "builds": "⚜️ Білди",
+    "votes": "📊 Голосування",
+    "back": "🔄 Назад"
+}
+
+def get_navigation_menu(row_width: int = 2) -> InlineKeyboardMarkup:
+    """
+    Створює меню для навігації.
+
+    :param row_width: Кількість кнопок у рядку (за замовчуванням 2).
+    :return: InlineKeyboardMarkup
+    """
     builder = InlineKeyboardBuilder()
-    builder.button(text="🛡️ Персонажі", callback_data="heroes_menu")
-    builder.button(text="📚 Гайди", callback_data="guides_menu")
-    builder.button(text="⚖️ Контр-піки", callback_data="counter_picks_menu")
-    builder.button(text="⚜️ Білди", callback_data="builds_menu")
-    builder.button(text="📊 Голосування", callback_data="votes_menu")
-    builder.button(text="🔄 Назад", callback_data="main_menu")
-    builder.adjust(2)
+    buttons = [
+        {"text": TEXTS["heroes"], "callback_data": "heroes_menu"},
+        {"text": TEXTS["guides"], "callback_data": "guides_menu"},
+        {"text": TEXTS["counter_picks"], "callback_data": "counter_picks_menu"},
+        {"text": TEXTS["builds"], "callback_data": "builds_menu"},
+        {"text": TEXTS["votes"], "callback_data": "votes_menu"},
+        {"text": TEXTS["back"], "callback_data": "main_menu"}
+    ]
+    for button in buttons:
+        builder.button(text=button["text"], callback_data=button["callback_data"])
+    builder.adjust(row_width)
     return builder.as_markup()
