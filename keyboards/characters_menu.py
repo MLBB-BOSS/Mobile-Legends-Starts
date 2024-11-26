@@ -1,9 +1,19 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
 def get_characters_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
-        create_buttons(["🗡️ Бійці", "🏹 Стрільці", "🔮 Маги"]),
-        create_buttons(["🛡️ Танки", "🏥 Саппорти", "🗲 Гібриди"]),
-        create_buttons(["🔥 Метові", "◀️ Назад до Навігації"])
+        [
+            KeyboardButton(text="🗡️ Бійці"),
+            KeyboardButton(text="🏹 Стрільці"),
+            KeyboardButton(text="🔮 Маги")
+        ],
+        [
+            KeyboardButton(text="🛡️ Танки"),
+            KeyboardButton(text="🏥 Саппорти"),
+            KeyboardButton(text="⚔️ Гібриди")
+        ],
+        [KeyboardButton(text="🔥 Метові")],
+        [KeyboardButton(text="◀️ Назад до Навігації")]
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=buttons,
