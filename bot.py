@@ -1,85 +1,28 @@
-# bot.py
-import asyncio
-import logging
+# /bot.py
 from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
+from aiogram.types import Message
+from handlers.main_menu import router as main_menu_router
+from handlers.navigation import router as navigation_router
+from handlers.heroes import router as heroes_router
 
-from config import settings
-from database import init_db, reset_db, DatabaseMiddleware, async_session
-from handlers import (
-    main_menu_router,
-    navigation_router,
-    profile_router,
-    mp3_player_router
-)
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Підключення обробників
+dp.include_router(main_menu_router)
+dp.include_router(navigation_router)
+dp.include_router(heroes_router)
 
-async def register_routers(dp: Dispatcher):
-    """Реєстрація всіх роутерів"""
-    logger.info("Registering routers...")
-
-    # Основні роутери
-    routers = [
-        main_menu_router,
-        navigation_router,
-        profile_router,
-        mp3_player_router
-    ]
-
-    for router in routers:
-        dp.include_router(router)
-        logger.info(f"Router {router.__class__.__name__} registered")
-
-    logger.info("All routers registered successfully")
-
-async def main():
-    # Log startup info
-    logger.info("Starting bot initialization...")
-
-    try:
-        if not settings.BOT_TOKEN:
-            raise ValueError("No bot token provided. Please set TELEGRAM_BOT_TOKEN environment variable.")
-
-        bot = Bot(
-            token=settings.BOT_TOKEN,
-            default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-        )
-        dp = Dispatcher()
-
-        dp.update.middleware(DatabaseMiddleware(async_session))
-
-        await register_routers(dp)
-
-        logger.info("Resetting database...")
-        await reset_db()
-        logger.info("Database reset successfully")
-
-        logger.info("Initializing database...")
-        await init_db()
-        logger.info("Database initialized successfully")
-
-        logger.info("Starting bot polling...")
-        await dp.start_polling(bot)
-
-    except Exception as e:
-        logger.error(f"Critical error during startup: {e}", exc_info=True)
-        raise
-    finally:
-        logger.info("Shutting down...")
-        if 'bot' in locals():
-            await bot.session.close()
+@dp.message(commands=["start"])
+async def start_handler(message: Message):
+    from keyboards.level1.main_menu import get_main_menu
+    await message.answer(
+        "Привіт! Ласкаво просимо до бота.",
+        reply_markup=get_main_menu()
+    )
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("Bot stopped by user")
-    except Exception as e:
-        logger.error(f"Bot stopped due to error: {e}", exc_info=True)
+    import asyncio
+    from aiogram import executor
+    executor.start_polling(dp, skip_updates=True)
