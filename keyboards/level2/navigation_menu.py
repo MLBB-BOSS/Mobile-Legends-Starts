@@ -1,6 +1,4 @@
 # /keyboards/level2/navigation_menu.py
-# Навігація - другий рівень
-
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def get_navigation_menu():
@@ -13,4 +11,3 @@ def get_navigation_menu():
     builder.button(text="🔄 Назад", callback_data="main_menu")
     builder.adjust(2)
     return builder.as_markup()
-
