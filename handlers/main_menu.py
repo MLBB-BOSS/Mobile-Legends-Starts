@@ -1,9 +1,10 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.main_menu import get_main_keyboard
-from keyboards.navigation_menu import get_navigation_keyboard
-from keyboards.profile_menu import get_profile_keyboard
+from keyboards.main_menu import (
+    get_main_keyboard, get_navigation_keyboard, get_profile_keyboard,
+    get_guides_keyboard, get_counterpicks_keyboard, get_builds_keyboard
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models.user import User
@@ -76,4 +77,40 @@ async def return_to_main(message: Message):
         )
     except Exception as e:
         logger.error(f"Error in return to main menu handler: {e}")
+        await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+
+@router.message(F.text == "📚 Гайди")
+async def guides_menu(message: Message):
+    try:
+        logger.info(f"User {message.from_user.id} selected 'Гайди'")
+        await message.answer(
+            "Меню гайдів:\nОберіть потрібний розділ:",
+            reply_markup=get_guides_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Error in guides menu handler: {e}")
+        await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+
+@router.message(F.text == "⚔️ Контрпіки")
+async def counterpicks_menu(message: Message):
+    try:
+        logger.info(f"User {message.from_user.id} selected 'Контрпіки'")
+        await message.answer(
+            "Меню контрпіків:\nОберіть потрібний розділ:",
+            reply_markup=get_counterpicks_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Error in counterpicks menu handler: {e}")
+        await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+
+@router.message(F.text == "🔧 Білди")
+async def builds_menu(message: Message):
+    try:
+        logger.info(f"User {message.from_user.id} selected 'Білди'")
+        await message.answer(
+            "Меню білдів:\nОберіть потрібний розділ:",
+            reply_markup=get_builds_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Error in builds menu handler: {e}")
         await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
