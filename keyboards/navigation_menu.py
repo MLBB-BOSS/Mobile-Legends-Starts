@@ -78,3 +78,18 @@ def get_characters_keyboard() -> ReplyKeyboardMarkup:
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return keyboard
+
+def get_voting_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
+        [
+            KeyboardButton(text="🗳️ Нове голосування"),
+            KeyboardButton(text="📊 Мої голосування"),
+            KeyboardButton(text="⭐ Популярні голосування")
+        ],
+        [
+            KeyboardButton(text="🔍 Пошук голосування"),
+            KeyboardButton(text="◀️ Назад до Навігації")
+        ]
+    ]
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
+    return keyboard
