@@ -1,23 +1,27 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-def get_navigation_keyboard() -> ReplyKeyboardMarkup:
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+def get_second_level_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         [
-            KeyboardButton(text="🏠 Головне меню"),
-            KeyboardButton(text="📚 Гайди"),
-            KeyboardButton(text="⚔️ Контрпіки")
+            KeyboardButton(text="🥷 Персонажі"),
+            KeyboardButton(text="⚙️ Білди"),
+            KeyboardButton(text="📈 Мета")
         ],
         [
-            KeyboardButton(text="🔧 Білди"),
-            KeyboardButton(text="📊 Голосування"),
-            KeyboardButton(text="🆘 Допомога")
+            KeyboardButton(text="📚 Гайди"),
+            KeyboardButton(text="🏆 Турніри"),
+            KeyboardButton(text="💡 Стратегії")
+        ],
+        [
+            KeyboardButton(text="🎮 Механіки гри"),
+            KeyboardButton(text="📢 Новини"),
+            KeyboardButton(text="🔙 Назад")
         ]
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return keyboard
-
-def get_guides_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
         [
             KeyboardButton(text="🆕 Нові гайди"),
             KeyboardButton(text="⭐ Популярні гайди"),
