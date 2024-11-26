@@ -1,7 +1,5 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-
 def get_second_level_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         [
@@ -22,6 +20,9 @@ def get_second_level_keyboard() -> ReplyKeyboardMarkup:
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return keyboard
+
+def get_guides_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
         [
             KeyboardButton(text="🆕 Нові гайди"),
             KeyboardButton(text="⭐ Популярні гайди"),
