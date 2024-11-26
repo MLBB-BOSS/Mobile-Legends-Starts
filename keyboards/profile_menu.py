@@ -1,9 +1,34 @@
+# UTC:21:40
+# 2024-11-24
+# keyboards/profile_menu.py
+# Author: MLBB-BOSS
+# Description: Profile menu keyboard layouts
+# The era of artificial intelligence.
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from .main_menu import create_buttons, create_keyboard
 
 def get_profile_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["📈 Статистика", "🏆 Досягнення", "💌 Зворотний Зв'язок"],
-        ["⚙️ Налаштування", "❓ Допомога", "🔙 Назад до Головного"]
+    # Створюємо кнопки
+    buttons = [
+        [
+            KeyboardButton(text="📈 Статистика"),
+            KeyboardButton(text="🏆 Досягнення")
+        ],
+        [
+            KeyboardButton(text="💌 Зворотний Зв'язок"),
+            KeyboardButton(text="⚙️ Налаштування")
+        ],
+        [
+            KeyboardButton(text="❓ Допомога"),
+            KeyboardButton(text="🔙 Назад до Головного")
+        ]
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію профілю")
+    
+    # Створюємо клавіатуру
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=buttons,
+        resize_keyboard=True,
+        input_field_placeholder="Оберіть опцію профілю"
+    )
+    
+    return keyboard
