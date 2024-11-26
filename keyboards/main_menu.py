@@ -4,7 +4,7 @@ def create_buttons(button_texts):
     return [KeyboardButton(text=text) for text in button_texts]
 
 def get_main_keyboard() -> ReplyKeyboardMarkup:
-    buttons = create_buttons(["🧭 Навігація", "🛡️ Профіль"])
+    buttons = create_buttons(["🧭 Навігація", "🪪 Профіль"])
     keyboard = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True, input_field_placeholder="Виберіть опцію")
     return keyboard
 
