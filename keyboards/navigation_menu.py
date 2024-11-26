@@ -58,3 +58,23 @@ def get_builds_keyboard() -> ReplyKeyboardMarkup:
     ]
     keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return keyboard
+
+def get_characters_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
+        [
+            KeyboardButton(text="🗡️ Бійці"),
+            KeyboardButton(text="🏹 Стрільці"),
+            KeyboardButton(text="🔮 Маги")
+        ],
+        [
+            KeyboardButton(text="🛡️ Танки"),
+            KeyboardButton(text="🏥 Саппорти"),
+            KeyboardButton(text="⚔️ Гібриди")
+        ],
+        [
+            KeyboardButton(text="🔥 Метові"),
+            KeyboardButton(text="◀️ Назад до Навігації")
+        ]
+    ]
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
+    return keyboard
