@@ -1,9 +1,25 @@
 # /keyboards/level1/main_menu.py
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup
 
-def get_main_menu():
+TEXTS = {
+    "navigation": "🧭 Навігація",
+    "profile": "🪪 Профіль"
+}
+
+def get_main_menu(row_width: int = 2) -> InlineKeyboardMarkup:
+    """
+    Створює головну клавіатуру бота.
+
+    :param row_width: Кількість кнопок у рядку (за замовчуванням 2).
+    :return: InlineKeyboardMarkup
+    """
     builder = InlineKeyboardBuilder()
-    builder.button(text="🧭 Навігація", callback_data="navigation_menu")
-    builder.button(text="🪪 Профіль", callback_data="profile_menu")
-    builder.adjust(2)
+    buttons = [
+        {"text": TEXTS["navigation"], "callback_data": "navigation_menu"},
+        {"text": TEXTS["profile"], "callback_data": "profile_menu"}
+    ]
+    for button in buttons:
+        builder.button(text=button["text"], callback_data=button["callback_data"])
+    builder.adjust(row_width)
     return builder.as_markup()
