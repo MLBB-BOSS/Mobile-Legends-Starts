@@ -89,8 +89,7 @@ def get_voting_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         input_field_placeholder="Оберіть опцію голосування"
     )
-    return keyboard
-    
+    return keyboard  
 
 def get_help_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
@@ -102,4 +101,4 @@ def get_help_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         input_field_placeholder="Оберіть розділ допомоги"
     )
-    return keyboard)
+    return keyboard
