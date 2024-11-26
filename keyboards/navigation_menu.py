@@ -1,135 +1,61 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from .main_menu import create_buttons, create_keyboard
 
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🥷 Персонажі"),
-            KeyboardButton(text="⚙️ Білди"),
-            KeyboardButton(text="📈 Мета")
-        ],
-        [
-            KeyboardButton(text="📚 Гайди"),
-            KeyboardButton(text="🏆 Турніри"),
-            KeyboardButton(text="💡 Стратегії")
-        ],
-        [
-            KeyboardButton(text="🎮 Механіки гри"),
-            KeyboardButton(text="📢 Новини"),
-            KeyboardButton(text="🔙 Назад")
-        ]
+    button_groups = [
+        ["🥷 Персонажі", "⚙️ Білди", "📈 Мета"],
+        ["📚 Гайди", "🏆 Турніри", "💡 Стратегії"],
+        ["🎮 Механіки гри", "📢 Новини", "🔙 Назад"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_second_level_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🥷 Персонажі"),
-            KeyboardButton(text="⚙️ Білди"),
-            KeyboardButton(text="📈 Мета")
-        ],
-        [
-            KeyboardButton(text="📚 Гайди"),
-            KeyboardButton(text="🏆 Турніри"),
-            KeyboardButton(text="💡 Стратегії")
-        ],
-        [
-            KeyboardButton(text="🎮 Механіки гри"),
-            KeyboardButton(text="📢 Новини"),
-            KeyboardButton(text="🔙 Назад")
-        ]
+    button_groups = [
+        ["🥷 Персонажі", "⚙️ Білди", "📈 Мета"],
+        ["📚 Гайди", "🏆 Турніри", "💡 Стратегії"],
+        ["🎮 Механіки гри", "📢 Новини", "🔙 Назад"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_guides_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🆕 Нові гайди"),
-            KeyboardButton(text="⭐ Популярні гайди"),
-            KeyboardButton(text="📘 Для початківців")
-        ],
-        [
-            KeyboardButton(text="🧙 Просунуті техніки"),
-            KeyboardButton(text="🛡️ Командні стратегії"),
-            KeyboardButton(text="◀️ Назад до Навігації")
-        ]
+    button_groups = [
+        ["🆕 Нові гайди", "⭐ Популярні гайди", "📘 Для початківців"],
+        ["🧙 Просунуті техніки", "🛡️ Командні стратегії", "◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_counterpicks_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🔍 Пошук контр-піку"),
-            KeyboardButton(text="📜 Список персонажів"),
-            KeyboardButton(text="🏆 Топ контр-піки")
-        ],
-        [KeyboardButton(text="◀️ Назад до Навігації")]
+    button_groups = [
+        ["🔍 Пошук контр-піку", "📜 Список персонажів", "🏆 Топ контр-піки"],
+        ["◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_builds_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🔧 Створити білд"),
-            KeyboardButton(text="📄 Мої білди"),
-            KeyboardButton(text="⭐ Популярні білди")
-        ],
-        [
-            KeyboardButton(text="🔍 Порівняння білдів"),
-            KeyboardButton(text="◀️ Назад до Навігації")
-        ]
+    button_groups = [
+        ["🔧 Створити білд", "📄 Мої білди", "⭐ Популярні білди"],
+        ["🔍 Порівняння білдів", "◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_characters_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🗡️ Бійці"),
-            KeyboardButton(text="🏹 Стрільці"),
-            KeyboardButton(text="🔮 Маги")
-        ],
-        [
-            KeyboardButton(text="🛡️ Танки"),
-            KeyboardButton(text="🏥 Саппорти"),
-            KeyboardButton(text="⚔️ Гібриди")
-        ],
-        [
-            KeyboardButton(text="🔥 Метові"),
-            KeyboardButton(text="◀️ Назад до Навігації")
-        ]
+    button_groups = [
+        ["🗡️ Бійці", "🏹 Стрільці", "🔮 Маги"],
+        ["🛡️ Танки", "🏥 Саппорти", "⚔️ Гібриди"],
+        ["🔥 Метові", "◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_voting_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="🗳️ Нове голосування"),
-            KeyboardButton(text="📊 Мої голосування"),
-            KeyboardButton(text="⭐ Популярні голосування")
-        ],
-        [
-            KeyboardButton(text="🔍 Пошук голосування"),
-            KeyboardButton(text="◀️ Назад до Навігації")
-        ]
+    button_groups = [
+        ["🗳️ Нове голосування", "📊 Мої голосування", "⭐ Популярні голосування"],
+        ["🔍 Пошук голосування", "◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
 
 def get_help_keyboard() -> ReplyKeyboardMarkup:
-    buttons = [
-        [
-            KeyboardButton(text="❓ FAQ"),
-            KeyboardButton(text="📞 Підтримка"),
-            KeyboardButton(text="📝 Надіслати відгук")
-        ],
-        [
-            KeyboardButton(text="◀️ Назад до Навігації")
-        ]
+    button_groups = [
+        ["❓ FAQ", "📞 Підтримка", "📝 Надіслати відгук"],
+        ["◀️ Назад до Навігації"]
     ]
-    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-    return keyboard
+    return create_keyboard(button_groups)
