@@ -5,7 +5,7 @@ from handlers.main_menu import router as main_menu_router
 from handlers.navigation import router as navigation_router
 from handlers.heroes import router as heroes_router
 
-TOKEN = "YOUR_BOT_TOKEN"
+TOKEN = "TELEGRAM_BOT_TOKEN"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
