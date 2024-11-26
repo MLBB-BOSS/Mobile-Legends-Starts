@@ -1,10 +1,3 @@
-# handlers/main_menu.py
-# UTC:22:00
-# 2024-11-25
-# Author: MLBB-BOSS
-# Description: Main menu message handlers
-# The era of artificial intelligence.
-
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -22,16 +15,14 @@ router = Router()
 @router.message(Command("start"))
 async def cmd_start(message: Message, db: AsyncSession):
     try:
-        # Шукаємо користувача за telegram_id замість user_id
         result = await db.execute(
             select(User).where(User.telegram_id == message.from_user.id)
         )
         user = result.scalar_one_or_none()
 
         if not user:
-            # Створюємо нового користувача з telegram_id замість user_id
             user = User(
-                telegram_id=message.from_user.id,  # Використовуємо telegram_id
+                telegram_id=message.from_user.id,
                 username=message.from_user.username
             )
             db.add(user)
@@ -50,8 +41,6 @@ async def cmd_start(message: Message, db: AsyncSession):
         logger.error(f"Error in start handler: {e}")
         await db.rollback()
         await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
-
-# Інші обробники залишаються без змін
 
 @router.message(F.text == "🧭 Навігація")
 async def navigation_menu(message: Message):
