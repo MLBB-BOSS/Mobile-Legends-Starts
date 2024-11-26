@@ -4,6 +4,8 @@
 # Author: MLBB-BOSS
 # Description: Main menu keyboard layouts
 # The era of artificial intelligence.
+# keyboards/main_menu.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_buttons(button_texts):
@@ -51,6 +53,18 @@ def get_counterpicks_keyboard() -> ReplyKeyboardMarkup:
         keyboard=buttons,
         resize_keyboard=True,
         input_field_placeholder="Оберіть опцію контр-піків"
+    )
+    return keyboard
+
+def get_navigation_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
+        create_buttons(["🏠 Головне меню", "📖 Гайди", "⚔️ Контрпіки"]),
+        create_buttons(["🔨 Білди", "🗳️ Голосування", "🆘 Допомога"])
+    ]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=buttons,
+        resize_keyboard=True,
+        input_field_placeholder="Оберіть опцію навігації"
     )
     return keyboard
 
