@@ -7,7 +7,7 @@ router = Router()
 
 @router.callback_query(F.data == "navigation_menu")
 async def navigation_menu_handler(callback: CallbackQuery):
-    """Обробник для меню Навігація"""
+    """Меню навігації"""
     await callback.message.edit_text(
         "🧭 Навігація: Оберіть потрібний розділ:",
         reply_markup=get_navigation_menu()
