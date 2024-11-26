@@ -1,17 +1,27 @@
 # /bot.py
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
-from handlers import setup_handlers
+from handlers.main_menu import router as main_menu_router
+from handlers.navigation import router as navigation_router
+from handlers.heroes import router as heroes_router
+import os
 
-TOKEN = "ВАШ_ТОКЕН_БОТА"
+# Отримуємо токен з змінної оточення
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if not TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN не встановлено в змінних оточення!")
 
+# Створюємо екземпляр бота та диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Налаштовуємо всі хендлери
-setup_handlers(dp)
+# Підключення обробників (routers)
+dp.include_router(main_menu_router)
+dp.include_router(navigation_router)
+dp.include_router(heroes_router)
 
-@dp.message(F.text == "/start")
+# Головний обробник для команди /start
+@dp.message(commands=["start"])
 async def start_handler(message: Message):
     from keyboards.level1.main_menu import get_main_menu
     await message.answer(
@@ -21,4 +31,6 @@ async def start_handler(message: Message):
 
 if __name__ == "__main__":
     import asyncio
+
+    # Запускаємо бот у режимі polling
     asyncio.run(dp.start_polling(bot))
