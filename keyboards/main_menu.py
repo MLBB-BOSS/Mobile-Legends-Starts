@@ -10,6 +10,14 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 def create_buttons(button_texts):
     return [KeyboardButton(text=text) for text in button_texts]
 
+def create_keyboard(button_groups, placeholder="") -> ReplyKeyboardMarkup:
+    buttons = [create_buttons(group) for group in button_groups]
+    return ReplyKeyboardMarkup(
+        keyboard=buttons,
+        resize_keyboard=True,
+        input_field_placeholder=placeholder
+    )
+
 def get_main_keyboard() -> ReplyKeyboardMarkup:
     buttons = create_buttons(["🧭 Навігація", "🪪 Профіль"])
     keyboard = ReplyKeyboardMarkup(
