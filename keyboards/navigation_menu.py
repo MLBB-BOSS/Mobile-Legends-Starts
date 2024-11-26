@@ -99,3 +99,19 @@ def get_help_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton(text="◀️ Назад до Навігації")]
     ]
     return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
+
+def get_second_level_keyboard() -> ReplyKeyboardMarkup:
+    """Меню другого рівня для стратегій"""
+    buttons = [
+        [
+            KeyboardButton(text="🎯 Початкова гра"),
+            KeyboardButton(text="⚔️ Середина гри"),
+            KeyboardButton(text="🏆 Кінцева гра")
+        ],
+        [
+            KeyboardButton(text="🤝 Командна взаємодія"),
+            KeyboardButton(text="🗺️ Контроль карти")
+        ],
+        [KeyboardButton(text="◀️ Назад до Навігації")]
+    ]
+    return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
