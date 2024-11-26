@@ -1,64 +1,65 @@
-# keyboards/main_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_buttons(button_texts):
     return [KeyboardButton(text=text) for text in button_texts]
 
-def create_keyboard(button_groups, resize_keyboard=True, placeholder=None):
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=resize_keyboard, input_field_placeholder=placeholder)
-    for group in button_groups:
-        keyboard.add(*create_buttons(group))
+def get_main_keyboard() -> ReplyKeyboardMarkup:
+    buttons = create_buttons(["🧭 Навігація", "🪪 Профіль"])
+    keyboard = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True, input_field_placeholder="Виберіть опцію")
     return keyboard
 
-def get_main_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [["🧭 Навігація", "🪪 Профіль"]]
-    return create_keyboard(button_groups, placeholder="Виберіть опцію")
-
 def get_profile_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["📈 Статистика", "🏆 Досягнення", "💌 Зворотний Зв'язок"],
-        ["⚙️ Налаштування", "❓ Допомога", "🔙 Назад до Головного"]
+    buttons = [
+        create_buttons(["📈 Статистика", "🏆 Досягнення", "💌 Зворотний Зв'язок"]),
+        create_buttons(["⚙️ Налаштування", "❓ Допомога", "🔙 Назад до Головного"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію профілю")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть опцію профілю")
+    return keyboard
 
 def get_guides_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["🆕 Нові гайди", "⭐ Популярні гайди", "📘 Для початківців"],
-        ["🧙 Просунуті техніки", "🛡️ Командні стратегії", "◀️ Назад до Навігації"]
+    buttons = [
+        create_buttons(["🆕 Нові гайди", "⭐ Популярні гайди", "📘 Для початківців"]),
+        create_buttons(["🧙 Просунуті техніки", "🛡️ Командні стратегії", "◀️ Назад до Навігації"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть розділ гайдів")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть розділ гайдів")
+    return keyboard
 
 def get_counterpicks_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["🔍 Пошук контр-піку", "📜 Список персонажів", "🏆 Топ контр-піки"],
-        ["◀️ Назад до Навігації"]
+    buttons = [
+        create_buttons(["🔍 Пошук контр-піку", "📜 Список персонажів", "🏆 Топ контр-піки"]),
+        create_buttons(["◀️ Назад до Навігації"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію контр-піків")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть опцію контр-піків")
+    return keyboard
 
 def get_navigation_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["🏠 Головне меню", "📚 Гайди", "⚔️ Контрпіки"],
-        ["🔧 Білди", "📊 Голосування", "🆘 Допомога"]
+    buttons = [
+        create_buttons(["🏠 Головне меню", "📚 Гайди", "⚔️ Контрпіки"]),
+        create_buttons(["🔧 Білди", "📊 Голосування", "🆘 Допомога"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію навігації")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть опцію навігації")
+    return keyboard
 
 def get_builds_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["🔧 Створити білд", "📄 Мої білди", "⭐ Популярні білди"],
-        ["🔍 Порівняння білдів", "◀️ Назад до Навігації"]
+    buttons = [
+        create_buttons(["🔧 Створити білд", "📄 Мої білди", "⭐ Популярні білди"]),
+        create_buttons(["🔍 Порівняння білдів", "◀️ Назад до Навігації"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію білдів")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть опцію білдів")
+    return keyboard
 
 def get_voting_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["📍 Поточні опитування", "🧾 Мої голосування", "➕ Запропонувати тему"],
-        ["◀️ Назад до Навігації"]
+    buttons = [
+        create_buttons(["📍 Поточні опитування", "🧾 Мої голосування", "➕ Запропонувати тему"]),
+        create_buttons(["◀️ Назад до Навігації"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть опцію голосування")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть опцію голосування")
+    return keyboard
 
 def get_help_keyboard() -> ReplyKeyboardMarkup:
-    button_groups = [
-        ["📄 Інструкції", "❔ FAQ", "📞 Підтримка"],
-        ["◀️ Назад до Навігації"]
+    buttons = [
+        create_buttons(["📄 Інструкції", "❔ FAQ", "📞 Підтримка"]),
+        create_buttons(["◀️ Назад до Навігації"])
     ]
-    return create_keyboard(button_groups, placeholder="Оберіть розділ допомоги")
+    keyboard = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True, input_field_placeholder="Оберіть розділ допомоги")
+    return keyboard
