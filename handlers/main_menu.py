@@ -84,7 +84,7 @@ async def guides_menu(message: Message):
     try:
         logger.info(f"User {message.from_user.id} selected 'Гайди'")
         await message.answer(
-            "Меню гайдів:\nОберіть потрібний розділ:",
+            "Меню гайдів:\нОберіть потрібний розділ:",
             reply_markup=get_guides_keyboard()
         )
     except Exception as e:
@@ -96,7 +96,7 @@ async def counterpicks_menu(message: Message):
     try:
         logger.info(f"User {message.from_user.id} selected 'Контрпіки'")
         await message.answer(
-            "Меню контрпіків:\nОберіть потрібний розділ:",
+            "Меню контрпіків:\нОберіть потрібний розділ:",
             reply_markup=get_counterpicks_keyboard()
         )
     except Exception as e:
@@ -108,9 +108,21 @@ async def builds_menu(message: Message):
     try:
         logger.info(f"User {message.from_user.id} selected 'Білди'")
         await message.answer(
-            "Меню білдів:\nОберіть потрібний розділ:",
+            "Меню білдів:\нОберіть потрібний розділ:",
             reply_markup=get_builds_keyboard()
         )
     except Exception as e:
         logger.error(f"Error in builds menu handler: {e}")
+        await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
+
+@router.message(F.text == "◀️ Назад до Навігації")
+async def back_to_navigation(message: Message):
+    try:
+        logger.info(f"User {message.from_user.id} returned to navigation menu")
+        await message.answer(
+            "Меню навігації:\нОберіть потрібний розділ:",
+            reply_markup=get_navigation_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Error in back to navigation handler: {e}")
         await message.answer("Сталася помилка при обробці команди. Спробуйте пізніше.")
