@@ -1,3 +1,4 @@
+# keyboards/__init__.py
 from .main_menu import (
     get_main_keyboard,
     get_profile_keyboard,
@@ -22,4 +23,4 @@ __all__ = [
     'get_voting_keyboard',
     'get_help_keyboard',
     'get_mp3_player_keyboard'
-]
+](keyboard=buttons, resize_keyboard=True)
