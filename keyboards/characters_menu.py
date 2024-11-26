@@ -1,3 +1,4 @@
+# keyboards/characters_menu.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from .main_menu import create_buttons, create_keyboard
 
