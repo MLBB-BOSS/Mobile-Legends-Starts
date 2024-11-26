@@ -1,6 +1,4 @@
 # /keyboards/level3/heroes_menu.py
-#  Персонажі - третій рівень
-
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def get_heroes_menu():
@@ -14,4 +12,3 @@ def get_heroes_menu():
     builder.button(text="🔄 Назад", callback_data="navigation_menu")
     builder.adjust(2)
     return builder.as_markup()
-
