@@ -49,22 +49,22 @@ class MenuStates(StatesGroup):
     SETTINGS_MENU = State()
     FEEDBACK_MENU = State()
     HELP_MENU = State()
+    router = Router()
 
-# Команда /start
 @router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext):
-    user_name = message.from_user.first_name
-    logger.info(f"Користувач {message.from_user.id} викликав /start")
-    await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
-        "🎮 Цей бот допоможе вам:\n"
-        "• Організовувати турніри\n"
-        "• Зберігати скріншоти персонажів\n"
-        "• Відстежувати активність\n"
-        "• Отримувати досягнення\n\n"
-        "Оберіть опцію з меню нижче 👇",
-        reply_markup=get_main_menu(),
+async def cmd_start(message: Message):
+    """Команда /start"""
+    await MessageFormatter.update_menu_message(
+        message=message,
+        title="🎮 Ласкаво просимо до Mobile Legends Bot!",
+        description=(
+            "Цей бот допоможе вам:\n"
+            "🔹 Знайти інформацію про героїв\n"
+            "🔹 Отримати корисні гайди\n"
+            "🔹 Створювати та ділитися білдами\n"
+            "🔹 Відстежувати свою статистику"
+        ),
+        keyboard=get_main_inline_keyboard()
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
