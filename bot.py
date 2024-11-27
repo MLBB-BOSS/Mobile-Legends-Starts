@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from database import init_db, DatabaseMiddleware, async_session
-from handlers.user_handlers import router as user_router
+from handlers import setup_handlers
 from config import settings
 
 # Налаштування логування
@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
-# Реєстрація роутерів
-dp.include_router(user_router)
+# Реєстрація хендлерів
+setup_handlers(dp)
 
 # Реєстрація middleware
 dp.update.middleware(DatabaseMiddleware(async_session))
