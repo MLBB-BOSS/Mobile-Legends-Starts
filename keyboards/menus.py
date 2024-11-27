@@ -1,8 +1,12 @@
-# keyboards/menus.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
+import logging
 
+# Налаштування логування
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Enum для кнопок
 class MenuButton(Enum):
     # Головне меню
     NAVIGATION = "🧭 Навігація"
@@ -23,19 +27,38 @@ class MenuButton(Enum):
     SUPPORT = "🧬 Підтримка"
     # Додайте інші кнопки за потребою
 
+# Функція для створення клавіатури
 def create_menu(buttons, row_width=2):
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    button_objs = [KeyboardButton(text=button.value) for button in buttons]
-    keyboard.add(*button_objs)
-    keyboard.row_width = row_width
-    return keyboard
+    """
+    Створює клавіатуру з кнопками.
+    :param buttons: Список кнопок (MenuButton).
+    :param row_width: Кількість кнопок у рядку.
+    :return: ReplyKeyboardMarkup
+    """
+    logger.info(f"Створення меню з кнопками: {[button.value for button in buttons]}")
+    keyboard = [
+        [KeyboardButton(button.value) for button in buttons[i:i + row_width]]
+        for i in range(0, len(buttons), row_width)
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 # Головне меню
 def get_main_menu():
-    return create_menu([MenuButton.NAVIGATION, MenuButton.PROFILE], row_width=2)
+    """
+    Створює головне меню.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [MenuButton.NAVIGATION, MenuButton.PROFILE],
+        row_width=2
+    )
 
 # Навігаційне меню
 def get_navigation_menu():
+    """
+    Створює навігаційне меню.
+    :return: ReplyKeyboardMarkup
+    """
     return create_menu(
         [
             MenuButton.HEROES,
@@ -50,6 +73,10 @@ def get_navigation_menu():
 
 # Меню героїв
 def get_heroes_menu():
+    """
+    Створює меню вибору героїв.
+    :return: ReplyKeyboardMarkup
+    """
     return create_menu(
         [
             MenuButton.SEARCH_HERO,
@@ -63,4 +90,5 @@ def get_heroes_menu():
         row_width=3
     )
 
-# Додайте інші меню за потребою
+# Додаткові меню (за потребою)
+# Наприклад, меню для вибору гайдів, налаштувань тощо
