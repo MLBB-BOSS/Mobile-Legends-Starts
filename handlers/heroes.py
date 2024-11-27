@@ -1,14 +1,13 @@
-# /handlers/heroes.py
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import Message
 from keyboards.level3.heroes_menu import get_heroes_menu
 
 router = Router()
 
-@router.callback_query(F.data == "heroes_menu")
-async def heroes_menu_handler(callback: CallbackQuery):
-    """Меню персонажів"""
-    await callback.message.edit_text(
+@router.message(F.text == "🛡️ Персонажі")
+async def heroes_menu_handler(message: Message):
+    """Обробник для меню Персонажі"""
+    await message.answer(
         "🛡️ Персонажі: Оберіть клас персонажів:",
         reply_markup=get_heroes_menu()
     )
