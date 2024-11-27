@@ -12,7 +12,7 @@ class CallbackData(Enum):
 
 def get_generic_inline_keyboard():
     """
-    Створює базову інлайн-клавіатуру
+    Створює базову інлайн-клавіатуру для головного меню.
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -20,17 +20,13 @@ def get_generic_inline_keyboard():
             InlineKeyboardButton(text="📚 Гайди", callback_data=CallbackData.GUIDES.value)
         ],
         [
-            InlineKeyboardButton(text="⚔️ Білди", callback_data=CallbackData.BUILDS.value),
-            InlineKeyboardButton(text="📊 Статистика", callback_data=CallbackData.STATISTICS.value)
+            InlineKeyboardButton(text="⚜️ Білди", callback_data=CallbackData.BUILDS.value),
+            InlineKeyboardButton(text="📈 Статистика", callback_data=CallbackData.STATISTICS.value)
         ],
         [
             InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
         ]
     ])
-
-def get_main_inline_keyboard():
-    """Альтернативна назва для get_generic_inline_keyboard"""
-    return get_generic_inline_keyboard()
 
 def get_heroes_inline_keyboard():
     """Клавіатура для меню героїв"""
@@ -45,7 +41,7 @@ def get_heroes_inline_keyboard():
         ],
         [
             InlineKeyboardButton(text="🗡️ Асасини", callback_data="hero_class_assassin"),
-            InlineKeyboardButton(text="💖 Сапорти", callback_data="hero_class_support")
+            InlineKeyboardButton(text="❤️ Підтримка", callback_data="hero_class_support")
         ],
         [
             InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
@@ -73,10 +69,10 @@ def get_builds_inline_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="📝 Створити білд", callback_data="build_create"),
-            InlineKeyboardButton(text="📚 Мої білди", callback_data="build_my")
+            InlineKeyboardButton(text="📄 Мої білди", callback_data="build_my")
         ],
         [
-            InlineKeyboardButton(text="🏆 Топ білдів", callback_data="build_top"),
+            InlineKeyboardButton(text="💎 Популярні білди", callback_data="build_popular"),
             InlineKeyboardButton(text="🔍 Пошук білдів", callback_data="build_search")
         ],
         [
@@ -89,11 +85,11 @@ def get_statistics_inline_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="📊 Моя статистика", callback_data="stats_my"),
-            InlineKeyboardButton(text="🏆 Рейтинг", callback_data="stats_rating")
+            InlineKeyboardButton(text="🥇 Рейтинг", callback_data="stats_ranking")
         ],
         [
             InlineKeyboardButton(text="📈 Прогрес", callback_data="stats_progress"),
-            InlineKeyboardButton(text="🎯 Досягнення", callback_data="stats_achievements")
+            InlineKeyboardButton(text="🏆 Досягнення", callback_data="stats_achievements")
         ],
         [
             InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
