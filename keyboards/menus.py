@@ -41,7 +41,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    SUPPORT = "📞 Підтримка"
+    SUPPORT = "🧬 Підтримка"
 
 # Функція для створення клавіатур
 def create_menu(buttons, row_width=2):
