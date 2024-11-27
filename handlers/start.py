@@ -1,18 +1,13 @@
-from .start import router as start_router
-from .main_menu import router as main_menu_router
-from .navigation import router as navigation_router
-from .heroes import router as heroes_router
-from .guides import router as guides_router
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.level1.main_menu import get_main_menu
 
-routers = [
-    start_router,
-    main_menu_router,
-    navigation_router,
-    heroes_router,
-    guides_router
-]
+router = Router()
 
-def setup_handlers(dp):
-    """Реєстрація всіх хендлерів"""
-    for router in routers:
-        dp.include_router(router)
+@router.message(F.text == "/start")
+async def start_handler(message: Message):
+    """Обробник для команди /start"""
+    await message.answer(
+        "Привіт! Ласкаво просимо до бота. Оберіть опцію:",
+        reply_markup=get_main_menu()  # Використовуємо звичайну клавіатуру
+    )
