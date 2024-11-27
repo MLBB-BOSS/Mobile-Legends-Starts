@@ -5,7 +5,7 @@ from enum import Enum
 import logging
 
 # Налаштування логування
-logger = logging.getLogger(__name__)  # Виправлено з 'name' на '__name__'
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
@@ -188,11 +188,11 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [hero for hero in heroes]  # Використовуємо простий текст для кнопок
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([MenuButton.BACK.value])  # Додаємо кнопку назад
-    return create_menu(keyboard, row_width=3)
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
     return create_menu(
@@ -306,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-)
+    )
