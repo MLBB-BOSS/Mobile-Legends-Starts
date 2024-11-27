@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
-from keyboards.menus import get_main_menu
+from keyboards.menus import get_main_menu, get_navigation_menu
 
 # Створюємо роутер
 router = Router()
@@ -81,6 +81,31 @@ async def cmd_heroes(message: Message):
         "• Завантажити скріншоти\n"
         "• Переглянути галерею\n"
         "• Шукати героїв"
+    )
+
+@router.message(F.text == "🧭 Навігація")
+async def cmd_navigation(message: Message):
+    """
+    Обробник кнопки Навігація
+    Показує меню навігації
+    """
+    await message.answer(
+        "Виберіть опцію навігації:",
+        reply_markup=get_navigation_menu()
+    )
+
+@router.message(F.text == "🪪 Профіль")
+async def cmd_profile_button(message: Message):
+    """
+    Обробник кнопки Профіль
+    Показує профіль користувача
+    """
+    await message.answer(
+        "👤 Ваш профіль\n\n"
+        "Тут буде відображатися:\n"
+        "• Ваша статистика\n"
+        "• Досягнення\n"
+        "• Історія участі в турнірах"
     )
 
 # Обробник невідомих команд
