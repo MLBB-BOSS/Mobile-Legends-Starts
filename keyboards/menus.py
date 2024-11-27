@@ -1,4 +1,5 @@
-# menus.py
+# keyboards/menus.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -13,7 +14,7 @@ class MenuButton(Enum):
     HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     SEARCH_HERO = "🔎 Пошук Персонажа"
-    FIGHTER = "💪 Боєць"  # Додано клас "Боєць"
+    FIGHTER = "💪 Боєць"
     TANK = "🛡️ Танк"
     MAGE = "🔮 Маг"
     MARKSMAN = "🏹 Стрілець"
@@ -31,11 +32,11 @@ class MenuButton(Enum):
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
     POPULAR_BUILDS = "💎 Популярні Білди"
-    BUILDS = "⚜️ Білди"  # Додано для відповідності в обробниках
+    BUILDS = "⚜️ Білди"
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
-    VOTING = "📊 Голосування"  # Додано цю кнопку
+    VOTING = "📊 Голосування"
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
@@ -49,7 +50,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    HELP_SUPPORT = "🆘 Підтримка"  # Додано для меню "Допомога"
+    HELP_SUPPORT = "🆘 Підтримка"
 
 # Список героїв за класами
 heroes_by_class = {
@@ -93,7 +94,40 @@ menu_button_to_class = {
     MenuButton.FIGHTER.value: "Боєць",
 }
 
-# Функція для створення меню героїв
+# Функція для створення клавіатур
+def create_menu(buttons, row_width=2):
+    """
+    Створює клавіатуру з кнопками.
+    :param buttons: Список кнопок (MenuButton або str).
+    :param row_width: Кількість кнопок у рядку.
+    :return: ReplyKeyboardMarkup
+    """
+    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
+    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
+    keyboard = [
+        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons[i:i + row_width]]
+        for i in range(0, len(buttons), row_width)
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+# Меню "Головне меню"
+def get_main_menu():
+    return create_menu(
+        [
+            MenuButton.NAVIGATION,
+            MenuButton.PROFILE,
+            MenuButton.HEROES,
+            MenuButton.GUIDES,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.BUILDS,
+            MenuButton.VOTING,
+            MenuButton.HELP_SUPPORT,
+        ],
+        row_width=2
+    )
+
+# Меню "Персонажі"
 def get_heroes_menu():
     return create_menu(
         [
@@ -109,7 +143,7 @@ def get_heroes_menu():
         row_width=2
     )
 
-# Функція для створення клавіатури з героями обраного класу
+# Функція для створення меню героїв конкретного класу
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = [KeyboardButton(text=hero) for hero in heroes]
@@ -119,23 +153,79 @@ def get_hero_class_menu(hero_class):
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Функція для створення клавіатур
-def create_menu(buttons, row_width=2):
-    """
-    Створює клавіатуру з кнопками.
-    :param buttons: Список кнопок (MenuButton або str).
-    :param row_width: Кількість кнопок у рядку.
-    :return: ReplyKeyboardMarkup
-    """
-    # Перевірка типу кнопок
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
-    keyboard = [
-        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons[i:i + row_width]]
-        for i in range(0, len(buttons), row_width)
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+# Меню "Навігація"
+def get_navigation_menu():
+    return create_menu(
+        [
+            MenuButton.HEROES,
+            MenuButton.GUIDES,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.BUILDS,
+            MenuButton.VOTING,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
-# Інші функції меню залишаються без змін
-# ...
+# Інші меню (Гайди, Контр-піки, Білди, Профіль) залишаються без змін
+
+# Меню "Гайди"
+def get_guides_menu():
+    return create_menu(
+        [
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.BEGINNER_GUIDES,
+            MenuButton.ADVANCED_TECHNIQUES,
+            MenuButton.TEAMPLAY_GUIDES,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+# Меню "Контр-піки"
+def get_counter_picks_menu():
+    return create_menu(
+        [
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.COUNTER_LIST,
+            MenuButton.BACK
+        ],
+        row_width=1
+    )
+
+# Меню "Білди"
+def get_builds_menu():
+    return create_menu(
+        [
+            MenuButton.CREATE_BUILD,
+            MenuButton.MY_BUILDS,
+            MenuButton.POPULAR_BUILDS,
+            MenuButton.BACK
+        ],
+        row_width=1
+    )
+
+# Меню "Голосування"
+def get_voting_menu():
+    return create_menu(
+        [
+            MenuButton.CURRENT_VOTES,
+            MenuButton.MY_VOTES,
+            MenuButton.SUGGEST_TOPIC,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+# Меню "Профіль"
+def get_profile_menu():
+    return create_menu(
+        [
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
