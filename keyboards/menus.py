@@ -37,7 +37,7 @@ def create_menu(buttons, row_width=2):
     """
     logger.info(f"Створення меню з кнопками: {[button.value for button in buttons]}")
     keyboard = [
-        [KeyboardButton(button.value) for button in buttons[i:i + row_width]]
+        [KeyboardButton(text=button.value) for button in buttons[i:i + row_width]]
         for i in range(0, len(buttons), row_width)
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
