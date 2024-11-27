@@ -142,7 +142,7 @@ async def cmd_voting(message: Message):
 async def cmd_back(message: Message):
     logger.info(f"Користувач {message.from_user.id} натиснув 'Назад'")
     await message.answer(
-        "🔙 Повернення до головного меню:",
+        "🔙 Повернення до попереднього меню:",
         reply_markup=get_main_menu(),
     )
 
