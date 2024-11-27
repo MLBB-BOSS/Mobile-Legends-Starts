@@ -4,7 +4,8 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from keyboards.menus import (
-    MenuButton,  # Імпортуємо MenuButton
+    MenuButton,
+    menu_button_to_class,
     get_main_menu,
     get_navigation_menu,
     get_heroes_menu,
@@ -13,6 +14,8 @@ from keyboards.menus import (
     get_builds_menu,
     get_voting_menu,
     get_profile_menu,
+    get_hero_class_menu,
+    heroes_by_class,
 )
 
 # Налаштування логування
@@ -29,9 +32,10 @@ async def cmd_start(message: Message):
     Обробник команди /start.
     Відправляє привітальне повідомлення та показує головне меню.
     """
+    user_name = message.from_user.first_name
     logger.info(f"Користувач {message.from_user.id} викликав /start")
     await message.answer(
-        "👋 Вітаємо у Mobile Legends Tournament Bot!\n\n"
+        f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
         "🎮 Цей бот допоможе вам:\n"
         "• Організовувати турніри\n"
         "• Зберігати скріншоти персонажів\n"
@@ -56,6 +60,40 @@ async def cmd_heroes(message: Message):
     await message.answer(
         "Виберіть категорію героїв:",
         reply_markup=get_heroes_menu(),
+    )
+
+# Список кнопок класів
+class_buttons = list(menu_button_to_class.keys())
+
+@router.message(F.text.in_(class_buttons))
+async def cmd_hero_class(message: Message):
+    hero_class = menu_button_to_class.get(message.text)
+    if hero_class:
+        logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
+        await message.answer(
+            f"Виберіть героя з класу {hero_class}:",
+            reply_markup=get_hero_class_menu(hero_class)
+        )
+    else:
+        logger.warning(f"Невідомий клас героїв: {message.text}")
+        await message.answer(
+            "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
+            reply_markup=get_heroes_menu(),
+        )
+
+# Список усіх героїв
+all_heroes = set()
+for heroes in heroes_by_class.values():
+    all_heroes.update(heroes)
+
+@router.message(F.text.in_(all_heroes))
+async def cmd_hero_selected(message: Message):
+    hero_name = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав героя {hero_name}")
+    # Тут можна додати логіку для відображення інформації про героя
+    await message.answer(
+        f"Ви обрали героя {hero_name}. Інформація про героя буде додана пізніше.",
+        reply_markup=get_main_menu(),
     )
 
 @router.message(F.text == MenuButton.GUIDES.value)
