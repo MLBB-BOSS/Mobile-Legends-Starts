@@ -27,7 +27,7 @@ from keyboards.menus import (
     heroes_by_class,
 )
 from keyboards.inline_menus import get_generic_inline_keyboard
-from utils.message_formatter import MessageFormatter
+from utils.message_formatter import MessageFormatter  # Переконайтесь, що цей файл існує та містить клас
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
@@ -53,6 +53,10 @@ class MenuStates(StatesGroup):
     FEEDBACK_MENU = State()
     HELP_MENU = State()
     SEARCH_HERO = State()  # Додатковий стан для пошуку героя
+    CHANGE_USERNAME = State()
+    REPORT_BUG = State()
+    SEND_FEEDBACK = State()
+    SUGGEST_TOPIC = State()
     # Додайте інші стани за потребою
 
 # Команда /start
@@ -491,7 +495,7 @@ async def cmd_my_votes(message: Message, state: FSMContext):
 @router.message(MenuStates.VOTING_MENU, F.text == MenuButton.SUGGEST_TOPIC.value)
 async def cmd_suggest_topic(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Запропонувати Тему")
-    await state.set_state(MenuStates.SUGGEST_TOPIC)  # Додайте відповідний стан, якщо необхідно
+    await state.set_state(MenuStates.SUGGEST_TOPIC)
     await message.answer(
         "Будь ласка, введіть тему для пропозиції:",
     )
@@ -717,7 +721,7 @@ async def cmd_language(message: Message, state: FSMContext):
 @router.message(MenuStates.SETTINGS_MENU, F.text == MenuButton.CHANGE_USERNAME.value)
 async def cmd_change_username(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Змінити Username")
-    await state.set_state(MenuStates.CHANGE_USERNAME)  # Додайте відповідний стан, якщо необхідно
+    await state.set_state(MenuStates.CHANGE_USERNAME)
     await message.answer(
         "Будь ласка, введіть новий Username:",
     )
@@ -767,7 +771,7 @@ async def cmd_back_to_profile_from_settings(message: Message, state: FSMContext)
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.SEND_FEEDBACK.value)
 async def cmd_send_feedback(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Надіслати Відгук")
-    await state.set_state(MenuStates.SEND_FEEDBACK)  # Додайте відповідний стан, якщо необхідно
+    await state.set_state(MenuStates.SEND_FEEDBACK)
     await message.answer(
         "Будь ласка, введіть ваш відгук:",
     )
@@ -780,7 +784,7 @@ async def cmd_send_feedback(message: Message, state: FSMContext):
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.REPORT_BUG.value)
 async def cmd_report_bug(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Повідомити про Помилку")
-    await state.set_state(MenuStates.REPORT_BUG)  # Додайте відповідний стан, якщо необхідно
+    await state.set_state(MenuStates.REPORT_BUG)
     await message.answer(
         "Будь ласка, опишіть помилку, яку ви знайшли:",
     )
@@ -874,9 +878,9 @@ async def unknown_command(message: Message, state: FSMContext):
             MenuStates.MAIN_MENU.state: get_main_menu(),
             MenuStates.NAVIGATION_MENU.state: get_navigation_menu(),
             MenuStates.HEROES_MENU.state: get_heroes_menu(),
-            MenuStates.HERO_CLASS_MENU.state: (
-                await state.get_data()
-            ).get('hero_class', 'Танк'),
+            MenuStates.HERO_CLASS_MENU.state: get_hero_class_menu(
+                (await state.get_data()).get('hero_class', 'Танк')
+            ),
             MenuStates.GUIDES_MENU.state: get_guides_menu(),
             MenuStates.COUNTER_PICKS_MENU.state: get_counter_picks_menu(),
             MenuStates.BUILDS_MENU.state: get_builds_menu(),
