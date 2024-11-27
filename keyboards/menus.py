@@ -1,4 +1,62 @@
-# Нові меню для кожної секції
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from enum import Enum
+import logging
+
+# Логування
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Enum для текстів кнопок
+class MenuButton(Enum):
+    SEARCH_HERO = "🔎 Пошук Персонажа"
+    TANK = "🛡️ Танк"
+    MAGE = "🔮 Маг"
+    MARKSMAN = "🏹 Стрілець"
+    ASSASSIN = "⚔️ Асасін"
+    SUPPORT = "🧬 Підтримка"
+    BACK = "🔄 Назад"
+    NEW_GUIDES = "🆕 Нові Гайди"
+    POPULAR_GUIDES = "🌟 Популярні Гайди"
+    BEGINNER_GUIDES = "📘 Для Початківців"
+    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
+    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
+    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
+    COUNTER_LIST = "📝 Список Персонажів"
+    CREATE_BUILD = "🏗️ Створити Білд"
+    MY_BUILDS = "📄 Мої Білди"
+    POPULAR_BUILDS = "💎 Популярні Білди"
+    CURRENT_VOTES = "📍 Поточні Опитування"
+    MY_VOTES = "📋 Мої Голосування"
+    SUGGEST_TOPIC = "➕ Запропонувати Тему"
+    ACTIVITY = "📊 Загальна Активність"
+    RANKING = "🥇 Рейтинг"
+    GAME_STATS = "🎮 Ігрова Статистика"
+    BADGES = "🎖️ Мої Бейджі"
+    PROGRESS = "🚀 Прогрес"
+    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
+    AWARDS = "🎟️ Отримані Нагороди"
+    LANGUAGE = "🌐 Мова Інтерфейсу"
+    CHANGE_USERNAME = "🆔 Змінити Username"
+    UPDATE_ID = "🛡️ Оновити ID Гравця"
+    NOTIFICATIONS = "🔔 Сповіщення"
+    INSTRUCTIONS = "📄 Інструкції"
+    FAQ = "❔ FAQ"
+    SUPPORT = "📞 Підтримка"
+
+# Функція для створення клавіатур
+def create_menu(buttons, row_width=2):
+    """
+    Створює клавіатуру з кнопками.
+    :param buttons: Список кнопок (MenuButton).
+    :param row_width: Кількість кнопок у рядку.
+    :return: ReplyKeyboardMarkup
+    """
+    logger.info(f"Створення меню з кнопками: {[button.value for button in buttons]}")
+    keyboard = [
+        [KeyboardButton(text=button.value) for button in buttons[i:i + row_width]]
+        for i in range(0, len(buttons), row_width)
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 # Меню "Персонажі"
 def get_heroes_menu():
@@ -19,11 +77,11 @@ def get_heroes_menu():
 def get_guides_menu():
     return create_menu(
         [
-            MenuButton("🆕 Нові Гайди"),
-            MenuButton("🌟 Популярні Гайди"),
-            MenuButton("📘 Для Початківців"),
-            MenuButton("🧙 Просунуті Техніки"),
-            MenuButton("🛡️ Командна Гра"),
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.BEGINNER_GUIDES,
+            MenuButton.ADVANCED_TECHNIQUES,
+            MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
         row_width=2
@@ -33,8 +91,8 @@ def get_guides_menu():
 def get_counter_picks_menu():
     return create_menu(
         [
-            MenuButton("🔎 Пошук Контр-піку"),
-            MenuButton("📝 Список Персонажів"),
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
         row_width=1
@@ -44,9 +102,9 @@ def get_counter_picks_menu():
 def get_builds_menu():
     return create_menu(
         [
-            MenuButton("🏗️ Створити Білд"),
-            MenuButton("📄 Мої Білди"),
-            MenuButton("💎 Популярні Білди"),
+            MenuButton.CREATE_BUILD,
+            MenuButton.MY_BUILDS,
+            MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
         row_width=1
@@ -56,9 +114,9 @@ def get_builds_menu():
 def get_voting_menu():
     return create_menu(
         [
-            MenuButton("📍 Поточні Опитування"),
-            MenuButton("📋 Мої Голосування"),
-            MenuButton("➕ Запропонувати Тему"),
+            MenuButton.CURRENT_VOTES,
+            MenuButton.MY_VOTES,
+            MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
         row_width=2
@@ -68,9 +126,9 @@ def get_voting_menu():
 def get_profile_menu():
     return create_menu(
         [
-            MenuButton("📊 Загальна Активність"),
-            MenuButton("🥇 Рейтинг"),
-            MenuButton("🎮 Ігрова Статистика"),
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
         row_width=2
@@ -80,10 +138,10 @@ def get_profile_menu():
 def get_achievements_menu():
     return create_menu(
         [
-            MenuButton("🎖️ Мої Бейджі"),
-            MenuButton("🚀 Прогрес"),
-            MenuButton("🏅 Турнірна Статистика"),
-            MenuButton("🎟️ Отримані Нагороди"),
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
             MenuButton.BACK
         ],
         row_width=2
@@ -93,10 +151,10 @@ def get_achievements_menu():
 def get_settings_menu():
     return create_menu(
         [
-            MenuButton("🌐 Мова Інтерфейсу"),
-            MenuButton("🆔 Змінити Username"),
-            MenuButton("🛡️ Оновити ID Гравця"),
-            MenuButton("🔔 Сповіщення"),
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
         row_width=2
@@ -106,9 +164,9 @@ def get_settings_menu():
 def get_help_menu():
     return create_menu(
         [
-            MenuButton("📄 Інструкції"),
-            MenuButton("❔ FAQ"),
-            MenuButton("📞 Підтримка"),
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ,
+            MenuButton.SUPPORT,
             MenuButton.BACK
         ],
         row_width=1
