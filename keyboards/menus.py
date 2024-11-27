@@ -25,7 +25,6 @@ class MenuButton(Enum):
     MARKSMAN = "🏹 Стрілець"
     ASSASSIN = "⚔️ Асасін"
     SUPPORT = "🧬 Підтримка"
-    # Додайте інші кнопки за потребою
 
 # Функція для створення клавіатури
 def create_menu(buttons, row_width=2):
@@ -90,5 +89,97 @@ def get_heroes_menu():
         row_width=3
     )
 
-# Додаткові меню (за потребою)
-# Наприклад, меню для вибору гайдів, налаштувань тощо
+# Меню гайдів
+def get_guides_menu():
+    """
+    Створює меню гайдів.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню контр-піків
+def get_counter_picks_menu():
+    """
+    Створює меню контр-піків.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню білдів
+def get_builds_menu():
+    """
+    Створює меню білдів.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню голосування
+def get_voting_menu():
+    """
+    Створює меню голосування.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню профілю
+def get_profile_menu():
+    """
+    Створює меню профілю.
+    :return: ReplyKeyboardMarkup
+    """
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
