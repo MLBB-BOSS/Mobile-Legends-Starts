@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+
 class MenuButton(Enum):
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Профіль"
@@ -16,13 +17,14 @@ class MenuButton(Enum):
     MAGE = "🔮 Маг"
     MARKSMAN = "🏹 Стрілець"
     ASSASSIN = "⚔️ Асасін"
-    SUPPORT = "📞 Підтримка"
+    SUPPORT = "🧬 Підтримка"
     BACK = "🔄 Назад"
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
     TEAMPLAY_GUIDES = "🛡️ Командна Гра"
+    COUNTER_PICKS = "⚖️ Контр-піки"
     COUNTER_SEARCH = "🔎 Пошук Контр-піку"
     COUNTER_LIST = "📝 Список Персонажів"
     CREATE_BUILD = "🏗️ Створити Білд"
@@ -44,8 +46,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    
-    # Removed duplicate SUPPORT definition
+
 
 # Функція для створення клавіатур
 def create_menu(buttons, row_width=2):
@@ -55,12 +56,15 @@ def create_menu(buttons, row_width=2):
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
+    if not all(isinstance(button, MenuButton) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton.")
     logger.info(f"Створення меню з кнопками: {[button.value for button in buttons]}")
     keyboard = [
         [KeyboardButton(text=button.value) for button in buttons[i:i + row_width]]
         for i in range(0, len(buttons), row_width)
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
 
 # Меню "Персонажі"
 def get_heroes_menu():
@@ -71,11 +75,12 @@ def get_heroes_menu():
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,  # Make sure this matches the correct SUPPORT value
+            MenuButton.SUPPORT,
             MenuButton.BACK
         ],
         row_width=2
     )
+
 
 # Меню "Гайди"
 def get_guides_menu():
@@ -91,6 +96,7 @@ def get_guides_menu():
         row_width=2
     )
 
+
 # Меню "Контр-піки"
 def get_counter_picks_menu():
     return create_menu(
@@ -101,6 +107,7 @@ def get_counter_picks_menu():
         ],
         row_width=1
     )
+
 
 # Меню "Білди"
 def get_builds_menu():
@@ -114,6 +121,7 @@ def get_builds_menu():
         row_width=1
     )
 
+
 # Меню "Голосування"
 def get_voting_menu():
     return create_menu(
@@ -126,6 +134,7 @@ def get_voting_menu():
         row_width=2
     )
 
+
 # Меню "Профіль"
 def get_profile_menu():
     return create_menu(
@@ -137,6 +146,7 @@ def get_profile_menu():
         ],
         row_width=2
     )
+
 
 # Меню "Досягнення"
 def get_achievements_menu():
@@ -151,6 +161,7 @@ def get_achievements_menu():
         row_width=2
     )
 
+
 # Меню "Налаштування"
 def get_settings_menu():
     return create_menu(
@@ -164,17 +175,19 @@ def get_settings_menu():
         row_width=2
     )
 
+
 # Меню "Допомога"
 def get_help_menu():
     return create_menu(
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.SUPPORT,  # Make sure this matches the correct SUPPORT value
+            MenuButton.SUPPORT,
             MenuButton.BACK
         ],
         row_width=1
     )
+
 
 # Меню "Головне меню"
 def get_main_menu():
@@ -186,6 +199,7 @@ def get_main_menu():
         row_width=2
     )
 
+
 # Навігаційне меню
 def get_navigation_menu():
     return create_menu(
@@ -193,7 +207,7 @@ def get_navigation_menu():
             MenuButton.HEROES,
             MenuButton.GUIDES,
             MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
+            MenuButton.CREATE_BUILD,
             MenuButton.VOTING,
             MenuButton.BACK
         ],
