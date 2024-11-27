@@ -61,6 +61,31 @@ async def cmd_profile(message: Message):
         reply_markup=get_profile_menu(),
     )
 
+# Додані обробники для меню "Мій Профіль"
+@router.message(F.text == MenuButton.ACTIVITY.value)
+async def cmd_activity(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Загальна Активність")
+    await message.answer(
+        "Ваша загальна активність: [дані будуть доступні пізніше]",
+        reply_markup=get_profile_menu(),
+    )
+
+@router.message(F.text == MenuButton.RANKING.value)
+async def cmd_ranking(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Рейтинг")
+    await message.answer(
+        "Ваш поточний рейтинг: [дані будуть доступні пізніше]",
+        reply_markup=get_profile_menu(),
+    )
+
+@router.message(F.text == MenuButton.GAME_STATS.value)
+async def cmd_game_stats(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Ігрова Статистика")
+    await message.answer(
+        "Ваша ігрова статистика: [дані будуть доступні пізніше]",
+        reply_markup=get_profile_menu(),
+    )
+
 @router.message(F.text == MenuButton.HEROES.value)
 async def cmd_heroes(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
@@ -121,11 +146,69 @@ async def cmd_guides(message: Message):
         reply_markup=get_guides_menu(),
     )
 
+# Додамо обробники для кнопок меню "Гайди"
+@router.message(F.text == MenuButton.NEW_GUIDES.value)
+async def cmd_new_guides(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Нові Гайди")
+    await message.answer(
+        "Нові гайди ще в розробці.",
+        reply_markup=get_guides_menu(),
+    )
+
+@router.message(F.text == MenuButton.POPULAR_GUIDES.value)
+async def cmd_popular_guides(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Популярні Гайди")
+    await message.answer(
+        "Популярні гайди ще в розробці.",
+        reply_markup=get_guides_menu(),
+    )
+
+@router.message(F.text == MenuButton.BEGINNER_GUIDES.value)
+async def cmd_beginner_guides(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Для Початківців")
+    await message.answer(
+        "Гайди для початківців ще в розробці.",
+        reply_markup=get_guides_menu(),
+    )
+
+@router.message(F.text == MenuButton.ADVANCED_TECHNIQUES.value)
+async def cmd_advanced_techniques(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Просунуті Техніки")
+    await message.answer(
+        "Просунуті техніки ще в розробці.",
+        reply_markup=get_guides_menu(),
+    )
+
+@router.message(F.text == MenuButton.TEAMPLAY_GUIDES.value)
+async def cmd_teamplay_guides(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Командна Гра")
+    await message.answer(
+        "Гайди по командній грі ще в розробці.",
+        reply_markup=get_guides_menu(),
+    )
+
 @router.message(F.text == MenuButton.COUNTER_PICKS.value)
 async def cmd_counter_picks(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
     await message.answer(
         "Виберіть контр-піки:",
+        reply_markup=get_counter_picks_menu(),
+    )
+
+# Додамо обробники для кнопок меню "Контр-піки"
+@router.message(F.text == MenuButton.COUNTER_SEARCH.value)
+async def cmd_counter_search(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Пошук Контр-піку")
+    await message.answer(
+        "Функція пошуку контр-піків ще в розробці.",
+        reply_markup=get_counter_picks_menu(),
+    )
+
+@router.message(F.text == MenuButton.COUNTER_LIST.value)
+async def cmd_counter_list(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Список Персонажів")
+    await message.answer(
+        "Список контр-піків ще в розробці.",
         reply_markup=get_counter_picks_menu(),
     )
 
@@ -137,6 +220,31 @@ async def cmd_builds(message: Message):
         reply_markup=get_builds_menu(),
     )
 
+# Додамо обробники для кнопок меню "Білди"
+@router.message(F.text == MenuButton.CREATE_BUILD.value)
+async def cmd_create_build(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Створити Білд")
+    await message.answer(
+        "Функція створення білдів ще в розробці.",
+        reply_markup=get_builds_menu(),
+    )
+
+@router.message(F.text == MenuButton.MY_BUILDS.value)
+async def cmd_my_builds(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Мої Білди")
+    await message.answer(
+        "Ваші білди ще в розробці.",
+        reply_markup=get_builds_menu(),
+    )
+
+@router.message(F.text == MenuButton.POPULAR_BUILDS.value)
+async def cmd_popular_builds(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Популярні Білди")
+    await message.answer(
+        "Популярні білди ще в розробці.",
+        reply_markup=get_builds_menu(),
+    )
+
 @router.message(F.text == MenuButton.VOTING.value)
 async def cmd_voting(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Голосування")
@@ -145,12 +253,39 @@ async def cmd_voting(message: Message):
         reply_markup=get_voting_menu(),
     )
 
+# Додамо обробники для кнопок меню "Голосування"
+@router.message(F.text == MenuButton.CURRENT_VOTES.value)
+async def cmd_current_votes(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Поточні Опитування")
+    await message.answer(
+        "Поточні опитування ще в розробці.",
+        reply_markup=get_voting_menu(),
+    )
+
+@router.message(F.text == MenuButton.MY_VOTES.value)
+async def cmd_my_votes(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Мої Голосування")
+    await message.answer(
+        "Ваші голосування ще в розробці.",
+        reply_markup=get_voting_menu(),
+    )
+
+@router.message(F.text == MenuButton.SUGGEST_TOPIC.value)
+async def cmd_suggest_topic(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Запропонувати Тему")
+    await message.answer(
+        "Функція пропозиції тем ще в розробці.",
+        reply_markup=get_voting_menu(),
+    )
+
 # Кнопка "Назад"
 @router.message(F.text == MenuButton.BACK.value)
 async def cmd_back(message: Message):
     logger.info(f"Користувач {message.from_user.id} натиснув 'Назад'")
+    # Ви можете додати логіку для повернення до попереднього меню
+    # Наприклад, якщо користувач знаходиться в меню профілю, повернути його до навігаційного меню
     await message.answer(
-        "🔙 Повернення до попереднього меню:",
+        "🔙 Повернення до головного меню:",
         reply_markup=get_main_menu(),
     )
 
