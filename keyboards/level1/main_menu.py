@@ -1,8 +1,15 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_menu():
-    builder = InlineKeyboardBuilder()
-    builder.button(text="🧭 Навігація", callback_data="navigation_menu")
-    builder.button(text="🪪 Профіль", callback_data="profile_menu")
-    builder.adjust(2)
-    return builder.as_markup()
+    """
+    Створює клавіатуру головного меню.
+
+    :return: ReplyKeyboardMarkup
+    """
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="🧭 Навігація")],
+            [KeyboardButton(text="🪪 Профіль")]
+        ],
+        resize_keyboard=True  # Зменшує розмір кнопок
+    )
