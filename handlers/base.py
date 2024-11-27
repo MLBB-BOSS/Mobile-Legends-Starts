@@ -55,6 +55,14 @@ async def cmd_navigation(message: Message):
         reply_markup=get_navigation_menu(),
     )
 
+@router.message(F.text == MenuButton.PROFILE.value)
+async def cmd_profile(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Мій Профіль")
+    await message.answer(
+        "Виберіть опцію профілю:",
+        reply_markup=get_profile_menu(),
+    )
+
 @router.message(F.text == MenuButton.HEROES.value)
 async def cmd_heroes(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
@@ -129,20 +137,12 @@ async def cmd_voting(message: Message):
         reply_markup=get_voting_menu(),
     )
 
-@router.message(F.text == MenuButton.PROFILE.value)
-async def cmd_profile(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Профіль")
-    await message.answer(
-        "Виберіть опцію профілю:",
-        reply_markup=get_profile_menu(),
-    )
-
 # Кнопка "Назад"
 @router.message(F.text == MenuButton.BACK.value)
 async def cmd_back(message: Message):
     logger.info(f"Користувач {message.from_user.id} натиснув 'Назад'")
     await message.answer(
-        "🔙 Повернення до попереднього меню:",
+        "🔙 Повернення до головного меню:",
         reply_markup=get_main_menu(),
     )
 
