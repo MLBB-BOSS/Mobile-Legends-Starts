@@ -141,7 +141,7 @@ def get_navigation_menu():
         [
             (MenuButton.HEROES.value, "navigate_heroes"),
             (MenuButton.GUIDES.value, "navigate_guides"),
-            (MenuButton.COUNTER_PICKS.value, "navigate_counter_picks"),
+            (MenuButton.COUNTER_PICKS.value, "navigate_counter"),
             (MenuButton.BUILDS.value, "navigate_builds"),
             (MenuButton.VOTING.value, "navigate_voting"),
             (MenuButton.BACK.value, "navigate_back")
