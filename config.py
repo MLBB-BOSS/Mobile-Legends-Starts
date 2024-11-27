@@ -1,3 +1,5 @@
+# config.py
+
 import os
 import logging
 from pydantic_settings import BaseSettings
@@ -18,7 +20,6 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str | None:
-        """Returns formatted database URL if it exists."""
         if not self.DATABASE_URL:
             logger.warning("DATABASE_URL is not set!")
             return None
@@ -29,7 +30,6 @@ class Settings(BaseSettings):
         return url
 
     def validate(self):
-        """Validates required settings"""
         if not self.TELEGRAM_BOT_TOKEN:
             raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
         if self.DEBUG:
@@ -40,10 +40,8 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = True
 
-# Create settings instance
 settings = Settings()
 
-# Validate settings
 try:
     settings.validate()
 except Exception as e:
