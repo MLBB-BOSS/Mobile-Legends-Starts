@@ -2,14 +2,13 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_menu():
     """
-    Створює клавіатуру головного меню.
+    Створює головну клавіатуру з двома горизонтальними кнопками.
 
     :return: ReplyKeyboardMarkup
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🧭 Навігація")],
-            [KeyboardButton(text="🪪 Профіль")]
+            [KeyboardButton(text="🧭 Навігація"), KeyboardButton(text="🪪 Профіль")],
         ],
-        resize_keyboard=True  # Зменшує розмір кнопок
+        resize_keyboard=True  # Робить кнопки компактнішими
     )
