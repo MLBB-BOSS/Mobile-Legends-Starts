@@ -139,6 +139,7 @@ async def cmd_back_to_main_from_navigation(message: Message, state: FSMContext):
         reply_markup=get_main_menu(),
     )
 
+# Розділ "Персонажі"
 @router.message(MenuStates.HEROES_MENU, F.text.in_([
     MenuButton.TANK.value,
     MenuButton.MAGE.value,
@@ -210,6 +211,70 @@ async def cmd_back_to_heroes_menu(message: Message, state: FSMContext):
         "🔙 Повернення до меню Персонажі:",
         reply_markup=get_heroes_menu(),
     )
+
+# Розділ "Гайди"
+@router.message(MenuStates.GUIDES_MENU)
+async def cmd_guides_menu(message: Message, state: FSMContext):
+    if message.text == MenuButton.BACK.value:
+        await state.set_state(MenuStates.NAVIGATION_MENU)
+        await message.answer(
+            "🔙 Повернення до меню Навігація:",
+            reply_markup=get_navigation_menu(),
+        )
+    else:
+        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Гайдах: {message.text}")
+        await message.answer(
+            "Ця функція ще в розробці.",
+            reply_markup=get_guides_menu(),
+        )
+
+# Розділ "Контр-піки"
+@router.message(MenuStates.COUNTER_PICKS_MENU)
+async def cmd_counter_picks_menu(message: Message, state: FSMContext):
+    if message.text == MenuButton.BACK.value:
+        await state.set_state(MenuStates.NAVIGATION_MENU)
+        await message.answer(
+            "🔙 Повернення до меню Навігація:",
+            reply_markup=get_navigation_menu(),
+        )
+    else:
+        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Контр-піках: {message.text}")
+        await message.answer(
+            "Ця функція ще в розробці.",
+            reply_markup=get_counter_picks_menu(),
+        )
+
+# Розділ "Білди"
+@router.message(MenuStates.BUILDS_MENU)
+async def cmd_builds_menu(message: Message, state: FSMContext):
+    if message.text == MenuButton.BACK.value:
+        await state.set_state(MenuStates.NAVIGATION_MENU)
+        await message.answer(
+            "🔙 Повернення до меню Навігація:",
+            reply_markup=get_navigation_menu(),
+        )
+    else:
+        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Білдах: {message.text}")
+        await message.answer(
+            "Ця функція ще в розробці.",
+            reply_markup=get_builds_menu(),
+        )
+
+# Розділ "Голосування"
+@router.message(MenuStates.VOTING_MENU)
+async def cmd_voting_menu(message: Message, state: FSMContext):
+    if message.text == MenuButton.BACK.value:
+        await state.set_state(MenuStates.NAVIGATION_MENU)
+        await message.answer(
+            "🔙 Повернення до меню Навігація:",
+            reply_markup=get_navigation_menu(),
+        )
+    else:
+        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Голосуванні: {message.text}")
+        await message.answer(
+            "Ця функція ще в розробці.",
+            reply_markup=get_voting_menu(),
+        )
 
 # Розділ "Мій Профіль"
 @router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.STATISTICS.value)
@@ -373,6 +438,18 @@ async def cmd_back(message: Message, state: FSMContext):
             "🔙 Повернення до меню Персонажі:",
             reply_markup=get_heroes_menu(),
         )
+    elif current_state in [
+        MenuStates.STATISTICS_MENU.state,
+        MenuStates.ACHIEVEMENTS_MENU.state,
+        MenuStates.SETTINGS_MENU.state,
+        MenuStates.FEEDBACK_MENU.state,
+        MenuStates.HELP_MENU.state
+    ]:
+        await state.set_state(MenuStates.PROFILE_MENU)
+        await message.answer(
+            "🔙 Повернення до меню Профіль:",
+            reply_markup=get_profile_menu(),
+        )
     else:
         await state.set_state(MenuStates.MAIN_MENU)
         await message.answer(
@@ -397,6 +474,16 @@ async def unknown_command(message: Message, state: FSMContext):
         reply_markup = get_hero_class_menu(hero_class)
     elif current_state == MenuStates.PROFILE_MENU.state:
         reply_markup = get_profile_menu()
+    elif current_state == MenuStates.STATISTICS_MENU.state:
+        reply_markup = get_statistics_menu()
+    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
+        reply_markup = get_achievements_menu()
+    elif current_state == MenuStates.SETTINGS_MENU.state:
+        reply_markup = get_settings_menu()
+    elif current_state == MenuStates.FEEDBACK_MENU.state:
+        reply_markup = get_feedback_menu()
+    elif current_state == MenuStates.HELP_MENU.state:
+        reply_markup = get_help_menu()
     else:
         reply_markup = get_main_menu()
         await state.set_state(MenuStates.MAIN_MENU)
