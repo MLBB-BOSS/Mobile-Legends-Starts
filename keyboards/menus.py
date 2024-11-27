@@ -10,6 +10,7 @@ class MenuButton(Enum):
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Профіль"
     HEROES = "🛡️ Персонажі"
+    GUIDES = "📚 Гайди"
     SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🔮 Маг"
