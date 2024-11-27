@@ -3,7 +3,7 @@
 import logging
 from aiogram import Router, F, types
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
@@ -196,12 +196,12 @@ async def cmd_select_hero(message: Message, state: FSMContext):
 
 # Обробники для інлайн-кнопок
 @router.callback_query(F.data == "button1")
-async def handle_button1(call: types.CallbackQuery, state: FSMContext):
+async def handle_button1(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text("Ви натиснули на Кнопку 1")
     await call.answer()
 
 @router.callback_query(F.data == "button2")
-async def handle_button2(call: types.CallbackQuery, state: FSMContext):
+async def handle_button2(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text("Ви натиснули на Кнопку 2")
     await call.answer()
 
@@ -220,6 +220,8 @@ async def unknown_command(message: Message, state: FSMContext):
         data = await state.get_data()
         hero_class = data.get('hero_class', 'Танк')
         reply_markup = get_hero_class_menu(hero_class)
+    elif current_state == MenuStates.PROFILE_MENU.state:
+        reply_markup = get_profile_menu()
     else:
         reply_markup = get_main_menu()
         await state.set_state(MenuStates.MAIN_MENU)
