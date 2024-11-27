@@ -1,5 +1,3 @@
-# handlers.py
-
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -89,6 +87,16 @@ async def cmd_hero_class(message: Message):
             "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
             reply_markup=get_heroes_menu(),
         )
+
+# Обробник для кнопки "Порівняння"
+@router.message(F.text == MenuButton.COMPARISON.value)
+async def cmd_comparison(message: Message):
+    logger.info(f"Користувач {message.from_user.id} обрав Порівняння")
+    # Додайте тут логіку для обробки порівняння героїв
+    await message.answer(
+        "Функція порівняння героїв ще в розробці.",
+        reply_markup=get_heroes_menu(),
+    )
 
 # Список усіх героїв
 all_heroes = set()
