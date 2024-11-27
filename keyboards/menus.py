@@ -13,7 +13,7 @@ class MenuButton(Enum):
     MAGE = "🔮 Маг"
     MARKSMAN = "🏹 Стрілець"
     ASSASSIN = "⚔️ Асасін"
-    SUPPORT = "🧬 Підтримка"
+    SUPPORT = "📞 Підтримка"  # Changed this one to avoid conflict
     BACK = "🔄 Назад"
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
@@ -41,7 +41,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    SUPPORT = "🧬 Підтримка"
+    # Removed duplicate SUPPORT definition
 
 # Функція для створення клавіатур
 def create_menu(buttons, row_width=2):
@@ -67,7 +67,7 @@ def get_heroes_menu():
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,
+            MenuButton.SUPPORT,  # Make sure this matches the correct SUPPORT value
             MenuButton.BACK
         ],
         row_width=2
@@ -166,7 +166,7 @@ def get_help_menu():
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.SUPPORT,
+            MenuButton.SUPPORT,  # Make sure this matches the correct SUPPORT value
             MenuButton.BACK
         ],
         row_width=1
