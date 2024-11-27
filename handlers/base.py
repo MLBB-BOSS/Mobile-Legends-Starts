@@ -139,7 +139,6 @@ async def cmd_back_to_main_from_navigation(message: Message, state: FSMContext):
         reply_markup=get_main_menu(),
     )
 
-# Розділ "Персонажі"
 @router.message(MenuStates.HEROES_MENU, F.text.in_([
     MenuButton.TANK.value,
     MenuButton.MAGE.value,
