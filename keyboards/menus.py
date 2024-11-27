@@ -4,16 +4,16 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
 
-# Логування
+# Налаштування логування
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
-    # Main Menu
+    # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
 
-    # Navigation Menu
+    # Розділ Навігація
     HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
@@ -21,7 +21,7 @@ class MenuButton(Enum):
     VOTING = "📊 Голосування"
     BACK = "🔄 Назад"
 
-    # Heroes Menu
+    # Розділ Персонажі
     SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🧙‍♂️ Маг"
@@ -30,28 +30,28 @@ class MenuButton(Enum):
     SUPPORT = "❤️ Підтримка"
     COMPARISON = "⚖️ Порівняння"
 
-    # Guides Menu
+    # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
     TEAMPLAY_GUIDES = "🛡️ Командна Гра"
 
-    # Counter Picks Menu
+    # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піку"
     COUNTER_LIST = "📝 Список Персонажів"
 
-    # Builds Menu
+    # Розділ Білди
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
     POPULAR_BUILDS = "💎 Популярні Білди"
 
-    # Voting Menu
+    # Розділ Голосування
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
 
-    # Profile Menu
+    # Розділ Профіль
     STATISTICS = "📈 Статистика"
     ACHIEVEMENTS = "🏆 Досягнення"
     SETTINGS = "⚙️ Налаштування"
@@ -59,44 +59,43 @@ class MenuButton(Enum):
     HELP = "❓ Допомога"
     BACK_TO_MAIN_MENU = "🔄 Повернутися до Головного Меню"
 
-    # Statistics Menu
+    # Підрозділ Статистика
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
     BACK_TO_PROFILE = "🔄 Назад до Профілю"
 
-    # Achievements Menu
+    # Підрозділ Досягнення
     BADGES = "🎖️ Мої Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Отримані Нагороди"
 
-    # Settings Menu
+    # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "🆔 Змінити Username"
     UPDATE_ID = "🛡️ Оновити ID Гравця"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Feedback Menu
+    # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
-    # Help Menu
+    # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    SUPPORT = "📞 Підтримка"
+    HELP_SUPPORT = "📞 Підтримка"  # Перейменовано з SUPPORT на HELP_SUPPORT
 
-# Map buttons to hero classes
+# Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
     MenuButton.MARKSMAN.value: "Стрілець",
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
-    # Note: "Боєць" is not in the provided menu structure; remove if not needed
 }
 
-# Dummy data for heroes by class
+# Дані героїв за класами (можете додати своїх героїв)
 heroes_by_class = {
     "Танк": ["Atlas", "Belerick", "Franco"],
     "Маг": ["Alice", "Eudora", "Gord"],
@@ -274,7 +273,7 @@ def get_help_menu():
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.SUPPORT,
+            MenuButton.HELP_SUPPORT,  # Виправлено на HELP_SUPPORT
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
