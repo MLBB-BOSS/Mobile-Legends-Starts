@@ -27,13 +27,10 @@ from keyboards.menus import (
     heroes_by_class,
 )
 from keyboards.inline_menus import get_generic_inline_keyboard
-from utils.message_formatter import MessageFormatter
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-# Ініціалізація Router
 router = Router()
 
 # Визначаємо стани меню
@@ -52,46 +49,28 @@ class MenuStates(StatesGroup):
     SETTINGS_MENU = State()
     FEEDBACK_MENU = State()
     HELP_MENU = State()
-    SEARCH_HERO = State()  # Додатковий стан для пошуку героя
-    # Додайте інші стани за потребою
 
 # Команда /start
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
-    """Команда /start"""
+    user_name = message.from_user.first_name
+    logger.info(f"Користувач {message.from_user.id} викликав /start")
     await state.set_state(MenuStates.MAIN_MENU)
-    await MessageFormatter.update_menu_message(
-        message=message,
-        title="🎮 Ласкаво просимо до Mobile Legends Bot!",
-        description=(
-            "Цей бот допоможе вам:\n"
-            "🔹 Знайти інформацію про героїв\n"
-            "🔹 Отримати корисні гайди\n"
-            "🔹 Створювати та ділитися білдами\n"
-            "🔹 Відстежувати свою статистику"
-        ),
-        keyboard=get_main_menu()
+    await message.answer(
+        f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
+        "🎮 Цей бот допоможе вам:\n"
+        "• Організовувати турніри\n"
+        "• Зберігати скріншоти персонажів\n"
+        "• Відстежувати активність\n"
+        "• Отримувати досягнення\n\n"
+        "Оберіть опцію з меню нижче 👇",
+        reply_markup=get_main_menu(),
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
-
-# Команда /help
-@router.message(Command("help"))
-async def cmd_help(message: Message, state: FSMContext):
-    """Команда /help"""
-    help_text = (
-        "<b>📋 Доступні команди:</b>\n\n"
-        "/start - Запустити бота\n"
-        "/heroes - Меню героїв\n"
-        "/guides - Гайди по грі\n"
-        "/builds - Менеджер білдів\n"
-        "/stats - Моя статистика\n"
-        "/help - Показати це повідомлення"
-    )
-    await message.answer(help_text, parse_mode="HTML")
 
 # Головне Меню
 @router.message(MenuStates.MAIN_MENU, F.text == MenuButton.NAVIGATION.value)
@@ -491,7 +470,6 @@ async def cmd_my_votes(message: Message, state: FSMContext):
 @router.message(MenuStates.VOTING_MENU, F.text == MenuButton.SUGGEST_TOPIC.value)
 async def cmd_suggest_topic(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Запропонувати Тему")
-    await state.set_state(MenuStates.SUGGEST_TOPIC)  # Додайте відповідний стан, якщо необхідно
     await message.answer(
         "Будь ласка, введіть тему для пропозиції:",
     )
@@ -567,7 +545,7 @@ async def cmd_feedback(message: Message, state: FSMContext):
     )
 
 @router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.HELP.value)
-async def cmd_help_menu(message: Message, state: FSMContext):
+async def cmd_help(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Допомогу")
     await state.set_state(MenuStates.HELP_MENU)
     await message.answer(
@@ -717,7 +695,6 @@ async def cmd_language(message: Message, state: FSMContext):
 @router.message(MenuStates.SETTINGS_MENU, F.text == MenuButton.CHANGE_USERNAME.value)
 async def cmd_change_username(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Змінити Username")
-    await state.set_state(MenuStates.CHANGE_USERNAME)  # Додайте відповідний стан, якщо необхідно
     await message.answer(
         "Будь ласка, введіть новий Username:",
     )
@@ -767,7 +744,6 @@ async def cmd_back_to_profile_from_settings(message: Message, state: FSMContext)
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.SEND_FEEDBACK.value)
 async def cmd_send_feedback(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Надіслати Відгук")
-    await state.set_state(MenuStates.SEND_FEEDBACK)  # Додайте відповідний стан, якщо необхідно
     await message.answer(
         "Будь ласка, введіть ваш відгук:",
     )
@@ -780,7 +756,6 @@ async def cmd_send_feedback(message: Message, state: FSMContext):
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.REPORT_BUG.value)
 async def cmd_report_bug(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Повідомити про Помилку")
-    await state.set_state(MenuStates.REPORT_BUG)  # Додайте відповідний стан, якщо необхідно
     await message.answer(
         "Будь ласка, опишіть помилку, яку ви знайшли:",
     )
@@ -867,30 +842,39 @@ async def handle_button2(call: CallbackQuery, state: FSMContext):
 async def unknown_command(message: Message, state: FSMContext):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
     current_state = await state.get_state()
-    reply_markup = get_main_menu()  # За замовчуванням
-
-    if current_state:
-        state_mapping = {
-            MenuStates.MAIN_MENU.state: get_main_menu(),
-            MenuStates.NAVIGATION_MENU.state: get_navigation_menu(),
-            MenuStates.HEROES_MENU.state: get_heroes_menu(),
-            MenuStates.HERO_CLASS_MENU.state: (
-                await state.get_data()
-            ).get('hero_class', 'Танк'),
-            MenuStates.GUIDES_MENU.state: get_guides_menu(),
-            MenuStates.COUNTER_PICKS_MENU.state: get_counter_picks_menu(),
-            MenuStates.BUILDS_MENU.state: get_builds_menu(),
-            MenuStates.VOTING_MENU.state: get_voting_menu(),
-            MenuStates.PROFILE_MENU.state: get_profile_menu(),
-            MenuStates.STATISTICS_MENU.state: get_statistics_menu(),
-            MenuStates.ACHIEVEMENTS_MENU.state: get_achievements_menu(),
-            MenuStates.SETTINGS_MENU.state: get_settings_menu(),
-            MenuStates.FEEDBACK_MENU.state: get_feedback_menu(),
-            MenuStates.HELP_MENU.state: get_help_menu(),
-            # Додайте інші стани за потребою
-        }
-        reply_markup = state_mapping.get(current_state, get_main_menu())
-
+    if current_state == MenuStates.MAIN_MENU.state:
+        reply_markup = get_main_menu()
+    elif current_state == MenuStates.NAVIGATION_MENU.state:
+        reply_markup = get_navigation_menu()
+    elif current_state == MenuStates.HEROES_MENU.state:
+        reply_markup = get_heroes_menu()
+    elif current_state == MenuStates.HERO_CLASS_MENU.state:
+        data = await state.get_data()
+        hero_class = data.get('hero_class', 'Танк')
+        reply_markup = get_hero_class_menu(hero_class)
+    elif current_state == MenuStates.GUIDES_MENU.state:
+        reply_markup = get_guides_menu()
+    elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
+        reply_markup = get_counter_picks_menu()
+    elif current_state == MenuStates.BUILDS_MENU.state:
+        reply_markup = get_builds_menu()
+    elif current_state == MenuStates.VOTING_MENU.state:
+        reply_markup = get_voting_menu()
+    elif current_state == MenuStates.PROFILE_MENU.state:
+        reply_markup = get_profile_menu()
+    elif current_state == MenuStates.STATISTICS_MENU.state:
+        reply_markup = get_statistics_menu()
+    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
+        reply_markup = get_achievements_menu()
+    elif current_state == MenuStates.SETTINGS_MENU.state:
+        reply_markup = get_settings_menu()
+    elif current_state == MenuStates.FEEDBACK_MENU.state:
+        reply_markup = get_feedback_menu()
+    elif current_state == MenuStates.HELP_MENU.state:
+        reply_markup = get_help_menu()
+    else:
+        reply_markup = get_main_menu()
+        await state.set_state(MenuStates.MAIN_MENU)
     await message.answer(
         "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
         reply_markup=reply_markup,
