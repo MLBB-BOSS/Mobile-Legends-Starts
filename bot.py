@@ -1,16 +1,16 @@
-# bot.py
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from config import settings
-from handlers.base import setup_handlers
+from handlers import setup_handlers
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Initialize bot with the new syntax for default properties
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
@@ -20,7 +20,9 @@ dp = Dispatcher()
 async def main():
     logger.info("Starting bot...")
     try:
+        # Register handlers
         setup_handlers(dp)
+        # Start polling
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
