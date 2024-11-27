@@ -67,7 +67,7 @@ async def cmd_start(message: Message, state: FSMContext):
         "Оберіть опцію з меню нижче 👇",
         reply_markup=get_main_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
@@ -82,7 +82,7 @@ async def cmd_navigation(message: Message, state: FSMContext):
         "Виберіть опцію навігації:",
         reply_markup=get_navigation_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
@@ -96,7 +96,7 @@ async def cmd_profile(message: Message, state: FSMContext):
         "Виберіть опцію профілю:",
         reply_markup=get_profile_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
@@ -111,11 +111,42 @@ async def cmd_heroes(message: Message, state: FSMContext):
         "Виберіть категорію героїв:",
         reply_markup=get_heroes_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
     )
+
+# Решта обробників для "Навігації"
+@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.GUIDES.value)
+async def cmd_guides(message: Message, state: FSMContext):
+    logger.info(f"Користувач {message.from_user.id} обрав Гайди")
+    await state.set_state(MenuStates.GUIDES_MENU)
+    await message.answer(
+        "Виберіть розділ гайдів:",
+        reply_markup=get_guides_menu(),
+    )
+    # Відправляємо повідомлення з інлайн-кнопками
+    await message.answer(
+        "Ось ваші інлайн-опції:",
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.COUNTER_PICKS.value)
+async def cmd_counter_picks(message: Message, state: FSMContext):
+    logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
+    await state.set_state(MenuStates.COUNTER_PICKS_MENU)
+    await message.answer(
+        "Виберіть опцію контр-піків:",
+        reply_markup=get_counter_picks_menu(),
+    )
+    # Відправляємо повідомлення з інлайн-кнопками
+    await message.answer(
+        "Ось ваші інлайн-опції:",
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+# Додайте обробники для інших кнопок "Навігації" аналогічно.
 
 # Розділ "Персонажі"
 @router.message(MenuStates.HEROES_MENU, F.text.in_([
@@ -136,7 +167,7 @@ async def cmd_hero_class(message: Message, state: FSMContext):
             f"Виберіть героя з класу {hero_class}:",
             reply_markup=get_hero_class_menu(hero_class)
         )
-        # Надсилаємо повідомлення з інлайн-кнопками
+        # Відправляємо повідомлення з інлайн-кнопками
         await message.answer(
             "Ось ваші інлайн-опції:",
             reply_markup=get_generic_inline_keyboard()
@@ -154,7 +185,7 @@ async def cmd_search_hero(message: Message, state: FSMContext):
     await message.answer(
         "Будь ласка, введіть ім'я героя для пошуку:",
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
@@ -168,7 +199,20 @@ async def cmd_comparison(message: Message, state: FSMContext):
         "Функція порівняння героїв ще в розробці.",
         reply_markup=get_heroes_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
+    await message.answer(
+        "Ось ваші інлайн-опції:",
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+@router.message(MenuStates.HEROES_MENU, F.text == MenuButton.BACK.value)
+async def cmd_back_to_navigation_from_heroes(message: Message, state: FSMContext):
+    await state.set_state(MenuStates.NAVIGATION_MENU)
+    await message.answer(
+        "🔙 Повернення до меню Навігація:",
+        reply_markup=get_navigation_menu(),
+    )
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
@@ -188,7 +232,20 @@ async def cmd_select_hero(message: Message, state: FSMContext):
         f"Ви обрали героя {hero_name}. Інформація про героя буде додана пізніше.",
         reply_markup=get_main_menu(),
     )
-    # Надсилаємо повідомлення з інлайн-кнопками
+    # Відправляємо повідомлення з інлайн-кнопками
+    await message.answer(
+        "Ось ваші інлайн-опції:",
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+@router.message(MenuStates.HERO_CLASS_MENU, F.text == MenuButton.BACK.value)
+async def cmd_back_to_heroes_menu(message: Message, state: FSMContext):
+    await state.set_state(MenuStates.HEROES_MENU)
+    await message.answer(
+        "🔙 Повернення до меню Персонажі:",
+        reply_markup=get_heroes_menu(),
+    )
+    # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
         "Ось ваші інлайн-опції:",
         reply_markup=get_generic_inline_keyboard()
