@@ -1,5 +1,3 @@
-# keyboards/menus.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -14,12 +12,13 @@ class MenuButton(Enum):
     HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     SEARCH_HERO = "🔎 Пошук Персонажа"
-    FIGHTER = "💪 Боєць"
-    TANK = "🛡️ Танк"
-    MAGE = "🔮 Маг"
-    MARKSMAN = "🏹 Стрілець"
-    ASSASSIN = "⚔️ Асасін"
-    SUPPORT = "🧬 Підтримка"
+    FIGHTER = "🥊 Боєць"  # Оновлений смайлик
+    TANK = "🛡️ Танк"  # Смайлик залишився
+    MAGE = "🧙‍♂️ Маг"  # Оновлений смайлик
+    MARKSMAN = "🎯 Стрілець"  # Оновлений смайлик
+    ASSASSIN = "🗡️ Асасін"  # Оновлений смайлик
+    SUPPORT = "❤️ Підтримка"  # Оновлений смайлик
+    COMPARISON = "⚖️ Порівняння"  # Нова кнопка
     BACK = "🔄 Назад"
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
@@ -52,7 +51,7 @@ class MenuButton(Enum):
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "🆘 Підтримка"
 
-# Список героїв за класами
+# Список героїв за класами (залишився без змін)
 heroes_by_class = {
     "Боєць": [
         "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
@@ -80,11 +79,11 @@ heroes_by_class = {
         "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnso"
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
     ],
 }
 
-# Відображення MenuButton на назви класів
+# Відображення MenuButton на назви класів (оновлено відповідно до нових смайликів)
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
@@ -111,7 +110,7 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Меню "Головне меню" з двома кнопками (залишаємо row_width=2)
+# Меню "Головне меню" з двома кнопками
 def get_main_menu():
     return create_menu(
         [
@@ -121,7 +120,7 @@ def get_main_menu():
         row_width=2
     )
 
-# Меню "Навігація" (оновлюємо row_width до 3)
+# Меню "Навігація"
 def get_navigation_menu():
     return create_menu(
         [
@@ -132,36 +131,39 @@ def get_navigation_menu():
             MenuButton.VOTING,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Персонажі" (оновлюємо row_width до 3)
+# Оновлене меню "Персонажі"
 def get_heroes_menu():
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
+            # Перші два рядки - класи персонажів
             MenuButton.FIGHTER,
             MenuButton.TANK,
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
             MenuButton.SUPPORT,
-            MenuButton.BACK
+            # Додані кнопки "Порівняння", "Назад" та "Пошук Персонажа"
+            MenuButton.COMPARISON,
+            MenuButton.BACK,
+            MenuButton.SEARCH_HERO
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Функція для створення меню героїв конкретного класу (оновлюємо row_width до 3)
+# Функція для створення меню героїв конкретного класу
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = [KeyboardButton(text=hero) for hero in heroes]
     # Створення клавіатури з героями
-    row_width = 3  # Змінено на 3
+    row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Меню "Гайди" (оновлюємо row_width до 3)
+# Інші функції меню (залишилися без змін)
 def get_guides_menu():
     return create_menu(
         [
@@ -172,10 +174,9 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Контр-піки" (оновлюємо row_width до 3)
 def get_counter_picks_menu():
     return create_menu(
         [
@@ -183,10 +184,9 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Білди" (оновлюємо row_width до 3)
 def get_builds_menu():
     return create_menu(
         [
@@ -195,10 +195,9 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Голосування" (оновлюємо row_width до 3)
 def get_voting_menu():
     return create_menu(
         [
@@ -207,10 +206,9 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Профіль" (оновлюємо row_width до 3)
 def get_profile_menu():
     return create_menu(
         [
@@ -219,5 +217,5 @@ def get_profile_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
