@@ -74,7 +74,7 @@ class MenuButton(Enum):
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити Ім'я"
+    CHANGE_USERNAME = "🆔 Змінити"
     UPDATE_ID = "🛡️ Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
