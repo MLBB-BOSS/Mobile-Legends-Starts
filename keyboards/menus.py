@@ -4,24 +4,24 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
 
-# Налаштування логування
+# Логування
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
-    # Головне Меню
+    # Main Menu
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
-    
-    # Розділ "Навігація"
+
+    # Navigation Menu
     HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "⚜️ Білди"
     VOTING = "📊 Голосування"
     BACK = "🔄 Назад"
-    
-    # Розділ "Персонажі"
+
+    # Heroes Menu
     SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🧙‍♂️ Маг"
@@ -29,80 +29,80 @@ class MenuButton(Enum):
     ASSASSIN = "🗡️ Асасін"
     SUPPORT = "❤️ Підтримка"
     COMPARISON = "⚖️ Порівняння"
-    
-    # Розділ "Гайди"
+
+    # Guides Menu
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
     TEAMPLAY_GUIDES = "🛡️ Командна Гра"
-    
-    # Розділ "Контр-піки"
+
+    # Counter Picks Menu
     COUNTER_SEARCH = "🔎 Пошук Контр-піку"
     COUNTER_LIST = "📝 Список Персонажів"
-    
-    # Розділ "Білди"
+
+    # Builds Menu
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
     POPULAR_BUILDS = "💎 Популярні Білди"
-    
-    # Розділ "Голосування"
+
+    # Voting Menu
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
-    
-    # Розділ "Профіль"
-    # Підрозділ "Статистика"
+
+    # Profile Menu
+    STATISTICS = "📈 Статистика"
+    ACHIEVEMENTS = "🏆 Досягнення"
+    SETTINGS = "⚙️ Налаштування"
+    FEEDBACK = "💌 Зворотний Зв'язок"
+    HELP = "❓ Допомога"
+    BACK_TO_MAIN_MENU = "🔄 Повернутися до Головного Меню"
+
+    # Statistics Menu
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    
-    # Підрозділ "Досягнення"
+    BACK_TO_PROFILE = "🔄 Назад до Профілю"
+
+    # Achievements Menu
     BADGES = "🎖️ Мої Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Отримані Нагороди"
-    
-    # Підрозділ "Налаштування"
+
+    # Settings Menu
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "🆔 Змінити Username"
     UPDATE_ID = "🛡️ Оновити ID Гравця"
     NOTIFICATIONS = "🔔 Сповіщення"
-    
-    # Підрозділ "Зворотний Зв'язок"
+
+    # Feedback Menu
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
-    
-    # Підрозділ "Допомога"
+
+    # Help Menu
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    HELP_SUPPORT = "📞 Підтримка"
-    
-    # Додаткові кнопки
-    RETURN_TO_MAIN = "🔄 Повернутися до Головного Меню"
+    SUPPORT = "📞 Підтримка"
 
+# Map buttons to hero classes
+menu_button_to_class = {
+    MenuButton.TANK.value: "Танк",
+    MenuButton.MAGE.value: "Маг",
+    MenuButton.MARKSMAN.value: "Стрілець",
+    MenuButton.ASSASSIN.value: "Асасін",
+    MenuButton.SUPPORT.value: "Підтримка",
+    # Note: "Боєць" is not in the provided menu structure; remove if not needed
+}
+
+# Dummy data for heroes by class
 heroes_by_class = {
-    "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
-    ],
-    "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
-        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
-    ],
-    "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
-    ],
-    "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
-    ],
-    "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
-    ],
+    "Танк": ["Atlas", "Belerick", "Franco"],
+    "Маг": ["Alice", "Eudora", "Gord"],
+    "Стрілець": ["Bruno", "Clint", "Layla"],
+    "Асасін": ["Fanny", "Gusion", "Lancelot"],
+    "Підтримка": ["Angela", "Estes", "Rafaela"],
 }
 
 def create_menu(buttons, row_width=2):
@@ -140,7 +140,7 @@ def get_navigation_menu():
             MenuButton.VOTING,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_heroes_menu():
@@ -160,8 +160,8 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
-    row_width = 3
+    buttons = [hero for hero in heroes]
+    row_width = 2
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
@@ -186,7 +186,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=1
     )
 
 def get_builds_menu():
@@ -214,23 +214,14 @@ def get_voting_menu():
 def get_profile_menu():
     return create_menu(
         [
-            MenuButton.ACTIVITY,
-            MenuButton.RANKING,
-            MenuButton.GAME_STATS,
-            MenuButton.BADGES,
-            MenuButton.PROGRESS,
-            MenuButton.TOURNAMENT_STATS,
-            MenuButton.AWARDS,
-            MenuButton.LANGUAGE,
-            MenuButton.CHANGE_USERNAME,
-            MenuButton.UPDATE_ID,
-            MenuButton.NOTIFICATIONS,
-            MenuButton.INSTRUCTIONS,
-            MenuButton.FAQ,
-            MenuButton.HELP_SUPPORT,
-            MenuButton.RETURN_TO_MAIN
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_statistics_menu():
@@ -239,7 +230,7 @@ def get_statistics_menu():
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
-            MenuButton.BACK
+            MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
     )
@@ -251,7 +242,7 @@ def get_achievements_menu():
             MenuButton.PROGRESS,
             MenuButton.TOURNAMENT_STATS,
             MenuButton.AWARDS,
-            MenuButton.BACK
+            MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
     )
@@ -263,7 +254,7 @@ def get_settings_menu():
             MenuButton.CHANGE_USERNAME,
             MenuButton.UPDATE_ID,
             MenuButton.NOTIFICATIONS,
-            MenuButton.BACK
+            MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
     )
@@ -273,7 +264,7 @@ def get_feedback_menu():
         [
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
-            MenuButton.BACK
+            MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
     )
@@ -283,28 +274,8 @@ def get_help_menu():
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.HELP_SUPPORT,
-            MenuButton.BACK
-        ],
-        row_width=2
-    )
-
-def get_language_selection_menu():
-    return create_menu(
-        [
-            "Українська",
-            "Англійська",
-            MenuButton.BACK
-        ],
-        row_width=2
-    )
-
-def get_notifications_menu():
-    return create_menu(
-        [
-            "Увімкнути",
-            "Вимкнути",
-            MenuButton.BACK
+            MenuButton.SUPPORT,
+            MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
     )
