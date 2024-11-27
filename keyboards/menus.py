@@ -176,16 +176,22 @@ def get_help_menu():
 def get_main_menu():
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
-            MenuButton.NEW_GUIDES,
-            MenuButton.POPULAR_GUIDES,
-            MenuButton.COUNTER_SEARCH,
-            MenuButton.CREATE_BUILD,
-            MenuButton.CURRENT_VOTES,
-            MenuButton.ACTIVITY,
-            MenuButton.LANGUAGE,
-            MenuButton.INSTRUCTIONS,
-            MenuButton.FAQ
+            MenuButton.NAVIGATION,
+            MenuButton.PROFILE
         ],
         row_width=2
+    )
+
+# Навігаційне меню
+def get_navigation_menu():
+    return create_menu(
+        [
+            MenuButton.HEROES,
+            MenuButton.GUIDES,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.BUILDS,
+            MenuButton.VOTING,
+            MenuButton.BACK
+        ],
+        row_width=3
     )
