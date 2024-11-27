@@ -68,7 +68,7 @@ async def cmd_start(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ",
+        "ㅤㅤㅤㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
@@ -83,7 +83,7 @@ async def cmd_navigation(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "ㅤㅤㅤㅤ  ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+        "ㅤㅤㅤㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
