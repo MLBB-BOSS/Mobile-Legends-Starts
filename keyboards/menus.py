@@ -9,12 +9,13 @@ logging.basicConfig(level=logging.INFO)
 class MenuButton(Enum):
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Профіль"
+    HEROES = "🛡️ Персонажі"
     SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🔮 Маг"
     MARKSMAN = "🏹 Стрілець"
     ASSASSIN = "⚔️ Асасін"
-    SUPPORT = "📞 Підтримка"  # Changed this one to avoid conflict
+    SUPPORT = "📞 Підтримка"
     BACK = "🔄 Назад"
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
