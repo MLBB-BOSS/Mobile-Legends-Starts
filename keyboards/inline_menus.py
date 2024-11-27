@@ -74,7 +74,7 @@ class MenuButton(Enum):
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити"
+    CHANGE_USERNAME = "🆔 Змінити Ім'я"
     UPDATE_ID = "🛡️ Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
@@ -188,10 +188,10 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    buttons = [hero for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    keyboard.append([MenuButton.BACK.value])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
