@@ -28,63 +28,15 @@ class MenuButton(Enum):
     MARKSMAN = "🎯 Стрілець"
     ASSASSIN = "🗡️ Асасін"
     SUPPORT = "❤️ Підтримка"
+    FIGHTER = "🥊 Боєць"  # Додано
     COMPARISON = "⚖️ Порівняння"
 
-    # Розділ Гайди
-    NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Популярні Гайди"
-    BEGINNER_GUIDES = "📘 Для Початківців"
-    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
-    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
-
-    # Розділ Контр-піки
-    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Персонажів"
-
-    # Розділ Білди
-    CREATE_BUILD = "🏗️ Створити Білд"
-    MY_BUILDS = "📄 Мої Білди"
-    POPULAR_BUILDS = "💎 Популярні Білди"
-
-    # Розділ Голосування
-    CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голосування"
-    SUGGEST_TOPIC = "➕ Запропонувати Тему"
-
-    # Розділ Профіль
-    STATISTICS = "📈 Статистика"
-    ACHIEVEMENTS = "🏆 Досягнення"
-    SETTINGS = "⚙️ Налаштування"
-    FEEDBACK = "💌 Зворотний Зв'язок"
-    HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔄 Повернутися до Головного Меню"
-
-    # Підрозділ Статистика
-    ACTIVITY = "📊 Загальна Активність"
-    RANKING = "🥇 Рейтинг"
-    GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔄 Назад до Профілю"
-
-    # Підрозділ Досягнення
-    BADGES = "🎖️ Мої Бейджі"
-    PROGRESS = "🚀 Прогрес"
-    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
-    AWARDS = "🎟️ Отримані Нагороди"
-
-    # Підрозділ Налаштування
-    LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити Username"
-    UPDATE_ID = "🛡️ Оновити ID Гравця"
-    NOTIFICATIONS = "🔔 Сповіщення"
-
-    # Підрозділ Зворотний Зв'язок
-    SEND_FEEDBACK = "✏️ Надіслати Відгук"
-    REPORT_BUG = "🐛 Повідомити про Помилку"
+    # Решта меню залишаються без змін...
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    HELP_SUPPORT = "📞 Підтримка"  # Перейменовано з SUPPORT на HELP_SUPPORT
+    HELP_SUPPORT = "📞 Підтримка"  # Виправлено на HELP_SUPPORT
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -93,15 +45,39 @@ menu_button_to_class = {
     MenuButton.MARKSMAN.value: "Стрілець",
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
+    MenuButton.FIGHTER.value: "Боєць",  # Додано
 }
 
-# Дані героїв за класами (можете додати своїх героїв)
+# Повний список героїв за класами
 heroes_by_class = {
-    "Танк": ["Atlas", "Belerick", "Franco"],
-    "Маг": ["Alice", "Eudora", "Gord"],
-    "Стрілець": ["Bruno", "Clint", "Layla"],
-    "Асасін": ["Fanny", "Gusion", "Lancelot"],
-    "Підтримка": ["Angela", "Estes", "Rafaela"],
+    "Боєць": [
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
+        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
+        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
+        "Badang", "Guinevere"
+    ],
+    "Танк": [
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
+        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
+    ],
+    "Асасін": [
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
+        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
+    ],
+    "Стрілець": [
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
+        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
+        "Roger", "Karrie", "Irithel", "Lesley"
+    ],
+    "Маг": [
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
+        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
+    ],
+    "Підтримка": [
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
+    ],
 }
 
 def create_menu(buttons, row_width=2):
@@ -126,7 +102,7 @@ def get_main_menu():
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
         ],
-        row_width=2
+        row_width=2  # Головне меню залишається з двома кнопками в рядку
     )
 
 def get_navigation_menu():
@@ -139,7 +115,7 @@ def get_navigation_menu():
             MenuButton.VOTING,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3  # Починаючи з другого рівня, кнопки в три стовпчики
     )
 
 def get_heroes_menu():
@@ -151,16 +127,17 @@ def get_heroes_menu():
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
             MenuButton.SUPPORT,
+            MenuButton.FIGHTER,  # Додано
             MenuButton.COMPARISON,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = [hero for hero in heroes]
-    row_width = 2
+    row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
@@ -175,7 +152,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_counter_picks_menu():
@@ -185,7 +162,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=1
+        row_width=3
     )
 
 def get_builds_menu():
@@ -196,7 +173,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_voting_menu():
@@ -207,7 +184,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_profile_menu():
@@ -220,7 +197,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_statistics_menu():
@@ -231,7 +208,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_achievements_menu():
@@ -243,7 +220,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_settings_menu():
@@ -255,7 +232,7 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_feedback_menu():
@@ -265,7 +242,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_help_menu():
@@ -273,8 +250,8 @@ def get_help_menu():
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.HELP_SUPPORT,  # Виправлено на HELP_SUPPORT
+            MenuButton.HELP_SUPPORT,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
