@@ -28,15 +28,64 @@ class MenuButton(Enum):
     MARKSMAN = "🎯 Стрілець"
     ASSASSIN = "🗡️ Асасін"
     SUPPORT = "❤️ Підтримка"
-    FIGHTER = "🥊 Боєць"  # Додано
+    FIGHTER = "🥊 Боєць"
     COMPARISON = "⚖️ Порівняння"
 
-    # Решта меню залишаються без змін...
+    # Розділ Гайди
+    NEW_GUIDES = "🆕 Нові Гайди"
+    POPULAR_GUIDES = "🌟 Популярні Гайди"
+    BEGINNER_GUIDES = "📘 Для Початківців"
+    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
+    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
+
+    # Розділ Контр-піки
+    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
+    COUNTER_LIST = "📝 Список Персонажів"
+
+    # Розділ Білди
+    CREATE_BUILD = "🏗️ Створити Білд"
+    MY_BUILDS = "📄 Мої Білди"
+    POPULAR_BUILDS = "💎 Популярні Білди"
+
+    # Розділ Голосування
+    CURRENT_VOTES = "📍 Поточні Опитування"
+    MY_VOTES = "📋 Мої Голосування"
+    SUGGEST_TOPIC = "➕ Запропонувати Тему"
+
+    # Розділ Профіль
+    STATISTICS = "📈 Статистика"  # ВАЖЛИВО: Цей атрибут додано
+    ACHIEVEMENTS = "🏆 Досягнення"
+    SETTINGS = "⚙️ Налаштування"
+    FEEDBACK = "💌 Зворотний Зв'язок"
+    HELP = "❓ Допомога"
+    BACK_TO_MAIN_MENU = "🔄 Повернутися до Головного Меню"
+
+    # Підрозділ Статистика
+    ACTIVITY = "📊 Загальна Активність"
+    RANKING = "🥇 Рейтинг"
+    GAME_STATS = "🎮 Ігрова Статистика"
+    BACK_TO_PROFILE = "🔄 Назад до Профілю"
+
+    # Підрозділ Досягнення
+    BADGES = "🎖️ Мої Бейджі"
+    PROGRESS = "🚀 Прогрес"
+    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
+    AWARDS = "🎟️ Отримані Нагороди"
+
+    # Підрозділ Налаштування
+    LANGUAGE = "🌐 Мова Інтерфейсу"
+    CHANGE_USERNAME = "🆔 Змінити Username"
+    UPDATE_ID = "🛡️ Оновити ID Гравця"
+    NOTIFICATIONS = "🔔 Сповіщення"
+
+    # Підрозділ Зворотний Зв'язок
+    SEND_FEEDBACK = "✏️ Надіслати Відгук"
+    REPORT_BUG = "🐛 Повідомити про Помилку"
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-    HELP_SUPPORT = "📞 Підтримка"  # Виправлено на HELP_SUPPORT
+    HELP_SUPPORT = "📞 Підтримка"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -45,7 +94,7 @@ menu_button_to_class = {
     MenuButton.MARKSMAN.value: "Стрілець",
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
-    MenuButton.FIGHTER.value: "Боєць",  # Додано
+    MenuButton.FIGHTER.value: "Боєць",
 }
 
 # Повний список героїв за класами
@@ -91,7 +140,8 @@ def create_menu(buttons, row_width=2):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard = [
-        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons[i:i + row_width]]
+        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button)
+         for button in buttons[i:i + row_width]]
         for i in range(0, len(buttons), row_width)
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
@@ -102,7 +152,7 @@ def get_main_menu():
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
         ],
-        row_width=2  # Головне меню залишається з двома кнопками в рядку
+        row_width=2
     )
 
 def get_navigation_menu():
@@ -127,7 +177,7 @@ def get_heroes_menu():
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
             MenuButton.SUPPORT,
-            MenuButton.FIGHTER,  # Додано
+            MenuButton.FIGHTER,
             MenuButton.COMPARISON,
             MenuButton.BACK
         ],
