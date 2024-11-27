@@ -1,15 +1,20 @@
-from aiogram import Router, F
-from aiogram.types import Message
-from keyboards.level3.guides_menu import get_guides_menu
-import logging
+from .navigation import router as navigation_router
+from .heroes import router as heroes_router
+from .guides import router as guides_router
+from .counter_picks import router as counter_picks_router
+from .hero_classes import router as hero_classes_router
+from .back import router as back_router
 
-logger = logging.getLogger(__name__)
-router = Router()
+routers = [
+    navigation_router,
+    heroes_router,
+    guides_router,
+    counter_picks_router,
+    hero_classes_router,
+    back_router,
+]
 
-@router.message(F.text == "📚 Гайди")
-async def guides_menu_handler(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав '📚 Гайди'")
-    await message.answer(
-        "📚 Гайди: Оберіть потрібний розділ.",
-        reply_markup=get_guides_menu()
-    )
+def setup_handlers(dp):
+    """Реєстрація всіх хендлерів"""
+    for router in routers:
+        dp.include_router(router)
