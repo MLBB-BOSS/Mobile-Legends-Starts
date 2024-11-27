@@ -22,7 +22,6 @@ class MenuButton(Enum):
     BACK = "🔄 Назад"
 
     # Розділ Персонажі
-    SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🧙‍♂️ Маг"
     MARKSMAN = "🎯 Стрілець"
@@ -30,30 +29,10 @@ class MenuButton(Enum):
     SUPPORT = "❤️ Підтримка"
     FIGHTER = "🥊 Боєць"
     COMPARISON = "⚖️ Порівняння"
-
-    # Розділ Гайди
-    NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Популярні Гайди"
-    BEGINNER_GUIDES = "📘 Для Початківців"
-    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
-    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
-
-    # Розділ Контр-піки
-    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Персонажів"
-
-    # Розділ Білди
-    CREATE_BUILD = "🏗️ Створити Білд"
-    MY_BUILDS = "📄 Мої Білди"
-    POPULAR_BUILDS = "💎 Популярні Білди"
-
-    # Розділ Голосування
-    CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голосування"
-    SUGGEST_TOPIC = "➕ Запропонувати Тему"
+    SEARCH_HERO = "🔎 Пошук Персонажа"
 
     # Розділ Профіль
-    STATISTICS = "📈 Статистика"  # ВАЖЛИВО: Цей атрибут додано
+    STATISTICS = "📈 Статистика"
     ACHIEVEMENTS = "🏆 Досягнення"
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Зворотний Зв'язок"
@@ -139,10 +118,12 @@ def create_menu(buttons, row_width=2):
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
+    keyboard_buttons = [
+        KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
+    ]
     keyboard = [
-        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button)
-         for button in buttons[i:i + row_width]]
-        for i in range(0, len(buttons), row_width)
+        keyboard_buttons[i:i + row_width]
+        for i in range(0, len(keyboard_buttons), row_width)
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
@@ -165,13 +146,12 @@ def get_navigation_menu():
             MenuButton.VOTING,
             MenuButton.BACK
         ],
-        row_width=3  # Починаючи з другого рівня, кнопки в три стовпчики
+        row_width=3
     )
 
 def get_heroes_menu():
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
             MenuButton.TANK,
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
@@ -179,6 +159,7 @@ def get_heroes_menu():
             MenuButton.SUPPORT,
             MenuButton.FIGHTER,
             MenuButton.COMPARISON,
+            MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
         row_width=3
@@ -186,7 +167,7 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [hero for hero in heroes]
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
