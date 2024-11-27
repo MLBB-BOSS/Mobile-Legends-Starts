@@ -12,13 +12,13 @@ class MenuButton(Enum):
     HEROES = "🥷 Персонажі"
     GUIDES = "📖 Гайди"
     SEARCH_HERO = "🔎 Пошук Персонажа"
-    FIGHTER = "🗡️ Боєць"  # Оновлений смайлик
-    TANK = "🛡️ Танк"  # Смайлик залишився
-    MAGE = "🧙‍♂️ Маг"  # Оновлений смайлик
-    MARKSMAN = "🏹 Стрілець"  # Оновлений смайлик
-    ASSASSIN = "⚔️ Асасін"  # Оновлений смайлик
-    SUPPORT = "🧬 Підтримка"  # Оновлений смайлик
-    COMPARISON = "⚖️ Порівняння"  # Нова кнопка
+    FIGHTER = "🗡️ Боєць"
+    TANK = "🛡️ Танк"
+    MAGE = "🧙‍♂️ Маг"
+    MARKSMAN = "🏹 Стрілець"
+    ASSASSIN = "⚔️ Асасін"
+    SUPPORT = "🧬 Підтримка"
+    COMPARISON = "⚖️ Порівняння"
     BACK = "🔄 Назад"
     NEW_GUIDES = "🆕 Нові Гайди"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
@@ -51,39 +51,40 @@ class MenuButton(Enum):
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "🆘 Підтримка"
 
-# Список героїв за класами (залишився без змін)
+# Список героїв за класами
 heroes_by_class = {
     "Боєць": [
         "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
         "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
-        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
-        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
-        "Badang", "Guinevere"
+        "Dyrroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fredrinn", "Arlott", "Leomord", "Thamuz", "Badang", "Guinevere"
     ],
     "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
+        "Tigreal", "Akai", "Franco", "Minotaur", "Lolita", "Gatotkaca", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Baxia", "Masha",
+        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo"
     ],
     "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
+        "Saber", "Fanny", "Natalia", "Lancelot", "Helcurt", "Lesley", "Selena",
+        "Mathilda", "Paquito", "Yin", "Arlott", "Gusion", "Hayabusa", "Ling", "Karina"
     ],
     "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi",
+        "Claude", "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla",
+        "Yi Sun-shin", "Moskov", "Roger", "Karrie", "Irithel", "Lesley"
     ],
     "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
-        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
+        "Vale", "Lunox", "Kadita", "Cecilion", "Luo Yi", "Xavier", "Novaria",
+        "Harley", "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops",
+        "Vexana", "Odette", "Zhask", "Eudora", "Gord", "Chang'e", "Pharsa"
     ],
     "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda",
+        "Floryn", "Carmilla", "Diggie", "Kaja"
     ],
 }
 
-# Відображення MenuButton на назви класів (оновлено відповідно до нових смайликів)
+# Відображення MenuButton на назви класів
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
@@ -95,12 +96,6 @@ menu_button_to_class = {
 
 # Функція для створення клавіатур
 def create_menu(buttons, row_width=2):
-    """
-    Створює клавіатуру з кнопками.
-    :param buttons: Список кнопок (MenuButton або str).
-    :param row_width: Кількість кнопок у рядку.
-    :return: ReplyKeyboardMarkup
-    """
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
@@ -110,7 +105,7 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Меню "Головне меню" з двома кнопками
+# Меню "Головне меню"
 def get_main_menu():
     return create_menu(
         [
@@ -134,18 +129,16 @@ def get_navigation_menu():
         row_width=3
     )
 
-# Оновлене меню "Персонажі"
+# Меню "Персонажі"
 def get_heroes_menu():
     return create_menu(
         [
-            # Перші два рядки - класи персонажів
             MenuButton.FIGHTER,
             MenuButton.TANK,
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
             MenuButton.SUPPORT,
-            # Додані кнопки "Порівняння", "Назад" та "Пошук Персонажа"
             MenuButton.COMPARISON,
             MenuButton.BACK,
             MenuButton.SEARCH_HERO
@@ -163,7 +156,7 @@ def get_hero_class_menu(hero_class):
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Інші функції меню (залишилися без змін)
+# Інші функції меню
 def get_guides_menu():
     return create_menu(
         [
@@ -174,7 +167,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_counter_picks_menu():
@@ -184,7 +177,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=1
     )
 
 def get_builds_menu():
@@ -195,7 +188,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_voting_menu():
@@ -206,7 +199,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_profile_menu():
@@ -217,5 +210,5 @@ def get_profile_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
