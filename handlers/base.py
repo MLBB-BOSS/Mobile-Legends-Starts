@@ -1,9 +1,9 @@
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message
-from aiogram.fsm.context import FSMContext  # Імпорт для FSM
-from aiogram.fsm.state import StatesGroup, State  # Імпорт для FSM
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from keyboards.menus import (
     MenuButton,
     menu_button_to_class,
@@ -17,6 +17,10 @@ from keyboards.menus import (
     get_profile_menu,
     get_hero_class_menu,
     heroes_by_class,
+)
+from keyboards.inline_menus import (
+    get_navigation_inline_menu,
+    get_profile_inline_menu,
 )
 
 # Налаштування логування
@@ -60,23 +64,65 @@ async def cmd_start(message: Message, state: FSMContext):
         reply_markup=get_main_menu(),
     )
 
-# Обробники для кнопок меню
+# Обробник для кнопки "Навігація"
 @router.message(F.text == MenuButton.NAVIGATION.value)
 async def cmd_navigation(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Навігацію")
-    await state.set_state(MenuStates.NAVIGATION_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.NAVIGATION_MENU)
     await message.answer(
+        "У розділі 'Навігація' ви можете знайти різні опції для перегляду героїв, гайдів, білдів тощо.",
+        reply_markup=get_navigation_inline_menu()
+    )
+
+# Обробники для inline-кнопок у розділі "Навігація"
+@router.callback_query(F.data == "go_navigation")
+async def callback_go_navigation(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await state.set_state(MenuStates.NAVIGATION_MENU)
+    await callback_query.message.answer(
         "Виберіть опцію навігації:",
         reply_markup=get_navigation_menu(),
     )
 
+@router.callback_query(F.data == "more_navigation")
+async def callback_more_navigation(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.answer(
+        "У розділі 'Навігація' ви можете:\n"
+        "- Переглядати героїв за класами\n"
+        "- Читати гайди\n"
+        "- Створювати білди\n"
+        "Оберіть 'Перейти до Навігації', щоб почати.",
+    )
+
+# Обробник для кнопки "Мій Профіль"
 @router.message(F.text == MenuButton.PROFILE.value)
 async def cmd_profile(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Мій Профіль")
-    await state.set_state(MenuStates.PROFILE_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.PROFILE_MENU)
     await message.answer(
+        "У розділі 'Мій Профіль' ви можете переглянути свою активність, рейтинг та ігрову статистику.",
+        reply_markup=get_profile_inline_menu()
+    )
+
+# Обробники для inline-кнопок у розділі "Мій Профіль"
+@router.callback_query(F.data == "go_profile")
+async def callback_go_profile(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await state.set_state(MenuStates.PROFILE_MENU)
+    await callback_query.message.answer(
         "Виберіть опцію профілю:",
         reply_markup=get_profile_menu(),
+    )
+
+@router.callback_query(F.data == "more_profile")
+async def callback_more_profile(callback_query: CallbackQuery, state: FSMContext):
+    await callback_query.answer()
+    await callback_query.message.answer(
+        "У розділі 'Мій Профіль' ви можете:\n"
+        "- Переглянути загальну активність\n"
+        "- Подивитися свій рейтинг\n"
+        "- Переглянути ігрову статистику",
     )
 
 # Додані обробники для меню "Мій Профіль"
@@ -104,10 +150,11 @@ async def cmd_game_stats(message: Message, state: FSMContext):
         reply_markup=get_profile_menu(),
     )
 
+# Обробник для кнопки "Персонажі"
 @router.message(F.text == MenuButton.HEROES.value)
 async def cmd_heroes(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
-    await state.set_state(MenuStates.HEROES_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.HEROES_MENU)
     await message.answer(
         "Виберіть категорію героїв:",
         reply_markup=get_heroes_menu(),
@@ -121,7 +168,7 @@ async def cmd_hero_class(message: Message, state: FSMContext):
     hero_class = menu_button_to_class.get(message.text)
     if hero_class:
         logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
-        await state.set_state(MenuStates.HERO_CLASS_MENU)  # Встановлюємо стан
+        await state.set_state(MenuStates.HERO_CLASS_MENU)
         await message.answer(
             f"Виберіть героя з класу {hero_class}:",
             reply_markup=get_hero_class_menu(hero_class)
@@ -137,7 +184,6 @@ async def cmd_hero_class(message: Message, state: FSMContext):
 @router.message(F.text == MenuButton.COMPARISON.value)
 async def cmd_comparison(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Порівняння")
-    # Додайте тут логіку для обробки порівняння героїв
     await message.answer(
         "Функція порівняння героїв ще в розробці.",
         reply_markup=get_heroes_menu(),
@@ -159,10 +205,11 @@ async def cmd_hero_selected(message: Message, state: FSMContext):
         reply_markup=get_main_menu(),
     )
 
+# Обробник для кнопки "Гайди"
 @router.message(F.text == MenuButton.GUIDES.value)
 async def cmd_guides(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Гайди")
-    await state.set_state(MenuStates.GUIDES_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.GUIDES_MENU)
     await message.answer(
         "Виберіть гайди:",
         reply_markup=get_guides_menu(),
@@ -209,10 +256,11 @@ async def cmd_teamplay_guides(message: Message, state: FSMContext):
         reply_markup=get_guides_menu(),
     )
 
+# Обробник для кнопки "Контр-піки"
 @router.message(F.text == MenuButton.COUNTER_PICKS.value)
 async def cmd_counter_picks(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
-    await state.set_state(MenuStates.COUNTER_PICKS_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.COUNTER_PICKS_MENU)
     await message.answer(
         "Виберіть контр-піки:",
         reply_markup=get_counter_picks_menu(),
@@ -235,10 +283,11 @@ async def cmd_counter_list(message: Message, state: FSMContext):
         reply_markup=get_counter_picks_menu(),
     )
 
+# Обробник для кнопки "Білди"
 @router.message(F.text == MenuButton.BUILDS.value)
 async def cmd_builds(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Білди")
-    await state.set_state(MenuStates.BUILDS_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.BUILDS_MENU)
     await message.answer(
         "Виберіть білди:",
         reply_markup=get_builds_menu(),
@@ -269,10 +318,11 @@ async def cmd_popular_builds(message: Message, state: FSMContext):
         reply_markup=get_builds_menu(),
     )
 
+# Обробник для кнопки "Голосування"
 @router.message(F.text == MenuButton.VOTING.value)
 async def cmd_voting(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Голосування")
-    await state.set_state(MenuStates.VOTING_MENU)  # Встановлюємо стан
+    await state.set_state(MenuStates.VOTING_MENU)
     await message.answer(
         "Виберіть опцію голосування:",
         reply_markup=get_voting_menu(),
@@ -369,7 +419,7 @@ async def cmd_back(message: Message, state: FSMContext):
 @router.message()
 async def unknown_command(message: Message, state: FSMContext):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
-    await state.set_state(MenuStates.MAIN_MENU)  # Скидаємо стан
+    await state.set_state(MenuStates.MAIN_MENU)
     await message.answer(
         "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
         reply_markup=get_main_menu(),
