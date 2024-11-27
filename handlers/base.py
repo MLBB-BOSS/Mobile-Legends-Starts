@@ -1,19 +1,16 @@
 # handlers/base.py
-
 import logging
-from aiogram import Router, F, types
-from aiogram.filters import Command
+from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-
 from keyboards.menus import (
     MenuButton,
     menu_button_to_class,
     get_main_menu,
     get_navigation_menu,
     get_heroes_menu,
-    # get_hero_class_menu,  # Видалено
+    get_hero_class_menu,  # Тепер цей імпорт повинен бути коректним
     get_guides_menu,
     get_counter_picks_menu,
     get_builds_menu,
@@ -26,8 +23,8 @@ from keyboards.menus import (
     get_help_menu,
     heroes_by_class,
 )
-from keyboards.inline_menus import get_generic_inline_keyboard, get_hero_class_inline_keyboard
-from utils.message_formatter import MessageFormatter
+from keyboards.inline_menus import get_generic_inline_keyboard  # Видаліть, якщо не використовуєте інлайн-клавіатури
+from utils.message_formatter import send_formatted_menu  # Використовуйте standalone функцію
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
@@ -55,28 +52,6 @@ class MenuStates(StatesGroup):
     REPORT_BUG = State()
     SEARCH_HERO = State()
     # Додайте інші стани за потреби
-
-async def send_formatted_menu(message: Message, title: str, description: str, options: list = None, reply_markup=None):
-    """
-    Надсилає відформатоване меню
-    
-    :param message: Об'єкт повідомлення
-    :param title: Заголовок меню
-    :param description: Опис меню
-    :param options: Список доступних опцій (опціонально)
-    :param reply_markup: Клавіатура (опціонально)
-    """
-    header, content = MessageFormatter.create_menu_message(title, description, options)
-    
-    # Надсилаємо заголовок
-    await message.answer(text=header, parse_mode="HTML")
-    
-    # Надсилаємо контент з клавіатурою
-    await message.answer(
-        text=content,
-        parse_mode="HTML",
-        reply_markup=reply_markup
-    )
 
 # Команда /start
 @router.message(Command("start"))
@@ -106,7 +81,111 @@ async def cmd_start(message: Message, state: FSMContext):
         reply_markup=get_main_menu()
     )
 
-# ... (інші хендлери залишаються без змін, окрім тих, що використовують get_hero_class_menu)
+# Головне Меню - Навігація
+@router.message(MenuStates.MAIN_MENU, F.text == MenuButton.NAVIGATION.value)
+async def cmd_navigation(message: Message, state: FSMContext):
+    logger.info(f"Користувач {message.from_user.id} обрав Навігацію")
+    await state.set_state(MenuStates.NAVIGATION_MENU)
+    
+    title = "🧭 Навігація"
+    description = (
+        "У цьому меню ви можете обрати різні розділи, такі як Персонажі, Гайди, Контр-піки, Білди, та Голосування.\n\n"
+        "Оберіть відповідну опцію нижче, щоб перейти до більш детальної інформації."
+    )
+    options = [
+        MenuButton.HEROES.value,
+        MenuButton.GUIDES.value,
+        MenuButton.COUNTER_PICKS.value,
+        MenuButton.BUILDS.value,
+        MenuButton.VOTING.value,
+        MenuButton.BACK.value
+    ]
+    await send_formatted_menu(
+        message=message,
+        title=title,
+        description=description,
+        options=options,
+        reply_markup=get_navigation_menu()
+    )
+
+# Розділ "Персонажі" - Вибір класу героя
+@router.message(MenuStates.HEROES_MENU, F.text.in_([
+    MenuButton.TANK.value,
+    MenuButton.MAGE.value,
+    MenuButton.MARKSMAN.value,
+    MenuButton.ASSASSIN.value,
+    MenuButton.SUPPORT.value,
+    MenuButton.FIGHTER.value
+]))
+async def cmd_hero_class(message: Message, state: FSMContext):
+    hero_class = menu_button_to_class.get(message.text)
+    if hero_class:
+        logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
+        await state.set_state(MenuStates.HERO_CLASS_MENU)
+        await state.update_data(hero_class=hero_class)  # Зберігаємо клас героя в стані
+        
+        title = f"🧙‍♂️ {hero_class} Герої"
+        description = f"Виберіть героя з класу <b>{hero_class}</b>, щоб переглянути його характеристики та інші деталі."
+        options = heroes_by_class.get(hero_class, []) + [MenuButton.BACK.value]
+        
+        await send_formatted_menu(
+            message=message,
+            title=title,
+            description=description,
+            options=options,
+            reply_markup=get_hero_class_menu(hero_class)  # Використовуйте функцію Reply Keyboard
+        )
+    else:
+        logger.warning(f"Невідомий клас героїв: {message.text}")
+        title = "❗ Невідома команда"
+        description = "Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
+        options = [
+            MenuButton.TANK.value,
+            MenuButton.MAGE.value,
+            MenuButton.MARKSMAN.value,
+            MenuButton.ASSASSIN.value,
+            MenuButton.SUPPORT.value,
+            MenuButton.FIGHTER.value,
+            MenuButton.COMPARISON.value,
+            MenuButton.SEARCH_HERO.value,
+            MenuButton.BACK.value
+        ]
+        await send_formatted_menu(
+            message=message,
+            title=title,
+            description=description,
+            options=options,
+            reply_markup=get_heroes_menu()
+        )
+
+# Інші хендлери...
+
+# Обробник для вибору героя з класу через Reply Keyboard
+@router.callback_query(F.data.startswith("hero:"))
+async def cmd_select_hero_callback(call: CallbackQuery, state: FSMContext):
+    hero_name = call.data.split("hero:")[1]
+    logger.info(f"Користувач {call.from_user.id} обрав героя {hero_name}")
+    await state.set_state(MenuStates.MAIN_MENU)
+    
+    title = f"🎯 {hero_name}"
+    description = (
+        f"Ви обрали героя <b>{hero_name}</b>. Інформація про героя буде додана пізніше.\n\n"
+        f"Поверніться до головного меню або оберіть іншу опцію."
+    )
+    options = [
+        MenuButton.NAVIGATION.value,
+        MenuButton.PROFILE.value
+    ]
+    await send_formatted_menu(
+        message=call.message,
+        title=title,
+        description=description,
+        options=options,
+        reply_markup=get_main_menu()
+    )
+    await call.answer()
+
+# Інші обробники CallbackQuery...
 
 # Обробник для невідомих повідомлень
 @router.message()
@@ -154,7 +233,7 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = f"Вибачте, я не розумію цю команду. Виберіть героя з класу <b>{hero_class}</b>."
         options = heroes_by_class.get(hero_class, []) + [MenuButton.BACK.value]
-        reply_markup = get_hero_class_inline_keyboard(hero_class)
+        reply_markup = get_hero_class_menu(hero_class)
     elif current_state == MenuStates.GUIDES_MENU.state:
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій гайдів."
@@ -200,11 +279,11 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій профілю."
         options = [
-            MenuButton.STATISTICS.value,
-            MenuButton.ACHIEVEMENTS.value,
-            MenuButton.SETTINGS.value,
-            MenuButton.FEEDBACK.value,
-            MenuButton.HELP.value,
+            "📈 Статистика",
+            "🏅 Досягнення",
+            "⚙️ Налаштування",
+            "📤 Зворотний Зв'язок",
+            "❓ Допомога",
             MenuButton.BACK_TO_MAIN_MENU.value
         ]
         reply_markup = get_profile_menu()
@@ -212,9 +291,9 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій статистики."
         options = [
-            MenuButton.ACTIVITY.value,
-            MenuButton.RANKING.value,
-            MenuButton.GAME_STATS.value,
+            "📈 Активність",
+            "🏅 Рейтинг",
+            "🎮 Ігрова Статистика",
             MenuButton.BACK_TO_PROFILE.value
         ]
         reply_markup = get_statistics_menu()
@@ -222,10 +301,10 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій досягнень."
         options = [
-            "Мої Бейджі - 🏅",
-            "Прогрес - 📊",
-            "Турнірна Статистика - 🏆",
-            "Отримані Нагороди - 🏆",
+            "🏅 Мої Бейджі",
+            "📊 Прогрес",
+            "🏆 Турнірна Статистика",
+            "🏆 Отримані Нагороди",
             MenuButton.BACK_TO_PROFILE.value
         ]
         reply_markup = get_achievements_menu()
@@ -233,10 +312,10 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій налаштувань."
         options = [
-            "Мова Інтерфейсу - 🌐",
-            "Змінити Username - ✏️",
-            "Оновити ID Гравця - 🔄",
-            "Сповіщення - 🔔",
+            "🌐 Мова Інтерфейсу",
+            "✏️ Змінити Username",
+            "🔄 Оновити ID Гравця",
+            "🔔 Сповіщення",
             MenuButton.BACK_TO_PROFILE.value
         ]
         reply_markup = get_settings_menu()
@@ -244,8 +323,8 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій зворотного зв'язку."
         options = [
-            "Надіслати Відгук - 📤",
-            "Повідомити про Помилку - 🐞",
+            "📤 Надіслати Відгук",
+            "🐞 Повідомити про Помилку",
             MenuButton.BACK_TO_PROFILE.value
         ]
         reply_markup = get_feedback_menu()
@@ -253,9 +332,9 @@ async def unknown_command(message: Message, state: FSMContext):
         title = "❗ Невідома команда"
         description = "Вибачте, я не розумію цю команду. Виберіть одну з доступних опцій допомоги."
         options = [
-            "Інструкції - 📖",
-            "FAQ - ❓",
-            "Підтримка - 🆘",
+            "📖 Інструкції",
+            "❓ FAQ",
+            "🆘 Підтримка",
             MenuButton.BACK_TO_PROFILE.value
         ]
         reply_markup = get_help_menu()
@@ -277,7 +356,7 @@ async def unknown_command(message: Message, state: FSMContext):
         reply_markup=reply_markup
     )
 
-# Обробники для вибору героя з класу через інлайн-кнопки
+# Обробники для вибору героя з класу через Reply Keyboard
 @router.callback_query(F.data.startswith("hero:"))
 async def cmd_select_hero_callback(call: CallbackQuery, state: FSMContext):
     hero_name = call.data.split("hero:")[1]
@@ -303,6 +382,7 @@ async def cmd_select_hero_callback(call: CallbackQuery, state: FSMContext):
     await call.answer()
 
 # Додаткові Обробники для Нових Станів
+
 @router.message(MenuStates.CHANGE_USERNAME)
 async def handle_change_username(message: Message, state: FSMContext):
     new_username = message.text.strip()
