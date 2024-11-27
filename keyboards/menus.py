@@ -1,86 +1,114 @@
-# Навігаційне меню
-def get_navigation_menu():
-    """
-    Створює навігаційне меню.
-    :return: ReplyKeyboardMarkup
-    """
+# Нові меню для кожної секції
+
+# Меню "Персонажі"
+def get_heroes_menu():
     return create_menu(
         [
-            MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
-            MenuButton.VOTING,
+            MenuButton.SEARCH_HERO,
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
             MenuButton.BACK
         ],
         row_width=2
     )
 
-# Меню гайдів
+# Меню "Гайди"
 def get_guides_menu():
-    """
-    Створює меню гайдів.
-    :return: ReplyKeyboardMarkup
-    """
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,  # Можливо, замінити на специфічні кнопки для гайдів
+            MenuButton("🆕 Нові Гайди"),
+            MenuButton("🌟 Популярні Гайди"),
+            MenuButton("📘 Для Початківців"),
+            MenuButton("🧙 Просунуті Техніки"),
+            MenuButton("🛡️ Командна Гра"),
             MenuButton.BACK
         ],
         row_width=2
     )
 
-# Меню контр-піків
+# Меню "Контр-піки"
 def get_counter_picks_menu():
-    """
-    Створює меню контр-піків.
-    :return: ReplyKeyboardMarkup
-    """
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
+            MenuButton("🔎 Пошук Контр-піку"),
+            MenuButton("📝 Список Персонажів"),
             MenuButton.BACK
         ],
         row_width=1
     )
 
-# Меню білдів
+# Меню "Білди"
 def get_builds_menu():
-    """
-    Створює меню білдів.
-    :return: ReplyKeyboardMarkup
-    """
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
+            MenuButton("🏗️ Створити Білд"),
+            MenuButton("📄 Мої Білди"),
+            MenuButton("💎 Популярні Білди"),
             MenuButton.BACK
         ],
         row_width=1
     )
 
-# Меню голосування
+# Меню "Голосування"
 def get_voting_menu():
-    """
-    Створює меню голосування.
-    :return: ReplyKeyboardMarkup
-    """
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,  # Замініть на актуальні кнопки для голосування
+            MenuButton("📍 Поточні Опитування"),
+            MenuButton("📋 Мої Голосування"),
+            MenuButton("➕ Запропонувати Тему"),
             MenuButton.BACK
         ],
-        row_width=1
+        row_width=2
     )
 
-# Меню профілю
+# Меню "Профіль"
 def get_profile_menu():
-    """
-    Створює меню профілю.
-    :return: ReplyKeyboardMarkup
-    """
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,  # Можна замінити на функції профілю, такі як "Статистика" або "Налаштування"
+            MenuButton("📊 Загальна Активність"),
+            MenuButton("🥇 Рейтинг"),
+            MenuButton("🎮 Ігрова Статистика"),
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+# Меню "Досягнення"
+def get_achievements_menu():
+    return create_menu(
+        [
+            MenuButton("🎖️ Мої Бейджі"),
+            MenuButton("🚀 Прогрес"),
+            MenuButton("🏅 Турнірна Статистика"),
+            MenuButton("🎟️ Отримані Нагороди"),
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+# Меню "Налаштування"
+def get_settings_menu():
+    return create_menu(
+        [
+            MenuButton("🌐 Мова Інтерфейсу"),
+            MenuButton("🆔 Змінити Username"),
+            MenuButton("🛡️ Оновити ID Гравця"),
+            MenuButton("🔔 Сповіщення"),
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+# Меню "Допомога"
+def get_help_menu():
+    return create_menu(
+        [
+            MenuButton("📄 Інструкції"),
+            MenuButton("❔ FAQ"),
+            MenuButton("📞 Підтримка"),
             MenuButton.BACK
         ],
         row_width=1
