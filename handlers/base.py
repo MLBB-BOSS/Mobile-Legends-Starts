@@ -83,7 +83,7 @@ async def cmd_navigation(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "Ось ваші інлайн-опції:",
+        "ㅤㅤㅤㅤ  ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
