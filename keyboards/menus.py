@@ -1,6 +1,6 @@
 # keyboards/menus.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from enum import Enum
 import logging
 
@@ -94,26 +94,40 @@ menu_button_to_class = {
     MenuButton.FIGHTER.value: "Боєць",
 }
 
-# Функція для створення клавіатур
-def create_menu(buttons, row_width=2):
+# Функція для створення Reply клавіатур
+def create_reply_menu(buttons, row_width=2):
     """
-    Створює клавіатуру з кнопками.
-    :param buttons: Список кнопок (MenuButton або str).
+    Створює ReplyKeyboardMarkup з кнопками.
+    :param buttons: Список кнопок (MenuButton).
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard = [
-        [KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons[i:i + row_width]]
+        [KeyboardButton(text=button.value) for button in buttons[i:i + row_width]]
         for i in range(0, len(buttons), row_width)
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Меню "Головне меню" з двома кнопками (залишаємо row_width=2)
+# Функція для створення Inline клавіатур з Callback Queries
+def create_inline_menu(buttons, row_width=3):
+    """
+    Створює InlineKeyboardMarkup з кнопками.
+    :param buttons: Список кнопок (tuple(text, callback_data)).
+    :param row_width: Кількість кнопок у рядку.
+    :return: InlineKeyboardMarkup
+    """
+    inline_buttons = [
+        InlineKeyboardButton(text=text, callback_data=callback_data) for text, callback_data in buttons
+    ]
+    keyboard = [
+        inline_buttons[i:i + row_width]
+        for i in range(0, len(inline_buttons), row_width)
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+# Меню "Головне меню" з двома кнопками (Reply Keyboard)
 def get_main_menu():
-    return create_menu(
+    return create_reply_menu(
         [
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
@@ -121,103 +135,104 @@ def get_main_menu():
         row_width=2
     )
 
-# Меню "Навігація" (оновлюємо row_width до 3)
+# Меню "Навігація" (Inline Keyboard з трьома колонками)
 def get_navigation_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
-            MenuButton.VOTING,
-            MenuButton.BACK
+            (MenuButton.HEROES.value, "navigate_heroes"),
+            (MenuButton.GUIDES.value, "navigate_guides"),
+            (MenuButton.COUNTER_PICKS.value, "navigate_counter_picks"),
+            (MenuButton.BUILDS.value, "navigate_builds"),
+            (MenuButton.VOTING.value, "navigate_voting"),
+            (MenuButton.BACK.value, "navigate_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Персонажі" (оновлюємо row_width до 3)
+# Меню "Персонажі" (Inline Keyboard з трьома колонками)
 def get_heroes_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.SEARCH_HERO,
-            MenuButton.FIGHTER,
-            MenuButton.TANK,
-            MenuButton.MAGE,
-            MenuButton.MARKSMAN,
-            MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,
-            MenuButton.BACK
+            (MenuButton.SEARCH_HERO.value, "heroes_search"),
+            (MenuButton.FIGHTER.value, "heroes_fighter"),
+            (MenuButton.TANK.value, "heroes_tank"),
+            (MenuButton.MAGE.value, "heroes_mage"),
+            (MenuButton.MARKSMAN.value, "heroes_marksman"),
+            (MenuButton.ASSASSIN.value, "heroes_assassin"),
+            (MenuButton.SUPPORT.value, "heroes_support"),
+            (MenuButton.BACK.value, "heroes_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Функція для створення меню героїв конкретного класу (оновлюємо row_width до 3)
+# Функція для створення меню героїв конкретного класу (Inline Keyboard з трьома колонками)
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
-    # Створення клавіатури з героями
-    row_width = 3  # Змінено на 3
-    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    buttons = [(hero, f"hero_{hero}") for hero in heroes]
+    # Додати кнопку "Назад"
+    buttons.append((MenuButton.BACK.value, "heroes_back"))
+    return create_inline_menu(
+        buttons,
+        row_width=3
+    )
 
-# Меню "Гайди" (оновлюємо row_width до 3)
+# Меню "Гайди" (Inline Keyboard з трьома колонками)
 def get_guides_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.NEW_GUIDES,
-            MenuButton.POPULAR_GUIDES,
-            MenuButton.BEGINNER_GUIDES,
-            MenuButton.ADVANCED_TECHNIQUES,
-            MenuButton.TEAMPLAY_GUIDES,
-            MenuButton.BACK
+            (MenuButton.NEW_GUIDES.value, "guides_new"),
+            (MenuButton.POPULAR_GUIDES.value, "guides_popular"),
+            (MenuButton.BEGINNER_GUIDES.value, "guides_beginner"),
+            (MenuButton.ADVANCED_TECHNIQUES.value, "guides_advanced"),
+            (MenuButton.TEAMPLAY_GUIDES.value, "guides_teamplay"),
+            (MenuButton.BACK.value, "guides_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Контр-піки" (оновлюємо row_width до 3)
+# Меню "Контр-піки" (Inline Keyboard з трьома колонками)
 def get_counter_picks_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.COUNTER_SEARCH,
-            MenuButton.COUNTER_LIST,
-            MenuButton.BACK
+            (MenuButton.COUNTER_SEARCH.value, "counter_search"),
+            (MenuButton.COUNTER_LIST.value, "counter_list"),
+            (MenuButton.BACK.value, "counter_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Білди" (оновлюємо row_width до 3)
+# Меню "Білди" (Inline Keyboard з трьома колонками)
 def get_builds_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.CREATE_BUILD,
-            MenuButton.MY_BUILDS,
-            MenuButton.POPULAR_BUILDS,
-            MenuButton.BACK
+            (MenuButton.CREATE_BUILD.value, "builds_create"),
+            (MenuButton.MY_BUILDS.value, "builds_my"),
+            (MenuButton.POPULAR_BUILDS.value, "builds_popular"),
+            (MenuButton.BACK.value, "builds_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Голосування" (оновлюємо row_width до 3)
+# Меню "Голосування" (Inline Keyboard з трьома колонками)
 def get_voting_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.CURRENT_VOTES,
-            MenuButton.MY_VOTES,
-            MenuButton.SUGGEST_TOPIC,
-            MenuButton.BACK
+            (MenuButton.CURRENT_VOTES.value, "voting_current"),
+            (MenuButton.MY_VOTES.value, "voting_my"),
+            (MenuButton.SUGGEST_TOPIC.value, "voting_suggest"),
+            (MenuButton.BACK.value, "voting_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
 
-# Меню "Профіль" (оновлюємо row_width до 3)
+# Меню "Профіль" (Inline Keyboard з трьома колонками)
 def get_profile_menu():
-    return create_menu(
+    return create_inline_menu(
         [
-            MenuButton.ACTIVITY,
-            MenuButton.RANKING,
-            MenuButton.GAME_STATS,
-            MenuButton.BACK
+            (MenuButton.ACTIVITY.value, "profile_activity"),
+            (MenuButton.RANKING.value, "profile_ranking"),
+            (MenuButton.GAME_STATS.value, "profile_game_stats"),
+            (MenuButton.BACK.value, "profile_back")
         ],
-        row_width=3  # Змінено на 3
+        row_width=3
     )
