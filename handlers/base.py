@@ -71,7 +71,18 @@ async def cmd_start(message: Message, state: FSMContext):
         "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
-
+    # handlers/base.py
+@router.message(F.text == MenuButton.HEROES.value)
+async def cmd_heroes(message: Message, state: FSMContext):
+    await state.set_state(MenuStates.HEROES_MENU)
+    keyboard = menus.get_heroes_menu()
+    
+    await send_menu_response(
+        message=message,
+        description="🛡️ Меню Персонажів",
+        detailed_text="Оберіть категорію для перегляду інформації про героїв",
+        reply_markup=keyboard
+    )
 # Головне Меню
 @router.message(MenuStates.MAIN_MENU, F.text == MenuButton.NAVIGATION.value)
 async def cmd_navigation(message: Message, state: FSMContext):
