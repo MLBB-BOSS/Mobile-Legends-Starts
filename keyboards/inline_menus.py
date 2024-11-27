@@ -10,7 +10,7 @@ class CallbackData(Enum):
     STATISTICS = "menu_statistics"
     BACK = "menu_back"
 
-def get_generic_inline_keyboard():
+def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
     Створює базову інлайн-клавіатуру для головного меню.
     """
@@ -28,68 +28,17 @@ def get_generic_inline_keyboard():
         ]
     ])
 
-def get_heroes_inline_keyboard():
-    """Клавіатура для меню героїв"""
+def get_hero_class_inline_keyboard(hero_class: str) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для вибору героя з певного класу.
+    
+    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
+    :return: InlineKeyboardMarkup
+    """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="🛡️ Танки", callback_data="hero_class_tank"),
-            InlineKeyboardButton(text="⚔️ Бійці", callback_data="hero_class_fighter")
-        ],
-        [
-            InlineKeyboardButton(text="🎯 Стрільці", callback_data="hero_class_marksman"),
-            InlineKeyboardButton(text="🔮 Маги", callback_data="hero_class_mage")
-        ],
-        [
-            InlineKeyboardButton(text="🗡️ Асасини", callback_data="hero_class_assassin"),
-            InlineKeyboardButton(text="❤️ Підтримка", callback_data="hero_class_support")
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
-        ]
-    ])
-
-def get_guides_inline_keyboard():
-    """Клавіатура для меню гайдів"""
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🎓 Базові механіки", callback_data="guide_basics"),
-            InlineKeyboardButton(text="🏆 Мета", callback_data="guide_meta")
-        ],
-        [
-            InlineKeyboardButton(text="🎯 Ролі", callback_data="guide_roles"),
-            InlineKeyboardButton(text="⚔️ Контр-піки", callback_data="guide_counter")
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
-        ]
-    ])
-
-def get_builds_inline_keyboard():
-    """Клавіатура для меню білдів"""
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📝 Створити білд", callback_data="build_create"),
-            InlineKeyboardButton(text="📄 Мої білди", callback_data="build_my")
-        ],
-        [
-            InlineKeyboardButton(text="💎 Популярні білди", callback_data="build_popular"),
-            InlineKeyboardButton(text="🔍 Пошук білдів", callback_data="build_search")
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
-        ]
-    ])
-
-def get_statistics_inline_keyboard():
-    """Клавіатура для меню статистики"""
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📊 Моя статистика", callback_data="stats_my"),
-            InlineKeyboardButton(text="🥇 Рейтинг", callback_data="stats_ranking")
-        ],
-        [
-            InlineKeyboardButton(text="📈 Прогрес", callback_data="stats_progress"),
-            InlineKeyboardButton(text="🏆 Досягнення", callback_data="stats_achievements")
+            InlineKeyboardButton(text=f"🔍 {hero_class} 1", callback_data=f"hero_class_{hero_class.lower()}_1"),
+            InlineKeyboardButton(text=f"🔍 {hero_class} 2", callback_data=f"hero_class_{hero_class.lower()}_2")
         ],
         [
             InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
