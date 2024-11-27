@@ -1,20 +1,17 @@
-from .navigation import router as navigation_router
+# handlers/__init__.py
+from .start import router as start_router
 from .heroes import router as heroes_router
+from .tank import router as tank_router
+from .fighter import router as fighter_router
 from .guides import router as guides_router
-from .counter_picks import router as counter_picks_router
-from .hero_classes import router as hero_classes_router
 from .back import router as back_router
 
-routers = [
-    navigation_router,
+all_routers = [
+    start_router,
     heroes_router,
+    tank_router,
+    fighter_router,
     guides_router,
-    counter_picks_router,
-    hero_classes_router,
     back_router,
+    # Додайте інші маршрутизатори
 ]
-
-def setup_handlers(dp):
-    """Реєстрація всіх хендлерів"""
-    for router in routers:
-        dp.include_router(router)
