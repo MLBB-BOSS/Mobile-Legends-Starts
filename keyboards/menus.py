@@ -58,17 +58,6 @@ def get_navigation_menu():
     Створює навігаційне меню.
     :return: ReplyKeyboardMarkup
     """
-    return create_menu(
-        [
-            MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
-            MenuButton.VOTING,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
 
 # Меню героїв
 def get_heroes_menu():
