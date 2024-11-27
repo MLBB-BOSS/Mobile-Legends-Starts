@@ -171,3 +171,21 @@ def get_help_menu():
         ],
         row_width=1
     )
+
+# Меню "Головне меню"
+def get_main_menu():
+    return create_menu(
+        [
+            MenuButton.SEARCH_HERO,
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.CREATE_BUILD,
+            MenuButton.CURRENT_VOTES,
+            MenuButton.ACTIVITY,
+            MenuButton.LANGUAGE,
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ
+        ],
+        row_width=2
+    )
