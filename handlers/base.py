@@ -1,9 +1,10 @@
+# handlers.py
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
-from enum import Enum
 from keyboards.menus import (
+    MenuButton,  # Імпортуємо MenuButton
     get_main_menu,
     get_navigation_menu,
     get_heroes_menu,
@@ -17,17 +18,6 @@ from keyboards.menus import (
 # Налаштування логування
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-# Enum для тексту кнопок
-class MenuTexts(Enum):
-    NAVIGATION = "🧭 Навігація"
-    HEROES = "🛡️ Персонажі"
-    GUIDES = "📚 Гайди"
-    COUNTER_PICKS = "⚖️ Контр-піки"
-    BUILDS = "⚜️ Білди"
-    VOTING = "📊 Голосування"
-    PROFILE = "🪪 Профіль"
-    BACK = "🔄 Назад"
 
 # Створюємо роутер
 router = Router()
@@ -52,7 +42,7 @@ async def cmd_start(message: Message):
     )
 
 # Обробники для кнопок меню
-@router.message(F.text == MenuTexts.NAVIGATION.value)
+@router.message(F.text == MenuButton.NAVIGATION.value)
 async def cmd_navigation(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Навігацію")
     await message.answer(
@@ -60,7 +50,7 @@ async def cmd_navigation(message: Message):
         reply_markup=get_navigation_menu(),
     )
 
-@router.message(F.text == MenuTexts.HEROES.value)
+@router.message(F.text == MenuButton.HEROES.value)
 async def cmd_heroes(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
     await message.answer(
@@ -68,7 +58,7 @@ async def cmd_heroes(message: Message):
         reply_markup=get_heroes_menu(),
     )
 
-@router.message(F.text == MenuTexts.GUIDES.value)
+@router.message(F.text == MenuButton.GUIDES.value)
 async def cmd_guides(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Гайди")
     await message.answer(
@@ -76,7 +66,7 @@ async def cmd_guides(message: Message):
         reply_markup=get_guides_menu(),
     )
 
-@router.message(F.text == MenuTexts.COUNTER_PICKS.value)
+@router.message(F.text == MenuButton.COUNTER_PICKS.value)
 async def cmd_counter_picks(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
     await message.answer(
@@ -84,7 +74,7 @@ async def cmd_counter_picks(message: Message):
         reply_markup=get_counter_picks_menu(),
     )
 
-@router.message(F.text == MenuTexts.BUILDS.value)
+@router.message(F.text == MenuButton.BUILDS.value)
 async def cmd_builds(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Білди")
     await message.answer(
@@ -92,7 +82,7 @@ async def cmd_builds(message: Message):
         reply_markup=get_builds_menu(),
     )
 
-@router.message(F.text == MenuTexts.VOTING.value)
+@router.message(F.text == MenuButton.VOTING.value)
 async def cmd_voting(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Голосування")
     await message.answer(
@@ -100,7 +90,7 @@ async def cmd_voting(message: Message):
         reply_markup=get_voting_menu(),
     )
 
-@router.message(F.text == MenuTexts.PROFILE.value)
+@router.message(F.text == MenuButton.PROFILE.value)
 async def cmd_profile(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Профіль")
     await message.answer(
@@ -109,7 +99,7 @@ async def cmd_profile(message: Message):
     )
 
 # Кнопка "Назад"
-@router.message(F.text == MenuTexts.BACK.value)
+@router.message(F.text == MenuButton.BACK.value)
 async def cmd_back(message: Message):
     logger.info(f"Користувач {message.from_user.id} натиснув 'Назад'")
     await message.answer(
