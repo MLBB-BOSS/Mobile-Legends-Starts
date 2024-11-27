@@ -5,7 +5,7 @@ from enum import Enum
 import logging
 
 # Налаштування логування
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Виправлено з 'name' на '__name__'
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
@@ -306,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-    )
+)
