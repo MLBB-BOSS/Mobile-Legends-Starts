@@ -1,3 +1,4 @@
+# menus.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -29,10 +30,11 @@ class MenuButton(Enum):
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
     POPULAR_BUILDS = "💎 Популярні Білди"
+    BUILDS = "⚜️ Білди"  # Додано для відповідності в обробниках
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
-    VOTING = "🗳️ Голосування"  # Додано цю кнопку
+    VOTING = "📊 Голосування"  # Додано цю кнопку
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
@@ -196,7 +198,7 @@ def get_navigation_menu():
             MenuButton.HEROES,
             MenuButton.GUIDES,
             MenuButton.COUNTER_PICKS,
-            MenuButton.CREATE_BUILD,
+            MenuButton.BUILDS,  # Використовуємо BUILDS тут
             MenuButton.VOTING,
             MenuButton.BACK
         ],
