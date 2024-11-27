@@ -68,7 +68,7 @@ async def cmd_start(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "ㅤㅤㅤㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
@@ -83,7 +83,7 @@ async def cmd_navigation(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "ㅤㅤㅤㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+        "ㅤㅤㅤ  ㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
@@ -92,12 +92,12 @@ async def cmd_profile(message: Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} обрав Мій Профіль")
     await state.set_state(MenuStates.PROFILE_MENU)
     await message.answer(
-        "Виберіть опцію профілю:",
+        "ㅤㅤㅤ  ㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_profile_menu(),
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "Ось ваші інлайн-опції:",
+        "ㅤㅤㅤ  ㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ:",
         reply_markup=get_generic_inline_keyboard()
     )
 
