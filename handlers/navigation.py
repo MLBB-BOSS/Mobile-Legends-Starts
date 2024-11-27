@@ -6,7 +6,7 @@ router = Router()
 
 @router.message(F.text == "🧭 Навігація")
 async def navigation_menu_handler(message: Message):
-    """Обробник для меню Навігація"""
+    """Обробник для переходу до меню навігації"""
     await message.answer(
         "🧭 Навігація: Оберіть потрібний розділ:",
         reply_markup=get_navigation_menu()
