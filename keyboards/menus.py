@@ -188,11 +188,11 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    buttons = [hero for hero in heroes]  # Використовуємо простий текст для кнопок
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    keyboard.append([MenuButton.BACK.value])  # Додаємо кнопку назад
+    return create_menu(keyboard, row_width=3)
 
 def get_guides_menu():
     return create_menu(
