@@ -2,8 +2,8 @@
 
 import logging
 from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.filters import Command, Text
+from aiogram.types import Message, CallbackQuery
 from keyboards.menus import (
     MenuButton,
     menu_button_to_class,
@@ -46,7 +46,7 @@ async def cmd_start(message: Message):
         reply_markup=get_main_menu(),
     )
 
-# Обробники для кнопок меню
+# Обробники для Reply Keyboard (Головне меню)
 @router.message(F.text == MenuButton.NAVIGATION.value)
 async def cmd_navigation(message: Message):
     logger.info(f"Користувач {message.from_user.id} обрав Навігацію")
@@ -63,94 +63,245 @@ async def cmd_profile(message: Message):
         reply_markup=get_profile_menu(),
     )
 
-@router.message(F.text == MenuButton.HEROES.value)
-async def cmd_heroes(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
-    await message.answer(
-        "Виберіть категорію героїв:",
-        reply_markup=get_heroes_menu(),
-    )
+# Callback Query Handlers
+@router.callback_query(Text(startswith="navigate_"))
+async def handle_navigation(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Навігацію -> {action}")
+    
+    if action == "heroes":
+        await callback_query.message.edit_text(
+            "Виберіть категорію героїв:",
+            reply_markup=get_heroes_menu()
+        )
+    elif action == "guides":
+        await callback_query.message.edit_text(
+            "Виберіть гайди:",
+            reply_markup=get_guides_menu()
+        )
+    elif action == "counter":
+        await callback_query.message.edit_text(
+            "Виберіть контр-піки:",
+            reply_markup=get_counter_picks_menu()
+        )
+    elif action == "builds":
+        await callback_query.message.edit_text(
+            "Виберіть білди:",
+            reply_markup=get_builds_menu()
+        )
+    elif action == "voting":
+        await callback_query.message.edit_text(
+            "Виберіть опцію голосування:",
+            reply_markup=get_voting_menu()
+        )
+    elif action == "back":
+        await callback_query.message.edit_text(
+            "🔙 Повернення до головного меню:",
+            reply_markup=get_main_menu()
+        )
+    await callback_query.answer()  # Відповідь для Callback Query
 
-# Список кнопок класів
-class_buttons = list(menu_button_to_class.keys())
-
-@router.message(F.text.in_(class_buttons))
-async def cmd_hero_class(message: Message):
-    hero_class = menu_button_to_class.get(message.text)
-    if hero_class:
-        logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
-        await message.answer(
-            f"Виберіть героя з класу {hero_class}:",
-            reply_markup=get_hero_class_menu(hero_class)
+@router.callback_query(Text(startswith="heroes_"))
+async def handle_heroes(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Персонажі -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію навігації:",
+            reply_markup=get_navigation_menu()
         )
     else:
-        logger.warning(f"Невідомий клас героїв: {message.text}")
-        await message.answer(
-            "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
-            reply_markup=get_heroes_menu(),
+        # Перевірка, чи це клас героїв
+        hero_class = menu_button_to_class.get(MenuButton(action).value, None)
+        if hero_class:
+            await callback_query.message.edit_text(
+                f"Виберіть героя з класу **{hero_class}**:",
+                parse_mode="Markdown",
+                reply_markup=get_hero_class_menu(hero_class)
+            )
+        else:
+            # Якщо це конкретний герой
+            await callback_query.message.edit_text(
+                f"Ви обрали героя **{action}**. Інформація про героя буде додана пізніше.",
+                parse_mode="Markdown",
+                reply_markup=get_main_menu()
+            )
+    await callback_query.answer()
+
+@router.callback_query(Text(startswith="guides_"))
+async def handle_guides(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Гайди -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію навігації:",
+            reply_markup=get_navigation_menu()
         )
+    else:
+        # Обробка різних типів гайдів
+        await callback_query.message.edit_text(
+            f"Ви обрали гайди: **{action.replace('_', ' ').title()}**.",
+            parse_mode="Markdown",
+            reply_markup=get_guides_menu()
+        )
+    await callback_query.answer()
 
-# Список усіх героїв
-all_heroes = set()
-for heroes in heroes_by_class.values():
-    all_heroes.update(heroes)
+@router.callback_query(Text(startswith="counter_"))
+async def handle_counter_picks(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Контр-піки -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію навігації:",
+            reply_markup=get_navigation_menu()
+        )
+    else:
+        # Обробка різних типів контр-піків
+        await callback_query.message.edit_text(
+            f"Ви обрали контр-піки: **{action.replace('_', ' ').title()}**.",
+            parse_mode="Markdown",
+            reply_markup=get_counter_picks_menu()
+        )
+    await callback_query.answer()
 
-@router.message(F.text.in_(all_heroes))
-async def cmd_hero_selected(message: Message):
-    hero_name = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав героя {hero_name}")
+@router.callback_query(Text(startswith="builds_"))
+async def handle_builds(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Білди -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію навігації:",
+            reply_markup=get_navigation_menu()
+        )
+    else:
+        # Обробка різних типів білів
+        await callback_query.message.edit_text(
+            f"Ви обрали білди: **{action.replace('_', ' ').title()}**.",
+            parse_mode="Markdown",
+            reply_markup=get_builds_menu()
+        )
+    await callback_query.answer()
+
+@router.callback_query(Text(startswith="voting_"))
+async def handle_voting(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Голосування -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію навігації:",
+            reply_markup=get_navigation_menu()
+        )
+    else:
+        # Обробка різних типів голосувань
+        await callback_query.message.edit_text(
+            f"Ви обрали голосування: **{action.replace('_', ' ').title()}**.",
+            parse_mode="Markdown",
+            reply_markup=get_voting_menu()
+        )
+    await callback_query.answer()
+
+@router.callback_query(Text(startswith="profile_"))
+async def handle_profile(callback_query: CallbackQuery):
+    action = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав Профіль -> {action}")
+    
+    if action == "back":
+        await callback_query.message.edit_text(
+            "Виберіть опцію профілю:",
+            reply_markup=get_profile_menu()
+        )
+    else:
+        # Обробка різних аспектів профілю
+        await callback_query.message.edit_text(
+            f"Ви обрали: **{action.replace('_', ' ').title()}**.",
+            parse_mode="Markdown",
+            reply_markup=get_profile_menu()
+        )
+    await callback_query.answer()
+
+@router.callback_query(Text(startswith="hero_"))
+async def handle_hero_selection(callback_query: CallbackQuery):
+    hero_name = callback_query.data.split("_")[1]
+    logger.info(f"Користувач {callback_query.from_user.id} обрав героя {hero_name}")
     # Тут можна додати логіку для відображення інформації про героя
-    await message.answer(
-        f"Ви обрали героя {hero_name}. Інформація про героя буде додана пізніше.",
-        reply_markup=get_main_menu(),
+    await callback_query.message.edit_text(
+        f"Ви обрали героя **{hero_name}**. Інформація про героя буде додана пізніше.",
+        parse_mode="Markdown",
+        reply_markup=get_navigation_menu()
     )
+    await callback_query.answer()
 
-@router.message(F.text == MenuButton.GUIDES.value)
-async def cmd_guides(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Гайди")
-    await message.answer(
+# Обробники для кнопок "Назад" у різних меню
+@router.callback_query(Text(equals="navigate_back"))
+async def handle_navigation_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до головного меню")
+    await callback_query.message.edit_text(
+        "🔙 Повернення до головного меню:",
+        reply_markup=get_main_menu()
+    )
+    await callback_query.answer()
+
+@router.callback_query(Text(equals="heroes_back"))
+async def handle_heroes_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Персонажів")
+    await callback_query.message.edit_text(
+        "Виберіть опцію навігації:",
+        reply_markup=get_navigation_menu()
+    )
+    await callback_query.answer()
+
+@router.callback_query(Text(equals="guides_back"))
+async def handle_guides_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Гайди")
+    await callback_query.message.edit_text(
         "Виберіть гайди:",
-        reply_markup=get_guides_menu(),
+        reply_markup=get_guides_menu()
     )
+    await callback_query.answer()
 
-@router.message(F.text == MenuButton.COUNTER_PICKS.value)
-async def cmd_counter_picks(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
-    await message.answer(
+@router.callback_query(Text(equals="counter_back"))
+async def handle_counter_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Контр-піки")
+    await callback_query.message.edit_text(
         "Виберіть контр-піки:",
-        reply_markup=get_counter_picks_menu(),
+        reply_markup=get_counter_picks_menu()
     )
+    await callback_query.answer()
 
-@router.message(F.text == MenuButton.BUILDS.value)
-async def cmd_builds(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Білди")
-    await message.answer(
+@router.callback_query(Text(equals="builds_back"))
+async def handle_builds_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Білди")
+    await callback_query.message.edit_text(
         "Виберіть білди:",
-        reply_markup=get_builds_menu(),
+        reply_markup=get_builds_menu()
     )
+    await callback_query.answer()
 
-@router.message(F.text == MenuButton.VOTING.value)
-async def cmd_voting(message: Message):
-    logger.info(f"Користувач {message.from_user.id} обрав Голосування")
-    await message.answer(
+@router.callback_query(Text(equals="voting_back"))
+async def handle_voting_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Голосування")
+    await callback_query.message.edit_text(
         "Виберіть опцію голосування:",
-        reply_markup=get_voting_menu(),
+        reply_markup=get_voting_menu()
     )
+    await callback_query.answer()
 
-# Кнопка "Назад"
-@router.message(F.text == MenuButton.BACK.value)
-async def cmd_back(message: Message):
-    logger.info(f"Користувач {message.from_user.id} натиснув 'Назад'")
-    await message.answer(
-        "🔙 Повернення до попереднього меню:",
-        reply_markup=get_main_menu(),
+@router.callback_query(Text(equals="profile_back"))
+async def handle_profile_back(callback_query: CallbackQuery):
+    logger.info(f"Користувач {callback_query.from_user.id} повернувся до меню Профіль")
+    await callback_query.message.edit_text(
+        "Виберіть опцію профілю:",
+        reply_markup=get_profile_menu()
     )
+    await callback_query.answer()
 
-# Обробник для невідомих повідомлень
-@router.message()
-async def unknown_command(message: Message):
-    logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
-    await message.answer(
-        "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
-        reply_markup=get_main_menu(),
-    )
+# Обробник для невідомих Callback Queries
+@router.callback_query()
+async def unknown_callback(callback_query: CallbackQuery):
+    logger.warning(f"Невідома Callback Query від {callback_query.from_user.id}: {callback_query.data}")
+    await callback_query.answer("❗ Невідома дія.", show_alert=True)
