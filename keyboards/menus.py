@@ -6,7 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-
 class MenuButton(Enum):
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Профіль"
@@ -33,6 +32,7 @@ class MenuButton(Enum):
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
+    VOTING = "🗳️ Голосування"  # Додано цю кнопку
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
@@ -46,7 +46,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
-
+    HELP_SUPPORT = "🆘 Підтримка"  # Додано для меню "Допомога"
 
 # Функція для створення клавіатур
 def create_menu(buttons, row_width=2):
@@ -65,7 +65,6 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-
 # Меню "Персонажі"
 def get_heroes_menu():
     return create_menu(
@@ -81,7 +80,6 @@ def get_heroes_menu():
         row_width=2
     )
 
-
 # Меню "Гайди"
 def get_guides_menu():
     return create_menu(
@@ -96,7 +94,6 @@ def get_guides_menu():
         row_width=2
     )
 
-
 # Меню "Контр-піки"
 def get_counter_picks_menu():
     return create_menu(
@@ -107,7 +104,6 @@ def get_counter_picks_menu():
         ],
         row_width=1
     )
-
 
 # Меню "Білди"
 def get_builds_menu():
@@ -121,7 +117,6 @@ def get_builds_menu():
         row_width=1
     )
 
-
 # Меню "Голосування"
 def get_voting_menu():
     return create_menu(
@@ -134,7 +129,6 @@ def get_voting_menu():
         row_width=2
     )
 
-
 # Меню "Профіль"
 def get_profile_menu():
     return create_menu(
@@ -146,7 +140,6 @@ def get_profile_menu():
         ],
         row_width=2
     )
-
 
 # Меню "Досягнення"
 def get_achievements_menu():
@@ -161,7 +154,6 @@ def get_achievements_menu():
         row_width=2
     )
 
-
 # Меню "Налаштування"
 def get_settings_menu():
     return create_menu(
@@ -175,19 +167,17 @@ def get_settings_menu():
         row_width=2
     )
 
-
 # Меню "Допомога"
 def get_help_menu():
     return create_menu(
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
-            MenuButton.SUPPORT,
+            MenuButton.HELP_SUPPORT,  # Використовуємо HELP_SUPPORT
             MenuButton.BACK
         ],
         row_width=1
     )
-
 
 # Меню "Головне меню"
 def get_main_menu():
@@ -198,7 +188,6 @@ def get_main_menu():
         ],
         row_width=2
     )
-
 
 # Навігаційне меню
 def get_navigation_menu():
