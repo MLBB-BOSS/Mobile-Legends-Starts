@@ -1,9 +1,11 @@
+# keyboards/menus.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
 
 # Налаштування логування
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)  # Замінили 'name' на '__name__'
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
@@ -116,8 +118,7 @@ heroes_by_class = {
     "Стрілець": [
         "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
         "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-
-"Roger", "Karrie", "Irithel", "Lesley"
+        "Roger", "Karrie", "Irithel", "Lesley"
     ],
     "Маг": [
         "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
@@ -305,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-)
+    )
