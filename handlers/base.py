@@ -28,7 +28,7 @@ from keyboards.menus import (
 )
 
 # Налаштування логування
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 router = Router()
 
