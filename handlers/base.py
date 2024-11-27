@@ -117,37 +117,6 @@ async def cmd_heroes(message: Message, state: FSMContext):
         reply_markup=get_generic_inline_keyboard()
     )
 
-# Решта обробників для "Навігації"
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.GUIDES.value)
-async def cmd_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Гайди")
-    await state.set_state(MenuStates.GUIDES_MENU)
-    await message.answer(
-        "Виберіть розділ гайдів:",
-        reply_markup=get_guides_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "Ось ваші інлайн-опції:",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.COUNTER_PICKS.value)
-async def cmd_counter_picks(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
-    await state.set_state(MenuStates.COUNTER_PICKS_MENU)
-    await message.answer(
-        "Виберіть опцію контр-піків:",
-        reply_markup=get_counter_picks_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "Ось ваші інлайн-опції:",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Додайте обробники для інших кнопок "Навігації" аналогічно.
-
 # Розділ "Персонажі"
 @router.message(MenuStates.HEROES_MENU, F.text.in_([
     MenuButton.TANK.value,
@@ -254,12 +223,12 @@ async def cmd_back_to_heroes_menu(message: Message, state: FSMContext):
 # Обробники для інлайн-кнопок
 @router.callback_query(F.data == "button1")
 async def handle_button1(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Ви натиснули на Кнопку 1")
+    await call.message.answer("Ви натиснули на Кнопку 1")
     await call.answer()
 
 @router.callback_query(F.data == "button2")
 async def handle_button2(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Ви натиснули на Кнопку 2")
+    await call.message.answer("Ви натиснули на Кнопку 2")
     await call.answer()
 
 # Обробник для невідомих повідомлень
