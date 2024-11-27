@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Ініціалізація бота та диспетчера
-bot = Bot(token=settings.BOT_TOKEN, parse_mode=ParseMode.HTML)
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
 # Реєстрація роутерів
