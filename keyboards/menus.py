@@ -6,8 +6,9 @@ import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Enum для текстів кнопок
 class MenuButton(Enum):
+    NAVIGATION = "🧭 Навігація"
+    PROFILE = "🪪 Профіль"
     SEARCH_HERO = "🔎 Пошук Персонажа"
     TANK = "🛡️ Танк"
     MAGE = "🔮 Маг"
@@ -41,6 +42,7 @@ class MenuButton(Enum):
     NOTIFICATIONS = "🔔 Сповіщення"
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
+    
     # Removed duplicate SUPPORT definition
 
 # Функція для створення клавіатур
