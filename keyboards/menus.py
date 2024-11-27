@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
     NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Профіль"
+    PROFILE = "🪪 Мій Профіль"  # Змінив назву кнопки на "Мій Профіль"
     HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     SEARCH_HERO = "🔎 Пошук Персонажа"
@@ -111,18 +111,26 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Меню "Головне меню"
+# Меню "Головне меню" з двома кнопками
 def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE,
+            MenuButton.PROFILE
+        ],
+        row_width=2
+    )
+
+# Меню "Навігація"
+def get_navigation_menu():
+    return create_menu(
+        [
             MenuButton.HEROES,
             MenuButton.GUIDES,
             MenuButton.COUNTER_PICKS,
             MenuButton.BUILDS,
             MenuButton.VOTING,
-            MenuButton.HELP_SUPPORT,
+            MenuButton.BACK
         ],
         row_width=2
     )
@@ -152,20 +160,6 @@ def get_hero_class_menu(hero_class):
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-# Меню "Навігація"
-def get_navigation_menu():
-    return create_menu(
-        [
-            MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
-            MenuButton.VOTING,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
 
 # Інші меню (Гайди, Контр-піки, Білди, Профіль) залишаються без змін
 
