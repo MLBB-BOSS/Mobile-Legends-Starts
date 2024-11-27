@@ -6,6 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+
 from keyboards.menus import (
     MenuButton,
     menu_button_to_class,
@@ -152,6 +153,7 @@ async def cmd_hero_class(message: Message, state: FSMContext):
     if hero_class:
         logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
         await state.set_state(MenuStates.HERO_CLASS_MENU)
+        await state.update_data(hero_class=hero_class)  # Зберігаємо клас героя в стані
         await message.answer(
             f"Виберіть героя з класу {hero_class}:",
             reply_markup=get_hero_class_menu(hero_class)
@@ -169,7 +171,7 @@ async def cmd_search_hero(message: Message, state: FSMContext):
     await message.answer(
         "Будь ласка, введіть ім'я героя для пошуку:",
     )
-    # Тут можна додати стан для обробки пошуку героя
+    # Можна додати стан для пошуку героя
 
 @router.message(MenuStates.HEROES_MENU, F.text == MenuButton.COMPARISON.value)
 async def cmd_comparison(message: Message, state: FSMContext):
@@ -209,70 +211,6 @@ async def cmd_back_to_heroes_menu(message: Message, state: FSMContext):
         "🔙 Повернення до меню Персонажі:",
         reply_markup=get_heroes_menu(),
     )
-
-# Розділ "Гайди"
-@router.message(MenuStates.GUIDES_MENU)
-async def cmd_guides_menu(message: Message, state: FSMContext):
-    if message.text == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        await message.answer(
-            "🔙 Повернення до меню Навігація:",
-            reply_markup=get_navigation_menu(),
-        )
-    else:
-        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Гайдах: {message.text}")
-        await message.answer(
-            "Ця функція ще в розробці.",
-            reply_markup=get_guides_menu(),
-        )
-
-# Розділ "Контр-піки"
-@router.message(MenuStates.COUNTER_PICKS_MENU)
-async def cmd_counter_picks_menu(message: Message, state: FSMContext):
-    if message.text == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        await message.answer(
-            "🔙 Повернення до меню Навігація:",
-            reply_markup=get_navigation_menu(),
-        )
-    else:
-        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Контр-піках: {message.text}")
-        await message.answer(
-            "Ця функція ще в розробці.",
-            reply_markup=get_counter_picks_menu(),
-        )
-
-# Розділ "Білди"
-@router.message(MenuStates.BUILDS_MENU)
-async def cmd_builds_menu(message: Message, state: FSMContext):
-    if message.text == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        await message.answer(
-            "🔙 Повернення до меню Навігація:",
-            reply_markup=get_navigation_menu(),
-        )
-    else:
-        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Білдах: {message.text}")
-        await message.answer(
-            "Ця функція ще в розробці.",
-            reply_markup=get_builds_menu(),
-        )
-
-# Розділ "Голосування"
-@router.message(MenuStates.VOTING_MENU)
-async def cmd_voting_menu(message: Message, state: FSMContext):
-    if message.text == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        await message.answer(
-            "🔙 Повернення до меню Навігація:",
-            reply_markup=get_navigation_menu(),
-        )
-    else:
-        logger.info(f"Користувач {message.from_user.id} вибрав опцію в Голосуванні: {message.text}")
-        await message.answer(
-            "Ця функція ще в розробці.",
-            reply_markup=get_voting_menu(),
-        )
 
 # Розділ "Мій Профіль"
 @router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.STATISTICS.value)
@@ -455,7 +393,9 @@ async def unknown_command(message: Message, state: FSMContext):
     elif current_state == MenuStates.HEROES_MENU.state:
         reply_markup = get_heroes_menu()
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        reply_markup = get_hero_class_menu()
+        data = await state.get_data()
+        hero_class = data.get('hero_class', 'Танк')
+        reply_markup = get_hero_class_menu(hero_class)
     elif current_state == MenuStates.PROFILE_MENU.state:
         reply_markup = get_profile_menu()
     else:
