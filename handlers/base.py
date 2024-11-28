@@ -1,7 +1,8 @@
 # handlers/base.py
 
 import logging
-from aiogram import Router, F, types
+import asyncio
+from aiogram import Router, F, types, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -12,13 +13,13 @@ from keyboards.menus import (
     menu_button_to_class,
     get_main_menu,
     get_navigation_menu,
+    get_profile_menu,
     get_heroes_menu,
     get_hero_class_menu,
     get_guides_menu,
     get_counter_picks_menu,
     get_builds_menu,
     get_voting_menu,
-    get_profile_menu,
     get_statistics_menu,
     get_achievements_menu,
     get_settings_menu,
@@ -49,585 +50,453 @@ class MenuStates(StatesGroup):
     SETTINGS_MENU = State()
     FEEDBACK_MENU = State()
     HELP_MENU = State()
-    # Додаткові стани
     SEARCH_HERO = State()
 
 # Команда /start
 @router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext):
+async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     user_name = message.from_user.first_name
     logger.info(f"Користувач {message.from_user.id} викликав /start")
+
+    # Видаляємо повідомлення користувача /start
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
+
+    # Імітуємо завантаження даних
+    await asyncio.sleep(2)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Встановлюємо стан користувача
     await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
-        "🎮 Цей бот допоможе вам:\n"
-        "• Організовувати турніри\n"
-        "• Зберігати скріншоти персонажів\n"
-        "• Відстежувати активність\n"
-        "• Отримувати досягнення\n\n"
-        "Оберіть опцію з меню нижче 👇",
-        reply_markup=get_main_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+
+    # Відправляємо інтерактивне повідомлення з інлайн-кнопками
+    interactive_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=(
+            f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
+            "🎮 Цей бот допоможе вам:\n"
+            "• Організовувати турніри\n"
+            "• Зберігати скріншоти персонажів\n"
+            "• Відстежувати активність\n"
+            "• Отримувати досягнення\n\n"
+            "Оберіть опцію з меню нижче 👇"
+        ),
         reply_markup=get_generic_inline_keyboard()
     )
 
-# Головне Меню
-@router.message(MenuStates.MAIN_MENU, F.text == MenuButton.NAVIGATION.value)
-async def cmd_navigation(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Навігацію")
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "Виберіть опцію навігації:",
-        reply_markup=get_navigation_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
+    # Зберігаємо ID інтерактивного повідомлення в стані
+    await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Відправляємо звичайну клавіатуру
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="Оберіть опцію з меню нижче 👇",
+        reply_markup=get_main_menu()
     )
 
-@router.message(MenuStates.MAIN_MENU, F.text == MenuButton.PROFILE.value)
-async def cmd_profile(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Мій Профіль")
-    await state.set_state(MenuStates.PROFILE_MENU)
-    await message.answer(
-        "Виберіть опцію профілю:",
-        reply_markup=get_profile_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
+# Обробник натискання звичайних кнопок у головному меню
+@router.message(MenuStates.MAIN_MENU)
+async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} у головному меню")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
     )
 
-# Розділ "Навігація"
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.HEROES.value)
-async def cmd_heroes(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
-    await state.set_state(MenuStates.HEROES_MENU)
-    await message.answer(
-        "Виберіть категорію героїв:",
-        reply_markup=get_heroes_menu(),
-    )
-    # Відправляємо повідомлення з інлайн-кнопками
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Heroes ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
 
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.GUIDES.value)
-async def cmd_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Гайди")
-    await state.set_state(MenuStates.GUIDES_MENU)
-    await message.answer(
-        "Виберіть підрозділ гайдів:",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Guides ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
 
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.COUNTER_PICKS.value)
-async def cmd_counter_picks(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Контр-піки")
-    await state.set_state(MenuStates.COUNTER_PICKS_MENU)
-    await message.answer(
-        "Виберіть опцію контр-піків:",
-        reply_markup=get_counter_picks_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Counter Picks ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
 
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.BUILDS.value)
-async def cmd_builds(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Білди")
-    await state.set_state(MenuStates.BUILDS_MENU)
-    await message.answer(
-        "Виберіть опцію білдів:",
-        reply_markup=get_builds_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Builds ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Оновлюємо текст інтерактивного повідомлення
+    if interactive_message_id:
+        new_text = ""
+        new_keyboard = None
 
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.VOTING.value)
-async def cmd_voting(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Голосування")
-    await state.set_state(MenuStates.VOTING_MENU)
-    await message.answer(
-        "Виберіть опцію голосування:",
-        reply_markup=get_voting_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Voting ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        if user_choice == MenuButton.NAVIGATION.value:
+            new_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"
+            new_keyboard = get_navigation_menu()
+            await state.set_state(MenuStates.NAVIGATION_MENU)
+        elif user_choice == MenuButton.PROFILE.value:
+            new_text = "🪪 **Мій Профіль**\nОберіть опцію для перегляду:"
+            new_keyboard = get_profile_menu()
+            await state.set_state(MenuStates.PROFILE_MENU)
+        else:
+            logger.warning("Невідома опція меню")
+            return
 
-@router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_main_from_navigation(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        "🔙 Повернення до головного меню:",
-        reply_markup=get_main_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Розділ "Персонажі"
-@router.message(MenuStates.HEROES_MENU, F.text.in_([
-    MenuButton.TANK.value,
-    MenuButton.MAGE.value,
-    MenuButton.MARKSMAN.value,
-    MenuButton.ASSASSIN.value,
-    MenuButton.SUPPORT.value,
-    MenuButton.FIGHTER.value
-]))
-async def cmd_hero_class(message: Message, state: FSMContext):
-    hero_class = menu_button_to_class.get(message.text)
-    if hero_class:
-        logger.info(f"Користувач {message.from_user.id} обрав клас {hero_class}")
-        await state.set_state(MenuStates.HERO_CLASS_MENU)
-        await state.update_data(hero_class=hero_class)  # Зберігаємо клас героя в стані
-        await message.answer(
-            f"Виберіть героя з класу {hero_class}:",
-            reply_markup=get_hero_class_menu(hero_class)
-        )
-        # Відправляємо повідомлення з інлайн-кнопками
-        await message.answer(
-            f"ㅤㅤㅤㅤ      ┈ {hero_class} ┈ㅤㅤㅤㅤㅤㅤ",
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
             reply_markup=get_generic_inline_keyboard()
+        )
+
+        # Відправляємо оновлену клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Оберіть опцію з меню нижче 👇",
+            reply_markup=new_keyboard
         )
     else:
-        logger.warning(f"Невідомий клас героїв: {message.text}")
-        await message.answer(
-            "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
-            reply_markup=get_heroes_menu(),
-        )
-        await message.answer(
-            "ㅤㅤㅤㅤ      ┈ Heroes ┈ㅤㅤㅤㅤㅤㅤ",
+        logger.error("interactive_message_id не знайдено")
+
+# Обробник натискання звичайних кнопок у меню Навігація
+@router.message(MenuStates.NAVIGATION_MENU)
+async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Навігація")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
+
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+
+    if interactive_message_id:
+        new_text = ""
+        new_keyboard = None
+
+        if user_choice == MenuButton.HEROES.value:
+            new_text = "🥷 **Персонажі**\nОберіть категорію героїв:"
+            new_keyboard = get_heroes_menu()
+            await state.set_state(MenuStates.HEROES_MENU)
+        elif user_choice == MenuButton.GUIDES.value:
+            new_text = "📚 **Гайди**\nВиберіть підрозділ гайдів:"
+            new_keyboard = get_guides_menu()
+            await state.set_state(MenuStates.GUIDES_MENU)
+        elif user_choice == MenuButton.COUNTER_PICKS.value:
+            new_text = "🔄 **Контр-піки**\nВиберіть опцію контр-піків:"
+            new_keyboard = get_counter_picks_menu()
+            await state.set_state(MenuStates.COUNTER_PICKS_MENU)
+        elif user_choice == MenuButton.BUILDS.value:
+            new_text = "🛠️ **Білди**\nВиберіть опцію білдів:"
+            new_keyboard = get_builds_menu()
+            await state.set_state(MenuStates.BUILDS_MENU)
+        elif user_choice == MenuButton.VOTING.value:
+            new_text = "🗳️ **Голосування**\nВиберіть опцію голосування:"
+            new_keyboard = get_voting_menu()
+            await state.set_state(MenuStates.VOTING_MENU)
+        elif user_choice == MenuButton.BACK.value:
+            # Повертаємось до головного меню
+            new_text = (
+                f"👋 Вітаємо, {message.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
+                "🎮 Цей бот допоможе вам:\n"
+                "• Організовувати турніри\n"
+                "• Зберігати скріншоти персонажів\n"
+                "• Відстежувати активність\n"
+                "• Отримувати досягнення\n\n"
+                "Оберіть опцію з меню нижче 👇"
+            )
+            new_keyboard = get_main_menu()
+            await state.set_state(MenuStates.MAIN_MENU)
+        else:
+            logger.warning("Невідома опція меню")
+            return
+
+        # Оновлюємо інтерактивне повідомлення
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
             reply_markup=get_generic_inline_keyboard()
         )
 
-@router.message(MenuStates.HEROES_MENU, F.text == MenuButton.SEARCH_HERO.value)
-async def cmd_search_hero(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Пошук Персонажа")
-    await state.set_state(MenuStates.SEARCH_HERO)
-    await message.answer(
-        "Будь ласка, введіть ім'я героя для пошуку:",
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Search Hero ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-    # Додатково можна налаштувати обробник для стану SEARCH_HERO
+        # Відправляємо нову клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Оберіть опцію з меню нижче 👇",
+            reply_markup=new_keyboard
+        )
+    else:
+        logger.error("interactive_message_id не знайдено")
 
-@router.message(MenuStates.HEROES_MENU, F.text == MenuButton.COMPARISON.value)
-async def cmd_comparison(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Порівняння")
-    await message.answer(
-        "Функція порівняння героїв ще в розробці.",
-        reply_markup=get_heroes_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Comparison ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+# Обробник натискання звичайних кнопок у меню Персонажі
+@router.message(MenuStates.HEROES_MENU)
+async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Персонажі")
 
-@router.message(MenuStates.HEROES_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_navigation_from_heroes(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Навігація:",
-        reply_markup=get_navigation_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Navigation ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
     )
 
-# Обробники для вибору героя з класу
-all_heroes = set()
-for heroes in heroes_by_class.values():
-    all_heroes.update(heroes)
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
 
-@router.message(MenuStates.HERO_CLASS_MENU, F.text.in_(all_heroes))
-async def cmd_select_hero(message: Message, state: FSMContext):
-    hero_name = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав героя {hero_name}")
-    await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        f"Ви обрали героя {hero_name}. Інформація про героя буде додана пізніше.",
-        reply_markup=get_main_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
 
-@router.message(MenuStates.HERO_CLASS_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_heroes_menu(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.HEROES_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Персонажі:",
-        reply_markup=get_heroes_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Heroes ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
 
-# Розділ "Гайди"
-# (Додаємо всі обробники з першого коду)
+    hero_classes = [MenuButton.TANK.value, MenuButton.MAGE.value, MenuButton.MARKSMAN.value,
+                    MenuButton.ASSASSIN.value, MenuButton.SUPPORT.value, MenuButton.FIGHTER.value]
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.NEW_GUIDES.value)
-async def cmd_new_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Нові Гайди")
-    await message.answer(
-        "Список нових гайдів ще не доступний.",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ New Guides ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    if interactive_message_id:
+        new_text = ""
+        new_keyboard = None
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.POPULAR_GUIDES.value)
-async def cmd_popular_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Популярні Гайди")
-    await message.answer(
-        "Список популярних гайдів ще не доступний.",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Popular Guides ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        if user_choice in hero_classes:
+            hero_class = menu_button_to_class.get(user_choice)
+            new_text = f"🥷 **{hero_class}**\nВиберіть героя з класу {hero_class}:"
+            new_keyboard = get_hero_class_menu(hero_class)
+            await state.set_state(MenuStates.HERO_CLASS_MENU)
+            await state.update_data(hero_class=hero_class)
+        elif user_choice == MenuButton.SEARCH_HERO.value:
+            new_text = "🔎 **Пошук Персонажа**\nБудь ласка, введіть ім'я героя для пошуку:"
+            new_keyboard = None  # Немає клавіатури
+            await state.set_state(MenuStates.SEARCH_HERO)
+        elif user_choice == MenuButton.COMPARISON.value:
+            new_text = "⚖️ **Порівняння**\nФункція порівняння героїв ще в розробці."
+            new_keyboard = get_heroes_menu()
+            # Залишаємося в HEROES_MENU
+        elif user_choice == MenuButton.BACK.value:
+            # Повертаємось до NAVIGATION_MENU
+            new_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"
+            new_keyboard = get_navigation_menu()
+            await state.set_state(MenuStates.NAVIGATION_MENU)
+        else:
+            logger.warning("Невідома опція меню")
+            return
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.BEGINNER_GUIDES.value)
-async def cmd_beginner_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Гайди для Початківців")
-    await message.answer(
-        "Список гайдів для початківців ще не доступний.",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Beginner Guides ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        # Оновлюємо інтерактивне повідомлення
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.ADVANCED_TECHNIQUES.value)
-async def cmd_advanced_techniques(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Просунуті Техніки")
-    await message.answer(
-        "Список просунутих технік ще не доступний.",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Advanced Techniques ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
+        # Відправляємо оновлену клавіатуру, якщо є
+        if new_keyboard:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=new_keyboard
+            )
+    else:
+        logger.error("interactive_message_id не знайдено")
+
+# Обробник натискання звичайних кнопок у меню класу героїв
+@router.message(MenuStates.HERO_CLASS_MENU)
+async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    data = await state.get_data()
+    hero_class = data.get('hero_class')
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню класу героїв {hero_class}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
     )
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.TEAMPLAY_GUIDES.value)
-async def cmd_teamplay_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Командну Гру")
-    await message.answer(
-        "Список гайдів по командній грі ще не доступний.",
-        reply_markup=get_guides_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Teamplay Guides ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
 
-@router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_navigation_from_guides(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Навігація:",
-        reply_markup=get_navigation_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Navigation ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
 
-# Розділ "Контр-піки"
-# (Додаємо обробники з першого коду)
+    # Отримуємо interactive_message_id з стану
+    interactive_message_id = data.get('interactive_message_id')
 
-@router.message(MenuStates.COUNTER_PICKS_MENU, F.text == MenuButton.COUNTER_SEARCH.value)
-async def cmd_counter_search(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Пошук Контр-піку")
-    await message.answer(
-        "Введіть ім'я персонажа для пошуку контр-піку:",
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Counter Search ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+    if interactive_message_id:
+        new_text = ""
+        new_keyboard = None
 
-@router.message(MenuStates.COUNTER_PICKS_MENU, F.text == MenuButton.COUNTER_LIST.value)
-async def cmd_counter_list(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Список Персонажів")
-    await message.answer(
-        "Список персонажів для контр-піків ще не доступний.",
-        reply_markup=get_counter_picks_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Counter List ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        if hero_class and hero_class in heroes_by_class:
+            if user_choice in heroes_by_class[hero_class]:
+                # Користувач обрав героя
+                new_text = f"Ви обрали героя {user_choice}. Інформація про героя буде додана пізніше."
+                new_keyboard = get_main_menu()
+                await state.set_state(MenuStates.MAIN_MENU)
+            elif user_choice == MenuButton.BACK.value:
+                # Повертаємось до HEROES_MENU
+                new_text = "🥷 **Персонажі**\nОберіть категорію героїв:"
+                new_keyboard = get_heroes_menu()
+                await state.set_state(MenuStates.HEROES_MENU)
+            else:
+                logger.warning("Невідомий герой")
+                return
+        else:
+            logger.error("hero_class не знайдено або невідомий")
 
-@router.message(MenuStates.COUNTER_PICKS_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_navigation_from_counter_picks(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Навігація:",
-        reply_markup=get_navigation_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Navigation ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        # Оновлюємо інтерактивне повідомлення
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
 
-# Розділ "Білди"
-# (Додаємо обробники з першого коду)
+        # Відправляємо нову клавіатуру
+        if new_keyboard:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=new_keyboard
+            )
+    else:
+        logger.error("interactive_message_id не знайдено")
 
-@router.message(MenuStates.BUILDS_MENU, F.text == MenuButton.CREATE_BUILD.value)
-async def cmd_create_build(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Створити Білд")
-    await message.answer(
-        "Функція створення білду ще в розробці.",
-        reply_markup=get_builds_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Create Build ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.BUILDS_MENU, F.text == MenuButton.MY_BUILDS.value)
-async def cmd_my_builds(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Мої Білди")
-    await message.answer(
-        "Список ваших білдів ще не доступний.",
-        reply_markup=get_builds_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ My Builds ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.BUILDS_MENU, F.text == MenuButton.POPULAR_BUILDS.value)
-async def cmd_popular_builds(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Популярні Білди")
-    await message.answer(
-        "Список популярних білдів ще не доступний.",
-        reply_markup=get_builds_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Popular Builds ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.BUILDS_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_navigation_from_builds(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Навігація:",
-        reply_markup=get_navigation_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Navigation ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Розділ "Голосування"
-# (Додаємо обробники з першого коду)
-
-@router.message(MenuStates.VOTING_MENU, F.text == MenuButton.CURRENT_VOTES.value)
-async def cmd_current_votes(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Поточні Опитування")
-    await message.answer(
-        "Список поточних опитувань ще не доступний.",
-        reply_markup=get_voting_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Current Votes ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.VOTING_MENU, F.text == MenuButton.MY_VOTES.value)
-async def cmd_my_votes(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Мої Голосування")
-    await message.answer(
-        "Список ваших голосувань ще не доступний.",
-        reply_markup=get_voting_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ My Votes ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.VOTING_MENU, F.text == MenuButton.SUGGEST_TOPIC.value)
-async def cmd_suggest_topic(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Запропонувати Тему")
-    await message.answer(
-        "Будь ласка, введіть тему для пропозиції:",
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Suggest Topic ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-    # Додатково можна налаштувати обробник для прийому теми
-
-@router.message(MenuStates.VOTING_MENU, F.text == MenuButton.BACK.value)
-async def cmd_back_to_navigation_from_voting(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-    await message.answer(
-        "🔙 Повернення до меню Навігація:",
-        reply_markup=get_navigation_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Navigation ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Розділ "Профіль"
-# (Додаємо обробники з першого коду)
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.STATISTICS.value)
-async def cmd_statistics(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Статистика")
-    await state.set_state(MenuStates.STATISTICS_MENU)
-    await message.answer(
-        "Виберіть підрозділ статистики:",
-        reply_markup=get_statistics_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Statistics ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.ACHIEVEMENTS.value)
-async def cmd_achievements(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Досягнення")
-    await state.set_state(MenuStates.ACHIEVEMENTS_MENU)
-    await message.answer(
-        "Виберіть підрозділ досягнень:",
-        reply_markup=get_achievements_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Achievements ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.SETTINGS.value)
-async def cmd_settings(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Налаштування")
-    await state.set_state(MenuStates.SETTINGS_MENU)
-    await message.answer(
-        "Виберіть опцію налаштувань:",
-        reply_markup=get_settings_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Settings ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.FEEDBACK.value)
-async def cmd_feedback(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Зворотний Зв'язок")
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-    await message.answer(
-        "Виберіть опцію зворотного зв'язку:",
-        reply_markup=get_feedback_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Feedback ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.HELP.value)
-async def cmd_help(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Допомогу")
-    await state.set_state(MenuStates.HELP_MENU)
-    await message.answer(
-        "Виберіть опцію допомоги:",
-        reply_markup=get_help_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ Help ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-@router.message(MenuStates.PROFILE_MENU, F.text == MenuButton.BACK_TO_MAIN_MENU.value)
-async def cmd_back_to_main_from_profile(message: Message, state: FSMContext):
-    await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        "🔙 Повернення до головного меню:",
-        reply_markup=get_main_menu(),
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Додаємо інші обробники з першого коду для підрозділів та інлайн-кнопок...
+# Аналогічно додаємо обробники для інших меню, використовуючи той самий підхід
 
 # Обробник для невідомих повідомлень
 @router.message()
-async def unknown_command(message: Message, state: FSMContext):
+async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
     current_state = await state.get_state()
-    if current_state == MenuStates.MAIN_MENU.state:
-        reply_markup = get_main_menu()
-    elif current_state == MenuStates.NAVIGATION_MENU.state:
-        reply_markup = get_navigation_menu()
-    elif current_state == MenuStates.HEROES_MENU.state:
-        reply_markup = get_heroes_menu()
-    elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        data = await state.get_data()
-        hero_class = data.get('hero_class', 'Танк')
-        reply_markup = get_hero_class_menu(hero_class)
-    elif current_state == MenuStates.GUIDES_MENU.state:
-        reply_markup = get_guides_menu()
-    elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
-        reply_markup = get_counter_picks_menu()
-    elif current_state == MenuStates.BUILDS_MENU.state:
-        reply_markup = get_builds_menu()
-    elif current_state == MenuStates.VOTING_MENU.state:
-        reply_markup = get_voting_menu()
-    elif current_state == MenuStates.PROFILE_MENU.state:
-        reply_markup = get_profile_menu()
-    elif current_state == MenuStates.STATISTICS_MENU.state:
-        reply_markup = get_statistics_menu()
-    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
-        reply_markup = get_achievements_menu()
-    elif current_state == MenuStates.SETTINGS_MENU.state:
-        reply_markup = get_settings_menu()
-    elif current_state == MenuStates.FEEDBACK_MENU.state:
-        reply_markup = get_feedback_menu()
-    elif current_state == MenuStates.HELP_MENU.state:
-        reply_markup = get_help_menu()
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+
+    if interactive_message_id:
+        if current_state == MenuStates.MAIN_MENU.state:
+            new_text = (
+                f"👋 Вітаємо, {message.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
+                "🎮 Цей бот допоможе вам:\n"
+                "• Організовувати турніри\n"
+                "• Зберігати скріншоти персонажів\n"
+                "• Відстежувати активність\n"
+                "• Отримувати досягнення\n\n"
+                "Оберіть опцію з меню нижче 👇"
+            )
+            new_keyboard = get_main_menu()
+        elif current_state == MenuStates.NAVIGATION_MENU.state:
+            new_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"
+            new_keyboard = get_navigation_menu()
+        elif current_state == MenuStates.HEROES_MENU.state:
+            new_text = "🥷 **Персонажі**\nОберіть категорію героїв:"
+            new_keyboard = get_heroes_menu()
+        elif current_state == MenuStates.HERO_CLASS_MENU.state:
+            hero_class = data.get('hero_class', 'Танк')
+            new_text = f"🥷 **{hero_class}**\nВиберіть героя з класу {hero_class}:"
+            new_keyboard = get_hero_class_menu(hero_class)
+        # Додайте інші стани
+        else:
+            new_text = (
+                f"👋 Вітаємо, {message.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
+                "🎮 Цей бот допоможе вам:\n"
+                "• Організовувати турніри\n"
+                "• Зберігати скріншоти персонажів\n"
+                "• Відстежувати активність\n"
+                "• Отримувати досягнення\n\n"
+                "Оберіть опцію з меню нижче 👇"
+            )
+            new_keyboard = get_main_menu()
+            await state.set_state(MenuStates.MAIN_MENU)
+
+        # Видаляємо повідомлення користувача
+        await message.delete()
+
+        # Оновлюємо інтерактивне повідомлення
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+        # Відправляємо клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
+            reply_markup=new_keyboard
+        )
     else:
-        reply_markup = get_main_menu()
-        await state.set_state(MenuStates.MAIN_MENU)
-    await message.answer(
-        "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
-        reply_markup=reply_markup,
-    )
-    await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-        reply_markup=get_generic_inline_keyboard()
-    )
+        logger.error("interactive_message_id не знайдено")
+
+# Обробник для інлайн-кнопок
+@router.callback_query()
+async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    data = callback.data
+    logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
+
+    # Отримуємо interactive_message_id з стану
+    state_data = await state.get_data()
+    interactive_message_id = state_data.get('interactive_message_id')
+
+    if interactive_message_id:
+        # Обробляємо інлайн-кнопки
+        if data == "button1":
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Ви натиснули на Кнопку 1"
+            )
+        elif data == "button2":
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Ви натиснули на Кнопку 2"
+            )
+        elif data == "menu_back":
+            # Повернення до головного меню
+            await state.set_state(MenuStates.MAIN_MENU)
+            new_text = (
+                f"👋 Вітаємо, {callback.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
+                "🎮 Цей бот допоможе вам:\n"
+                "• Організовувати турніри\n"
+                "• Зберігати скріншоти персонажів\n"
+                "• Відстежувати активність\n"
+                "• Отримувати досягнення\n\n"
+                "Оберіть опцію з меню нижче 👇"
+            )
+            await bot.edit_message_text(
+                chat_id=callback.message.chat.id,
+                message_id=interactive_message_id,
+                text=new_text,
+                reply_markup=get_generic_inline_keyboard()
+            )
+            # Відправляємо головне меню
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=get_main_menu()
+            )
+        # Додайте обробку інших інлайн-кнопок
+    else:
+        logger.error("interactive_message_id не знайдено")
+
+    await callback.answer()
 
 # Функція для налаштування обробників
 def setup_handlers(dp):
