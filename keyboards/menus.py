@@ -161,9 +161,9 @@ def get_navigation_menu():
     return create_menu(
         [
             MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
             MenuButton.BUILDS,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.GUIDES,
             MenuButton.VOTING,
             MenuButton.BACK
         ],
