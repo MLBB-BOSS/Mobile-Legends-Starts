@@ -85,6 +85,10 @@ class MenuButton(Enum):
     FAQ = "❓ FAQ"
     HELP_SUPPORT = "🆘 Підтримка"
 
+    # Назад до головного меню або профілю
+    BACK_TO_MAIN_MENU = "🔙 Назад до Головного Меню"
+    BACK_TO_PROFILE = "🔙 Назад до Профілю"
+
 def create_menu(buttons, row_width=2):
     """
     Створює клавіатуру з кнопками.
@@ -256,8 +260,6 @@ def get_help_menu():
         row_width=2
     )
 
-# Додаткові функції створення клавіатур, якщо необхідно
-
 # Мапінг кнопок до класів героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -297,10 +299,9 @@ heroes_by_class = {
     # Додайте інші класи за необхідності
 }
 
-def get_hero_class_inline_keyboard(hero_class: str) -> ReplyKeyboardMarkup:
+def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
     """
-    Створює клавіатуру для вибору героя з певного класу.
-    
+    Створює клавіатуру для конкретного класу героїв.
     :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
     :return: ReplyKeyboardMarkup
     """
@@ -318,4 +319,4 @@ def get_hero_class_inline_keyboard(hero_class: str) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
         resize_keyboard=True
-    )
+            )
