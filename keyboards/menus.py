@@ -15,20 +15,20 @@ class MenuButton(Enum):
     PROFILE = "🪪 Мій Профіль"
 
     # Розділ Навігація
-    HEROES = "🛡️ Персонажі"
+    HEROES = "🥷 Персонажі"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
-    BUILDS = "⚜️ Білди"
+    BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
     BACK = "🔄 Назад"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
     MAGE = "🧙‍♂️ Маг"
-    MARKSMAN = "🎯 Стрілець"
-    ASSASSIN = "🗡️ Асасін"
+    MARKSMAN = "🏹 Стрілець"
+    ASSASSIN = "⚔️ Асасін"
     SUPPORT = "❤️ Підтримка"
-    FIGHTER = "🥊 Боєць"
+    FIGHTER = "🗡️ Боєць"
     COMPARISON = "⚖️ Порівняння"
     SEARCH_HERO = "🔎 Пошук Персонажа"
 
@@ -37,7 +37,7 @@ class MenuButton(Enum):
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
-    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
+    TEAMPLAY_GUIDES = "🤝 Командна Гра"
 
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піку"
@@ -75,8 +75,8 @@ class MenuButton(Enum):
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити Username"
-    UPDATE_ID = "🛡️ Оновити ID Гравця"
+    CHANGE_USERNAME = "ℹ️ Змінити Username"
+    UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
     # Підрозділ Зворотний Зв'язок
