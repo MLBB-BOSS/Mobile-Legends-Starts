@@ -1,309 +1,46 @@
-# keyboards/menus.py
+# keyboards/inline_menus.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from enum import Enum
-import logging
 
-# Налаштування логування
-logger = logging.getLogger(__name__)  # Виправлено з 'name' на '__name__'
-logging.basicConfig(level=logging.INFO)
+class CallbackData(Enum):
+    HEROES = "menu_heroes"
+    GUIDES = "menu_guides"
+    BUILDS = "menu_builds"
+    STATISTICS = "menu_statistics"
+    BACK = "menu_back"
 
-class MenuButton(Enum):
-    # Головне Меню
-    NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Мій Профіль"
-
-    # Розділ Навігація
-    HEROES = "🛡️ Персонажі"
-    GUIDES = "📚 Гайди"
-    COUNTER_PICKS = "⚖️ Контр-піки"
-    BUILDS = "⚜️ Білди"
-    VOTING = "📊 Голосування"
-    BACK = "🔄 Назад"
-
-    # Розділ Персонажі
-    TANK = "🛡️ Танк"
-    MAGE = "🧙‍♂️ Маг"
-    MARKSMAN = "🎯 Стрілець"
-    ASSASSIN = "🗡️ Асасін"
-    SUPPORT = "❤️ Підтримка"
-    FIGHTER = "🥊 Боєць"
-    COMPARISON = "⚖️ Порівняння"
-    SEARCH_HERO = "🔎 Пошук Персонажа"
-
-    # Розділ Гайди
-    NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Популярні Гайди"
-    BEGINNER_GUIDES = "📘 Для Початківців"
-    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
-    TEAMPLAY_GUIDES = "🛡️ Командна Гра"
-
-    # Розділ Контр-піки
-    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Персонажів"
-
-    # Розділ Білди
-    CREATE_BUILD = "🏗️ Створити Білд"
-    MY_BUILDS = "📄 Мої Білди"
-    POPULAR_BUILDS = "💎 Популярні Білди"
-
-    # Розділ Голосування
-    CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голосування"
-    SUGGEST_TOPIC = "➕ Запропонувати Тему"
-
-    # Розділ Профіль
-    STATISTICS = "📈 Статистика"
-    ACHIEVEMENTS = "🏆 Досягнення"
-    SETTINGS = "⚙️ Налаштування"
-    FEEDBACK = "💌 Зворотний Зв'язок"
-    HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔄 Повернутися до Головного Меню"
-
-    # Підрозділ Статистика
-    ACTIVITY = "📊 Загальна Активність"
-    RANKING = "🥇 Рейтинг"
-    GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔄 Назад до Профілю"
-
-    # Підрозділ Досягнення
-    BADGES = "🎖️ Мої Бейджі"
-    PROGRESS = "🚀 Прогрес"
-    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
-    AWARDS = "🎟️ Отримані Нагороди"
-
-    # Підрозділ Налаштування
-    LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити Username"
-    UPDATE_ID = "🛡️ Оновити ID Гравця"
-    NOTIFICATIONS = "🔔 Сповіщення"
-
-    # Підрозділ Зворотний Зв'язок
-    SEND_FEEDBACK = "✏️ Надіслати Відгук"
-    REPORT_BUG = "🐛 Повідомити про Помилку"
-
-    # Підрозділ Допомога
-    INSTRUCTIONS = "📄 Інструкції"
-    FAQ = "❔ FAQ"
-    HELP_SUPPORT = "📞 Підтримка"
-
-# Відповідність кнопок класам героїв
-menu_button_to_class = {
-    MenuButton.TANK.value: "Танк",
-    MenuButton.MAGE.value: "Маг",
-    MenuButton.MARKSMAN.value: "Стрілець",
-    MenuButton.ASSASSIN.value: "Асасін",
-    MenuButton.SUPPORT.value: "Підтримка",
-    MenuButton.FIGHTER.value: "Боєць",
-}
-
-# Повний список героїв за класами
-heroes_by_class = {
-    "Боєць": [
-        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
-        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
-        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
-        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
-        "Badang", "Guinevere"
-    ],
-    "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
-    ],
-    "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
-    ],
-    "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
-    ],
-    "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
-        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
-    ],
-    "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
-    ],
-}
-
-def create_menu(buttons, row_width=2):
+def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
-    Створює клавіатуру з кнопками.
-    :param buttons: Список кнопок (MenuButton або str).
-    :param row_width: Кількість кнопок у рядку.
-    :return: ReplyKeyboardMarkup
+    Створює базову інлайн-клавіатуру для головного меню.
     """
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
-    keyboard_buttons = [
-        KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
-    ]
-    keyboard = [
-        keyboard_buttons[i:i + row_width]
-        for i in range(0, len(keyboard_buttons), row_width)
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-def get_main_menu():
-    return create_menu(
+    return InlineKeyboardMarkup(inline_keyboard=[
         [
-            MenuButton.NAVIGATION,
-            MenuButton.PROFILE
+            InlineKeyboardButton(text="🛡️ Персонажі", callback_data=CallbackData.HEROES.value),
+            InlineKeyboardButton(text="📚 Гайди", callback_data=CallbackData.GUIDES.value)
         ],
-        row_width=2
-    )
-
-def get_navigation_menu():
-    return create_menu(
         [
-            MenuButton.HEROES,
-            MenuButton.GUIDES,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.BUILDS,
-            MenuButton.VOTING,
-            MenuButton.BACK
+            InlineKeyboardButton(text="⚜️ Білди", callback_data=CallbackData.BUILDS.value),
+            InlineKeyboardButton(text="📈 Статистика", callback_data=CallbackData.STATISTICS.value)
         ],
-        row_width=3
-    )
-
-def get_heroes_menu():
-    return create_menu(
         [
-            MenuButton.TANK,
-            MenuButton.MAGE,
-            MenuButton.MARKSMAN,
-            MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,
-            MenuButton.FIGHTER,
-            MenuButton.COMPARISON,
-            MenuButton.SEARCH_HERO,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
+            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
+        ]
+    ])
 
-def get_hero_class_menu(hero_class):
-    heroes = heroes_by_class.get(hero_class, [])
-    buttons = [hero for hero in heroes]  # Використовуємо простий текст для кнопок
-    row_width = 3
-    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([MenuButton.BACK.value])  # Додаємо кнопку назад
-    return create_menu(keyboard, row_width=3)
-
-def get_guides_menu():
-    return create_menu(
+def get_hero_class_inline_keyboard(hero_class: str) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для вибору героя з певного класу.
+    
+    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
+    :return: InlineKeyboardMarkup
+    """
+    return InlineKeyboardMarkup(inline_keyboard=[
         [
-            MenuButton.NEW_GUIDES,
-            MenuButton.POPULAR_GUIDES,
-            MenuButton.BEGINNER_GUIDES,
-            MenuButton.ADVANCED_TECHNIQUES,
-            MenuButton.TEAMPLAY_GUIDES,
-            MenuButton.BACK
+            InlineKeyboardButton(text=f"🔍 {hero_class} 1", callback_data=f"hero_class_{hero_class.lower()}_1"),
+            InlineKeyboardButton(text=f"🔍 {hero_class} 2", callback_data=f"hero_class_{hero_class.lower()}_2")
         ],
-        row_width=3
-    )
-
-def get_counter_picks_menu():
-    return create_menu(
         [
-            MenuButton.COUNTER_SEARCH,
-            MenuButton.COUNTER_LIST,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
-
-def get_builds_menu():
-    return create_menu(
-        [
-            MenuButton.CREATE_BUILD,
-            MenuButton.MY_BUILDS,
-            MenuButton.POPULAR_BUILDS,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
-
-def get_voting_menu():
-    return create_menu(
-        [
-            MenuButton.CURRENT_VOTES,
-            MenuButton.MY_VOTES,
-            MenuButton.SUGGEST_TOPIC,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
-
-def get_profile_menu():
-    return create_menu(
-        [
-            MenuButton.STATISTICS,
-            MenuButton.ACHIEVEMENTS,
-            MenuButton.SETTINGS,
-            MenuButton.FEEDBACK,
-            MenuButton.HELP,
-            MenuButton.BACK_TO_MAIN_MENU
-        ],
-        row_width=3
-    )
-
-def get_statistics_menu():
-    return create_menu(
-        [
-            MenuButton.ACTIVITY,
-            MenuButton.RANKING,
-            MenuButton.GAME_STATS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_achievements_menu():
-    return create_menu(
-        [
-            MenuButton.BADGES,
-            MenuButton.PROGRESS,
-            MenuButton.TOURNAMENT_STATS,
-            MenuButton.AWARDS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_settings_menu():
-    return create_menu(
-        [
-            MenuButton.LANGUAGE,
-            MenuButton.CHANGE_USERNAME,
-            MenuButton.UPDATE_ID,
-            MenuButton.NOTIFICATIONS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_feedback_menu():
-    return create_menu(
-        [
-            MenuButton.SEND_FEEDBACK,
-            MenuButton.REPORT_BUG,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_help_menu():
-    return create_menu(
-        [
-            MenuButton.INSTRUCTIONS,
-            MenuButton.FAQ,
-            MenuButton.HELP_SUPPORT,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
+            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
+        ]
+    ])
