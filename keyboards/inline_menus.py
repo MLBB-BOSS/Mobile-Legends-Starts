@@ -5,16 +5,16 @@ from enum import Enum
 import logging
 
 # Налаштування логування
-logger = logging.getLogger(__name__)  # Використовується '__name__' для коректного логування
+logger = logging.getLogger(__name__)  # Виправлено з 'name' на '__name__'
 logging.basicConfig(level=logging.INFO)
 
 class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Профіль"
+    PROFILE = "🪪 Мій Профіль"
 
     # Розділ Навігація
-    HEROES = "🛡️ Герої"
+    HEROES = "🛡️ Персонажі"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "⚜️ Білди"
@@ -22,34 +22,34 @@ class MenuButton(Enum):
     BACK = "🔄 Назад"
 
     # Розділ Персонажі
-    SEARCH_HERO = "🔍 Пошук Героя"
-    TANK = "🛡️ Танки"
-    MAGE = "🔮 Маги"
-    MARKSMAN = "🏹 Стрільці"
-    ASSASSIN = "⚔️ Асасіни"
-    SUPPORT = "🧬 Підтримка"
+    TANK = "🛡️ Танк"
+    MAGE = "🧙‍♂️ Маг"
+    MARKSMAN = "🎯 Стрілець"
+    ASSASSIN = "🗡️ Асасін"
+    SUPPORT = "❤️ Підтримка"
     FIGHTER = "🥊 Боєць"
     COMPARISON = "⚖️ Порівняння"
+    SEARCH_HERO = "🔎 Пошук Персонажа"
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Популярні"
-    BEGINNER_GUIDES = "📘 Для Новачків"
-    ADVANCED_TECHNIQUES = "🧙 Просунуті"
+    POPULAR_GUIDES = "🌟 Популярні Гайди"
+    BEGINNER_GUIDES = "📘 Для Початківців"
+    ADVANCED_TECHNIQUES = "🧙 Просунуті Техніки"
     TEAMPLAY_GUIDES = "🛡️ Командна Гра"
 
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Героїв"
+    COUNTER_LIST = "📝 Список Персонажів"
 
     # Розділ Білди
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
-    POPULAR_BUILDS = "💎 Топ Білди"
+    POPULAR_BUILDS = "💎 Популярні Білди"
 
     # Розділ Голосування
     CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голоси"
+    MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
 
     # Розділ Профіль
@@ -74,13 +74,13 @@ class MenuButton(Enum):
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "🆔 Змінити Ім'я"
-    UPDATE_ID = "🛡️ Оновити ID"
+    CHANGE_USERNAME = "🆔 Змінити Username"
+    UPDATE_ID = "🛡️ Оновити ID Гравця"
     NOTIFICATIONS = "🔔 Сповіщення"
 
     # Підрозділ Зворотний Зв'язок
-    SEND_FEEDBACK = "✏️ Відгук"
-    REPORT_BUG = "🐛 Повідомити про Баг"
+    SEND_FEEDBACK = "✏️ Надіслати Відгук"
+    REPORT_BUG = "🐛 Повідомити про Помилку"
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
@@ -91,8 +91,8 @@ class MenuButton(Enum):
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
-    MenuButton.MARKSMAN.value: "Стрільці",
-    MenuButton.ASSASSIN.value: "Асасіни",
+    MenuButton.MARKSMAN.value: "Стрілець",
+    MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
     MenuButton.FIGHTER.value: "Боєць",
 }
@@ -111,11 +111,11 @@ heroes_by_class = {
         "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
         "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
     ],
-    "Асасіни": [
+    "Асасін": [
         "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
         "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
     ],
-    "Стрільці": [
+    "Стрілець": [
         "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
         "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
         "Roger", "Karrie", "Irithel", "Lesley"
@@ -173,7 +173,6 @@ def get_navigation_menu():
 def get_heroes_menu():
     return create_menu(
         [
-            MenuButton.SEARCH_HERO,
             MenuButton.TANK,
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
@@ -181,6 +180,7 @@ def get_heroes_menu():
             MenuButton.SUPPORT,
             MenuButton.FIGHTER,
             MenuButton.COMPARISON,
+            MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
         row_width=3
@@ -188,11 +188,11 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    buttons = [hero for hero in heroes]  # Використовуємо простий текст для кнопок
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    keyboard.append([MenuButton.BACK.value])  # Додаємо кнопку назад
+    return create_menu(keyboard, row_width=3)
 
 def get_guides_menu():
     return create_menu(
@@ -306,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-            )
+    )
