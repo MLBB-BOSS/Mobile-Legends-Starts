@@ -68,7 +68,7 @@ async def cmd_start(message: Message, state: FSMContext):
     )
     # Відправляємо повідомлення з інлайн-кнопками
     await message.answer(
-        "ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+        f"З поверненням друже {user_name}!"
         reply_markup=get_generic_inline_keyboard()
     )
 
