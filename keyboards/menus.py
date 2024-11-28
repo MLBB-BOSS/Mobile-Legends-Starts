@@ -142,60 +142,6 @@ def get_heroes_menu():
         row_width=3
     )
 
-def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
-    """
-    Створює клавіатуру для конкретного класу героїв.
-    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
-    :return: ReplyKeyboardMarkup
-    """
-    heroes_by_class = {
-        "Боєць": [
-            "Balmond", "Alucard", "Bane", "Zilong", "Freya",
-            # Додайте інші героїв
-        ],
-        "Танк": [
-            "Tigreal", "Akai", "Franco", "Minotaur",
-            # Додайте інші героїв
-        ],
-        "Маг": [
-            "Lunox", "Vale", "Kadita",
-            # Додайте інші героїв
-        ],
-        "Стрілець": [
-            "Yi Sun-shin", "Granger", "Brody",
-            # Додайте інші героїв
-        ],
-        "Асасін": [
-            "Hayabusa", "Helcurt",
-            # Додайте інші героїв
-        ],
-        "Підтримка": [
-            "Angela", "Estes",
-            # Додайте інші героїв
-        ],
-        "Боєць": [
-            "Balmond", "Alucard", "Bane", "Zilong", "Freya",
-            # Додайте інші героїв
-        ],
-        # Додайте інші класи за необхідності
-    }
-
-    heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
-    keyboard = []
-
-    # Розміщуємо кнопки по 3 в ряд
-    for i in range(0, len(buttons), 3):
-        keyboard.append(buttons[i:i + 3])
-
-    # Додаємо кнопку "Назад"
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
-
-    return ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True
-    )
-
 def get_guides_menu():
     return create_menu(
         [
@@ -308,4 +254,68 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=2
+    )
+
+# Додаткові функції створення клавіатур, якщо необхідно
+
+# Мапінг кнопок до класів героїв
+menu_button_to_class = {
+    MenuButton.TANK.value: "Танк",
+    MenuButton.MAGE.value: "Маг",
+    MenuButton.MARKSMAN.value: "Стрілець",
+    MenuButton.ASSASSIN.value: "Асасін",
+    MenuButton.SUPPORT.value: "Підтримка",
+    MenuButton.FIGHTER.value: "Боєць",
+}
+
+# Словник героїв за класами
+heroes_by_class = {
+    "Боєць": [
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya",
+        # Додайте інші героїв
+    ],
+    "Танк": [
+        "Tigreal", "Akai", "Franco", "Minotaur",
+        # Додайте інші героїв
+    ],
+    "Маг": [
+        "Lunox", "Vale", "Kadita",
+        # Додайте інші героїв
+    ],
+    "Стрілець": [
+        "Yi Sun-shin", "Granger", "Brody",
+        # Додайте інші героїв
+    ],
+    "Асасін": [
+        "Hayabusa", "Helcurt",
+        # Додайте інші героїв
+    ],
+    "Підтримка": [
+        "Angela", "Estes",
+        # Додайте інші героїв
+    ],
+    # Додайте інші класи за необхідності
+}
+
+def get_hero_class_inline_keyboard(hero_class: str) -> ReplyKeyboardMarkup:
+    """
+    Створює клавіатуру для вибору героя з певного класу.
+    
+    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
+    :return: ReplyKeyboardMarkup
+    """
+    heroes = heroes_by_class.get(hero_class, [])
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    keyboard = []
+
+    # Розміщуємо кнопки по 3 в ряд
+    for i in range(0, len(buttons), 3):
+        keyboard.append(buttons[i:i + 3])
+
+    # Додаємо кнопку "Назад"
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True
     )
