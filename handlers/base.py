@@ -76,8 +76,8 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     # Встановлюємо стан користувача
     await state.set_state(MenuStates.MAIN_MENU)
 
-    # Відправляємо базове повідомлення з клавіатурою (базове повідомлення)
-    base_message = await bot.send_message(
+    # Відправляємо інтерактивне повідомлення з інлайн-кнопками
+    interactive_message = await bot.send_message(
         chat_id=message.chat.id,
         text=(
             f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
@@ -88,21 +88,18 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
             "• Отримувати досягнення\n\n"
             "Оберіть опцію з меню нижче 👇"
         ),
-        reply_markup=get_main_menu()
-    )
-
-    # Зберігаємо ID базового повідомлення в стані
-    await state.update_data(base_message_id=base_message.message_id)
-
-    # Відправляємо повідомлення з інлайн-кнопками (інлайн-повідомлення)
-    inline_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
         reply_markup=get_generic_inline_keyboard()
     )
 
-    # Зберігаємо ID інлайн-повідомлення в стані
-    await state.update_data(inline_message_id=inline_message.message_id)
+    # Зберігаємо ID інтерактивного повідомлення в стані
+    await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Відправляємо звичайну клавіатуру
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text="Оберіть опцію з меню нижче 👇",
+        reply_markup=get_main_menu()
+    )
 
 # Обробник натискання звичайних кнопок у головному меню
 @router.message(MenuStates.MAIN_MENU)
@@ -113,13 +110,24 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     # Видаляємо повідомлення користувача
     await message.delete()
 
-    # Отримуємо base_message_id та inline_message_id з стану
-    data = await state.get_data()
-    base_message_id = data.get('base_message_id')
-    inline_message_id = data.get('inline_message_id')
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
 
-    # Оновлюємо текст базового повідомлення
-    if base_message_id:
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+
+    # Оновлюємо текст інтерактивного повідомлення
+    if interactive_message_id:
         new_text = ""
         new_keyboard = None
 
@@ -140,24 +148,21 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
             )
             return
 
-        # Оновлюємо базове повідомлення
         await bot.edit_message_text(
             chat_id=message.chat.id,
-            message_id=base_message_id,
+            message_id=interactive_message_id,
             text=new_text,
-            reply_markup=new_keyboard
+            reply_markup=get_generic_inline_keyboard()
         )
 
-        # Оновлюємо інлайн-повідомлення (за потребою)
-        if inline_message_id:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=inline_message_id,
-                text="ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-                reply_markup=get_generic_inline_keyboard()
-            )
+        # Відправляємо оновлену клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Оберіть опцію з меню нижче 👇",
+            reply_markup=new_keyboard
+        )
     else:
-        logger.error("base_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
 # Обробник натискання звичайних кнопок у меню Навігація
 @router.message(MenuStates.NAVIGATION_MENU)
@@ -168,12 +173,23 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     # Видаляємо повідомлення користувача
     await message.delete()
 
-    # Отримуємо base_message_id та inline_message_id з стану
-    data = await state.get_data()
-    base_message_id = data.get('base_message_id')
-    inline_message_id = data.get('inline_message_id')
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
 
-    if base_message_id:
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+
+    if interactive_message_id:
         new_text = ""
         new_keyboard = None
 
@@ -219,24 +235,22 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
             )
             return
 
-        # Оновлюємо базове повідомлення
+        # Оновлюємо інтерактивне повідомлення
         await bot.edit_message_text(
             chat_id=message.chat.id,
-            message_id=base_message_id,
+            message_id=interactive_message_id,
             text=new_text,
-            reply_markup=new_keyboard
+            reply_markup=get_generic_inline_keyboard()
         )
 
-        # Оновлюємо інлайн-повідомлення (за потребою)
-        if inline_message_id:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=inline_message_id,
-                text="ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-                reply_markup=get_generic_inline_keyboard()
-            )
+        # Відправляємо нову клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Оберіть опцію з меню нижче 👇",
+            reply_markup=new_keyboard
+        )
     else:
-        logger.error("base_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
 # Обробник натискання звичайних кнопок у меню Персонажі
 @router.message(MenuStates.HEROES_MENU)
@@ -247,15 +261,26 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     # Видаляємо повідомлення користувача
     await message.delete()
 
-    # Отримуємо base_message_id та inline_message_id з стану
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
+
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
     data = await state.get_data()
-    base_message_id = data.get('base_message_id')
-    inline_message_id = data.get('inline_message_id')
+    interactive_message_id = data.get('interactive_message_id')
 
     hero_classes = [MenuButton.TANK.value, MenuButton.MAGE.value, MenuButton.MARKSMAN.value,
                     MenuButton.ASSASSIN.value, MenuButton.SUPPORT.value, MenuButton.FIGHTER.value]
 
-    if base_message_id:
+    if interactive_message_id:
         new_text = ""
         new_keyboard = None
 
@@ -267,7 +292,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
             await state.update_data(hero_class=hero_class)
         elif user_choice == MenuButton.SEARCH_HERO.value:
             new_text = "🔎 **Пошук Персонажа**\nБудь ласка, введіть ім'я героя для пошуку:"
-            new_keyboard = get_heroes_menu()  # Залишаємо ту саму клавіатуру
+            new_keyboard = None  # Немає клавіатури
             await state.set_state(MenuStates.SEARCH_HERO)
         elif user_choice == MenuButton.COMPARISON.value:
             new_text = "⚖️ **Порівняння**\nФункція порівняння героїв ще в розробці."
@@ -287,24 +312,23 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
             )
             return
 
-        # Оновлюємо базове повідомлення
+        # Оновлюємо інтерактивне повідомлення
         await bot.edit_message_text(
             chat_id=message.chat.id,
-            message_id=base_message_id,
+            message_id=interactive_message_id,
             text=new_text,
-            reply_markup=new_keyboard
+            reply_markup=get_generic_inline_keyboard()
         )
 
-        # Оновлюємо інлайн-повідомлення (за потребою)
-        if inline_message_id:
-            await bot.edit_message_text(
+        # Відправляємо оновлену клавіатуру, якщо є
+        if new_keyboard:
+            await bot.send_message(
                 chat_id=message.chat.id,
-                message_id=inline_message_id,
-                text="ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
-                reply_markup=get_generic_inline_keyboard()
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=new_keyboard
             )
     else:
-        logger.error("base_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
 # Обробник натискання звичайних кнопок у меню класу героїв
 @router.message(MenuStates.HERO_CLASS_MENU)
@@ -317,30 +341,31 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     # Видаляємо повідомлення користувача
     await message.delete()
 
-    # Отримуємо base_message_id та inline_message_id з стану
-    base_message_id = data.get('base_message_id')
-    inline_message_id = data.get('inline_message_id')
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
 
-    if base_message_id:
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
+    interactive_message_id = data.get('interactive_message_id')
+
+    if interactive_message_id:
         new_text = ""
         new_keyboard = None
 
         if hero_class and hero_class in heroes_by_class:
             if user_choice in heroes_by_class[hero_class]:
                 # Користувач обрав героя
-                new_text = f"🥷 **Персонажі**\nОберіть категорію героїв:"
-                new_keyboard = get_heroes_menu()
-                await state.set_state(MenuStates.HEROES_MENU)
-
-                # Оновлюємо інлайн-повідомлення з інформацією про героя
-                if inline_message_id:
-                    hero_info = f"Ви обрали героя {user_choice}. Інформація про героя буде додана пізніше."
-                    await bot.edit_message_text(
-                        chat_id=message.chat.id,
-                        message_id=inline_message_id,
-                        text=hero_info,
-                        reply_markup=get_generic_inline_keyboard()
-                    )
+                new_text = f"Ви обрали героя {user_choice}. Інформація про героя буде додана пізніше."
+                new_keyboard = get_main_menu()
+                await state.set_state(MenuStates.MAIN_MENU)
             elif user_choice == MenuButton.BACK.value:
                 # Повертаємось до HEROES_MENU
                 new_text = "🥷 **Персонажі**\nОберіть категорію героїв:"
@@ -357,15 +382,111 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         else:
             logger.error("hero_class не знайдено або невідомий")
 
-        # Оновлюємо базове повідомлення
+        # Оновлюємо інтерактивне повідомлення
         await bot.edit_message_text(
             chat_id=message.chat.id,
-            message_id=base_message_id,
+            message_id=interactive_message_id,
             text=new_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+        # Відправляємо нову клавіатуру
+        if new_keyboard:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=new_keyboard
+            )
+    else:
+        logger.error("interactive_message_id не знайдено")
+
+# Обробник натискання звичайних кнопок у меню Профіль
+@router.message(MenuStates.PROFILE_MENU)
+async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Профіль")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
+
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Отримуємо interactive_message_id з стану
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+
+    if interactive_message_id:
+        new_text = ""
+        new_keyboard = None
+
+        if user_choice == MenuButton.STATISTICS.value:
+            new_text = "📊 **Статистика**\nВиберіть підрозділ статистики:"
+            new_keyboard = get_statistics_menu()
+            await state.set_state(MenuStates.STATISTICS_MENU)
+        elif user_choice == MenuButton.ACHIEVEMENTS.value:
+            new_text = "🏆 **Досягнення**\nВиберіть підрозділ досягнень:"
+            new_keyboard = get_achievements_menu()
+            await state.set_state(MenuStates.ACHIEVEMENTS_MENU)
+        elif user_choice == MenuButton.SETTINGS.value:
+            new_text = "⚙️ **Налаштування**\nВиберіть опцію налаштувань:"
+            new_keyboard = get_settings_menu()
+            await state.set_state(MenuStates.SETTINGS_MENU)
+        elif user_choice == MenuButton.FEEDBACK.value:
+            new_text = "✉️ **Зворотний Зв'язок**\nВиберіть опцію зворотного зв'язку:"
+            new_keyboard = get_feedback_menu()
+            await state.set_state(MenuStates.FEEDBACK_MENU)
+        elif user_choice == MenuButton.HELP.value:
+            new_text = "❓ **Допомога**\nВиберіть опцію допомоги:"
+            new_keyboard = get_help_menu()
+            await state.set_state(MenuStates.HELP_MENU)
+        elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
+            # Повертаємось до головного меню
+            new_text = (
+                f"👋 Вітаємо, {message.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
+                "🎮 Цей бот допоможе вам:\n"
+                "• Організовувати турніри\n"
+                "• Зберігати скріншоти персонажів\n"
+                "• Відстежувати активність\n"
+                "• Отримувати досягнення\n\n"
+                "Оберіть опцію з меню нижче 👇"
+            )
+            new_keyboard = get_main_menu()
+            await state.set_state(MenuStates.MAIN_MENU)
+        else:
+            logger.warning("Невідома опція меню")
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
+                reply_markup=get_profile_menu()
+            )
+            return
+
+        # Оновлюємо інтерактивне повідомлення
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+        # Відправляємо нову клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Оберіть опцію з меню нижче 👇",
             reply_markup=new_keyboard
         )
     else:
-        logger.error("base_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
 # Аналогічно додаємо обробники для інших меню та підменю, використовуючи той самий підхід.
 
@@ -375,10 +496,9 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
     current_state = await state.get_state()
     data = await state.get_data()
-    base_message_id = data.get('base_message_id')
-    inline_message_id = data.get('inline_message_id')
+    interactive_message_id = data.get('interactive_message_id')
 
-    if base_message_id:
+    if interactive_message_id:
         if current_state == MenuStates.MAIN_MENU.state:
             new_text = (
                 f"👋 Вітаємо, {message.from_user.first_name}, у Mobile Legends Tournament Bot!\n\n"
@@ -420,24 +540,22 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         # Видаляємо повідомлення користувача
         await message.delete()
 
-        # Оновлюємо базове повідомлення
+        # Оновлюємо інтерактивне повідомлення
         await bot.edit_message_text(
             chat_id=message.chat.id,
-            message_id=base_message_id,
+            message_id=interactive_message_id,
             text=new_text,
-            reply_markup=new_keyboard
+            reply_markup=get_generic_inline_keyboard()
         )
 
-        # Оновлюємо інлайн-повідомлення (за потребою)
-        if inline_message_id:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=inline_message_id,
-                text="❗ Вибачте, я не розумію цю команду.",
-                reply_markup=get_generic_inline_keyboard()
-            )
+        # Відправляємо клавіатуру
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче.",
+            reply_markup=new_keyboard
+        )
     else:
-        logger.error("base_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
 # Обробник для інлайн-кнопок
 @router.callback_query()
@@ -445,25 +563,21 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
     data = callback.data
     logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
 
-    # Отримуємо inline_message_id з стану
+    # Отримуємо interactive_message_id з стану
     state_data = await state.get_data()
-    inline_message_id = state_data.get('inline_message_id')
+    interactive_message_id = state_data.get('interactive_message_id')
 
-    if inline_message_id:
+    if interactive_message_id:
         # Обробляємо інлайн-кнопки
         if data == "button1":
-            await bot.edit_message_text(
+            await bot.send_message(
                 chat_id=callback.message.chat.id,
-                message_id=inline_message_id,
-                text="Ви натиснули на Кнопку 1",
-                reply_markup=get_generic_inline_keyboard()
+                text="Ви натиснули на Кнопку 1"
             )
         elif data == "button2":
-            await bot.edit_message_text(
+            await bot.send_message(
                 chat_id=callback.message.chat.id,
-                message_id=inline_message_id,
-                text="Ви натиснули на Кнопку 2",
-                reply_markup=get_generic_inline_keyboard()
+                text="Ви натиснули на Кнопку 2"
             )
         elif data == "menu_back":
             # Повернення до головного меню
@@ -477,24 +591,21 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
                 "• Отримувати досягнення\n\n"
                 "Оберіть опцію з меню нижче 👇"
             )
-            base_message_id = state_data.get('base_message_id')
-            if base_message_id:
-                await bot.edit_message_text(
-                    chat_id=callback.message.chat.id,
-                    message_id=base_message_id,
-                    text=new_text,
-                    reply_markup=get_main_menu()
-                )
-            # Оновлюємо інлайн-повідомлення
             await bot.edit_message_text(
                 chat_id=callback.message.chat.id,
-                message_id=inline_message_id,
-                text="ㅤㅤㅤㅤ      ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
+                message_id=interactive_message_id,
+                text=new_text,
                 reply_markup=get_generic_inline_keyboard()
+            )
+            # Відправляємо головне меню
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text="Оберіть опцію з меню нижче 👇",
+                reply_markup=get_main_menu()
             )
         # Додайте обробку інших інлайн-кнопок за потребою
     else:
-        logger.error("inline_message_id не знайдено")
+        logger.error("interactive_message_id не знайдено")
 
     await callback.answer()
 
