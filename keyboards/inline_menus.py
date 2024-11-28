@@ -1,30 +1,35 @@
 # keyboards/inline_menus.py
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from enum import Enum
-
-class CallbackData(Enum):
-    HEROES = "menu_heroes"
-    GUIDES = "menu_guides"
-    BUILDS = "menu_builds"
-    STATISTICS = "menu_statistics"
-    BACK = "menu_back"
-    # Додайте інші необхідні CallbackData
-
-def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
+def get_hero_class_inline_keyboard(hero_class: str) -> InlineKeyboardMarkup:
     """
-    Створює базову інлайн-клавіатуру для головного меню.
+    Створює інлайн-клавіатуру для вибору героя з певного класу.
+    
+    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
+    :return: InlineKeyboardMarkup
     """
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🛡️ Персонажі", callback_data=CallbackData.HEROES.value),
-            InlineKeyboardButton(text="📚 Гайди", callback_data=CallbackData.GUIDES.value)
+    # Приклад для демонстрації. Замініть на реальні герої та їхні callback_data
+    heroes_inline_keyboard = {
+        "Танк": [
+            InlineKeyboardButton(text="Tigreal", callback_data="hero_tigreal"),
+            InlineKeyboardButton(text="Franco", callback_data="hero_franco"),
+            InlineKeyboardButton(text="Minotaur", callback_data="hero_minotaur")
         ],
-        [
-            InlineKeyboardButton(text="⚜️ Білди", callback_data=CallbackData.BUILDS.value),
-            InlineKeyboardButton(text="📈 Статистика", callback_data=CallbackData.STATISTICS.value)
+        "Маг": [
+            InlineKeyboardButton(text="Lunox", callback_data="hero_lunox"),
+            InlineKeyboardButton(text="Vale", callback_data="hero_vale"),
+            InlineKeyboardButton(text="Kadita", callback_data="hero_kadita")
         ],
-        [
-            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
-        ]
-    ])
+        # Додайте інші класи та героїв за необхідності
+    }
+    
+    buttons = heroes_inline_keyboard.get(hero_class, [])
+    
+    # Розміщуємо кнопки по 2 в ряд
+    keyboard = [
+        buttons[i:i + 2] for i in range(0, len(buttons), 2)
+    ]
+    
+    # Додаємо кнопку "Назад"
+    keyboard.append([InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)])
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
