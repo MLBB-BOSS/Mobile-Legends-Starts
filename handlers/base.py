@@ -49,8 +49,6 @@ class MenuStates(StatesGroup):
     SETTINGS_MENU = State()
     FEEDBACK_MENU = State()
     HELP_MENU = State()
-    SEARCH_HERO = State()
-    # Додайте нові стани, якщо необхідно
 
 # Команда /start
 @router.message(Command("start"))
@@ -91,7 +89,7 @@ async def cmd_navigation(message: Message, state: FSMContext):
 
 @router.message(MenuStates.MAIN_MENU, F.text == MenuButton.PROFILE.value)
 async def cmd_profile(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Профіль")
+    logger.info(f"Користувач {message.from_user.id} обрав Мій Профіль")
     await state.set_state(MenuStates.PROFILE_MENU)
     await message.answer(
         "ㅤㅤㅤ  ㅤ    ┈ MLS ┈ㅤㅤㅤㅤㅤㅤ",
@@ -106,7 +104,7 @@ async def cmd_profile(message: Message, state: FSMContext):
 # Розділ "Навігація"
 @router.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.HEROES.value)
 async def cmd_heroes(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Герої")
+    logger.info(f"Користувач {message.from_user.id} обрав Персонажі")
     await state.set_state(MenuStates.HEROES_MENU)
     await message.answer(
         "Виберіть категорію героїв:",
@@ -184,14 +182,12 @@ async def cmd_back_to_main_from_navigation(message: Message, state: FSMContext):
 
 # Розділ "Персонажі"
 @router.message(MenuStates.HEROES_MENU, F.text.in_([
-    MenuButton.SEARCH_HERO.value,
     MenuButton.TANK.value,
     MenuButton.MAGE.value,
     MenuButton.MARKSMAN.value,
     MenuButton.ASSASSIN.value,
     MenuButton.SUPPORT.value,
-    MenuButton.FIGHTER.value,
-    MenuButton.COMPARISON.value
+    MenuButton.FIGHTER.value
 ]))
 async def cmd_hero_class(message: Message, state: FSMContext):
     hero_class = menu_button_to_class.get(message.text)
@@ -221,7 +217,7 @@ async def cmd_hero_class(message: Message, state: FSMContext):
 
 @router.message(MenuStates.HEROES_MENU, F.text == MenuButton.SEARCH_HERO.value)
 async def cmd_search_hero(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Пошук Героя")
+    logger.info(f"Користувач {message.from_user.id} обрав Пошук Персонажа")
     await state.set_state(MenuStates.SEARCH_HERO)
     await message.answer(
         "Будь ласка, введіть ім'я героя для пошуку:",
@@ -314,7 +310,7 @@ async def cmd_popular_guides(message: Message, state: FSMContext):
 
 @router.message(MenuStates.GUIDES_MENU, F.text == MenuButton.BEGINNER_GUIDES.value)
 async def cmd_beginner_guides(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Гайди для Новачків")
+    logger.info(f"Користувач {message.from_user.id} обрав Гайди для Початківців")
     await message.answer(
         "Список гайдів для початківців ще не доступний.",
         reply_markup=get_guides_menu(),
@@ -461,7 +457,7 @@ async def cmd_current_votes(message: Message, state: FSMContext):
 
 @router.message(MenuStates.VOTING_MENU, F.text == MenuButton.MY_VOTES.value)
 async def cmd_my_votes(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Мої Голоси")
+    logger.info(f"Користувач {message.from_user.id} обрав Мої Голосування")
     await message.answer(
         "Список ваших голосувань ще не доступний.",
         reply_markup=get_voting_menu(),
@@ -698,9 +694,9 @@ async def cmd_language(message: Message, state: FSMContext):
 
 @router.message(MenuStates.SETTINGS_MENU, F.text == MenuButton.CHANGE_USERNAME.value)
 async def cmd_change_username(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Змінити Ім'я")
+    logger.info(f"Користувач {message.from_user.id} обрав Змінити Username")
     await message.answer(
-        "Будь ласка, введіть нове ім'я:",
+        "Будь ласка, введіть новий Username:",
     )
     await message.answer(
         "Ось ваші інлайн-опції:",
@@ -710,7 +706,7 @@ async def cmd_change_username(message: Message, state: FSMContext):
 
 @router.message(MenuStates.SETTINGS_MENU, F.text == MenuButton.UPDATE_ID.value)
 async def cmd_update_id(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Оновити ID")
+    logger.info(f"Користувач {message.from_user.id} обрав Оновити ID Гравця")
     await message.answer(
         "Функція оновлення ID ще в розробці.",
         reply_markup=get_settings_menu(),
@@ -747,7 +743,7 @@ async def cmd_back_to_profile_from_settings(message: Message, state: FSMContext)
 # Підрозділи "Зворотний Зв'язок"
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.SEND_FEEDBACK.value)
 async def cmd_send_feedback(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Відгук")
+    logger.info(f"Користувач {message.from_user.id} обрав Надіслати Відгук")
     await message.answer(
         "Будь ласка, введіть ваш відгук:",
     )
@@ -759,7 +755,7 @@ async def cmd_send_feedback(message: Message, state: FSMContext):
 
 @router.message(MenuStates.FEEDBACK_MENU, F.text == MenuButton.REPORT_BUG.value)
 async def cmd_report_bug(message: Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} обрав Повідомити про Баг")
+    logger.info(f"Користувач {message.from_user.id} обрав Повідомити про Помилку")
     await message.answer(
         "Будь ласка, опишіть помилку, яку ви знайшли:",
     )
