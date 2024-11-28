@@ -9,6 +9,7 @@ class CallbackData(Enum):
     BUILDS = "menu_builds"
     STATISTICS = "menu_statistics"
     BACK = "menu_back"
+    # Додайте інші необхідні CallbackData
 
 def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
@@ -22,23 +23,6 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="⚜️ Білди", callback_data=CallbackData.BUILDS.value),
             InlineKeyboardButton(text="📈 Статистика", callback_data=CallbackData.STATISTICS.value)
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
-        ]
-    ])
-
-def get_hero_class_inline_keyboard(hero_class: str) -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру для вибору героя з певного класу.
-    
-    :param hero_class: Клас героя (наприклад, "Танк", "Маг" і т.д.)
-    :return: InlineKeyboardMarkup
-    """
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text=f"🔍 {hero_class} 1", callback_data=f"hero_class_{hero_class.lower()}_1"),
-            InlineKeyboardButton(text=f"🔍 {hero_class} 2", callback_data=f"hero_class_{hero_class.lower()}_2")
         ],
         [
             InlineKeyboardButton(text="🔄 Назад", callback_data=CallbackData.BACK.value)
