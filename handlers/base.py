@@ -27,7 +27,7 @@ from keyboards.menus import (
     get_help_menu,
     heroes_by_class,
 )
-from keyboards.inline_menus import get_generic_inline_keyboard
+from keyboards.inline_menus import get_generic_inline_keyboard, get_welcome_keyboard
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
@@ -51,144 +51,110 @@ class MenuStates(StatesGroup):
     FEEDBACK_MENU = State()
     HELP_MENU = State()
     SEARCH_HERO = State()
+    
+    # Додані стани для привітального процесу
+    WELCOME_PAGE_1 = State()
+    WELCOME_PAGE_2 = State()
+    WELCOME_PAGE_3 = State()
 
 # Команда /start
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     user_name = message.from_user.first_name
     logger.info(f"Користувач {message.from_user.id} викликав /start")
-
+    
     # Видаляємо повідомлення користувача /start
     await message.delete()
-
-    # Відправляємо повідомлення про завантаження
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="🔄 Завантаження даних..."
-    )
-
-    # Імітуємо завантаження даних
-    await asyncio.sleep(2)
-
-    # Видаляємо повідомлення про завантаження
-    await loading_message.delete()
-
-    # Встановлюємо стан користувача
-    await state.set_state(MenuStates.MAIN_MENU)
-
-    # Відправляємо повідомлення з текстом і клавіатурою (Повідомлення 1)
-    main_message = await bot.send_message(
+    
+    # Встановлюємо стан на першу сторінку привітання
+    await state.set_state(MenuStates.WELCOME_PAGE_1)
+    
+    # Відправляємо першу сторінку привітання з кнопкою "Продовжити"
+    welcome_page_1 = await bot.send_message(
         chat_id=message.chat.id,
         text=(
-            f"👋 Вітаємо, {user_name}, у Mobile Legends Tournament Bot!\n\n"
-            "Оберіть опцію з меню нижче 👇"
+            f"👋 Вітаємо, {user_name}, у **Mobile Legends Tournament Bot**!\n\n"
+            "Цей бот створений, щоб покращити ваш ігровий досвід.\n"
+            "Натисніть «Продовжити», щоб дізнатися більше."
         ),
-        reply_markup=get_main_menu()
+        parse_mode="Markdown",
+        reply_markup=get_welcome_keyboard(page=1)
     )
+    
+    # Зберігаємо ID повідомлення бота
+    await state.update_data(bot_message_id=welcome_page_1.message_id)
 
-    # Зберігаємо ID повідомлення бота (Повідомлення 1)
-    await state.update_data(bot_message_id=main_message.message_id)
-
-    # Відправляємо інтерактивне повідомлення з інлайн-кнопками (Повідомлення 2)
-    interactive_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text=(
-            "🎮 Цей бот допоможе вам:\n"
+# Обробник для інлайн-кнопок привітання
+@router.callback_query(F.data.startswith("welcome_"))
+async def handle_welcome_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    data = callback.data
+    logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
+    
+    # Отримуємо поточний стан
+    current_state = await state.get_state()
+    
+    # Отримуємо ID повідомлення, яке потрібно редагувати
+    state_data = await state.get_data()
+    bot_message_id = state_data.get('bot_message_id')
+    
+    if not bot_message_id:
+        logger.error("bot_message_id не знайдено")
+        await bot.answer_callback_query(callback.id, text="Сталася помилка. Спробуйте ще раз.")
+        return
+    
+    if data == "welcome_continue_1" and current_state == MenuStates.WELCOME_PAGE_1.state:
+        # Перехід до другої сторінки привітання
+        await state.set_state(MenuStates.WELCOME_PAGE_2)
+        new_text = (
+            "🎮 **Mobile Legends Tournament Bot** пропонує вам:\n"
             "• Організовувати турніри\n"
             "• Зберігати скріншоти персонажів\n"
             "• Відстежувати активність\n"
-            "• Отримувати досягнення"
-        ),
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Зберігаємо ID інтерактивного повідомлення (Повідомлення 2)
-    await state.update_data(interactive_message_id=interactive_message.message_id)
-
-# Обробник натискання звичайних кнопок у головному меню
-@router.message(MenuStates.MAIN_MENU)
-async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} у головному меню")
-
-    # Видаляємо повідомлення користувача
-    await message.delete()
-
-    # Отримуємо IDs повідомлень з стану
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id або interactive_message_id не знайдено")
-        # Надсилаємо нове повідомлення з клавіатурою
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text="Щось пішло не так. Почнімо спочатку.",
-            reply_markup=get_main_menu()
+            "• Отримувати досягнення\n\n"
+            "Натисніть «Продовжити», щоб дізнатися більше."
         )
-        # Зберігаємо ID повідомлення бота
-        await state.update_data(bot_message_id=main_message.message_id)
+        new_keyboard = get_welcome_keyboard(page=2)
+        
+    elif data == "welcome_continue_2" and current_state == MenuStates.WELCOME_PAGE_2.state:
+        # Перехід до третьої сторінки привітання
+        await state.set_state(MenuStates.WELCOME_PAGE_3)
+        new_text = (
+            "📊 **Детальна Статистика:** Аналізуйте свій прогрес і покращуйте навички.\n"
+            "⚙️ **Стратегії та Білди:** Діляться ідеями та вивчайте стратегії інших гравців.\n"
+            "🤝 **Пошук Команди:** Знаходьте однодумців або приєднуйтесь до готових команд.\n"
+            "🏆 **Організація Турнірів:** Беріть участь у змаганнях та отримуйте визнання.\n\n"
+            "Натисніть «Продовжити», щоб завершити привітання."
+        )
+        new_keyboard = get_welcome_keyboard(page=3)
+        
+    elif data == "welcome_start" and current_state == MenuStates.WELCOME_PAGE_3.state:
+        # Завершення привітального процесу та перехід до головного меню
         await state.set_state(MenuStates.MAIN_MENU)
-        return
-
-    # Відправляємо повідомлення про завантаження
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="🔄 Завантаження даних..."
-    )
-
-    # Імітуємо завантаження даних
-    await asyncio.sleep(1)
-
-    # Видаляємо повідомлення про завантаження
-    await loading_message.delete()
-
-    # Визначаємо новий текст та клавіатуру для повідомлень
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_interactive_keyboard = get_generic_inline_keyboard()
-    new_state = None
-
-    if user_choice == MenuButton.NAVIGATION.value:
-        new_main_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"
-        new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Навігаційний екран"
-        new_state = MenuStates.NAVIGATION_MENU
-    elif user_choice == MenuButton.PROFILE.value:
-        new_main_text = "🪪 **Мій Профіль**\nОберіть опцію для перегляду:"
-        new_main_keyboard = get_profile_menu()
-        new_interactive_text = "Профіль користувача"
-        new_state = MenuStates.PROFILE_MENU
+        new_text = (
+            f"👋 Вітаємо, {callback.from_user.first_name}, у **Mobile Legends Tournament Bot**!\n\n"
+            "Оберіть опцію з меню нижче 👇"
+        )
+        new_keyboard = get_main_menu()
+        
     else:
-        # Невідома команда
-        new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = "Невідома команда"
-        new_state = MenuStates.MAIN_MENU
-
-    # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
-    main_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text=new_main_text,
-        reply_markup=new_main_keyboard
-    )
-    # Зберігаємо новий bot_message_id
-    new_bot_message_id = main_message.message_id
-
-    # Додаємо невелику затримку для плавності
-    await asyncio.sleep(0.1)
-
-    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+        # Невідома кнопка або стан
+        logger.error("Невідома кнопка або стан")
+        await bot.answer_callback_query(callback.id, text="Сталася помилка. Спробуйте ще раз.")
+        return
+    
+    # Редагування існуючого повідомлення
     try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+        await bot.edit_message_text(
+            chat_id=callback.message.chat.id,
+            message_id=bot_message_id,
+            text=new_text,
+            parse_mode="Markdown",
+            reply_markup=new_keyboard
+        )
+        await bot.answer_callback_query(callback.id)
     except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
-    # Оновлюємо bot_message_id в стані
-    await state.update_data(bot_message_id=new_bot_message_id)
-
+        logger.error(f"Не вдалося редагувати повідомлення: {e}")
+        await bot.answer_callback_query(callback.id, text="Сталася помилка. Спробуйте ще раз.")
     # Редагуємо інтерактивне повідомлення (Повідомлення 2)
     try:
         await bot.edit_message_text(
