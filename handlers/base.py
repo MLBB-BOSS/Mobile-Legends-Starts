@@ -93,7 +93,6 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     interactive_message = await bot.send_message(
         chat_id=message.chat.id,
         text=(
-            welcome_message = (
     "🌟 Ласкаво просимо до Mobile Legends Starts! 🌟\n\n"
     "Твій незамінний помічник у світі Mobile Legends – де стратегія зустрічається з епічними битвами!\n\n"
     "---\n\n"
