@@ -207,6 +207,8 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     # Оновлюємо стан користувача
     await state.set_state(new_state)
 
+# Аналогічно оновлюємо інші обробники, додаючи редагування обох повідомлень
+
 # Обробник натискання звичайних кнопок у меню Навігація
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -268,6 +270,16 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_main_keyboard = get_counter_picks_menu()
         new_interactive_text = "Список контр-піків"
         new_state = MenuStates.COUNTER_PICKS_MENU
+    elif user_choice == MenuButton.BUILDS.value:
+        new_main_text = "🛠️ **Білди**\nВиберіть опцію білдів:"
+        new_main_keyboard = get_builds_menu()
+        new_interactive_text = "Список білдів"
+        new_state = MenuStates.BUILDS_MENU
+    elif user_choice == MenuButton.VOTING.value:
+        new_main_text = "🗳️ **Голосування**\nВиберіть опцію голосування:"
+        new_main_keyboard = get_voting_menu()
+        new_interactive_text = "Список голосувань"
+        new_state = MenuStates.VOTING_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повертаємось до головного меню
         new_main_text = (
@@ -329,9 +341,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Аналогічно оновлюємо інші обробники, додаючи редагування обох повідомлень
-# Наприклад, обробник для MenuStates.HEROES_MENU
-
+# Обробник натискання звичайних кнопок у меню Персонажі
 @router.message(MenuStates.HEROES_MENU)
 async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -503,6 +513,65 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
         await bot.answer_callback_query(callback.id, text="Сталася помилка")
 
     await callback.answer()
+
+# Обробник для невідомих повідомлень
+@router.message()
+async def unknown_command(message: Message, state: FSMContext, bot: Bot):
+    logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    # Визначаємо новий текст та клавіатуру
+    new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
+    new_main_keyboard = get_main_menu()
+    new_interactive_text = "Будь ласка, використовуйте кнопки для навігації."
+    new_interactive_keyboard = get_generic_inline_keyboard()
+    new_state = MenuStates.MAIN_MENU
+
+    # Редагуємо Повідомлення 1
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=bot_message_id,
+            text=new_main_text,
+            reply_markup=new_main_keyboard
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати повідомлення бота: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_main_text,
+            reply_markup=new_main_keyboard
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+
+    # Редагуємо Повідомлення 2
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            reply_markup=new_interactive_keyboard
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=new_interactive_keyboard
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
 
 # Функція для налаштування обробників
 def setup_handlers(dp):
