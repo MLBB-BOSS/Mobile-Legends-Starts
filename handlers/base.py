@@ -168,20 +168,26 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.MAIN_MENU
 
-    # Видаляємо попереднє повідомлення з клавіатурою (Повідомлення 1)
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
     # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
         reply_markup=new_main_keyboard
     )
-    # Оновлюємо bot_message_id
-    await state.update_data(bot_message_id=main_message.message_id)
+    # Зберігаємо новий bot_message_id
+    new_bot_message_id = main_message.message_id
+
+    # Додаємо невелику затримку для плавності
+    await asyncio.sleep(0.1)
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
 
     # Редагуємо інтерактивне повідомлення (Повідомлення 2)
     try:
@@ -204,7 +210,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Аналогічно оновлюємо інші обробники, додаючи видалення та відправку нового повідомлення з клавіатурою
+# Аналогічно оновлюємо інші обробники, додаючи відправку нового повідомлення перед видаленням старого
 
 # Обробник натискання звичайних кнопок у меню Навігація
 @router.message(MenuStates.NAVIGATION_MENU)
@@ -299,20 +305,26 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.NAVIGATION_MENU
 
-    # Видаляємо попереднє повідомлення з клавіатурою (Повідомлення 1)
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
     # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
         reply_markup=new_main_keyboard
     )
-    # Оновлюємо bot_message_id
-    await state.update_data(bot_message_id=main_message.message_id)
+    # Зберігаємо новий bot_message_id
+    new_bot_message_id = main_message.message_id
+
+    # Додаємо невелику затримку для плавності
+    await asyncio.sleep(0.1)
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
 
     # Редагуємо інтерактивне повідомлення (Повідомлення 2)
     try:
@@ -374,14 +386,6 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
             except Exception as e:
                 logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
-            # Видаляємо попереднє повідомлення з клавіатурою
-            data = await state.get_data()
-            bot_message_id = data.get('bot_message_id')
-            if bot_message_id:
-                try:
-                    await bot.delete_message(chat_id=callback.message.chat.id, message_id=bot_message_id)
-                except Exception as e:
-                    logger.error(f"Не вдалося видалити повідомлення бота: {e}")
             # Відправляємо головне меню
             main_message = await bot.send_message(
                 chat_id=callback.message.chat.id,
@@ -391,7 +395,18 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
                 ),
                 reply_markup=get_main_menu()
             )
+            # Оновлюємо bot_message_id
             await state.update_data(bot_message_id=main_message.message_id)
+
+            # Видаляємо попереднє повідомлення з клавіатурою
+            data = await state.get_data()
+            old_bot_message_id = data.get('bot_message_id')
+            if old_bot_message_id:
+                try:
+                    await bot.delete_message(chat_id=callback.message.chat.id, message_id=bot_message_id)
+                except Exception as e:
+                    logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
         # Додайте обробку інших інлайн-кнопок за потребою
     else:
         logger.error("interactive_message_id не знайдено")
@@ -419,21 +434,27 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     new_interactive_keyboard = get_generic_inline_keyboard()
     new_state = MenuStates.MAIN_MENU
 
-    # Видаляємо попереднє повідомлення з клавіатурою (Повідомлення 1)
-    if bot_message_id:
-        try:
-            await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-        except Exception as e:
-            logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
     # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
         reply_markup=new_main_keyboard
     )
-    # Оновлюємо bot_message_id
-    await state.update_data(bot_message_id=main_message.message_id)
+    # Зберігаємо новий bot_message_id
+    new_bot_message_id = main_message.message_id
+
+    # Додаємо невелику затримку для плавності
+    await asyncio.sleep(0.1)
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    if bot_message_id:
+        try:
+            await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+        except Exception as e:
+            logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
 
     # Редагуємо інтерактивне повідомлення (Повідомлення 2)
     try:
