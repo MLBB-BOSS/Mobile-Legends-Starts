@@ -13,11 +13,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def main():
+    # Імпортуємо aiogram для логування версії
+    import aiogram
+    logger.info(f"aiogram version: {aiogram.__version__}")
+
     # Ініціалізація бота
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
         parse_mode=ParseMode.HTML
-        # Якщо потрібно використовувати кастомну сесію, можна додати параметр session
+        # Якщо потрібно, можна додати кастомну сесію
     )
     
     # Ініціалізація Application з ботом та зберіганням FSM
