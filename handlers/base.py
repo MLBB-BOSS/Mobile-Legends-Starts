@@ -184,16 +184,72 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     new_interactive_text = "Оберіть потрібну категорію з меню"
     new_state = MenuStates.NAVIGATION_MENU
 elif user_choice == MenuButton.PROFILE.value:
-    new_main_text = "🪪 **Мій Профіль**\nОберіть опцію для перегляду:"
-    new_main_keyboard = get_profile_menu()
-    new_interactive_text = "Профіль користувача"
-    new_state = MenuStates.PROFILE_MENU
-else:
-    # Невідома команда
-    new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
-    new_main_keyboard = get_main_menu()
-    new_interactive_text = "Невідома команда"
-    new_state = MenuStates.MAIN_MENU
+# Обробник натискання звичайних кнопок у головному меню
+@router.message(MenuStates.MAIN_MENU)
+async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} у головному меню")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text="Щось пішло не так. Почнімо спочатку.",
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Відправляємо повідомлення про завантаження
+    loading_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text="🔄 Завантаження даних..."
+    )
+
+    # Імітуємо завантаження даних
+    await asyncio.sleep(1)
+
+    # Видаляємо повідомлення про завантаження
+    await loading_message.delete()
+
+    # Визначаємо новий текст та клавіатуру для повідомлень
+    new_main_text = ""
+    new_main_keyboard = None
+    new_interactive_text = ""
+    new_interactive_keyboard = get_generic_inline_keyboard()
+    new_state = None
+
+    if user_choice == MenuButton.NAVIGATION.value:
+        new_main_text = (
+            "🧭 **Навігація**\n"
+            "Оберіть розділ для подальших дій: й та відкрийте нові можливості:\n\n"
+            "🥷 <b>Персонажі:</b> Ознайомтесь із героями, їх характеристиками та порівнюйте їх.\n"
+            "📘 <b>Гайди:</b> Вивчайте корисні поради та стратегії, щоб покращити свої ігрові навички.\n"
+            "🔄 <b>Контр-піки:</b> Дізнайтесь, які герої найкраще протидіють вашим суперникам.\n"
+            "⚙️ <b>Білди:</b> Створюйте ідеальне спорядження для своїх матчів.\n"
+            "📊 <b>Голосування:</b> Беріть участь в опитуваннях та впливайте на рішення спільноти.\n\n"
+            "🔙 Повернення до головного меню завжди доступне!"
+        )
+        new_main_keyboard = get_navigation_menu()
+        new_interactive_text = "Оберіть потрібну категорію з меню"
+        new_state = MenuStates.NAVIGATION_MENU
+    elif user_choice == MenuButton.PROFILE.value:
+        new_main_text = "🪪 **Мій Профіль**\nОберіть опцію для перегляду:"
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = "Профіль користувача"
+        new_state = MenuStates.PROFILE_MENU
+    else:
         # Невідома команда
         new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
         new_main_keyboard = get_main_menu()
@@ -241,7 +297,7 @@ else:
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
-
+    
 # Обробник натискання звичайних кнопок у меню Навігація
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
