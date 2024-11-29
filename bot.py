@@ -2,11 +2,9 @@
 
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Application
 from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
+from aiogram.fsm.storage.memory import MemoryStorage  # Для FSM
 from config import settings
 from handlers.base import setup_handlers
 
@@ -14,26 +12,34 @@ from handlers.base import setup_handlers
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бота
-bot = Bot(
-    token=settings.TELEGRAM_BOT_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()  # Додано для явного визначення сесії
-)
-
-# Ініціалізація диспетчера з підтримкою FSM
-dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
-
 async def main():
-    logger.info("Starting bot...")
+    # Ініціалізація бота
+    bot = Bot(
+        token=settings.TELEGRAM_BOT_TOKEN,
+        parse_mode=ParseMode.HTML
+        # Якщо потрібно використовувати кастомну сесію, можна додати параметр session
+    )
+    
+    # Ініціалізація Application з ботом та зберіганням FSM
+    app = Application.builder().bot(bot).storage(MemoryStorage()).build()
+    
+    # Налаштування обробників
+    setup_handlers(app)
+    
+    # Запуск бота
     try:
-        setup_handlers(dp)
-        await dp.start_polling(bot)
+        logger.info("Starting bot...")
+        await app.start()
+        # Запуск Polling
+        await app.updater.start_polling()
+        # Очікування завершення роботи
+        await app.updater.idle()
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
     finally:
-        if bot.session:
-            await bot.session.close()
+        # Завершення роботи бота та закриття сесії
+        await app.shutdown()
+        await bot.session.close()
 
 if __name__ == "__main__":
     try:
