@@ -79,7 +79,7 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
             "Натисніть «Продовжити», щоб дізнатися більше."
         ),
         parse_mode="Markdown",
-        reply_markup=get_welcome_keyboard(page=1)
+        reply_markup=get_welcome_keyboard(page=1)  # InlineKeyboardMarkup
     )
     
     # Зберігаємо ID повідомлення бота
@@ -114,7 +114,7 @@ async def handle_welcome_buttons(callback: CallbackQuery, state: FSMContext, bot
             "• Отримувати досягнення\n\n"
             "Натисніть «Продовжити», щоб дізнатися більше."
         )
-        new_keyboard = get_welcome_keyboard(page=2)
+        new_keyboard = get_welcome_keyboard(page=2)  # InlineKeyboardMarkup
         
     elif data == "welcome_continue_2" and current_state == MenuStates.WELCOME_PAGE_2.state:
         # Перехід до третьої сторінки привітання
@@ -126,7 +126,7 @@ async def handle_welcome_buttons(callback: CallbackQuery, state: FSMContext, bot
             "🏆 **Організація Турнірів:** Беріть участь у змаганнях та отримуйте визнання.\n\n"
             "Натисніть «Продовжити», щоб завершити привітання."
         )
-        new_keyboard = get_welcome_keyboard(page=3)
+        new_keyboard = get_welcome_keyboard(page=3)  # InlineKeyboardMarkup
         
     elif data == "welcome_start" and current_state == MenuStates.WELCOME_PAGE_3.state:
         # Завершення привітального процесу та перехід до головного меню
@@ -135,7 +135,7 @@ async def handle_welcome_buttons(callback: CallbackQuery, state: FSMContext, bot
             f"👋 Вітаємо, {callback.from_user.first_name}, у **Mobile Legends Tournament Bot**!\n\n"
             "Оберіть опцію з меню нижче 👇"
         )
-        new_keyboard = get_main_menu()
+        new_keyboard = get_main_menu()  # ReplyKeyboardMarkup
         
     else:
         # Невідома кнопка або стан
@@ -145,13 +145,26 @@ async def handle_welcome_buttons(callback: CallbackQuery, state: FSMContext, bot
     
     # Редагування існуючого повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=callback.message.chat.id,
-            message_id=bot_message_id,
-            text=new_text,
-            parse_mode="Markdown",
-            reply_markup=new_keyboard
-        )
+        if isinstance(new_keyboard, InlineKeyboardMarkup):
+            # Якщо використовуємо InlineKeyboardMarkup
+            await bot.edit_message_text(
+                chat_id=callback.message.chat.id,
+                message_id=bot_message_id,
+                text=new_text,
+                parse_mode="Markdown",
+                reply_markup=new_keyboard
+            )
+        elif isinstance(new_keyboard, ReplyKeyboardMarkup):
+            # Якщо використовуємо ReplyKeyboardMarkup
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=new_text,
+                parse_mode="Markdown",
+                reply_markup=new_keyboard
+            )
+            # Можна видалити старе повідомлення, якщо потрібно
+            await bot.delete_message(chat_id=callback.message.chat.id, message_id=bot_message_id)
+        
         await bot.answer_callback_query(callback.id)
     except Exception as e:
         logger.error(f"Не вдалося редагувати повідомлення: {e}")
@@ -176,18 +189,18 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     # Визначаємо новий текст та клавіатуру залежно від стану
     if current_state == MenuStates.MAIN_MENU.state:
         new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
-        new_main_keyboard = get_main_menu()
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup
         new_interactive_text = "Головне меню"
         new_state = MenuStates.MAIN_MENU
     elif current_state == MenuStates.NAVIGATION_MENU.state:
         new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
-        new_main_keyboard = get_navigation_menu()
+        new_main_keyboard = get_navigation_menu()  # ReplyKeyboardMarkup
         new_interactive_text = "Навігаційний екран"
         new_state = MenuStates.NAVIGATION_MENU
     # Додайте перевірки для інших станів
     else:
         new_main_text = "❗ Вибачте, я не розумію цю команду. Повертаємось до головного меню."
-        new_main_keyboard = get_main_menu()
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup
         new_interactive_text = "Головне меню"
         new_state = MenuStates.MAIN_MENU
     
@@ -217,26 +230,31 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
                 chat_id=message.chat.id,
                 message_id=interactive_message_id,
                 text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
+                reply_markup=get_generic_inline_keyboard()  # InlineKeyboardMarkup
             )
         except Exception as e:
             logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
             interactive_message = await bot.send_message(
                 chat_id=message.chat.id,
                 text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
+                reply_markup=get_generic_inline_keyboard()  # InlineKeyboardMarkup
             )
             await state.update_data(interactive_message_id=interactive_message.message_id)
     else:
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            reply_markup=get_generic_inline_keyboard()
+            reply_markup=get_generic_inline_keyboard()  # InlineKeyboardMarkup
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
     
     # Оновлюємо стан користувача
     await state.set_state(new_state)
+
+# Функція для налаштування обробників
+def setup_handlers(dp):
+    dp.include_router(router)
+    # Інші маршрути, якщо є
 
 # Функція для налаштування обробників
 def setup_handlers(dp):
