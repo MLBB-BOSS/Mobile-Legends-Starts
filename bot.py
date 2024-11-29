@@ -10,14 +10,18 @@ from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
 from handlers.base import setup_handlers
 
+# Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     session=AiohttpSession()  # Додано для явного визначення сесії
 )
+
+# Ініціалізація диспетчера з підтримкою FSM
 dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
 
 async def main():
