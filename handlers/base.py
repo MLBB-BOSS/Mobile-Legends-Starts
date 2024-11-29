@@ -57,12 +57,6 @@ class MenuStates(StatesGroup):
     WELCOME_PAGE_1 = State()
     WELCOME_PAGE_2 = State()
     WELCOME_PAGE_3 = State()
-
-# Команда /start
-@router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext, bot: Bot):
-    user_name = message.from_user.first_name
-    logger.info(f"Користувач {message.from_user.id} викликав /start")
     
     # Видаляємо повідомлення користувача /start
     await message.delete()
