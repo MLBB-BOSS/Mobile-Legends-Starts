@@ -13,6 +13,9 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     ])
 
 def get_welcome_keyboard(page: int) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для привітального процесу.
+    """
     if page == 1:
         buttons = [
             InlineKeyboardButton(text="Продовжити", callback_data="welcome_continue_1")
