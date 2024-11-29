@@ -170,10 +170,6 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     new_interactive_keyboard = get_generic_inline_keyboard()
     new_state = None
 
-    if user_choice == MenuButton.NAVIGATION.value:
-        new_main_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"
-        new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "navigation_message =("
 if user_choice == MenuButton.NAVIGATION.value:
     new_main_text = "🧭 **Навігація**\nОберіть розділ для подальших дій:"й та відкрийте нові можливості:\n\n"
 "🥷 <b>Персонажі:</b> Ознайомтесь із героями, їх характеристиками та порівнюйте їх.\n"
