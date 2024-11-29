@@ -163,7 +163,6 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     "<i>Оберіть розділ та починайте свою подорож до перемоги!</i>"
     )
         reply_markup=get_generic_inline_keyboard()
-    )
 
     # Зберігаємо ID інтерактивного повідомлення (Повідомлення 2)
     await state.update_data(interactive_message_id=interactive_message.message_id)
