@@ -205,8 +205,10 @@ HELP_SUPPORT_TEXT = "Зв'яжіться з підтримкою через на
 # Unknown Command
 UNKNOWN_COMMAND_TEXT = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
 
-# Generic Error Message
+# Generic Error Messages
 GENERIC_ERROR_MESSAGE_TEXT = "Сталася помилка. Будь ласка, спробуйте знову."
+
+ERROR_MESSAGE_TEXT = "Сталася помилка. Будь ласка, спробуйте пізніше або зверніться до підтримки."
 
 # Generic Navigation Prompt
 USE_BUTTON_NAVIGATION_TEXT = "Будь ласка, використовуйте кнопки для навігації."
