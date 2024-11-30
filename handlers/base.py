@@ -1,7 +1,7 @@
 # handlers/base.py
 
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, F, Bot, types
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -520,7 +520,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         new_state = MenuStates.HERO_CLASS_MENU
         await state.update_data(hero_class=hero_class)
     elif user_choice == MenuButton.SEARCH_HERO.value:
-        new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")  # Placeholder, handled separately
+        new_main_text = "Введіть ім'я героя для пошуку:"
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пошук героя"
         new_state = MenuStates.SEARCH_HERO
@@ -536,7 +536,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_hero_class_menu(data.get('hero_class', 'Танк'))
+        new_main_keyboard = get_heroes_menu()
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.HEROES_MENU
 
@@ -884,7 +884,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         new_main_text = MY_VOTES_TEXT
         new_interactive_text = "Мої голосування"
     elif user_choice == MenuButton.SUGGEST_TOPIC.value:
-        new_main_text = SUGGEST_TOPIC_TEXT
+        new_main_text = "Введіть тему для пропозиції:"
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пропозиція теми"
         new_state = MenuStates.SEARCH_TOPIC
@@ -999,6 +999,8 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_main_keyboard = get_profile_menu()
+        new_state = MenuStates.PROFILE_MENU
 
     # Відправляємо нове повідомлення з клавіатурою
     main_message = await bot.send_message(
@@ -1026,7 +1028,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1087,6 +1089,8 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_main_keyboard = get_statistics_menu()
+        new_state = MenuStates.STATISTICS_MENU
 
     # Відправляємо нове повідомлення з клавіатурою
     main_message = await bot.send_message(
@@ -1251,7 +1255,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
         new_main_text = LANGUAGE_TEXT
         new_interactive_text = "Мова інтерфейсу"
     elif user_choice == MenuButton.CHANGE_USERNAME.value:
-        new_main_text = CHANGE_USERNAME_TEXT
+        new_main_text = "Введіть новий Username:"
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Зміна Username"
         new_state = MenuStates.CHANGE_USERNAME
@@ -1316,6 +1320,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
     # Отримуємо interactive_message_id з стану
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
+    bot_message_id = state_data.get('bot_message_id')
 
     if interactive_message_id:
         # Обробляємо інлайн-кнопки
@@ -1349,12 +1354,10 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
             await state.update_data(bot_message_id=main_message.message_id)
 
             # Видаляємо попереднє повідомлення з клавіатурою
-            old_bot_message_id = data.get('bot_message_id', bot_message_id := state_data.get('bot_message_id'))
-            if old_bot_message_id:
-                try:
-                    await bot.delete_message(chat_id=callback.message.chat.id, message_id=old_bot_message_id)
-                except Exception as e:
-                    logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+            try:
+                await bot.delete_message(chat_id=callback.message.chat.id, message_id=bot_message_id)
+            except Exception as e:
+                logger.error(f"Не вдалося видалити повідомлення бота: {e}")
         else:
             # Додайте обробку інших інлайн-кнопок за потребою
             await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
@@ -1708,7 +1711,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
                 chat_id=message.chat.id,
                 message_id=interactive_message_id,
                 text=new_interactive_text,
-                parse_mode="HTML",
                 reply_markup=get_generic_inline_keyboard()
             )
         except Exception as e:
@@ -1729,12 +1731,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
-
-# Обробник для прийому відгуку
-# (Ці обробники були видалені через дублювання)
-
-# Обробник для звіту про помилку
-# (Ці обробники були видалені через дублювання)
 
 # Функція для налаштування обробників
 def setup_handlers(dp):
