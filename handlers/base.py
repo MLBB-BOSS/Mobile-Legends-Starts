@@ -61,18 +61,6 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     # Видаляємо повідомлення користувача /start
     await message.delete()
 
-    # Відправляємо повідомлення про завантаження
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="🔄 Завантаження даних..."
-    )
-
-    # Імітуємо завантаження даних
-    await asyncio.sleep(2)
-
-    # Видаляємо повідомлення про завантаження
-    await loading_message.delete()
-
     # Встановлюємо стан користувача
     await state.set_state(MenuStates.MAIN_MENU)
 
