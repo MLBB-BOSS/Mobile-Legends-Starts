@@ -1,7 +1,6 @@
 # handlers/base.py
 
 import logging
-import asyncio
 from aiogram import Router, F, types, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -120,18 +119,6 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
         await state.set_state(MenuStates.MAIN_MENU)
         return
 
-    # Відправляємо повідомлення про завантаження
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="🔄 Завантаження даних..."
-    )
-
-    # Імітуємо завантаження даних
-    await asyncio.sleep(1)
-
-    # Видаляємо повідомлення про завантаження
-    await loading_message.delete()
-
     # Визначаємо новий текст та клавіатуру для повідомлень
     new_main_text = ""
     new_main_keyboard = None
@@ -164,9 +151,6 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     )
     # Зберігаємо новий bot_message_id
     new_bot_message_id = main_message.message_id
-
-    # Додаємо невелику затримку для плавності
-    await asyncio.sleep(0.1)
 
     # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
     try:
@@ -224,18 +208,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
-
-    # Відправляємо повідомлення про завантаження
-    loading_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text="🔄 Завантаження даних..."
-    )
-
-    # Імітуємо завантаження даних
-    await asyncio.sleep(1)
-
-    # Видаляємо повідомлення про завантаження
-    await loading_message.delete()
 
     # Визначаємо новий текст та клавіатуру
     new_main_text = ""
@@ -299,9 +271,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     )
     # Зберігаємо новий bot_message_id
     new_bot_message_id = main_message.message_id
-
-    # Додаємо невелику затримку для плавності
-    await asyncio.sleep(0.1)
 
     # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
     try:
@@ -397,7 +366,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = "❗ Вибачте, я не розумію цю команду. Скористайтеся меню нижче."
-        new_main_keyboard = get_heroes_menu()
+        new_main_keyboard = get_hero_class_menu(data.get('hero_class', 'Танк'))
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.HEROES_MENU
 
@@ -408,8 +377,6 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -479,8 +446,6 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -561,8 +526,6 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     )
     new_bot_message_id = main_message.message_id
 
-    await asyncio.sleep(0.1)
-
     # Видаляємо старе повідомлення
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
@@ -632,8 +595,6 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -705,8 +666,6 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -780,8 +739,6 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -879,8 +836,6 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     )
     new_bot_message_id = main_message.message_id
 
-    await asyncio.sleep(0.1)
-
     # Видаляємо старе повідомлення
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
@@ -906,6 +861,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
 # Підрозділи "Статистика"
@@ -951,8 +907,6 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -1027,8 +981,6 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
     try:
@@ -1107,8 +1059,6 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     )
     new_bot_message_id = main_message.message_id
 
-    await asyncio.sleep(0.1)
-
     # Видаляємо старе повідомлення
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
@@ -1181,8 +1131,6 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         reply_markup=new_main_keyboard
     )
     new_bot_message_id = main_message.message_id
-
-    await asyncio.sleep(0.1)
 
     # Видаляємо старе повідомлення
 
@@ -1258,16 +1206,12 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
     )
     new_bot_message_id = main_message.message_id
 
-    await asyncio.sleep(0.1)
-
     # Видаляємо старе повідомлення
 
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
-    await state.update_data(bot_message_id=new_bot_message_id)
 
     # Редагуємо інтерактивне повідомлення
 
@@ -1287,6 +1231,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
 # Обробник для інлайн-кнопок
@@ -1398,16 +1343,12 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     )
     new_bot_message_id = main_message.message_id
 
-    await asyncio.sleep(0.1)
-
     # Видаляємо старе повідомлення
     if bot_message_id:
         try:
             await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
         except Exception as e:
             logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-
-    await state.update_data(bot_message_id=new_bot_message_id)
 
     # Редагуємо інтерактивне повідомлення
     if interactive_message_id:
