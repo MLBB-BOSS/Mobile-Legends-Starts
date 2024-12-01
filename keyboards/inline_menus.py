@@ -1,43 +1,36 @@
-# keyboards/inline_menus.py
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
+def get_intro_keyboard(page: int) -> InlineKeyboardMarkup:
     """
-    Створює інлайн-клавіатуру для першої сторінки вступу з кнопкою 'Далі'.
+    Створює інлайн-клавіатуру для сторінок вступу.
+    :param page: Номер сторінки (1, 2, 3).
+    :return: InlineKeyboardMarkup для відповідної сторінки.
+    """
+    buttons = {
+        1: [InlineKeyboardButton(text="Далі", callback_data="intro_next_1")],
+        2: [InlineKeyboardButton(text="Далі", callback_data="intro_next_2")],
+        3: [InlineKeyboardButton(text="Розпочати", callback_data="intro_start")]
+    }
+    return InlineKeyboardMarkup(inline_keyboard=[buttons.get(page, [])])
+
+def get_main_menu_keyboard() -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для головного меню.
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Далі", callback_data="intro_next_1")
+            InlineKeyboardButton(text="Головне меню", callback_data="main_menu_back")
         ]
     ])
 
-def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
+def get_generic_keyboard(button_text: str, callback_data: str) -> InlineKeyboardMarkup:
     """
-    Створює інлайн-клавіатуру для другої сторінки вступу з кнопкою 'Далі'.
-    """
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="Далі", callback_data="intro_next_2")
-        ]
-    ])
-
-def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру для третьої сторінки вступу з кнопкою 'Розпочати'.
+    Створює універсальну інлайн-клавіатуру з однією кнопкою.
+    :param button_text: Текст кнопки.
+    :param callback_data: Callback дані для кнопки.
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Розпочати", callback_data="intro_start")
-        ]
-    ])
-
-def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру з однією кнопкою '---MLS---'.
-    """
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="---MLS---", callback_data="mls_button")
+            InlineKeyboardButton(text=button_text, callback_data=callback_data)
         ]
     ])
