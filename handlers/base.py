@@ -1,6 +1,4 @@
-# handlers/base.py
-
-import logging
+#import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -32,8 +30,27 @@ from keyboards.inline_menus import (
     get_generic_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
-    get_intro_page_3_keyboard
+    get_intro_page_3_keyboard,
 )
+
+# Додаткові імпорти, якщо необхідно
+# Наприклад, текстові ресурси, функції роботи з даними тощо.
+
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+router = Router()
+
+# Визначаємо класи для FSM
+class MenuStates(StatesGroup):
+    INTRO_PAGE_1 = State()
+    INTRO_PAGE_2 = State()
+    INTRO_PAGE_3 = State()
+    MAIN_MENU = State()
+    # Додайте інші стани, якщо потрібно.
+
+# Інші обробники та функції будуть додані тут.
+# Наприклад, обробники команд /start, callback-кнопок тощо.
 
 # Імпортуємо тексти
 from texts import (
