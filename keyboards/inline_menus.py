@@ -20,7 +20,7 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """
     Створює інлайн-клавіатуру для головного меню.
     """
-    return InlineKeyboardMarkup(inline_keyboard=[
+    #return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="Головне меню", callback_data="main_menu_back")
         ]
