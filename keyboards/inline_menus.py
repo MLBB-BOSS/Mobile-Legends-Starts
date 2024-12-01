@@ -11,7 +11,10 @@ def get_intro_keyboard(page: int) -> InlineKeyboardMarkup:
         2: [InlineKeyboardButton(text="Далі", callback_data="intro_next_2")],
         3: [InlineKeyboardButton(text="Розпочати", callback_data="intro_start")]
     }
-    return InlineKeyboardMarkup(inline_keyboard=[buttons.get(page, [])])
+    if page in buttons:
+        return InlineKeyboardMarkup(inline_keyboard=[buttons[page]])
+    else:
+        raise ValueError("Invalid page number. Supported pages: 1, 2, 3.")
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """
@@ -28,7 +31,10 @@ def get_generic_keyboard(button_text: str, callback_data: str) -> InlineKeyboard
     Створює універсальну інлайн-клавіатуру з однією кнопкою.
     :param button_text: Текст кнопки.
     :param callback_data: Callback дані для кнопки.
+    :return: InlineKeyboardMarkup
     """
+    if not button_text or not callback_data:
+        raise ValueError("Both button_text and callback_data must be provided.")
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text=button_text, callback_data=callback_data)
