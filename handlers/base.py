@@ -29,7 +29,7 @@ from keyboards.menus import (
     heroes_by_class,
 )
 from keyboards.inline_menus import (
-    get_generic_inline_keyboard,
+  import get_generic_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
