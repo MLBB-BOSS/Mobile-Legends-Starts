@@ -6,7 +6,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config.settings import settings
-from handlers.base import setup_handlers
+from handlers import setup_handlers
 
 # Налаштування логування
 logging.basicConfig(
@@ -18,12 +18,12 @@ logger = logging.getLogger("BotLogger")
 # Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
-    session=AiohttpSession(),  # Явне визначення сесії
-    parse_mode=ParseMode.HTML,  # Встановлено режим парсингу HTML
+    session=AiohttpSession(),
+    parse_mode=ParseMode.HTML,
 )
 
-# Ініціалізація диспетчера з підтримкою FSM
-dp = Dispatcher(storage=MemoryStorage())  # Використовуємо MemoryStorage для FSM
+# Ініціалізація диспетчера
+dp = Dispatcher(storage=MemoryStorage())
 
 async def main():
     """
@@ -31,7 +31,7 @@ async def main():
     """
     logger.info("Запуск бота...")
     try:
-        # Налаштування обробників
+        # Реєстрація хендлерів
         setup_handlers(dp)
 
         # Запуск polling
@@ -39,7 +39,6 @@ async def main():
     except Exception as e:
         logger.error(f"Помилка під час роботи бота: {e}")
     finally:
-        # Закриваємо сесію бота
         if bot.session:
             await bot.session.close()
         logger.info("Сесія бота закрита.")
