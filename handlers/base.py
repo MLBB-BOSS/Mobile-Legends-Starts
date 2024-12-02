@@ -7,6 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # Додано для використання ReplyKeyboardRemove
+from heroes import heroes as HEROES
 
 from keyboards.menus import (
     MenuButton,
