@@ -1399,13 +1399,44 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Доданий обробник для меню класу героя
+    # Обробник кнопок у меню класу героя
 @router.message(MenuStates.HERO_CLASS_MENU)
 async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    # Отримуємо дані стану перед логуванням
     data = await state.get_data()
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню класу {data.get('hero_class', 'Невідомий')}")
+    hero_class = data.get('hero_class', 'tank')
+
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню класу {hero_class}")
+
+    # Інші дії...
+    # Ваш існуючий код для кнопок у цьому меню
+
+# Обробник для виведення списку героїв у класі
+@router.message(MenuStates.HERO_CLASS_MENU)
+async def handle_hero_class_menu(message: Message, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    hero_class = data.get('hero_class', 'tank').lower()
+
+    # Отримуємо список героїв обраного класу
+    heroes_list = HEROES.get(hero_class, [])
+
+    if not heroes_list:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=f"Немає доступних героїв у класі {hero_class.capitalize()}",
+        )
+        return
+
+    heroes_text = "\n".join(
+        [f"• <b>{hero['name']}</b>: {hero['description']}" for hero in heroes_list]
+    )
+
+    response_text = f"📜 <b>Герої класу {hero_class.capitalize()}:</b>\n\n{heroes_text}"
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        parse_mode="HTML",
+    )
 
     # Видаляємо повідомлення користувача
     await message.delete()
