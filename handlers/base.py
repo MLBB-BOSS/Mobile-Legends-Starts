@@ -7,6 +7,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # Додано для використання ReplyKeyboardRemove
+from handlers.ai_handler import router as ai_router  # Імпорт AI-роутера
 
 from keyboards.menus import (
     MenuButton,
@@ -1888,7 +1889,8 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
+    # handlers/base.py
 
-# Функція для налаштування обробників
 def setup_handlers(dp):
     dp.include_router(router)
+    dp.include_router(ai_router)  # Підключення AI-роутера
