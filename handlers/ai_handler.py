@@ -6,6 +6,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from utils.hero_loader import get_all_hero_names
 
 from config import OPENAI_API_KEY
 from keyboards.inline_menus import get_generic_inline_keyboard
