@@ -1,7 +1,7 @@
 # handlers/base.py
 
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -1891,4 +1891,4 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 # Функція для налаштування роутерів
 def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
-    # Вилучено підключення ai_router, оскільки воно буде виконуватись в основному файлі бота
+    # dp.include_router(ai_router)  # Підключення AI-роутера виконується в bot.py
