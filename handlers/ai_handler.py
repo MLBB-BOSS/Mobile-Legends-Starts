@@ -32,46 +32,25 @@ router = Router()
 class AIStates(StatesGroup):
     WAITING_FOR_QUERY = State()
 
-# Команда для початку взаємодії з AI
-@router.message(F.text == "🧑‍💻 Допомога з персонажем")  # Використовуйте точний текст кнопки
-async def ai_start(message: Message, state: FSMContext, bot: Bot):
-    logger.info(f"Користувач {message.from_user.id} розпочав взаємодію з AI для персонажа")
+# Універсальний обробник для натискання кнопок героїв
+@router.message(F.text.in_(lambda texts: texts in get_all_hero_names()))
+async def hero_button_handler(message: Message, state: FSMContext, bot: Bot):
+    """
+    Обробляє натискання кнопок героїв, завантажує їхні дані та взаємодіє з OpenAI.
+    """
+    hero_name = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} обрав героя: {hero_name}")
 
     await message.delete()
-
-    await state.set_state(AIStates.WAITING_FOR_QUERY)
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=AI_INTRO_TEXT,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-# Обробник для отримання запиту від користувача
-@router.message(AIStates.WAITING_FOR_QUERY)
-async def ai_handle_query(message: Message, state: FSMContext, bot: Bot):
-    user_query = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} запитує AI про персонажа: {user_query}")
-
-    await message.delete()
-
-    if not user_query:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="Будь ласка, введіть ім'я героя для отримання інформації.",
-            reply_markup=get_generic_inline_keyboard()
-        )
-        return
 
     # Завантажуємо базову інформацію про героя
-    hero_data = load_hero_data(user_query)
+    hero_data = load_hero_data(hero_name)
     if not hero_data:
         await bot.send_message(
             chat_id=message.chat.id,
             text="Вибраний герой не знайдений. Будь ласка, перевірте назву героя або виберіть інший.",
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.clear()
         return
 
     # Формуємо промпт для OpenAI
@@ -103,9 +82,6 @@ async def ai_handle_query(message: Message, state: FSMContext, bot: Bot):
         "На основі цієї інформації, надайте детальний опис героя, його ролі у грі, рекомендації щодо використання скілів та загальні поради щодо гри за цього героя."
     )
 
-    # Зберігаємо промпт в стані для можливого дебагу
-    await state.update_data(last_prompt=prompt)
-
     # Викликаємо OpenAI API асинхронно
     try:
         response = await openai.ChatCompletion.acreate(
@@ -130,9 +106,6 @@ async def ai_handle_query(message: Message, state: FSMContext, bot: Bot):
             reply_markup=get_generic_inline_keyboard()
         )
 
-        # Повертаємо користувача до головного меню
-        await state.clear()
-
     except Exception as e:
         logger.error(f"Помилка при виклику OpenAI API: {e}")
         await bot.send_message(
@@ -140,18 +113,3 @@ async def ai_handle_query(message: Message, state: FSMContext, bot: Bot):
             text=GENERIC_ERROR_MESSAGE_TEXT,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.clear()
-
-# Обробник для скасування взаємодії з AI
-@router.message(F.text.lower() == "скасувати")
-async def ai_cancel(message: Message, state: FSMContext, bot: Bot):
-    logger.info(f"Користувач {message.from_user.id} скасував взаємодію з AI")
-
-    await message.delete()
-    await state.clear()
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text="Взаємодія з AI скасована.",
-        reply_markup=get_generic_inline_keyboard()
-    )
