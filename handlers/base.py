@@ -6,8 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram import types  # Додано для використання ReplyKeyboardRemove
-from handlers.ai_handler import router as ai_router  # Імпорт AI-роутера
+from aiogram import types  # Для використання ReplyKeyboardRemove
 
 from keyboards.menus import (
     MenuButton,
@@ -1539,7 +1538,6 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1889,8 +1887,8 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
-    # handlers/base.py
 
-def setup_handlers(dp):
+# Функція для налаштування роутерів
+def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
-    dp.include_router(ai_router)  # Підключення AI-роутера
+    # Вилучено підключення ai_router, оскільки воно буде виконуватись в основному файлі бота
