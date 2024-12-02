@@ -1,3 +1,4 @@
+# bot.py
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -5,7 +6,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from bot_config import settings  # Змінив імпорт на bot_config
+from config.settings import settings
 from handlers.base import setup_handlers
 
 # Налаштування логування
