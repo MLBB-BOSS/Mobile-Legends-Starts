@@ -3,49 +3,62 @@ import logging
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-# Load .env file
+# Завантаження змінних середовища з файлу .env
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Налаштування логування
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("ConfigLogger")
+
 
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
+    OPENAI_API_KEY: str
     DATABASE_URL: str | None = None
     APP_NAME: str = "Mobile Legends Tournament Bot"
     DEBUG: bool = False
 
     @property
     def db_url(self) -> str | None:
-        """Returns formatted database URL if it exists."""
+        """
+        Повертає відформатований URL для бази даних, якщо він заданий.
+        """
         if not self.DATABASE_URL:
-            logger.warning("DATABASE_URL is not set!")
+            logger.warning("DATABASE_URL не встановлено!")
             return None
         url = self.DATABASE_URL
+        # Форматування для використання з asyncpg
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
-        logger.info("Database URL formatted successfully")
+        logger.info("URL бази даних відформатовано успішно.")
         return url
 
     def validate(self):
-        """Validates required settings"""
+        """
+        Перевіряє необхідні налаштування.
+        """
         if not self.TELEGRAM_BOT_TOKEN:
-            raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
+            raise ValueError("TELEGRAM_BOT_TOKEN не встановлено!")
+        if not self.OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY не встановлено!")
         if self.DEBUG:
-            logger.info("Application is running in DEBUG mode")
+            logger.info("Додаток працює в режимі DEBUG.")
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
 
-# Create settings instance
+
+# Створення екземпляра налаштувань
 settings = Settings()
 
-# Validate settings
+# Валідація налаштувань
 try:
     settings.validate()
 except Exception as e:
-    logger.error(f"Configuration error: {e}")
+    logger.error(f"Помилка конфігурації: {e}")
     raise
