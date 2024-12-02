@@ -7,7 +7,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
-from config import OPENAI_API_KEY
+from config import settings
 from keyboards.inline_menus import get_generic_inline_keyboard
 from texts import (
     GENERIC_ERROR_MESSAGE_TEXT,
@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Ініціалізуємо OpenAI API
-openai.api_key = OPENAI_API_KEY
+openai.api_key = settings.OPENAI_API_KEY
 
 # Створюємо Router для AI
 router = Router()
@@ -69,10 +69,10 @@ async def ai_query_handler(message: Message, state: FSMContext, bot: Bot):
         response = await openai.ChatCompletion.acreate(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": "You are a knowledgeable assistant for Mobile Legends players."},
                 {"role": "user", "content": user_query}
             ],
-            max_tokens=500,
+            max_tokens=1000,
             n=1,
             stop=None,
             temperature=0.7,
