@@ -9,6 +9,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
 from handlers.base import setup_handlers
+from handlers.ai_handler import router as ai_router  # Імпорт AI-роутера
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +29,7 @@ async def main():
     logger.info("Starting bot...")
     try:
         setup_handlers(dp)
+        dp.include_router(ai_router)  # Підключення AI-роутера
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
