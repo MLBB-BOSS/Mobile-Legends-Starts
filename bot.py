@@ -1,4 +1,3 @@
-# bot.py
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -6,8 +5,8 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from config import TELEGRAM_BOT_TOKEN  # Імпорт із файлу config.py
-from handlers import setup_handlers
+from bot_config import settings  # Змінив імпорт на bot_config
+from handlers.base import setup_handlers
 
 # Налаштування логування
 logging.basicConfig(
@@ -16,19 +15,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("BotLogger")
 
-# Перевірка наявності токена
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN не знайдено в середовищі або файлі .env")
-
 # Ініціалізація бота
 bot = Bot(
-    token=TELEGRAM_BOT_TOKEN,
-    session=AiohttpSession(),
-    parse_mode=ParseMode.HTML,
+    token=settings.TELEGRAM_BOT_TOKEN,
+    session=AiohttpSession(),  # Явне визначення сесії
+    parse_mode=ParseMode.HTML,  # Встановлено режим парсингу HTML
 )
 
-# Ініціалізація диспетчера
-dp = Dispatcher(storage=MemoryStorage())
+# Ініціалізація диспетчера з підтримкою FSM
+dp = Dispatcher(storage=MemoryStorage())  # Використовуємо MemoryStorage для FSM
 
 async def main():
     """
@@ -36,7 +31,7 @@ async def main():
     """
     logger.info("Запуск бота...")
     try:
-        # Реєстрація хендлерів
+        # Налаштування обробників
         setup_handlers(dp)
 
         # Запуск polling
@@ -44,6 +39,7 @@ async def main():
     except Exception as e:
         logger.error(f"Помилка під час роботи бота: {e}")
     finally:
+        # Закриваємо сесію бота
         if bot.session:
             await bot.session.close()
         logger.info("Сесія бота закрита.")
