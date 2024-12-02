@@ -1,11 +1,6 @@
 # config.py
-import os
 import logging
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-
-# Завантаження змінних середовища з файлу .env
-load_dotenv()
 
 # Налаштування логування
 logging.basicConfig(
@@ -49,7 +44,7 @@ class Settings(BaseSettings):
             logger.info("Додаток працює в режимі DEBUG.")
 
     class Config:
-        env_file = ".env"
+        # env_file = ".env"  # Вилучено, оскільки Heroku надає змінні середовища
         env_file_encoding = "utf-8"
         case_sensitive = True
 
