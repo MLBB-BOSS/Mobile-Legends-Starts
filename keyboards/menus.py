@@ -12,6 +12,7 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
+    AI = "🤖 AI"  # Нова кнопка для AI
 
     # Розділ Навігація
     HEROES = "🥷 Персонажі"
@@ -38,7 +39,7 @@ class MenuButton(Enum):
     ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
 
-    # Розділ Контр-піки
+    # Розділ Контр-піків
     COUNTER_SEARCH = "🔎 Пошук"
     COUNTER_LIST = "📝 Список Персонажів"
 
@@ -78,7 +79,7 @@ class MenuButton(Enum):
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотний Зв'язок
+    # Підрозділ Зворотний зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
@@ -152,9 +153,10 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE
+            MenuButton.PROFILE,
+            MenuButton.AI  # Додаємо кнопку AI до головного меню
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_navigation_menu():
@@ -188,10 +190,12 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    buttons = [MenuButton(button).value for button in heroes]  # Використовуємо MenuButton, якщо герої визначені як MenuButton
+    # Якщо герої не є частиною MenuButton, можна використовувати просто рядки
+    # buttons = heroes
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    keyboard.append([MenuButton.BACK.value])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
@@ -306,4 +310,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-    )
+            )
