@@ -189,13 +189,17 @@ def get_heroes_menu():
     )
 
 def get_hero_class_menu(hero_class):
+    """
+    Створює меню з героями відповідного класу.
+    :param hero_class: Назва класу героїв (наприклад, "Танк", "Маг").
+    :return: ReplyKeyboardMarkup з кнопками героїв.
+    """
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [MenuButton(button).value for button in heroes]  # Використовуємо MenuButton, якщо герої визначені як MenuButton
-    # Якщо герої не є частиною MenuButton, можна використовувати просто рядки
-    # buttons = heroes
+    buttons = heroes  # Використовуємо рядки без обгортання в MenuButton
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([MenuButton.BACK.value])
+    logger.info(f"Створення меню героїв для класу '{hero_class}': {buttons}")
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
@@ -310,4 +314,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-            )
+)
