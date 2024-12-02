@@ -2,40 +2,22 @@
 
 import os
 import json
-from typing import Dict, Any
-import logging
+from typing import List
 
-logger = logging.getLogger(__name__)
-
-# Шлях до папки з героями
-HEROES_DIR = os.path.join(os.path.dirname(__file__), '..', 'heroes')
-
-def load_heroes() -> Dict[str, Dict[str, Any]]:
+def get_all_hero_names() -> List[str]:
     """
-    Завантажує дані про героїв з JSON-файлів, організованих за класами.
+    Повертає список всіх імен героїв зі всіх класів.
     
-    :return: Словник з класами героїв, кожен з яких містить героїв та їхні дані.
+    :return: Список імен героїв.
     """
-    heroes_data = {}
-    try:
-        for class_name in os.listdir(HEROES_DIR):
-            class_path = os.path.join(HEROES_DIR, class_name)
-            if os.path.isdir(class_path):
-                heroes_data[class_name] = {}
-                for hero_file in os.listdir(class_path):
-                    if hero_file.endswith('.json'):
-                        hero_path = os.path.join(class_path, hero_file)
-                        with open(hero_path, 'r', encoding='utf-8') as f:
-                            hero_info = json.load(f)
-                            hero_name = hero_info.get('name')
-                            if hero_name:
-                                heroes_data[class_name][hero_name] = hero_info
-                            else:
-                                logger.warning(f"Файл {hero_file} не містить ключа 'name'.")
-    except Exception as e:
-        logger.error(f"Помилка при завантаженні героїв: {e}")
-    logger.info(f"Завантажено {sum(len(heroes) for heroes in heroes_data.values())} героїв.")
-    return heroes_data
-
-# Завантаження героїв при імпорті модуля
-HEROES = load_heroes()
+    classes = ["Assassin", "Fighter", "Mage", "Marksman", "Support", "Tank"]
+    hero_names = []
+    for hero_class in classes:
+        directory = os.path.join("heroes", hero_class)
+        if not os.path.isdir(directory):
+            continue
+        for filename in os.listdir(directory):
+            if filename.endswith(".json"):
+                hero_name = os.path.splitext(filename)[0]
+                hero_names.append(hero_name)
+    return hero_names
