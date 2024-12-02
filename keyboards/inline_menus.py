@@ -1,9 +1,4 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.callback_data import CallbackData
-
-# Створення CallbackData для обробки динамічних дій
-intro_callback = CallbackData("intro", "page")  # Динамічний колбек для вступу
-generic_callback = CallbackData("generic", "action")  # Для загальних дій
 
 def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
     """
@@ -11,7 +6,7 @@ def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Далі", callback_data=intro_callback.new(page="2"))
+            InlineKeyboardButton(text="Далі", callback_data="intro_next_1")
         ]
     ])
 
@@ -21,7 +16,7 @@ def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Далі", callback_data=intro_callback.new(page="3"))
+            InlineKeyboardButton(text="Далі", callback_data="intro_next_2")
         ]
     ])
 
@@ -31,7 +26,7 @@ def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="Розпочати", callback_data=intro_callback.new(page="start"))
+            InlineKeyboardButton(text="Розпочати", callback_data="intro_start")
         ]
     ])
 
@@ -41,6 +36,6 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="---MLS---", callback_data=generic_callback.new(action="mls_button"))
+            InlineKeyboardButton(text="---MLS---", callback_data="mls_button")
         ]
     ])
