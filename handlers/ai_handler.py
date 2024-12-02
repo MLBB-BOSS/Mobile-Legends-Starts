@@ -34,7 +34,7 @@ class AIStates(StatesGroup):
     WAITING_FOR_QUERY = State()
 
 # Універсальний обробник для натискання кнопок героїв
-@router.message(F.text.in_(lambda texts: texts in get_all_hero_names()))
+@router.message(F.text.in_(get_all_hero_names()))
 async def hero_button_handler(message: Message, state: FSMContext, bot: Bot):
     """
     Обробляє натискання кнопок героїв, завантажує їхні дані та взаємодіє з OpenAI.
@@ -67,7 +67,6 @@ async def hero_button_handler(message: Message, state: FSMContext, bot: Bot):
         f"Скіли:\n"
     )
     for skill_type, skill in hero_data['skills'].items():
-        # У випадку наявності `energy_cost` чи інших додаткових полів
         skill_info = f"{skill['name']}: {skill['description']}"
         if "cooldown" in skill:
             skill_info += f" (Перезарядка: {skill['cooldown']})"
