@@ -5,7 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from config.settings import settings
+from config import TELEGRAM_BOT_TOKEN  # Імпорт із файлу config.py
 from handlers import setup_handlers
 
 # Налаштування логування
@@ -15,9 +15,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger("BotLogger")
 
+# Перевірка наявності токена
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN не знайдено в середовищі або файлі .env")
+
 # Ініціалізація бота
 bot = Bot(
-    token=settings.TELEGRAM_BOT_TOKEN,
+    token=TELEGRAM_BOT_TOKEN,
     session=AiohttpSession(),
     parse_mode=ParseMode.HTML,
 )
