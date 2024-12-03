@@ -6,7 +6,7 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.exceptions import MessageNotModified
 
 from config import settings
 from keyboards.ai_menus import get_ai_menu_keyboard  # Імпортуємо AI меню
@@ -47,7 +47,7 @@ async def ai_intro_handler(message: Message, state: FSMContext, bot: Bot):
     )
 
     # Встановлюємо стан очікування запиту від користувача
-    await AIStates.WAITING_FOR_QUERY.set()
+    await state.set_state(AIStates.WAITING_FOR_QUERY)
 
 @router.message(AIStates.WAITING_FOR_QUERY)
 async def ai_query_handler(message: Message, state: FSMContext, bot: Bot):
