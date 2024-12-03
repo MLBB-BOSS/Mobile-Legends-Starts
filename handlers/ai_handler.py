@@ -3,14 +3,12 @@
 import logging
 import openai
 from aiogram import Router, F, Bot
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.exceptions import MessageNotModified
 
 from config import settings
-from keyboards.ai_menus import get_ai_menu_keyboard  # Імпортуємо AI меню
-from keyboards.menus import get_main_menu, MenuButton
+from keyboards.menus import get_generic_reply_keyboard  # Переконайтеся, що ця функція повертає ReplyKeyboardMarkup
 from texts import (
     GENERIC_ERROR_MESSAGE_TEXT,
     AI_INTRO_TEXT,
@@ -32,39 +30,37 @@ router = Router()
 class AIStates(StatesGroup):
     WAITING_FOR_QUERY = State()
 
-@router.message(F.text == MenuButton.AI.value)
+@router.message(F.text == "🤖 AI")
 async def ai_intro_handler(message: Message, state: FSMContext, bot: Bot):
     """
     Обробник для кнопки "🤖 AI" у головному меню.
     """
-    logger.info("AI Intro Handler активовано")
     logger.info(f"Користувач {message.from_user.id} обрав {message.text} у головному меню")
-
+    
     # Надсилаємо вступне повідомлення та меню AI
     await message.answer(
         text=AI_INTRO_TEXT,
         reply_markup=get_ai_menu_keyboard()
     )
-
+    
     # Встановлюємо стан очікування запиту від користувача
-    await state.set_state(AIStates.WAITING_FOR_QUERY)
+    await AIStates.WAITING_FOR_QUERY.set()
 
 @router.message(AIStates.WAITING_FOR_QUERY)
 async def ai_query_handler(message: Message, state: FSMContext, bot: Bot):
     """
     Обробляє запити користувача до AI та відповідає згенерованим текстом.
     """
-    logger.info("AI Query Handler активовано")
     user_query = message.text.strip()
     logger.info(f"Користувач {message.from_user.id} запитав AI: {user_query}")
-
+    
     if not user_query:
         await message.answer(
             text="Будь ласка, введіть запит для AI.",
             reply_markup=get_ai_menu_keyboard()
         )
         return
-
+    
     try:
         response = await openai.ChatCompletion.acreate(
             model="gpt-4",
@@ -77,35 +73,52 @@ async def ai_query_handler(message: Message, state: FSMContext, bot: Bot):
             stop=None,
             temperature=0.7,
         )
-
+        
         ai_reply = response.choices[0].message['content'].strip()
-        logger.info(f"AI відповів: {ai_reply}")
-
+        
         await message.answer(
             text=AI_RESPONSE_TEXT.format(response=ai_reply),
             parse_mode="HTML",
             reply_markup=get_ai_menu_keyboard()
         )
-
-    except openai.error.OpenAIError as e:
+        
+    except Exception as e:
         logger.error(f"Помилка при виклику OpenAI API: {e}")
         await message.answer(
             text=GENERIC_ERROR_MESSAGE_TEXT,
             reply_markup=get_ai_menu_keyboard()
         )
-    except Exception as e:
-        logger.error(f"Невідома помилка: {e}")
-        await message.answer(
-            text=GENERIC_ERROR_MESSAGE_TEXT,
-            reply_markup=get_ai_menu_keyboard()
-        )
-
+    
     # Повертаємо користувача до головного меню
-    try:
-        await state.clear()
-        await message.answer(
-            text="Повертаємось до головного меню.",
-            reply_markup=get_main_menu()
-        )
-    except MessageNotModified:
-        logger.info("Повідомлення не змінено.")
+    await state.clear()
+    await message.answer(
+        text="Повертаємось до головного меню.",
+        reply_markup=get_main_menu()
+    )
+
+def get_ai_menu_keyboard() -> ReplyKeyboardMarkup:
+    """
+    Створює меню для розділу AI.
+    """
+    buttons = [
+        KeyboardButton(text="🤖 Запитати AI"),
+        KeyboardButton(text="📚 Інструкції"),
+        KeyboardButton(text="🔙")  # Кнопка "Назад"
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=[buttons],
+        resize_keyboard=True
+    )
+
+def get_generic_reply_keyboard() -> ReplyKeyboardMarkup:
+    """
+    Створює загальну клавіатуру (якщо необхідно).
+    """
+    buttons = [
+        KeyboardButton(text="🔙"),
+        KeyboardButton(text="Інша кнопка")  # Додайте інші кнопки за потребою
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=[buttons],
+        resize_keyboard=True
+    )
