@@ -6,10 +6,9 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Для FSM
+from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
-from handlers.base import setup_handlers  # Функція для підключення базового роутера
-from handlers.ai_handler import router as ai_router  # AI-роутер
+from handlers.base import setup_handlers
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -19,17 +18,16 @@ logger = logging.getLogger(__name__)
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()
+    session=AiohttpSession()  # Додано для явного визначення сесії
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
-dp = Dispatcher(storage=MemoryStorage())
+dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
 
 async def main():
     logger.info("Starting bot...")
     try:
-        setup_handlers(dp)  # Підключаємо базовий роутер
-        dp.include_router(ai_router)  # Підключаємо AI-роутер
+        setup_handlers(dp)
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
