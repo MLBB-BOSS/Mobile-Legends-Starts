@@ -11,8 +11,7 @@ logging.basicConfig(level=logging.INFO)
 class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
-    AI = "🤖 AI"  # Нова кнопка для AI
-    PROFILE = "🪪 Профіль"
+    PROFILE = "🪪 Мій Профіль"
 
     # Розділ Навігація
     HEROES = "🥷 Персонажі"
@@ -39,7 +38,7 @@ class MenuButton(Enum):
     ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
 
-    # Розділ Контр-піків
+    # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук"
     COUNTER_LIST = "📝 Список Персонажів"
 
@@ -79,7 +78,7 @@ class MenuButton(Enum):
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотний зв'язок
+    # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
@@ -153,10 +152,9 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.AI,  # Додаємо кнопку AI до головного меню
             MenuButton.PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_navigation_menu():
@@ -189,16 +187,12 @@ def get_heroes_menu():
     )
 
 def get_hero_class_menu(hero_class):
-    """
-    Створює меню з героями відповідного класу.
-    :param hero_class: Назва класу героїв (наприклад, "Танк", "Маг").
-    :return: ReplyKeyboardMarkup з кнопками героїв.
-    """
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = heroes + [MenuButton.BACK.value]  # Додаємо кнопку "🔙" до списку героїв
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
-    logger.info(f"Створення меню героїв для класу '{hero_class}': {heroes}")
-    return create_menu(buttons, row_width=row_width)
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
     return create_menu(
@@ -312,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-            )
+)
