@@ -195,12 +195,10 @@ def get_hero_class_menu(hero_class):
     :return: ReplyKeyboardMarkup з кнопками героїв.
     """
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = heroes  # Використовуємо рядки без обгортання в MenuButton
+    buttons = heroes + [MenuButton.BACK.value]  # Додаємо кнопку "🔙" до списку героїв
     row_width = 3
-    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([MenuButton.BACK.value])
-    logger.info(f"Створення меню героїв для класу '{hero_class}': {buttons}")
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    logger.info(f"Створення меню героїв для класу '{hero_class}': {heroes}")
+    return create_menu(buttons, row_width=row_width)
 
 def get_guides_menu():
     return create_menu(
@@ -314,4 +312,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-)
+    )
