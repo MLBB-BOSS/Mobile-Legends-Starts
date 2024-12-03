@@ -2,7 +2,8 @@
 
 import logging
 from aiogram import Router, F, Bot, Dispatcher
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
