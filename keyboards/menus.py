@@ -153,8 +153,8 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.AI,  # Додаємо кнопку AI до головного меню
-            MenuButton.PROFILE
+            MenuButton.AI  # Додаємо кнопку AI до головного меню
+            MenuButton.PROFILE,
         ],
         row_width=3
     )
@@ -312,4 +312,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-    )
+            )
