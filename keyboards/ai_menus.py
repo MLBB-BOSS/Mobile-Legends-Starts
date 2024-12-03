@@ -2,6 +2,7 @@
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import logging
+from keyboards.menus import MenuButton  # Імпортуємо MenuButton для використання кнопки "🔙"
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ def get_ai_menu_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text="🤖 Запитати AI"),
         KeyboardButton(text="📚 Інструкції"),
-        KeyboardButton(text="🔙")  # Кнопка "Назад"
+        KeyboardButton(text=MenuButton.BACK.value)  # Кнопка "🔙"
     ]
     keyboard = [
         buttons  # Розміщуємо всі кнопки в одному рядку
