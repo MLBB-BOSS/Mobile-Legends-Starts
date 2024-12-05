@@ -140,17 +140,17 @@ def create_menu(buttons, row_width=2):
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
-    if not all(isinstance(button, MenuButton) або isinstance(button, str) для кнопка в кнопки):
-        підняти значення помилки ("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
+    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
     keyboard = [
         keyboard_buttons[i:i + row_width]
-        для i в діапазоні(0, довжина(кнопки_клавіатури), ширина_рядка)
+        for i in range(0, len(keyboard_buttons), row_width)
     ]
-    повернути ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 # Головне меню
 def get_main_menu():
@@ -327,4 +327,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-)
+    )
