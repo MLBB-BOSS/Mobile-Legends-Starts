@@ -1,3 +1,4 @@
+from keyboards.menus import get_profile_menu
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
