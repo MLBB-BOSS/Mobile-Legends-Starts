@@ -140,17 +140,17 @@ def create_menu(buttons, row_width=2):
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
+    if not all(isinstance(button, MenuButton) або isinstance(button, str) для кнопка в кнопки):
+        підняти значення помилки ("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
     keyboard = [
         keyboard_buttons[i:i + row_width]
-        for i in range(0, len(keyboard_buttons), row_width)
+        для i в діапазоні(0, довжина(кнопки_клавіатури), ширина_рядка)
     ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    повернути ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 # Головне меню
 def get_main_menu():
@@ -196,6 +196,15 @@ def get_heroes_menu():
         row_width=3
     )
 
+# Меню класів героїв
+def get_hero_class_menu(hero_class):
+    heroes = heroes_by_class.get(hero_class, [])
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    row_width = 3
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
 # Меню Гайдів
 def get_guides_menu():
     return create_menu(
@@ -218,7 +227,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Білдів
@@ -230,7 +239,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Голосування
@@ -242,7 +251,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Профілю
@@ -256,7 +265,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Статистики
@@ -268,7 +277,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Досягнень
@@ -281,7 +290,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Налаштувань
@@ -294,10 +303,10 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
-# Меню Зворотного Зв'язку
+# Меню Зворотнього Зв'язку
 def get_feedback_menu():
     return create_menu(
         [
@@ -305,7 +314,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 # Меню Допомоги
@@ -317,5 +326,5 @@ def get_help_menu():
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
-    )
+        row_width=3
+)
