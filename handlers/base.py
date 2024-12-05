@@ -143,9 +143,6 @@ class MenuStates(StatesGroup):
     REPORT_BUG = State()
     # Додайте додаткові стани, якщо це необхідно
 
-def setup_handlers(dp: Dispatcher):
-    register_navigation_handlers(dp)
-
 # Команда /start
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, bot: Bot):
