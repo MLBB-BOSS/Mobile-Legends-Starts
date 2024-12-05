@@ -1,3 +1,5 @@
+# keyboards/menus.py
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -17,6 +19,9 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
+    META = "📈 Мета"
+    M6 = "🎮 М6"
+    GPT = "👾 GPT"
     BACK = "🔙"
 
     # Розділ Персонажі
@@ -127,6 +132,7 @@ heroes_by_class = {
     ],
 }
 
+# Функція створення меню
 def create_menu(buttons, row_width=2):
     """
     Створює клавіатуру з кнопками.
@@ -146,6 +152,7 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
+# Головне меню
 def get_main_menu():
     return create_menu(
         [
@@ -155,6 +162,7 @@ def get_main_menu():
         row_width=2
     )
 
+# Меню Навігації
 def get_navigation_menu():
     return create_menu(
         [
@@ -163,76 +171,10 @@ def get_navigation_menu():
             MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
             MenuButton.VOTING,
+            MenuButton.META,
+            MenuButton.M6,
+            MenuButton.GPT,
             MenuButton.BACK
         ],
         row_width=3
     )
-
-def get_heroes_menu():
-    return create_menu(
-        [
-            MenuButton.TANK,
-            MenuButton.MAGE,
-            MenuButton.MARKSMAN,
-            MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,
-            MenuButton.FIGHTER,
-            MenuButton.COMPARISON,
-            MenuButton.SEARCH_HERO,
-            MenuButton.BACK
-        ],
-        row_width=3
-    )
-
-def get_hero_class_menu(hero_class):
-    heroes = heroes_by_class.get(hero_class, [])MenuButton.RANKING,
-            MenuButton.GAME_STATS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_achievements_menu():
-    return create_menu(
-        [
-            MenuButton.BADGES,
-            MenuButton.PROGRESS,
-            MenuButton.TOURNAMENT_STATS,
-            MenuButton.AWARDS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_settings_menu():
-    return create_menu(
-        [
-            MenuButton.LANGUAGE,
-            MenuButton.CHANGE_USERNAME,
-            MenuButton.UPDATE_ID,
-            MenuButton.NOTIFICATIONS,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_feedback_menu():
-    return create_menu(
-        [
-            MenuButton.SEND_FEEDBACK,
-            MenuButton.REPORT_BUG,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-    )
-
-def get_help_menu():
-    return create_menu(
-        [
-            MenuButton.INSTRUCTIONS,
-            MenuButton.FAQ,
-            MenuButton.HELP_SUPPORT,
-            MenuButton.BACK_TO_PROFILE
-        ],
-        row_width=3
-)
