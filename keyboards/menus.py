@@ -187,4 +187,4 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in
+    buttons = [KeyboardButton(text=hero) for hero in heroes_list]
