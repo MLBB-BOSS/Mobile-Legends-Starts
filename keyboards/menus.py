@@ -1,5 +1,3 @@
-# keyboards/menus.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -196,15 +194,6 @@ def get_heroes_menu():
         row_width=3
     )
 
-# Меню класів героїв
-def get_hero_class_menu(hero_class):
-    heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
-    row_width = 3
-    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
 # Меню Гайдів
 def get_guides_menu():
     return create_menu(
@@ -227,7 +216,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Білдів
@@ -239,7 +228,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Голосування
@@ -251,7 +240,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Профілю
@@ -265,7 +254,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Статистики
@@ -277,7 +266,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Досягнень
@@ -290,7 +279,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Налаштувань
@@ -303,10 +292,10 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
-# Меню Зворотнього Зв'язку
+# Меню Зворотного Зв'язку
 def get_feedback_menu():
     return create_menu(
         [
@@ -314,7 +303,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 # Меню Допомоги
@@ -326,5 +315,5 @@ def get_help_menu():
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
