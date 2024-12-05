@@ -5,7 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.filters import Command  # Додано імпорт
+from aiogram.filters import Command
 from config import settings
 from handlers.base import setup_handlers
 import openai  # Інтеграція OpenAI
@@ -33,10 +33,13 @@ async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
             max_tokens=max_tokens,
             temperature=0.7,  # Налаштування креативності
         )
-        return response["choices"][0]["message"]["content"]
-    except Exception as e:
+        return response["choices"][0]["message"]["content"].strip()
+    except openai.error.OpenAIError as e:
         logger.error(f"OpenAI error: {e}")
         return "Не вдалося отримати відповідь. Спробуйте пізніше."
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return "Сталася непередбачувана помилка. Спробуйте пізніше."
 
 # Окрема функція для створення бота і диспетчера
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
