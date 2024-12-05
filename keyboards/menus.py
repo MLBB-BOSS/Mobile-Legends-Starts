@@ -1,4 +1,3 @@
-from keyboards.menus import get_profile_menu
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
@@ -184,3 +183,56 @@ def get_heroes_menu():
         ],
         row_width=3
     )
+
+def get_hero_class_menu(hero_class):
+    heroes = heroes_by_class.get(hero_class, [])MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+def get_achievements_menu():
+    return create_menu(
+        [
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+def get_settings_menu():
+    return create_menu(
+        [
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+def get_feedback_menu():
+    return create_menu(
+        [
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+def get_help_menu():
+    return create_menu(
+        [
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ,
+            MenuButton.HELP_SUPPORT,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+)
