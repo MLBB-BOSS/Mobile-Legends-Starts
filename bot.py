@@ -3,6 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command
 from config import settings
@@ -44,7 +45,7 @@ async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        parse_mode=ParseMode.HTML,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
@@ -60,7 +61,7 @@ async def main():
 
     # Команда для OpenAI інтеграції
     @dp.message(Command("ai"))
-    async def handle_openai_request(message: types.Message):
+    async def handle_openai_request(message):
         user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
         if not user_prompt or user_prompt == "/ai":
             await message.answer("Введіть текст запиту після команди /ai.")
