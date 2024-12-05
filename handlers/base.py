@@ -1,6 +1,7 @@
 # handlers/base.py
-
 import logging
+from aiogram import Dispatcher
+from handlers_navigation import register_navigation_handlers
 from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -141,6 +142,9 @@ class MenuStates(StatesGroup):
     RECEIVE_FEEDBACK = State()
     REPORT_BUG = State()
     # Додайте додаткові стани, якщо це необхідно
+
+def setup_handlers(dp: Dispatcher):
+    register_navigation_handlers(dp)
 
 # Команда /start
 @router.message(Command("start"))
