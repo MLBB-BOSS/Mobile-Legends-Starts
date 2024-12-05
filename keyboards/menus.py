@@ -178,3 +178,153 @@ def get_navigation_menu():
         ],
         row_width=3
     )
+
+# Меню Персонажів
+def get_heroes_menu():
+    return create_menu(
+        [
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.FIGHTER,
+            MenuButton.COMPARISON,
+            MenuButton.SEARCH_HERO,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню класів героїв
+def get_hero_class_menu(hero_class):
+    heroes = heroes_by_class.get(hero_class, [])
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    row_width = 3
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+# Меню Гайдів
+def get_guides_menu():
+    return create_menu(
+        [
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.BEGINNER_GUIDES,
+            MenuButton.ADVANCED_TECHNIQUES,
+            MenuButton.TEAMPLAY_GUIDES,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню Контр-піків
+def get_counter_picks_menu():
+    return create_menu(
+        [
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.COUNTER_LIST,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню Білдів
+def get_builds_menu():
+    return create_menu(
+        [
+            MenuButton.CREATE_BUILD,
+            MenuButton.MY_BUILDS,
+            MenuButton.POPULAR_BUILDS,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню Голосування
+def get_voting_menu():
+    return create_menu(
+        [
+            MenuButton.CURRENT_VOTES,
+            MenuButton.MY_VOTES,
+            MenuButton.SUGGEST_TOPIC,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
+
+# Меню Профілю
+def get_profile_menu():
+    return create_menu(
+        [
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.BACK_TO_MAIN_MENU
+        ],
+        row_width=3
+    )
+
+# Меню Статистики
+def get_statistics_menu():
+    return create_menu(
+        [
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+# Меню Досягнень
+def get_achievements_menu():
+    return create_menu(
+        [
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+# Меню Налаштувань
+def get_settings_menu():
+    return create_menu(
+        [
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+# Меню Зворотнього Зв'язку
+def get_feedback_menu():
+    return create_menu(
+        [
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
+
+# Меню Допомоги
+def get_help_menu():
+    return create_menu(
+        [
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ,
+            MenuButton.HELP_SUPPORT,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
