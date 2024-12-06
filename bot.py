@@ -2,12 +2,13 @@
 
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, executor
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command
+from aiogram.types import Message
 from rich.logging import RichHandler
 from rich.console import Console
 from rich.traceback import install
@@ -71,7 +72,9 @@ async def main():
     # Команда для OpenAI інтеграції
     @dp.message(Command("ai"))
     async def handle_openai_request(message: Message):
-        user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
+        parts = message.text.split(maxsplit=1)
+        user_prompt = parts[1] if len(parts) > 1 else ""
+
         if not user_prompt or user_prompt == "/ai":
             await message.answer("Введіть текст запиту після команди /ai.")
             return
@@ -84,7 +87,7 @@ async def main():
     try:
         async with bot:
             logger.info("Bot is polling...")
-            await dp.start_polling(bot)
+            await dp.start_polling(bot, skip_updates=True)
     except (KeyboardInterrupt, SystemExit):
         logger.warning("Bot stopped manually.")
     except Exception as e:
