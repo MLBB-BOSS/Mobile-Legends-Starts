@@ -22,7 +22,7 @@ class MenuButton(Enum):
     META = "🔥 Мета"            # Новий
     M6 = "🏆 M6"                # Новий
     GPT = "👾 GPT"              # Новий
-    BACK_NAV = "🔙"
+    BACK_NAV = "🔙"             # Змінено
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -40,24 +40,24 @@ class MenuButton(Enum):
     BEGINNER_GUIDES = "📘 Початківці"
     ADVANCED_TECHNIQUES = "🧙 Стратегії"
     TEAMPLAY_GUIDES = "🤝 Команда"
-    BACK_GUIDES = "🔙"
+    BACK_GUIDES = "🔙"          # Змінено
 
     # Розділ Контр-піків
     COUNTER_SEARCH = "🔎 Пошук"
     COUNTER_LIST = "📝 Список"
-    BACK_COUNTER = "🔙"
+    BACK_COUNTER = "🔙"         # Змінено
 
     # Розділ Білди
     CREATE_BUILD = "🏗️ Створити"
     MY_BUILDS = "📄 Мої"
     POPULAR_BUILDS = "🔥 Популярні"
-    BACK_BUILDS = "🔙"
+    BACK_BUILDS = "🔙"          # Змінено
 
     # Розділ Голосування
     CURRENT_VOTES = "📍 Поточні"
     MY_VOTES = "📋 Мої"
     SUGGEST_TOPIC = "➕ Запропонувати"
-    BACK_VOTING = "🔙"
+    BACK_VOTING = "🔙"          # Змінено
 
     # Розділ Профіль
     STATISTICS = "📈 Статистика"
@@ -65,38 +65,38 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Відгук"
     HELP = "❓ Допомога"
-    BACK_PROFILE = "🔙"
+    BACK_PROFILE = "🔙"         # Змінено
 
     # Підрозділ Статистика
     ACTIVITY = "📊 Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Статистика"
-    BACK_STATS = "🔙"
+    BACK_STATS = "🔙"           # Змінено
 
     # Підрозділ Досягнень
     BADGES = "🎖️ Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турніри"
     AWARDS = "🎟️ Нагороди"
-    BACK_ACHIEVEMENTS = "🔙"
+    BACK_ACHIEVEMENTS = "🔙"   # Змінено
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова"
     CHANGE_USERNAME = "ℹ️ Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
-    BACK_SETTINGS = "🔙"
+    BACK_SETTINGS = "🔙"         # Змінено
 
     # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Відгук"
     REPORT_BUG = "🐛 Помилка"
-    BACK_FEEDBACK = "🔙"
+    BACK_FEEDBACK = "🔙"         # Змінено
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
-    BACK_HELP = "🔙"
+    BACK_HELP = "🔙"             # Змінено
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -106,7 +106,7 @@ menu_button_to_class = {
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
     MenuButton.FIGHTER.value: "Боєць",
-    MenuButton.META.value: "Мета",
+    MenuButton.META.value: "Мета",       # Додано
 }
 
 # Повний список героїв за класами
@@ -119,9 +119,9 @@ heroes_by_class = {
         "Badang", "Guinevere"
     ],
     "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Baxia",
+        "Atlas", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
         "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
@@ -129,18 +129,18 @@ heroes_by_class = {
     ],
     "Стрілець": [
         "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
+        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Moskov",
+        "Karrie", "Irithel", "Lesley"  # Переконайтеся, що "Lesley" належить тільки до Асасін
     ],
     "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin",
         "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
+        "Rafaela", "Lolita", "Estes", "Angela", "Florin", "Johnson"  # "Johnson" вже є в Танк
     ],
     "Мета": [
-        "MetaHero1", "MetaHero2"
+        "MetaHero1", "MetaHero2"  # Додайте тут Метових персонажів, якщо вони існують
     ],
 }
 
@@ -180,9 +180,9 @@ def get_navigation_menu():
             MenuButton.COUNTER_PICKS,
             MenuButton.BUILDS,
             MenuButton.VOTING,
-            MenuButton.META,
-            MenuButton.M6,
-            MenuButton.GPT,
+            MenuButton.META,        # Додано
+            MenuButton.M6,           # Додано
+            MenuButton.GPT,          # Додано
             MenuButton.BACK_NAV
         ],
         row_width=3
@@ -206,6 +206,14 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
+    if not heroes:
+        logger.warning(f"Не знайдено героїв для класу: {hero_class}")
+        return create_menu(
+            [
+                MenuButton.BACK_NAV
+            ],
+            row_width=1
+        )
     buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
@@ -324,4 +332,4 @@ def get_help_menu():
             MenuButton.BACK_HELP
         ],
         row_width=3
-    )
+)
