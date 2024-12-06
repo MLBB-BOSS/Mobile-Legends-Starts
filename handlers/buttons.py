@@ -1,5 +1,6 @@
 import logging
 from aiogram import types, Dispatcher
+from aiogram.filters import Command  # Використання нового фільтру для команд
 from keyboards.menus import MenuButton, get_main_menu, get_navigation_menu, get_heroes_menu
 
 logger = logging.getLogger("handlers.buttons")
@@ -60,7 +61,7 @@ async def handle_heroes_buttons(message: types.Message):
 
 # Реєстрація обробників у Dispatcher
 def register_buttons_handlers(dp: Dispatcher):
-    dp.message.register(cmd_start, commands=["start"])
+    dp.message.register(cmd_start, Command(commands=["start"]))
     dp.message.register(handle_main_menu_buttons, lambda message: message.text in [MenuButton.NAVIGATION.value, MenuButton.PROFILE.value])
     dp.message.register(handle_navigation_buttons, lambda message: message.text in [MenuButton.HEROES.value, MenuButton.BACK.value])
     dp.message.register(handle_heroes_buttons, lambda message: message.text in [
