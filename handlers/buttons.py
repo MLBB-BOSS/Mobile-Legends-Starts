@@ -1,16 +1,11 @@
-from aiogram import types
-from aiogram.types import Message
-from aiogram.dispatcher import Dispatcher
-from aiogram.utils import exceptions
-
-from keyboards.menus import MenuButton, get_main_menu, get_navigation_menu, get_heroes_menu
-from aiogram.types import ReplyKeyboardRemove
 import logging
+from aiogram import types, Dispatcher
+from keyboards.menus import MenuButton, get_main_menu, get_navigation_menu, get_heroes_menu
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("handlers.buttons")
 
 # Обробка стартового повідомлення (Натискання кнопки "Start")
-async def cmd_start(message: Message):
+async def cmd_start(message: types.Message):
     logger.info(f"Новий користувач: {message.from_user.username} з ID: {message.from_user.id}")
     await message.answer(
         "Привіт! Я твій асистент по грі Mobile Legends. Вибери опцію з меню.",
@@ -18,7 +13,7 @@ async def cmd_start(message: Message):
     )
 
 # Обробка натискання кнопки головного меню
-async def handle_main_menu_buttons(message: Message):
+async def handle_main_menu_buttons(message: types.Message):
     user_choice = message.text
 
     if user_choice == MenuButton.NAVIGATION.value:
@@ -33,7 +28,7 @@ async def handle_main_menu_buttons(message: Message):
         await message.answer("Невідома команда, спробуйте ще раз", reply_markup=get_main_menu())
 
 # Обробка натискання кнопок в меню навігації
-async def handle_navigation_buttons(message: Message):
+async def handle_navigation_buttons(message: types.Message):
     user_choice = message.text
 
     if user_choice == MenuButton.HEROES.value:
@@ -48,7 +43,7 @@ async def handle_navigation_buttons(message: Message):
         await message.answer("Невідома команда в меню навігації. Спробуйте ще раз.", reply_markup=get_navigation_menu())
 
 # Обробка кнопок героїв
-async def handle_heroes_buttons(message: Message):
+async def handle_heroes_buttons(message: types.Message):
     user_choice = message.text
 
     if user_choice in [MenuButton.TANK.value, MenuButton.MAGE.value, MenuButton.MARKSMAN.value,
@@ -64,11 +59,11 @@ async def handle_heroes_buttons(message: Message):
         await message.answer("Невідома команда в меню героїв. Спробуйте ще раз.", reply_markup=get_heroes_menu())
 
 # Реєстрація обробників у Dispatcher
-def register_handlers(dp: Dispatcher):
-    dp.register_message_handler(cmd_start, commands=["start"])
-    dp.register_message_handler(handle_main_menu_buttons, lambda message: message.text in [MenuButton.NAVIGATION.value, MenuButton.PROFILE.value])
-    dp.register_message_handler(handle_navigation_buttons, lambda message: message.text in [MenuButton.HEROES.value, MenuButton.BACK.value])
-    dp.register_message_handler(handle_heroes_buttons, lambda message: message.text in [
+def register_buttons_handlers(dp: Dispatcher):
+    dp.message.register(cmd_start, commands=["start"])
+    dp.message.register(handle_main_menu_buttons, lambda message: message.text in [MenuButton.NAVIGATION.value, MenuButton.PROFILE.value])
+    dp.message.register(handle_navigation_buttons, lambda message: message.text in [MenuButton.HEROES.value, MenuButton.BACK.value])
+    dp.message.register(handle_heroes_buttons, lambda message: message.text in [
         MenuButton.TANK.value, MenuButton.MAGE.value, MenuButton.MARKSMAN.value, MenuButton.ASSASSIN.value,
         MenuButton.SUPPORT.value, MenuButton.FIGHTER.value, MenuButton.BACK.value
     ])
