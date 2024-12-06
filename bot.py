@@ -6,7 +6,6 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
 from config import settings
 from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
@@ -71,7 +70,7 @@ async def main():
     register_buttons_handlers(dp)
     register_navigation_handlers(dp)
 
-    # Використання асинхронного контекстного менеджера
+# Використання асинхронного контекстного менеджера
     try:
         async with bot:
             logger.info("Bot is polling...")
