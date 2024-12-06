@@ -19,10 +19,8 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    GPT_SUPPORT = "👾 GPT Підтримка"
-    M6_ANALYTICS = "🏆 М6 Аналітика"
-    META = "🔮 Мета"  # Додано кнопку Мета
-    BACK_NAV = "🔙 Назад"  # Назва змінена для консистентності
+    META = "🔥 Мета"  # Додано кнопку Мета зі смайликом 🔥
+    BACK = "🔙 Назад"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -31,7 +29,7 @@ class MenuButton(Enum):
     ASSASSIN = "⚔️ Асасін"
     SUPPORT = "❤️ Підтримка"
     FIGHTER = "🗡️ Боєць"
-    COMPARE = "⚖️ Порівняння"
+    COMPARISON = "⚖️ Порівняння"
     SEARCH_HERO = "🔎 Пошук"
 
     # Розділ Гайди
@@ -74,26 +72,21 @@ class MenuButton(Enum):
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Отримані Нагороди"
-    BACK_TO_PROFILE_FROM_ACHIEVEMENTS = "🔙 Назад до Профілю"
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "ℹ️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
-    BACK_TO_PROFILE_FROM_SETTINGS = "🔙 Назад до Профілю"
 
     # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
-    BACK_TO_PROFILE_FROM_FEEDBACK = "🔙 Назад до Профілю"
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
-    BACK_TO_PROFILE_FROM_HELP = "🔙 Назад до Профілю"
-
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -109,148 +102,214 @@ menu_button_to_class = {
 # Повний список героїв за класами
 heroes_by_class = {
     "Боєць": [
-        "Aldous", "Alpha", "Arlott", "Aulus", "Badang", "Balmond",
-        "Bane", "Barats", "Dyrroth", "Fredrinn", "Freya", "Guinevere",
-        "Jawhead", "Khaleed", "Leomord", "Martis", "Masha", "Minsitthar",
-        "Paquito", "Phoveus", "Roger", "Ruby", "Silvanna", "Terizla",
-        "Thamuz", "Xborg", "YuZhong", "Zilong"
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
+        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
+        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
+        "Badang", "Guinevere"
     ],
     "Танк": [
-        "Akai", "Atlas", "Barats", "Baxia", "Belerick", "Chip",
-        "Edith", "Esmeralda", "Franco", "Gatotkaca", "Gloo", "Grock",
-        "Hilda", "Hylos", "Johnson", "Khufra", "Lolita", "Minotaur",
-        "Tigreal", "Uranus"
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
+        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
-        "Alucard", "Aamon", "Arlott", "Benedetta", "Fanny", "Gusion",
-        "Hanzo", "Helcurt", "Lancelot", "Ling", "Natalia", "Saber",
-        "Selena", "Yin"
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
+        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
     ],
     "Стрілець": [
-        "Beatrix", "Brody", "Bruno", "Claude", "Clint", "Granger",
-        "Hanabi", "Irithel", "Ixia", "Karrie", "Kimmy", "Layla",
-        "Lesley", "Melissa", "Miya", "Moskov", "Natan", "PopolAndKupa",
-        "Wanwan", "YiSunShin"
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
+        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
+        "Roger", "Karrie", "Irithel", "Lesley"
     ],
     "Маг": [
-        "Aurora", "Cecilion", "Change", "Cyclops", "Eudora", "Gord",
-        "Harith", "Kadita", "Kagura", "Lunox", "LuoYi", "Lylia",
-        "Nana", "Odette", "Pharsa", "Vale", "Valentina", "Valir",
-        "Vexana", "Xavier", "Yve", "Zhask"
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
+        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Angela", "Carmilla", "Diggie", "Estes", "Faramis", "Floryn",
-        "Rafaela"
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
     ],
     "Мета": [
-        # Додайте тут Метових персонажів, якщо вони існують
-        # Наприклад:
-        "MetaHero1", "MetaHero2"
+        "MetaHero1", "MetaHero2"  # Додайте тут Метових персонажів, якщо вони існують
     ],
 }
 
-# Загальна функція створення меню
-def create_menu(buttons, row_width=3):
+def create_menu(buttons, row_width=2):
     """
     Створює клавіатуру з кнопками.
     :param buttons: Список кнопок (MenuButton або str).
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
-    if not all(isinstance(button, (MenuButton, str)) for button in buttons):
-        raise ValueError("Усі елементи повинні бути MenuButton або str.")
+    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
     keyboard = [
-        keyboard_buttons[i:i + row_width] for i in range(0, len(keyboard_buttons), row_width)
+        keyboard_buttons[i:i + row_width]
+        for i in range(0, len(keyboard_buttons), row_width)
     ]
-    keyboard.append([KeyboardButton(text="🔙 Назад")])  # Смайлик для повернення
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Функції для отримання конкретних меню
 def get_main_menu():
-    return create_menu([MenuButton.NAVIGATION, MenuButton.PROFILE])
+    return create_menu(
+        [
+            MenuButton.NAVIGATION,
+            MenuButton.PROFILE
+        ],
+        row_width=2
+    )
 
 def get_navigation_menu():
-    return create_menu([
-        MenuButton.HEROES, MenuButton.BUILDS, MenuButton.COUNTER_PICKS,
-        MenuButton.GUIDES, MenuButton.VOTING, MenuButton.GPT_SUPPORT,
-        MenuButton.M6_ANALYTICS, MenuButton.META  # Додано кнопку Мета
-    ])
+    return create_menu(
+        [
+            MenuButton.HEROES,
+            MenuButton.BUILDS,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.GUIDES,
+            MenuButton.VOTING,
+            MenuButton.META,  # Додано кнопку Мета
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_heroes_menu():
-    return create_menu([
-        MenuButton.TANK, MenuButton.MAGE, MenuButton.MARKSMAN,
-        MenuButton.ASSASSIN, MenuButton.SUPPORT, MenuButton.FIGHTER,
-        MenuButton.COMPARE, MenuButton.SEARCH_HERO
-    ])
+    return create_menu(
+        [
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.FIGHTER,
+            MenuButton.COMPARISON,
+            MenuButton.SEARCH_HERO,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [MenuButton(hero) if hero in MenuButton.__members__ else hero for hero in heroes]
-    # Створюємо кнопки для героїв
-    keyboard_buttons = [
-        KeyboardButton(text=hero) for hero in heroes
-    ]
-    # Розбиваємо кнопки на рядки по 3
-    keyboard = [keyboard_buttons[i:i + 3] for i in range(0, len(keyboard_buttons), 3)]
-    # Додаємо кнопку назад
-    keyboard.append([KeyboardButton(text="🔙 Назад")])
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    row_width = 3
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])  # Додаємо кнопку назад
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
-    return create_menu([
-        MenuButton.NEW_GUIDES, MenuButton.POPULAR_GUIDES,
-        MenuButton.BEGINNER_GUIDES, MenuButton.ADVANCED_TECHNIQUES,
-        MenuButton.TEAMPLAY_GUIDES
-    ])
+    return create_menu(
+        [
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.BEGINNER_GUIDES,
+            MenuButton.ADVANCED_TECHNIQUES,
+            MenuButton.TEAMPLAY_GUIDES,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_counter_picks_menu():
-    return create_menu([
-        MenuButton.COUNTER_SEARCH, MenuButton.COUNTER_LIST
-    ])
+    return create_menu(
+        [
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.COUNTER_LIST,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_builds_menu():
-    return create_menu([
-        MenuButton.CREATE_BUILD, MenuButton.MY_BUILDS, MenuButton.POPULAR_BUILDS
-    ])
+    return create_menu(
+        [
+            MenuButton.CREATE_BUILD,
+            MenuButton.MY_BUILDS,
+            MenuButton.POPULAR_BUILDS,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_voting_menu():
-    return create_menu([
-        MenuButton.CURRENT_VOTES, MenuButton.MY_VOTES, MenuButton.SUGGEST_TOPIC
-    ])
+    return create_menu(
+        [
+            MenuButton.CURRENT_VOTES,
+            MenuButton.MY_VOTES,
+            MenuButton.SUGGEST_TOPIC,
+            MenuButton.BACK
+        ],
+        row_width=3
+    )
 
 def get_profile_menu():
-    return create_menu([
-        MenuButton.STATISTICS, MenuButton.ACHIEVEMENTS,
-        MenuButton.SETTINGS, MenuButton.FEEDBACK, MenuButton.HELP
-    ])
+    return create_menu(
+        [
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.BACK_TO_MAIN_MENU
+        ],
+        row_width=3
+    )
 
 def get_statistics_menu():
-    return create_menu([
-        MenuButton.ACTIVITY, MenuButton.RANKING, MenuButton.GAME_STATS
-    ])
+    return create_menu(
+        [
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
 
 def get_achievements_menu():
-    return create_menu([
-        MenuButton.BADGES, MenuButton.PROGRESS,
-        MenuButton.TOURNAMENT_STATS, MenuButton.AWARDS
-    ])
+    return create_menu(
+        [
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
 
 def get_settings_menu():
-    return create_menu([
-        MenuButton.LANGUAGE, MenuButton.CHANGE_USERNAME,
-        MenuButton.UPDATE_ID, MenuButton.NOTIFICATIONS
-    ])
+    return create_menu(
+        [
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
 
 def get_feedback_menu():
-    return create_menu([
-        MenuButton.SEND_FEEDBACK, MenuButton.REPORT_BUG
-    ])
+    return create_menu(
+        [
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+    )
 
 def get_help_menu():
-    return create_menu([
-        MenuButton.INSTRUCTIONS, MenuButton.FAQ, MenuButton.HELP_SUPPORT
-    ])
+    return create_menu(
+        [
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ,
+            MenuButton.HELP_SUPPORT,
+            MenuButton.BACK_TO_PROFILE
+        ],
+        row_width=3
+            )
