@@ -308,6 +308,13 @@ def get_menu(menu_name):
         return ReplyKeyboardMarkup(resize_keyboard=True)
     return create_menu(menu["buttons"], menu["row_width"])
 
+def get_main_menu():
+    """
+    Генерує клавіатуру для головного меню.
+    :return: ReplyKeyboardMarkup
+    """
+    return get_menu("main")
+
 def get_hero_class_menu(hero_class):
     """
     Створює клавіатуру для обраного класу героя.
@@ -334,5 +341,5 @@ def get_hero_class_menu(hero_class):
 # Наприклад, можна додати функції для динамічного створення меню героїв
 
 # Приклад використання
-# main_menu = get_menu("main")
+# main_menu = get_main_menu()
 # navigation_menu = get_menu("navigation")
