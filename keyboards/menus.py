@@ -1,225 +1,282 @@
-# keyboards/menus.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from constants.characters import Characters
+from enum import Enum
+import logging
 
-MenuButton = {
-    'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
-    'PROFILE': KeyboardButton(text='🪪 Профіль'),
-    'HEROES': KeyboardButton(text='🥷 Персонажі'),
-    'GUIDES': KeyboardButton(text='📚 Гайди'),
-    'COUNTER_PICKS': KeyboardButton(text='⚖️ Контр-піки'),
-    'BUILDS': KeyboardButton(text='🛡️ Білди'),
-    'VOTING': KeyboardButton(text='📊 Голосування'),
-    'META': KeyboardButton(text='🔥 META'),
-    'M6': KeyboardButton(text='🏆 M6'),
-    'GPT': KeyboardButton(text='👾 GPT'),
-    'BACK': KeyboardButton(text='🔙'),
-    'TANK': KeyboardButton(text='🛡️ Танк'),
-    'MAGE': KeyboardButton(text='🧙‍♂️ Маг'),
-    'MARKSMAN': KeyboardButton(text='🏹 Стрілець'),
-    'ASSASSIN': KeyboardButton(text='⚔️ Асасін'),
-    'SUPPORT': KeyboardButton(text='❤️ Підтримка'),
-    'FIGHTER': KeyboardButton(text='🗡️ Боєць'),
-    'COMPARISON': KeyboardButton(text='⚖️ Порівняння'),
-    'SEARCH_HERO': KeyboardButton(text='🔎 Пошук'),
-    'NEW_GUIDES': KeyboardButton(text='Нові гайди'),
-    'POPULAR_GUIDES': KeyboardButton(text='Популярні гайди'),
-    'BEGINNER_GUIDES': KeyboardButton(text='Гайди для початківців'),
-    'ADVANCED_TECHNIQUES': KeyboardButton(text='Просунуті техніки'),
-    'TEAMPLAY_GUIDES': KeyboardButton(text='Командна гра'),
-    'COUNTER_SEARCH': KeyboardButton(text='Пошук контр-піку'),
-    'COUNTER_LIST': KeyboardButton(text='Список контр-піків'),
-    'CREATE_BUILD': KeyboardButton(text='Створення білду'),
-    'MY_BUILDS': KeyboardButton(text='Мої білди'),
-    'POPULAR_BUILDS': KeyboardButton(text='Популярні білди'),
-    'CURRENT_VOTES': KeyboardButton(text='Поточні опитування'),
-    'MY_VOTES': KeyboardButton(text='Мої голосування'),
-    'SUGGEST_TOPIC': KeyboardButton(text='Пропозиція теми'),
-    'SEND_FEEDBACK': KeyboardButton(text='Надіслати відгук'),
-    'REPORT_BUG': KeyboardButton(text='Повідомити про помилку'),
-    'LANGUAGE': KeyboardButton(text='Мова'),
-    'CHANGE_USERNAME': KeyboardButton(text='Змінити Username'),
-    'UPDATE_ID': KeyboardButton(text='Оновити ID'),
-    'NOTIFICATIONS': KeyboardButton(text='Сповіщення'),
-    'INSTRUCTIONS': KeyboardButton(text='Інструкції'),
-    'FAQ': KeyboardButton(text='FAQ'),
-    'HELP_SUPPORT': KeyboardButton(text='Підтримка'),
+# Налаштування логування
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-    # Додаткові кнопки, що використовуються в меню Профіль, Статистика та Досягнення
-    'STATISTICS': KeyboardButton(text='Статистика'),
-    'ACHIEVEMENTS': KeyboardButton(text='Досягнення'),
-    'SETTINGS': KeyboardButton(text='Налаштування'),
-    'FEEDBACK': KeyboardButton(text='Зворотний зв\'язок'),
-    'HELP': KeyboardButton(text='Допомога'),
+class MenuButton(Enum):
+    # Головне Меню
+    NAVIGATION = "🧭 Навігація"
+    PROFILE = "🪪 Профіль"   # було "🪪 Мій Профіль"
+    META = "🔥 META"
+    M6 = "🏆 M6"
+    GPT = "👾 GPT"
 
-    # Додаткові кнопки для меню Статистика
-    'ACTIVITY': KeyboardButton(text='Загальна активність'),
-    'RANKING': KeyboardButton(text='Рейтинг'),
-    'GAME_STATS': KeyboardButton(text='Ігрова статистика'),
+    # Розділ Навігація
+    HEROES = "🥷 Персонажі"
+    GUIDES = "📚 Гайди"
+    COUNTER_PICKS = "⚖️ Контр-піки"
+    BUILDS = "🛡️ Білди"
+    VOTING = "📊 Голосування"
+    BACK = "🔙"
 
-    # Додаткові кнопки для меню Досягнення
-    'BADGES': KeyboardButton(text='Бейджі'),
-    'PROGRESS': KeyboardButton(text='Прогрес'),
-    'TOURNAMENT_STATS': KeyboardButton(text='Турнірна статистика'),
-    'AWARDS': KeyboardButton(text='Отримані нагороди'),
-}
+    # Розділ Персонажі
+    TANK = "🛡️ Танк"
+    MAGE = "🧙‍♂️ Маг"
+    MARKSMAN = "🏹 Стрілець"
+    ASSASSIN = "⚔️ Асасін"
+    SUPPORT = "❤️ Підтримка"
+    FIGHTER = "🗡️ Боєць"
+    COMPARISON = "⚖️ Порівняння"
+    SEARCH_HERO = "🔎 Пошук"
 
-# Відповідність кнопок класам героїв
+    # Розділ Гайди
+    NEW_GUIDES = "Нові гайди"
+    POPULAR_GUIDES = "Популярні гайди"
+    BEGINNER_GUIDES = "Гайди для початківців"
+    ADVANCED_TECHNIQUES = "Просунуті техніки"
+    TEAMPLAY_GUIDES = "Командна гра"
+
+    # Розділ Контр-піки
+    COUNTER_SEARCH = "Пошук контр-піку"
+    COUNTER_LIST = "Список контр-піків"
+
+    # Розділ Білди
+    CREATE_BUILD = "Створення білду"
+    MY_BUILDS = "Мої білди"
+    POPULAR_BUILDS = "Популярні білди"
+
+    # Розділ Голосування
+    CURRENT_VOTES = "Поточні опитування"
+    MY_VOTES = "Мої голосування"
+    SUGGEST_TOPIC = "Пропозиція теми"
+
+    # Розділ Профіль
+    STATISTICS = "📈 Статистика"
+    ACHIEVEMENTS = "🏆 Досягнення"
+    SETTINGS = "⚙️ Налаштування"
+    FEEDBACK = "💌 Зворотний Зв'язок"
+    HELP = "❓ Допомога"
+    BACK_TO_MAIN_MENU = "🔙 Повернутися до головного меню"
+
+    # Підрозділ Статистика
+    ACTIVITY = "📊 Загальна Активність"
+    RANKING = "🥇 Рейтинг"
+    GAME_STATS = "🎮 Ігрова Статистика"
+    BACK_TO_PROFILE = "🔙"
+
+    # Підрозділ Досягнення
+    BADGES = "🎖️ Мої Бейджі"
+    PROGRESS = "🚀 Прогрес"
+    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
+    AWARDS = "🎟️ Отримані Нагороди"
+
+    # Підрозділ Налаштування
+    LANGUAGE = "Мова"
+    CHANGE_USERNAME = "Змінити Username"
+    UPDATE_ID = "Оновити ID"
+    NOTIFICATIONS = "Сповіщення"
+
+    # Підрозділ Зворотний Зв'язок
+    SEND_FEEDBACK = "Надіслати відгук"
+    REPORT_BUG = "Повідомити про помилку"
+
+    # Підрозділ Допомога
+    INSTRUCTIONS = "Інструкції"
+    FAQ = "FAQ"
+    HELP_SUPPORT = "Підтримка"
+
 menu_button_to_class = {
-    "🛡️ Танк": "Танк",
-    "🧙‍♂️ Маг": "Маг",
-    "🏹 Стрілець": "Стрілець",
-    "⚔️ Асасін": "Асасін",
-    "❤️ Підтримка": "Підтримка",
-    "🗡️ Боєць": "Боєць",
-    "🔥 META": "META",
+    MenuButton.TANK.value: "Танк",
+    MenuButton.MAGE.value: "Маг",
+    MenuButton.MARKSMAN.value: "Стрілець",
+    MenuButton.ASSASSIN.value: "Асасін",
+    MenuButton.SUPPORT.value: "Підтримка",
+    MenuButton.FIGHTER.value: "Боєць",
 }
+
+def create_menu(buttons, row_width=2):
+    """
+    Створює клавіатуру з кнопками.
+    :param buttons: Список кнопок (MenuButton або str).
+    :param row_width: Кількість кнопок у рядку.
+    :return: ReplyKeyboardMarkup
+    """
+    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
+    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
+    keyboard_buttons = [
+        KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
+    ]
+    keyboard = [
+        keyboard_buttons[i:i + row_width]
+        for i in range(0, len(keyboard_buttons), row_width)
+    ]
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_main_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['NAVIGATION'], MenuButton['PROFILE']],
-            [MenuButton['META'], MenuButton['M6'], MenuButton['GPT']],
+    return create_menu(
+        [
+            MenuButton.NAVIGATION,
+            MenuButton.PROFILE,
+            MenuButton.META,
+            MenuButton.M6,
+            MenuButton.GPT
         ],
-        resize_keyboard=True
+        row_width=2
     )
-    return keyboard
 
 def get_navigation_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['HEROES'], MenuButton['GUIDES']],
-            [MenuButton['COUNTER_PICKS'], MenuButton['BUILDS']],
-            [MenuButton['VOTING'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.HEROES,
+            MenuButton.GUIDES,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.BUILDS,
+            MenuButton.VOTING,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_profile_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['STATISTICS'], MenuButton['ACHIEVEMENTS']],
-            [MenuButton['SETTINGS'], MenuButton['FEEDBACK']],
-            [MenuButton['HELP'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.BACK_TO_MAIN_MENU
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_heroes_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['TANK'], MenuButton['MAGE'], MenuButton['MARKSMAN']],
-            [MenuButton['ASSASSIN'], MenuButton['SUPPORT'], MenuButton['FIGHTER']],
-            [MenuButton['COMPARISON'], MenuButton['SEARCH_HERO']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.SUPPORT,
+            MenuButton.FIGHTER,
+            MenuButton.COMPARISON,
+            MenuButton.SEARCH_HERO,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # Тут ви можете додати перелік героїв за класом, використовуючи змінну 'hero_class'
-    # Для прикладу, просто повертаємо кнопку BACK.
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['BACK']],
+    # Тут ви можете додати логіку для генерації списку героїв
+    # Для прикладу поки повернемо лише BACK
+    return create_menu(
+        [
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=2
     )
-    return keyboard
 
 def get_guides_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['NEW_GUIDES'], MenuButton['POPULAR_GUIDES']],
-            [MenuButton['BEGINNER_GUIDES'], MenuButton['ADVANCED_TECHNIQUES']],
-            [MenuButton['TEAMPLAY_GUIDES'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.NEW_GUIDES,
+            MenuButton.POPULAR_GUIDES,
+            MenuButton.BEGINNER_GUIDES,
+            MenuButton.ADVANCED_TECHNIQUES,
+            MenuButton.TEAMPLAY_GUIDES,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_counter_picks_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['COUNTER_SEARCH'], MenuButton['COUNTER_LIST']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.COUNTER_SEARCH,
+            MenuButton.COUNTER_LIST,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_builds_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['CREATE_BUILD'], MenuButton['MY_BUILDS']],
-            [MenuButton['POPULAR_BUILDS'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.CREATE_BUILD,
+            MenuButton.MY_BUILDS,
+            MenuButton.POPULAR_BUILDS,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_voting_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['CURRENT_VOTES'], MenuButton['MY_VOTES']],
-            [MenuButton['SUGGEST_TOPIC'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.CURRENT_VOTES,
+            MenuButton.MY_VOTES,
+            MenuButton.SUGGEST_TOPIC,
+            MenuButton.BACK
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_statistics_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['ACTIVITY'], MenuButton['RANKING'], MenuButton['GAME_STATS']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK_TO_PROFILE
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_achievements_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['BADGES'], MenuButton['PROGRESS']],
-            [MenuButton['TOURNAMENT_STATS'], MenuButton['AWARDS']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
+            MenuButton.BACK_TO_PROFILE
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_settings_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['LANGUAGE'], MenuButton['CHANGE_USERNAME']],
-            [MenuButton['UPDATE_ID'], MenuButton['NOTIFICATIONS']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
+            MenuButton.BACK_TO_PROFILE
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_feedback_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['SEND_FEEDBACK'], MenuButton['REPORT_BUG']],
-            [MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK_TO_PROFILE
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
 
 def get_help_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['INSTRUCTIONS'], MenuButton['FAQ']],
-            [MenuButton['HELP_SUPPORT'], MenuButton['BACK']],
+    return create_menu(
+        [
+            MenuButton.INSTRUCTIONS,
+            MenuButton.FAQ,
+            MenuButton.HELP_SUPPORT,
+            MenuButton.BACK_TO_PROFILE
         ],
-        resize_keyboard=True
+        row_width=3
     )
-    return keyboard
