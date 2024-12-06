@@ -1,3 +1,5 @@
+# bot.py
+
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -5,7 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.filters import Command  # Додано імпорт
+from aiogram.filters import Command
 from config import settings
 from handlers.base import setup_handlers
 import openai  # Інтеграція OpenAI
@@ -23,15 +25,19 @@ openai.api_key = settings.OPENAI_API_KEY
 
 # Функція для взаємодії з OpenAI
 async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
+    loop = asyncio.get_event_loop()
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=max_tokens,
-            temperature=0.7,  # Налаштування креативності
+        response = await loop.run_in_executor(
+            None,
+            lambda: openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=max_tokens,
+                temperature=0.7,  # Налаштування креативності
+            )
         )
         return response["choices"][0]["message"]["content"]
     except Exception as e:
@@ -58,7 +64,7 @@ async def main():
 
     # Команда для OpenAI інтеграції
     @dp.message(Command("ai"))
-    async def handle_openai_request(message):
+    async def handle_openai_request(message: Message):
         user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
         if not user_prompt or user_prompt == "/ai":
             await message.answer("Введіть текст запиту після команди /ai.")
