@@ -10,12 +10,13 @@ from aiogram.client.default import DefaultBotProperties  # Додано для �
 from config import settings
 from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
 from handlers_navigation import register_navigation_handlers
+from aiogram.filters import F  # Імпорт фільтра F
 
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
-    datefmt="%Y-%м-%д %H:%М:%С",
+    datefmt="%Y-%м-%d %H:%М:%С",
 )
 logger = logging.getLogger("bot")
 
