@@ -8,6 +8,23 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # Для використання ReplyKeyboardRemove
 
+from keyboards.menus import (
+    get_main_menu,
+    get_navigation_menu,
+    get_profile_menu,
+    get_heroes_menu,
+    get_hero_class_menu,
+    get_guides_menu,
+    get_counter_picks_menu,
+    get_builds_menu,
+    get_voting_menu,
+    get_statistics_menu,
+    get_achievements_menu,
+    get_settings_menu,
+    get_feedback_menu,
+    get_help_menu
+)
+
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
     get_intro_page_1_keyboard,
