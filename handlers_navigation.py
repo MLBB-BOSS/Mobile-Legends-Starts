@@ -1,5 +1,3 @@
-# handlers_navigation.py
-
 import os
 import aiohttp  # Додано для роботи з HTTP-запитами
 from aiogram import types, Dispatcher
@@ -49,8 +47,10 @@ async def show_m6_menu(message: types.Message):
 
 async def show_gpt_menu(message: types.Message):
     await message.answer("👾 Введіть ваше запитання для GPT:")
+
+async def handle_gpt_query(message: types.Message):
     user_prompt = message.text
-    if user_prompt and not user_prompt.startswith("/ai"):
+    if user_prompt:
         await message.answer("Запит обробляється, зачекайте...")
         response = await ask_openai(user_prompt)  # Виклик функції OpenAI
         await message.answer(response)
@@ -59,3 +59,4 @@ def register_navigation_handlers(dp: Dispatcher):
     dp.message.register(show_meta_menu, text=MenuButton.META.value)
     dp.message.register(show_m6_menu, text=MenuButton.M6.value)
     dp.message.register(show_gpt_menu, text=MenuButton.GPT.value)
+    dp.message.register(handle_gpt_query)
