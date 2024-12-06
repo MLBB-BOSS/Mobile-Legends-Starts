@@ -1,24 +1,27 @@
+# handlers_navigation.py
+
 import os
+import aiohttp  # Додано для роботи з HTTP-запитами
 from aiogram import types, Dispatcher
 from keyboards.menus import MenuButton
-import openai
 import logging
 
 # Налаштування логування
 logger = logging.getLogger("handlers_navigation")
 
 # Отримання ключа OpenAI API з оточення
-openai.api_key = os.getenv('OPENAI_API_KEY')
+openai_api_key = os.getenv('OPENAI_API_KEY')
+API_URL = "https://api.openai.com/v1/chat/completions"
 
 # Функція для взаємодії з OpenAI через URL
 async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
     try:
         headers = {
-            "Authorization": f"Bearer {openai.api_key}",
+            "Authorization": f"Bearer {openai_api_key}",
             "Content-Type": "application/json",
         }
         json_data = {
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-4",  # Використання моделі GPT-4
             "messages": [
                 {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
                 {"role": "user", "content": prompt},
@@ -46,9 +49,11 @@ async def show_m6_menu(message: types.Message):
 
 async def show_gpt_menu(message: types.Message):
     await message.answer("👾 Введіть ваше запитання для GPT:")
-    await message.answer("Запит обробляється, зачекайте...")
-    response = await ask_openai(message.text)  # Виклик функції OpenAI
-    await message.answer(response)
+    user_prompt = message.text
+    if user_prompt and not user_prompt.startswith("/ai"):
+        await message.answer("Запит обробляється, зачекайте...")
+        response = await ask_openai(user_prompt)  # Виклик функції OpenAI
+        await message.answer(response)
 
 def register_navigation_handlers(dp: Dispatcher):
     dp.message.register(show_meta_menu, text=MenuButton.META.value)
