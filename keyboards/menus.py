@@ -45,6 +45,24 @@ MenuButton = {
     'INSTRUCTIONS': KeyboardButton(text='Інструкції'),
     'FAQ': KeyboardButton(text='FAQ'),
     'HELP_SUPPORT': KeyboardButton(text='Підтримка'),
+
+    # Додаткові кнопки, що використовуються в меню Профіль, Статистика та Досягнення
+    'STATISTICS': KeyboardButton(text='Статистика'),
+    'ACHIEVEMENTS': KeyboardButton(text='Досягнення'),
+    'SETTINGS': KeyboardButton(text='Налаштування'),
+    'FEEDBACK': KeyboardButton(text='Зворотний зв\'язок'),
+    'HELP': KeyboardButton(text='Допомога'),
+
+    # Додаткові кнопки для меню Статистика
+    'ACTIVITY': KeyboardButton(text='Загальна активність'),
+    'RANKING': KeyboardButton(text='Рейтинг'),
+    'GAME_STATS': KeyboardButton(text='Ігрова статистика'),
+
+    # Додаткові кнопки для меню Досягнення
+    'BADGES': KeyboardButton(text='Бейджі'),
+    'PROGRESS': KeyboardButton(text='Прогрес'),
+    'TOURNAMENT_STATS': KeyboardButton(text='Турнірна статистика'),
+    'AWARDS': KeyboardButton(text='Отримані нагороди'),
 }
 
 # Відповідність кнопок класам героїв
