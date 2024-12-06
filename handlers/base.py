@@ -12,7 +12,21 @@ from keyboards.inline_menus import (
     get_generic_inline_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
-    get_intro_page_3_keyboard
+    get_intro_page_3_keyboard,
+    get_main_menu,
+    get_navigation_menu,
+    get_profile_menu,
+    get_heroes_menu,
+    get_hero_class_menu,
+    get_guides_menu,
+    get_counter_picks_menu,
+    get_builds_menu,
+    get_voting_menu,
+    get_statistics_menu,
+    get_achievements_menu,
+    get_settings_menu,
+    get_feedback_menu,
+    get_help_menu
 )
 
 # Імпортуємо тексти
@@ -282,12 +296,12 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     new_interactive_keyboard = get_generic_inline_keyboard()
     new_state = None
 
-    if user_choice == MenuButton.NAVIGATION.value:
+    if user_choice == "Навігація":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
         new_state = MenuStates.NAVIGATION_MENU
-    elif user_choice == MenuButton.PROFILE.value:
+    elif user_choice == "Профіль":
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -372,15 +386,15 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
     new_interactive_text = ""
     new_state = MenuStates.FEEDBACK_MENU
 
-    if user_choice == MenuButton.SEND_FEEDBACK.value:
+    if user_choice == "Надіслати відгук":
         new_main_text = SEND_FEEDBACK_TEXT
         new_interactive_text = "Надсилання відгуку"
         new_state = MenuStates.RECEIVE_FEEDBACK
-    elif user_choice == MenuButton.REPORT_BUG.value:
+    elif user_choice == "Повідомити про помилку":
         new_main_text = REPORT_BUG_TEXT
         new_interactive_text = "Повідомлення про помилку"
         new_state = MenuStates.REPORT_BUG
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         # Повертаємось до меню Профіль
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
@@ -461,35 +475,34 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
-    new_interactive_keyboard = get_generic_inline_keyboard()
     new_state = None
 
-    if user_choice == MenuButton.HEROES.value:
+    if user_choice == "Персонажі":
         new_main_text = HEROES_MENU_TEXT
         new_main_keyboard = get_heroes_menu()
         new_interactive_text = HEROES_INTERACTIVE_TEXT
         new_state = MenuStates.HEROES_MENU
-    elif user_choice == MenuButton.GUIDES.value:
+    elif user_choice == "Гайди":
         new_main_text = GUIDES_MENU_TEXT
         new_main_keyboard = get_guides_menu()
         new_interactive_text = GUIDES_INTERACTIVE_TEXT
         new_state = MenuStates.GUIDES_MENU
-    elif user_choice == MenuButton.COUNTER_PICKS.value:
+    elif user_choice == "Контр-піки":
         new_main_text = COUNTER_PICKS_MENU_TEXT
         new_main_keyboard = get_counter_picks_menu()
         new_interactive_text = COUNTER_PICKS_INTERACTIVE_TEXT
         new_state = MenuStates.COUNTER_PICKS_MENU
-    elif user_choice == MenuButton.BUILDS.value:
+    elif user_choice == "Білди":
         new_main_text = BUILDS_MENU_TEXT
         new_main_keyboard = get_builds_menu()
         new_interactive_text = BUILDS_INTERACTIVE_TEXT
         new_state = MenuStates.BUILDS_MENU
-    elif user_choice == MenuButton.VOTING.value:
+    elif user_choice == "Голосування":
         new_main_text = VOTING_MENU_TEXT
         new_main_keyboard = get_voting_menu()
         new_interactive_text = VOTING_INTERACTIVE_TEXT
         new_state = MenuStates.VOTING_MENU
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         # Повертаємось до головного меню
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
@@ -576,32 +589,32 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     new_state = None
 
     hero_classes = [
-        MenuButton.TANK.value,
-        MenuButton.MAGE.value,
-        MenuButton.MARKSMAN.value,
-        MenuButton.ASSASSIN.value,
-        MenuButton.SUPPORT.value,
-        MenuButton.FIGHTER.value
+        "Танк",
+        "Маг",
+        "Марксман",
+        "Асасин",
+        "Саппорт",
+        "Файтер"
     ]
 
     if user_choice in hero_classes:
-        hero_class = menu_button_to_class.get(user_choice)
+        hero_class = user_choice
         new_main_text = HERO_CLASS_MENU_TEXT.format(hero_class=hero_class)
         new_main_keyboard = get_hero_class_menu(hero_class)
         new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class)
         new_state = MenuStates.HERO_CLASS_MENU
         await state.update_data(hero_class=hero_class)
-    elif user_choice == MenuButton.SEARCH_HERO.value:
+    elif user_choice == "Пошук героя":
         new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")  # Placeholder, handled separately
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пошук героя"
         new_state = MenuStates.SEARCH_HERO
-    elif user_choice == MenuButton.COMPARISON.value:
+    elif user_choice == "Порівняння":
         new_main_text = "Функція порівняння героїв ще в розробці."
         new_main_keyboard = get_heroes_menu()
         new_interactive_text = "Порівняння героїв"
         new_state = MenuStates.HEROES_MENU
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -682,22 +695,22 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     new_interactive_text = ""
     new_state = MenuStates.GUIDES_MENU
 
-    if user_choice == MenuButton.NEW_GUIDES.value:
+    if user_choice == "Нові гайди":
         new_main_text = NEW_GUIDES_TEXT
         new_interactive_text = "Нові гайди"
-    elif user_choice == MenuButton.POPULAR_GUIDES.value:
+    elif user_choice == "Популярні гайди":
         new_main_text = POPULAR_GUIDES_TEXT
         new_interactive_text = "Популярні гайди"
-    elif user_choice == MenuButton.BEGINNER_GUIDES.value:
+    elif user_choice == "Гайди для початківців":
         new_main_text = BEGINNER_GUIDES_TEXT
         new_interactive_text = "Гайди для початківців"
-    elif user_choice == MenuButton.ADVANCED_TECHNIQUES.value:
+    elif user_choice == "Просунуті техніки":
         new_main_text = ADVANCED_TECHNIQUES_TEXT
         new_interactive_text = "Просунуті техніки"
-    elif user_choice == MenuButton.TEAMPLAY_GUIDES.value:
+    elif user_choice == "Командна гра":
         new_main_text = TEAMPLAY_GUIDES_TEXT
         new_interactive_text = "Командна гра"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -776,15 +789,15 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     new_interactive_text = ""
     new_state = MenuStates.COUNTER_PICKS_MENU
 
-    if user_choice == MenuButton.COUNTER_SEARCH.value:
+    if user_choice == "Пошук контр-піку":
         new_main_text = COUNTER_SEARCH_TEXT
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пошук контр-піку"
         new_state = MenuStates.SEARCH_HERO
-    elif user_choice == MenuButton.COUNTER_LIST.value:
+    elif user_choice == "Список контр-піків":
         new_main_text = COUNTER_LIST_TEXT
         new_interactive_text = "Список контр-піків"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -815,6 +828,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -862,16 +876,16 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     new_interactive_text = ""
     new_state = MenuStates.BUILDS_MENU
 
-    if user_choice == MenuButton.CREATE_BUILD.value:
+    if user_choice == "Створення білду":
         new_main_text = CREATE_BUILD_TEXT
         new_interactive_text = "Створення білду"
-    elif user_choice == MenuButton.MY_BUILDS.value:
+    elif user_choice == "Мої білди":
         new_main_text = MY_BUILDS_TEXT
         new_interactive_text = "Мої білди"
-    elif user_choice == MenuButton.POPULAR_BUILDS.value:
+    elif user_choice == "Популярні білди":
         new_main_text = POPULAR_BUILDS_TEXT
         new_interactive_text = "Популярні білди"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -902,6 +916,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -949,18 +964,18 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     new_interactive_text = ""
     new_state = MenuStates.VOTING_MENU
 
-    if user_choice == MenuButton.CURRENT_VOTES.value:
+    if user_choice == "Поточні опитування":
         new_main_text = CURRENT_VOTES_TEXT
         new_interactive_text = "Поточні опитування"
-    elif user_choice == MenuButton.MY_VOTES.value:
+    elif user_choice == "Мої голосування":
         new_main_text = MY_VOTES_TEXT
         new_interactive_text = "Мої голосування"
-    elif user_choice == MenuButton.SUGGEST_TOPIC.value:
+    elif user_choice == "Пропозиція теми":
         new_main_text = SUGGEST_TOPIC_TEXT
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пропозиція теми"
         new_state = MenuStates.SEARCH_TOPIC
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == "Повернутися":
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -991,6 +1006,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1038,32 +1054,32 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     new_interactive_text = ""
     new_state = MenuStates.PROFILE_MENU
 
-    if user_choice == MenuButton.STATISTICS.value:
+    if user_choice == "Статистика":
         new_main_text = STATISTICS_MENU_TEXT
         new_main_keyboard = get_statistics_menu()
         new_interactive_text = STATISTICS_INTERACTIVE_TEXT
         new_state = MenuStates.STATISTICS_MENU
-    elif user_choice == MenuButton.ACHIEVEMENTS.value:
+    elif user_choice == "Досягнення":
         new_main_text = ACHIEVEMENTS_MENU_TEXT
         new_main_keyboard = get_achievements_menu()
         new_interactive_text = ACHIEVEMENTS_INTERACTIVE_TEXT
         new_state = MenuStates.ACHIEVEMENTS_MENU
-    elif user_choice == MenuButton.SETTINGS.value:
+    elif user_choice == "Налаштування":
         new_main_text = SETTINGS_MENU_TEXT
         new_main_keyboard = get_settings_menu()
         new_interactive_text = SETTINGS_INTERACTIVE_TEXT
         new_state = MenuStates.SETTINGS_MENU
-    elif user_choice == MenuButton.FEEDBACK.value:
+    elif user_choice == "Зворотний зв'язок":
         new_main_text = FEEDBACK_MENU_TEXT
         new_main_keyboard = get_feedback_menu()
         new_interactive_text = FEEDBACK_INTERACTIVE_TEXT
         new_state = MenuStates.FEEDBACK_MENU
-    elif user_choice == MenuButton.HELP.value:
+    elif user_choice == "Допомога":
         new_main_text = HELP_MENU_TEXT
         new_main_keyboard = get_help_menu()
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = MenuStates.HELP_MENU
-    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
+    elif user_choice == "Повернутися до головного меню":
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
@@ -1071,6 +1087,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_state = MenuStates.PROFILE_MENU
 
     # Відправляємо нове повідомлення з клавіатурою
     main_message = await bot.send_message(
@@ -1094,6 +1111,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1142,16 +1160,26 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     new_interactive_text = ""
     new_state = MenuStates.STATISTICS_MENU
 
-    if user_choice == MenuButton.ACTIVITY.value:
-        new_main_text = ACTIVITY_TEXT
+    if user_choice == "Загальна активність":
+        new_main_text = ACTIVITY_TEXT.format(
+            games_played=10,
+            wins=7,
+            losses=3
+        )
         new_interactive_text = "Загальна активність"
-    elif user_choice == MenuButton.RANKING.value:
-        new_main_text = RANKING_TEXT
+    elif user_choice == "Рейтинг":
+        new_main_text = RANKING_TEXT.format(
+            rating=1500
+        )
         new_interactive_text = "Рейтинг"
-    elif user_choice == MenuButton.GAME_STATS.value:
-        new_main_text = GAME_STATS_TEXT
+    elif user_choice == "Ігрова статистика":
+        new_main_text = GAME_STATS_TEXT.format(
+            kills=50,
+            deaths=20,
+            assists=30
+        )
         new_interactive_text = "Ігрова статистика"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == "Повернутися до профілю":
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -1182,6 +1210,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1229,19 +1258,19 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     new_interactive_text = ""
     new_state = MenuStates.ACHIEVEMENTS_MENU
 
-    if user_choice == MenuButton.BADGES.value:
+    if user_choice == "Бейджі":
         new_main_text = BADGES_TEXT
         new_interactive_text = "Мої бейджі"
-    elif user_choice == MenuButton.PROGRESS.value:
+    elif user_choice == "Прогрес":
         new_main_text = PROGRESS_TEXT
         new_interactive_text = "Прогрес"
-    elif user_choice == MenuButton.TOURNAMENT_STATS.value:
+    elif user_choice == "Турнірна статистика":
         new_main_text = TOURNAMENT_STATS_TEXT
         new_interactive_text = "Турнірна статистика"
-    elif user_choice == MenuButton.AWARDS.value:
+    elif user_choice == "Отримані нагороди":
         new_main_text = AWARDS_TEXT
         new_interactive_text = "Отримані нагороди"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == "Повернутися до профілю":
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -1272,10 +1301,12 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1319,21 +1350,21 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     new_interactive_text = ""
     new_state = MenuStates.SETTINGS_MENU
 
-    if user_choice == MenuButton.LANGUAGE.value:
+    if user_choice == "Мова інтерфейсу":
         new_main_text = LANGUAGE_TEXT
         new_interactive_text = "Мова інтерфейсу"
-    elif user_choice == MenuButton.CHANGE_USERNAME.value:
+    elif user_choice == "Зміна Username":
         new_main_text = CHANGE_USERNAME_TEXT
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Зміна Username"
         new_state = MenuStates.CHANGE_USERNAME
-    elif user_choice == MenuButton.UPDATE_ID.value:
+    elif user_choice == "Оновити ID гравця":
         new_main_text = UPDATE_ID_TEXT
         new_interactive_text = "Оновити ID гравця"
-    elif user_choice == MenuButton.NOTIFICATIONS.value:
+    elif user_choice == "Сповіщення":
         new_main_text = NOTIFICATIONS_TEXT
         new_interactive_text = "Сповіщення"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == "Повернутися до профілю":
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -1364,6 +1395,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1394,8 +1426,8 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
-    if user_choice == MenuButton.BACK.value:
-        # Повернення до меню вибору класу персонажа
+    if user_choice == "Повернутися":
+        # Повернення до меню Персонажів
         new_main_text = HEROES_MENU_TEXT
         new_main_keyboard = get_heroes_menu()
         new_interactive_text = HEROES_INTERACTIVE_TEXT
@@ -1478,16 +1510,16 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
     new_interactive_text = ""
     new_state = MenuStates.HELP_MENU
 
-    if user_choice == MenuButton.INSTRUCTIONS.value:
+    if user_choice == "Інструкції":
         new_main_text = INSTRUCTIONS_TEXT
         new_interactive_text = "Інструкції"
-    elif user_choice == MenuButton.FAQ.value:
+    elif user_choice == "FAQ":
         new_main_text = FAQ_TEXT
         new_interactive_text = "FAQ"
-    elif user_choice == MenuButton.HELP_SUPPORT.value:
+    elif user_choice == "Підтримка":
         new_main_text = HELP_SUPPORT_TEXT
         new_interactive_text = "Підтримка"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == "Повернутися до профілю":
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -1518,6 +1550,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1837,7 +1870,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         try:
             await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
         except Exception as e:
-            logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+            logger.error(f"Не вдалося видалити повідомлення бота: {e}")              
 
     # Редагуємо інтерактивне повідомлення
     if interactive_message_id:
