@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Мій Профіль"
+    PROFILE = "🪪 Профіль"
 
     # Розділ Навігація
     HEROES = "🥷 Персонажі"
@@ -19,8 +19,10 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    META = "🔥 Мета"  # Додано кнопку Мета зі смайликом 🔥
-    BACK = "🔙 Назад"
+    META = "🔥 Мета"            # Новий
+    M6 = "🏆 M6"                # Новий
+    GPT = "👾 GPT"              # Новий
+    BACK_NAV = "🔙 Назад"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -29,64 +31,72 @@ class MenuButton(Enum):
     ASSASSIN = "⚔️ Асасін"
     SUPPORT = "❤️ Підтримка"
     FIGHTER = "🗡️ Боєць"
-    COMPARISON = "⚖️ Порівняння"
+    COMPARE = "⚖️ Порівняння"
     SEARCH_HERO = "🔎 Пошук"
 
     # Розділ Гайди
-    NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Популярні Гайди"
-    BEGINNER_GUIDES = "📘 Для Початківців"
-    ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
-    TEAMPLAY_GUIDES = "🤝 Командна Гра"
+    NEW_GUIDES = "🆕 Нові"
+    POPULAR_GUIDES = "🌟 Популярні"
+    BEGINNER_GUIDES = "📘 Початківці"
+    ADVANCED_TECHNIQUES = "🧙 Стратегії"
+    TEAMPLAY_GUIDES = "🤝 Команда"
+    BACK_GUIDES = "🔙 Назад"
 
-    # Розділ Контр-піки
-    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Контр-піків"
+    # Розділ Контр-піків
+    COUNTER_SEARCH = "🔎 Пошук"
+    COUNTER_LIST = "📝 Список"
+    BACK_COUNTER = "🔙 Назад"
 
     # Розділ Білди
-    CREATE_BUILD = "🏗️ Створити Білд"
-    MY_BUILDS = "📄 Мої Білди"
-    POPULAR_BUILDS = "🔥 Популярні Білди"
+    CREATE_BUILD = "🏗️ Створити"
+    MY_BUILDS = "📄 Мої"
+    POPULAR_BUILDS = "🔥 Популярні"
+    BACK_BUILDS = "🔙 Назад"
 
     # Розділ Голосування
-    CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голосування"
-    SUGGEST_TOPIC = "➕ Запропонувати Тему"
+    CURRENT_VOTES = "📍 Поточні"
+    MY_VOTES = "📋 Мої"
+    SUGGEST_TOPIC = "➕ Запропонувати"
+    BACK_VOTING = "🔙 Назад"
 
     # Розділ Профіль
     STATISTICS = "📈 Статистика"
     ACHIEVEMENTS = "🏆 Досягнення"
     SETTINGS = "⚙️ Налаштування"
-    FEEDBACK = "💌 Зворотний Зв'язок"
+    FEEDBACK = "💌 Відгук"
     HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔙 Назад до Головного Меню"
+    BACK_PROFILE = "🔙 Назад до Профілю"
 
     # Підрозділ Статистика
-    ACTIVITY = "📊 Загальна Активність"
+    ACTIVITY = "📊 Активність"
     RANKING = "🥇 Рейтинг"
-    GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔙 Назад до Профілю"
+    GAME_STATS = "🎮 Статистика"
+    BACK_STATS = "🔙 Назад"
 
-    # Підрозділ Досягнення
-    BADGES = "🎖️ Мої Бейджі"
+    # Підрозділ Досягнень
+    BADGES = "🎖️ Бейджі"
     PROGRESS = "🚀 Прогрес"
-    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
-    AWARDS = "🎟️ Отримані Нагороди"
+    TOURNAMENT_STATS = "🏅 Турніри"
+    AWARDS = "🎟️ Нагороди"
+    BACK_ACHIEVEMENTS = "🔙 Назад"
 
     # Підрозділ Налаштування
-    LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "ℹ️ Змінити Username"
+    LANGUAGE = "🌐 Мова"
+    CHANGE_USERNAME = "ℹ️ Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
+    BACK_SETTINGS = "🔙 Назад"
 
     # Підрозділ Зворотний Зв'язок
-    SEND_FEEDBACK = "✏️ Надіслати Відгук"
-    REPORT_BUG = "🐛 Повідомити про Помилку"
+    SEND_FEEDBACK = "✏️ Відгук"
+    REPORT_BUG = "🐛 Помилка"
+    BACK_FEEDBACK = "🔙 Назад"
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
+    BACK_HELP = "🔙 Назад"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -96,7 +106,7 @@ menu_button_to_class = {
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
     MenuButton.FIGHTER.value: "Боєць",
-    MenuButton.META.value: "Мета",  # Додано відповідність для Мета
+    MenuButton.META.value: "Мета",       # Додано
 }
 
 # Повний список героїв за класами
@@ -166,12 +176,14 @@ def get_navigation_menu():
     return create_menu(
         [
             MenuButton.HEROES,
-            MenuButton.BUILDS,
-            MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.BUILDS,
             MenuButton.VOTING,
-            MenuButton.META,  # Додано кнопку Мета
-            MenuButton.BACK
+            MenuButton.META,        # Додано
+            MenuButton.M6,           # Додано
+            MenuButton.GPT,          # Додано
+            MenuButton.BACK_NAV
         ],
         row_width=3
     )
@@ -185,9 +197,9 @@ def get_heroes_menu():
             MenuButton.ASSASSIN,
             MenuButton.SUPPORT,
             MenuButton.FIGHTER,
-            MenuButton.COMPARISON,
+            MenuButton.COMPARE,
             MenuButton.SEARCH_HERO,
-            MenuButton.BACK
+            MenuButton.BACK_NAV
         ],
         row_width=3
     )
@@ -197,7 +209,7 @@ def get_hero_class_menu(hero_class):
     buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])  # Додаємо кнопку назад
+    keyboard.append([KeyboardButton(text=MenuButton.BACK_NAV.value)])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
@@ -208,7 +220,7 @@ def get_guides_menu():
             MenuButton.BEGINNER_GUIDES,
             MenuButton.ADVANCED_TECHNIQUES,
             MenuButton.TEAMPLAY_GUIDES,
-            MenuButton.BACK
+            MenuButton.BACK_GUIDES
         ],
         row_width=3
     )
@@ -218,7 +230,7 @@ def get_counter_picks_menu():
         [
             MenuButton.COUNTER_SEARCH,
             MenuButton.COUNTER_LIST,
-            MenuButton.BACK
+            MenuButton.BACK_COUNTER
         ],
         row_width=3
     )
@@ -229,7 +241,7 @@ def get_builds_menu():
             MenuButton.CREATE_BUILD,
             MenuButton.MY_BUILDS,
             MenuButton.POPULAR_BUILDS,
-            MenuButton.BACK
+            MenuButton.BACK_BUILDS
         ],
         row_width=3
     )
@@ -240,7 +252,7 @@ def get_voting_menu():
             MenuButton.CURRENT_VOTES,
             MenuButton.MY_VOTES,
             MenuButton.SUGGEST_TOPIC,
-            MenuButton.BACK
+            MenuButton.BACK_VOTING
         ],
         row_width=3
     )
@@ -253,7 +265,7 @@ def get_profile_menu():
             MenuButton.SETTINGS,
             MenuButton.FEEDBACK,
             MenuButton.HELP,
-            MenuButton.BACK_TO_MAIN_MENU
+            MenuButton.BACK_PROFILE
         ],
         row_width=3
     )
@@ -264,7 +276,7 @@ def get_statistics_menu():
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK_STATS
         ],
         row_width=3
     )
@@ -276,7 +288,7 @@ def get_achievements_menu():
             MenuButton.PROGRESS,
             MenuButton.TOURNAMENT_STATS,
             MenuButton.AWARDS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK_ACHIEVEMENTS
         ],
         row_width=3
     )
@@ -288,7 +300,7 @@ def get_settings_menu():
             MenuButton.CHANGE_USERNAME,
             MenuButton.UPDATE_ID,
             MenuButton.NOTIFICATIONS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK_SETTINGS
         ],
         row_width=3
     )
@@ -298,7 +310,7 @@ def get_feedback_menu():
         [
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK_FEEDBACK
         ],
         row_width=3
     )
@@ -309,7 +321,7 @@ def get_help_menu():
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
             MenuButton.HELP_SUPPORT,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK_HELP
         ],
         row_width=3
-            )
+    )
