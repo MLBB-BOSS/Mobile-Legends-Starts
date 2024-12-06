@@ -70,7 +70,7 @@ async def main():
     register_buttons_handlers(dp)
     register_navigation_handlers(dp)
 
-# Використання асинхронного контекстного менеджера
+    # Використання асинхронного контекстного менеджера
     try:
         async with bot:
             logger.info("Bot is polling...")
