@@ -19,10 +19,10 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    META = "🔥 Мета"            # Новий
+    META = "🔥 META"            # Новий
     M6 = "🏆 M6"                # Новий
     GPT = "👾 GPT"              # Новий
-    BACK_NAV = "🔙"
+    BACK = "🔙"                 # Універсальна кнопка "Back"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -40,24 +40,20 @@ class MenuButton(Enum):
     BEGINNER_GUIDES = "📘 Початківці"
     ADVANCED_TECHNIQUES = "🧙 Стратегії"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
-    BACK_GUIDES = "🔙"
 
     # Розділ Контр-піків
     COUNTER_SEARCH = "🔎 Пошук"
     COUNTER_LIST = "📝 Список Персонажів"
-    BACK_COUNTER = "🔙"
 
     # Розділ Білди
     CREATE_BUILD = "🏗️ Створити"
     MY_BUILDS = "📄 Обрані"
     POPULAR_BUILDS = "🔥 Популярні"
-    BACK_BUILDS = "🔙"
 
     # Розділ Голосування
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
-    BACK_VOTING = "🔙"
 
     # Розділ Профіль
     STATISTICS = "📈 Статистика"
@@ -65,38 +61,32 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Відгук"
     HELP = "❓ Допомога"
-    BACK_PROFILE = "🔙"
 
     # Підрозділ Статистика
     ACTIVITY = "📊 Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_STATS = "🔙"
 
     # Підрозділ Досягнень
     BADGES = "🎖️ Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Нагороди"
-    BACK_ACHIEVEMENTS = "🔙"
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "ℹ️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
-    BACK_SETTINGS = "🔙"
 
     # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
-    BACK_FEEDBACK = "🔙"
 
     # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
-    BACK_HELP = "🔙"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -106,7 +96,7 @@ menu_button_to_class = {
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
     MenuButton.FIGHTER.value: "Боєць",
-    MenuButton.META.value: "Мета",
+    MenuButton.META.value: "META",
 }
 
 # Повний список героїв за класами
@@ -139,7 +129,7 @@ heroes_by_class = {
     "Підтримка": [
         "Rafaela", "Lolita", "Estes", "Angela", "Florin", "Johnson"  # "Johnson" вже є в Танк
     ],
-    "Мета": [
+    "META": [
         "MetaHero1", "MetaHero2"  # Додайте тут Метових персонажів, якщо вони існують
     ],
 }
@@ -182,7 +172,7 @@ menus = {
             MenuButton.META,        # Додано
             MenuButton.M6,           # Додано
             MenuButton.GPT,          # Додано
-            MenuButton.BACK_NAV
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -196,7 +186,7 @@ menus = {
             MenuButton.FIGHTER,
             MenuButton.COMPARISON,
             MenuButton.SEARCH_HERO,
-            MenuButton.BACK_NAV
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -207,7 +197,7 @@ menus = {
             MenuButton.BEGINNER_GUIDES,
             MenuButton.ADVANCED_TECHNIQUES,
             MenuButton.TEAMPLAY_GUIDES,
-            MenuButton.BACK_GUIDES
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -215,7 +205,7 @@ menus = {
         "buttons": [
             MenuButton.COUNTER_SEARCH,
             MenuButton.COUNTER_LIST,
-            MenuButton.BACK_COUNTER
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -224,7 +214,7 @@ menus = {
             MenuButton.CREATE_BUILD,
             MenuButton.MY_BUILDS,
             MenuButton.POPULAR_BUILDS,
-            MenuButton.BACK_BUILDS
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -233,7 +223,7 @@ menus = {
             MenuButton.CURRENT_VOTES,
             MenuButton.MY_VOTES,
             MenuButton.SUGGEST_TOPIC,
-            MenuButton.BACK_VOTING
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -244,7 +234,7 @@ menus = {
             MenuButton.SETTINGS,
             MenuButton.FEEDBACK,
             MenuButton.HELP,
-            MenuButton.BACK_PROFILE
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -253,7 +243,7 @@ menus = {
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
-            MenuButton.BACK_STATS
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -263,7 +253,7 @@ menus = {
             MenuButton.PROGRESS,
             MenuButton.TOURNAMENT_STATS,
             MenuButton.AWARDS,
-            MenuButton.BACK_ACHIEVEMENTS
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -273,7 +263,7 @@ menus = {
             MenuButton.CHANGE_USERNAME,
             MenuButton.UPDATE_ID,
             MenuButton.NOTIFICATIONS,
-            MenuButton.BACK_SETTINGS
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -281,7 +271,7 @@ menus = {
         "buttons": [
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
-            MenuButton.BACK_FEEDBACK
+            MenuButton.BACK
         ],
         "row_width": 3
     },
@@ -290,7 +280,7 @@ menus = {
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
             MenuButton.HELP_SUPPORT,
-            MenuButton.BACK_HELP
+            MenuButton.BACK
         ],
         "row_width": 3
     }
@@ -411,8 +401,8 @@ def get_hero_class_menu(hero_class):
         return get_menu("heroes")  # Повертаємо до меню персонажів
 
     # Додаємо кнопку "🔙" для повернення
-    buttons = heroes + [MenuButton.BACK_NAV.value]
+    buttons = heroes + [MenuButton.BACK.value]
     return create_menu(
         buttons,
         row_width=3
-    )
+)
