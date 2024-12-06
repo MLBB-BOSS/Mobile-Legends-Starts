@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from constants.characters import Characters
 
 MenuButton = {
-    'NAVIGATION': KeyboardButton('🧭 Навігація'),
+    'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
     'PROFILE': KeyboardButton('🪪 Профіль'),
     'HEROES': KeyboardButton('🥷 Персонажі'),
     'GUIDES': KeyboardButton('📚 Гайди'),
