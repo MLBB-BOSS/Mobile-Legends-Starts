@@ -3,7 +3,8 @@
 import logging
 from aiogram import Dispatcher
 from aiogram import Router, Bot
-from aiogram.filters import Command, Text  # Додано Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text  # Змінено імпорт
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -350,7 +351,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
 
     if user_choice == MenuButton.HEROES.value:
         new_main_text = HEROES_MENU_TEXT
-        new_main_keyboard = get_heroes_menu()
+        new_main_keyboard = get_menu("heroes")
         new_interactive_text = HEROES_INTERACTIVE_TEXT
         new_state = MenuStates.HEROES_MENU
     elif user_choice == MenuButton.GUIDES.value:
@@ -388,12 +389,13 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     elif user_choice == MenuButton.GPT.value:
         # Перехід до інтеграції з GPT
         await state.set_state(MenuStates.GPT_MENU)
-        await message.answer(
-            AI_INTRO_TEXT,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=AI_INTRO_TEXT,
             reply_markup=types.ReplyKeyboardRemove()
         )
         await state.update_data(bot_message_id=bot_message_id)
-        await callback.answer()
+        await message.answer()
         return
     elif user_choice == MenuButton.BACK_NAV.value:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
@@ -426,7 +428,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
             message_id=interactive_message_id,
             text=new_interactive_text,
             parse_mode="HTML",
-            reply_markup=get_generic_inline_keyboard()
+            reply_markup=new_interactive_keyboard
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
@@ -447,9 +449,8 @@ async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot):
     await message.delete()
 
     if user_query:
-        # Тут потрібно інтегрувати GPT модель для обробки запиту
-        # Наприклад, використовуючи OpenAI API
-        # Псевдокод:
+        # Інтеграція з GPT: тут ви можете використовувати OpenAI API або інший сервіс
+        # Наприклад:
         # response = await get_gpt_response(user_query)
         # Оскільки інтеграція може бути складною, поки що відправимо повідомлення з відповіддю за замовчуванням
         response = "🤖 Відповідь GPT поки що не реалізована."
@@ -474,31 +475,39 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         # Переведення до меню конкретного класу
         hero_class = menu_button_to_class[user_choice]
         hero_class_menu = get_hero_class_menu(hero_class)
-        await message.answer(
-            HERO_CLASS_MENU_TEXT.format(hero_class=hero_class),
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=HERO_CLASS_MENU_TEXT.format(hero_class=hero_class),
             reply_markup=hero_class_menu
         )
         await state.set_state(MenuStates.HERO_CLASS_MENU)
     elif user_choice == MenuButton.COMPARE.value:
         # Обробка функції порівняння
-        await message.answer("⚖️ Функція порівняння поки що не реалізована.", reply_markup=get_navigation_menu())
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="⚖️ Функція порівняння поки що не реалізована.",
+            reply_markup=get_navigation_menu()
+        )
         await state.set_state(MenuStates.NAVIGATION_MENU)
     elif user_choice == MenuButton.SEARCH_HERO.value:
-        await message.answer(
-            COUNTER_SEARCH_TEXT,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=COUNTER_SEARCH_TEXT,
             reply_markup=types.ReplyKeyboardRemove()
         )
         await state.set_state(MenuStates.SEARCH_HERO)
     elif user_choice == MenuButton.BACK_NAV.value:
-        await message.answer(
-            NAVIGATION_MENU_TEXT,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=NAVIGATION_MENU_TEXT,
             reply_markup=get_navigation_menu()
         )
         await state.set_state(MenuStates.NAVIGATION_MENU)
     else:
-        await message.answer(
-            UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_heroes_menu()
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=UNKNOWN_COMMAND_TEXT,
+            reply_markup=get_menu("heroes")
         )
         await state.set_state(MenuStates.HEROES_MENU)
 
@@ -897,6 +906,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_state = MenuStates.PROFILE_MENU
 
     main_message = await bot.send_message(
         chat_id=message.chat.id,
@@ -1267,53 +1277,6 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_generic_inline_keyboard()
     )
     await state.set_state(MenuStates.FEEDBACK_MENU)
-
-
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    # Обробка кнопки "🔥 Мета"
-    meta_info = "🔥 Мета-функції поки що не реалізовані."
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=meta_info,
-        reply_markup=get_navigation_menu()
-    )
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-
-
-@router.message(MenuStates.M6_MENU)
-async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    # Обробка кнопки "🏆 M6"
-    m6_info = "🏆 Функція M6 поки що не реалізована."
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=m6_info,
-        reply_markup=get_navigation_menu()
-    )
-    await state.set_state(MenuStates.NAVIGATION_MENU)
-
-
-@router.message(MenuStates.GPT_MENU)
-async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot):
-    user_query = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} ставить запитання до GPT: {user_query}")
-    await message.delete()
-
-    if user_query:
-        # Інтеграція з GPT: тут ви можете використовувати OpenAI API або інший сервіс
-        # Наприклад:
-        # response = await get_gpt_response(user_query)
-        # Оскільки інтеграція може бути складною, поки що відправимо повідомлення з відповіддю за замовчуванням
-        response = "🤖 Відповідь GPT поки що не реалізована."
-    else:
-        response = "Будь ласка, введіть ваше запитання для GPT."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=AI_RESPONSE_TEXT.format(response=response),
-        reply_markup=get_generic_inline_keyboard()
-    )
-    await state.set_state(MenuStates.NAVIGATION_MENU)
 
 
 @router.callback_query()
