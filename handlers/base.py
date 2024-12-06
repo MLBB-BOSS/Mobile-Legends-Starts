@@ -3,7 +3,7 @@
 import logging
 from aiogram import Dispatcher
 from aiogram import Router, Bot
-from aiogram.filters import Command
+from aiogram.filters import Command, Text  # Додано Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -24,12 +24,14 @@ from keyboards.menus import (
     get_feedback_menu,
     get_help_menu,
 )
+
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
+
 from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
@@ -452,6 +454,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -528,6 +531,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -606,6 +610,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -775,6 +780,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -854,6 +860,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -935,6 +942,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
