@@ -1,5 +1,4 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from constants.characters import Characters
 
 MenuButton = {
     'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
@@ -75,6 +74,39 @@ menu_button_to_class = {
     "🔥 META": "META",
 }
 
+# Перелік персонажів Mobile Legends за класами
+heroes_by_class = {
+    "Боєць": [
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
+        "Gatotkaca", "Grock", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla",
+        "X.Borg", "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
+        "Badang", "Guinevere"
+    ],
+    "Танк": [
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
+        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
+    ],
+    "Асасін": [
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
+        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
+    ],
+    "Стрілець": [
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
+        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin",
+        "Moskov", "Roger", "Karrie", "Irithel", "Lesley"
+    ],
+    "Маг": [
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin",
+        "Harley", "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana",
+        "Odette", "Zhask"
+    ],
+    "Підтримка": [
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
+    ]
+}
+
 def get_main_menu():
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
@@ -97,7 +129,6 @@ def get_navigation_menu():
     return keyboard
 
 def get_profile_menu():
-    # Використовуємо BACK_TO_MAIN_MENU, щоб повернутися до головного меню як у старій логіці
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['STATISTICS'], MenuButton['ACHIEVEMENTS']],
@@ -121,7 +152,8 @@ def get_heroes_menu():
     return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # Для прикладу тут тільки BACK. За потреби можна динамічно додавати героїв.
+    # Тут, за потреби, можна динамічно додавати героїв із heroes_by_class[hero_class]
+    # Для прикладу, поки що повертатимемо лише назад:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BACK']],
@@ -172,7 +204,6 @@ def get_voting_menu():
     return keyboard
 
 def get_statistics_menu():
-    # Використовуємо BACK_TO_PROFILE для повернення до профілю
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['ACTIVITY'], MenuButton['RANKING'], MenuButton['GAME_STATS']],
@@ -183,7 +214,6 @@ def get_statistics_menu():
     return keyboard
 
 def get_achievements_menu():
-    # Використовуємо BACK_TO_PROFILE
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BADGES'], MenuButton['PROGRESS']],
@@ -195,7 +225,6 @@ def get_achievements_menu():
     return keyboard
 
 def get_settings_menu():
-    # Використовуємо BACK_TO_PROFILE
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['LANGUAGE'], MenuButton['CHANGE_USERNAME']],
@@ -207,7 +236,6 @@ def get_settings_menu():
     return keyboard
 
 def get_feedback_menu():
-    # Використовуємо BACK_TO_PROFILE
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['SEND_FEEDBACK'], MenuButton['REPORT_BUG']],
@@ -218,7 +246,6 @@ def get_feedback_menu():
     return keyboard
 
 def get_help_menu():
-    # Використовуємо BACK_TO_PROFILE
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['INSTRUCTIONS'], MenuButton['FAQ']],
