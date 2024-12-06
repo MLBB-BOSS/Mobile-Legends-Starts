@@ -1,9 +1,9 @@
 # handlers/base.py
+
 import logging
 from aiogram import Dispatcher
-from handlers_navigation import register_navigation_handlers
-from aiogram import Router, F, Bot, Dispatcher
-from aiogram.filters import Command
+from aiogram import Router, Bot
+from aiogram.filters import Command, Text  # Додано Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -108,6 +108,11 @@ from texts import (
     MAIN_MENU_BACK_TO_PROFILE_TEXT,
 )
 
+from heroes_descriptions import HERO_DESCRIPTIONS  # Імпорт словника з описами героїв
+
+from handlers.hero_handlers import hero_router  # Імпорт роутера для героїв
+
+# Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 router = Router()
@@ -150,7 +155,7 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     )
     await state.update_data(interactive_message_id=interactive_message.message_id)
 
-@router.callback_query(F.data == "intro_next_1")
+@router.callback_query(Text(equals="intro_next_1"))
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
@@ -174,7 +179,7 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     await state.set_state(MenuStates.INTRO_PAGE_2)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_next_2")
+@router.callback_query(Text(equals="intro_next_2"))
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
@@ -198,7 +203,7 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     await state.set_state(MenuStates.INTRO_PAGE_3)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_start")
+@router.callback_query(Text(equals="intro_start"))
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot):
     user_first_name = callback.from_user.first_name
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
@@ -305,7 +310,6 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
 
     await state.set_state(new_state)
 
-
 @router.message(MenuStates.GUIDES_MENU)
 async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -347,7 +351,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     elif user_choice == MenuButton.TEAMPLAY_GUIDES.value:
         new_main_text = TEAMPLAY_GUIDES_TEXT
         new_interactive_text = "Командна гра"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_GUIDES.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -423,7 +427,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     elif user_choice == MenuButton.COUNTER_LIST.value:
         new_main_text = COUNTER_LIST_TEXT
         new_interactive_text = "Список контр-піків"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_COUNTER.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -451,6 +455,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -499,7 +504,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     elif user_choice == MenuButton.POPULAR_BUILDS.value:
         new_main_text = POPULAR_BUILDS_TEXT
         new_interactive_text = "Популярні білди"
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_BUILDS.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -527,6 +532,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -577,7 +583,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         new_main_keyboard = types.ReplyKeyboardRemove()
         new_interactive_text = "Пропозиція теми"
         new_state = MenuStates.SEARCH_TOPIC
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_VOTING.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
@@ -605,6 +611,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -669,7 +676,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         new_main_keyboard = get_help_menu()
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = MenuStates.HELP_MENU
-    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
+    elif user_choice == MenuButton.BACK_PROFILE.value:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
@@ -697,6 +704,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -745,7 +753,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     elif user_choice == MenuButton.GAME_STATS.value:
         new_main_text = GAME_STATS_TEXT
         new_interactive_text = "Ігрова статистика"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == MenuButton.BACK_STATS.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -773,6 +781,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -824,7 +833,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     elif user_choice == MenuButton.AWARDS.value:
         new_main_text = AWARDS_TEXT
         new_interactive_text = "Отримані нагороди"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == MenuButton.BACK_ACHIEVEMENTS.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -852,6 +861,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -905,7 +915,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     elif user_choice == MenuButton.NOTIFICATIONS.value:
         new_main_text = NOTIFICATIONS_TEXT
         new_interactive_text = "Сповіщення"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == MenuButton.BACK_SETTINGS.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -933,6 +943,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -965,6 +976,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
                     chat_id=callback.message.chat.id,
                     message_id=interactive_message_id,
                     text=new_interactive_text,
+                    parse_mode="HTML",
                     reply_markup=new_interactive_keyboard
                 )
             except Exception as e:
@@ -1102,19 +1114,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = "Навігаційний екран"
         new_state = MenuStates.NAVIGATION_MENU
-    elif current_state == MenuStates.HEROES_MENU.state:
-        from keyboards.menus import get_heroes_menu
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Меню Персонажі"
-        new_state = MenuStates.HEROES_MENU
-    elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        from keyboards.menus import get_hero_class_menu, menu_button_to_class
-        hero_class = data.get('hero_class', 'Танк')
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Меню класу {hero_class}"
-        new_state = MenuStates.HERO_CLASS_MENU
     elif current_state == MenuStates.GUIDES_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_guides_menu()
@@ -1218,7 +1217,5 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
 def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
-    # Імпорт та підключення роутера героїв
-    from handlers.hero_handlers import hero_router
-    dp.include_router(hero_router)
+    dp.include_router(hero_router)  # Підключення роутера героїв
     # dp.include_router(ai_router)  # Підключення AI-роутера виконується в bot.py
