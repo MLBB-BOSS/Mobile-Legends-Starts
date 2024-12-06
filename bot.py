@@ -15,7 +15,7 @@ from handlers.base import setup_handlers
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
-    datefmt="%Y-%м-%д %H:%M:%S",
+    datefmt="%Y-%м-%д %H:%М:%С",
 )
 logger = logging.getLogger("bot")
 
