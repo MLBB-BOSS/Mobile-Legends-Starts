@@ -1,5 +1,5 @@
 # texts.py
-
+from rich.console import Console
 # Привітальні повідомлення
 WELCOME_NEW_USER_TEXT = (
     """🔥 <b>Ласкаво просимо до Mobile Legends: Starts</b> – вашого нового незамінного партнера у світі <b>Mobile Legends: Bang Bang!</b> 🔥
