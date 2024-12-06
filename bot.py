@@ -9,7 +9,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
 from config import settings
-from handlers.base import setup_handlers
+from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
+from handlers_navigation import register_navigation_handlers
 
 # Налаштування логування
 logging.basicConfig(
@@ -67,7 +68,8 @@ async def main():
     bot, dp = create_bot_and_dispatcher()
 
     # Підключення обробників
-    setup_handlers(dp)
+    register_buttons_handlers(dp)
+    register_navigation_handlers(dp)
 
     # Використання асинхронного контекстного менеджера
     try:
