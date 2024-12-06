@@ -1,61 +1,48 @@
 import asyncio
 import logging
-import os
-import aiohttp  # Додано для роботи з HTTP-запитами
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
+from aiogram.filters import Command  # Додано імпорт
 from config import settings
-from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
-from handlers_navigation import register_navigation_handlers
+from handlers.base import setup_handlers
+import openai  # Інтеграція OpenAI
 
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
-    datefmt="%Y-%м-%д %H:%М:%С",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("bot")
 
 # Налаштування OpenAI API
-openai_api_key = os.getenv('OPENAI_API_KEY')
-API_URL = "https://api.openai.com/v1/chat/completions"
+openai.api_key = settings.OPENAI_API_KEY
 
-# Функція для взаємодії з OpenAI через URL
+# Функція для взаємодії з OpenAI
 async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
     try:
-        headers = {
-            "Authorization": f"Bearer {openai_api_key}",
-            "Content-Type": "application/json",
-        }
-        json_data = {
-            "model": "gpt-4",
-            "messages": [
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
                 {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
                 {"role": "user", "content": prompt},
             ],
-            "max_tokens": max_tokens,
-            "temperature": 0.7,
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(API_URL, headers=headers, json=json_data) as response:
-                result = await response.json()
-                return result['choices'][0]['message']['content'].strip()
-    except aiohttp.ClientError as e:
-        logger.error(f"HTTP error: {e}")
-        return "Не вдалося отримати відповідь. Спробуйте пізніше."
+            max_tokens=max_tokens,
+            temperature=0.7,  # Налаштування креативності
+        )
+        return response["choices"][0]["message"]["content"]
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return "Сталася непередбачувана помилка. Спробуйте пізніше."
+        logger.error(f"OpenAI error: {e}")
+        return "Не вдалося отримати відповідь. Спробуйте пізніше."
 
 # Окрема функція для створення бота і диспетчера
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),  # Використання параметрів за замовчуванням
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
@@ -67,10 +54,21 @@ async def main():
     bot, dp = create_bot_and_dispatcher()
 
     # Підключення обробників
-    register_buttons_handlers(dp)
-    register_navigation_handlers(dp)
+    setup_handlers(dp)
 
-# Використання асинхронного контекстного менеджера
+    # Команда для OpenAI інтеграції
+    @dp.message(Command("ai"))
+    async def handle_openai_request(message):
+        user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
+        if not user_prompt or user_prompt == "/ai":
+            await message.answer("Введіть текст запиту після команди /ai.")
+            return
+
+        await message.answer("Запит обробляється, зачекайте...")
+        response = await ask_openai(user_prompt)  # Виклик функції OpenAI
+        await message.answer(response)
+
+    # Використання асинхронного контекстного менеджера
     try:
         async with bot:
             logger.info("Bot is polling...")
