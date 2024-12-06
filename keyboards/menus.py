@@ -3,7 +3,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from constants.characters import Characters
 
-# Визначаємо всі кнопки з використанням іменованого параметра text=
 MenuButton = {
     'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
     'PROFILE': KeyboardButton(text='🪪 Профіль'),
@@ -16,7 +15,6 @@ MenuButton = {
     'M6': KeyboardButton(text='🏆 M6'),
     'GPT': KeyboardButton(text='👾 GPT'),
     'BACK': KeyboardButton(text='🔙'),
-
     'TANK': KeyboardButton(text='🛡️ Танк'),
     'MAGE': KeyboardButton(text='🧙‍♂️ Маг'),
     'MARKSMAN': KeyboardButton(text='🏹 Стрілець'),
@@ -25,50 +23,39 @@ MenuButton = {
     'FIGHTER': KeyboardButton(text='🗡️ Боєць'),
     'COMPARISON': KeyboardButton(text='⚖️ Порівняння'),
     'SEARCH_HERO': KeyboardButton(text='🔎 Пошук'),
-
     'NEW_GUIDES': KeyboardButton(text='Нові гайди'),
     'POPULAR_GUIDES': KeyboardButton(text='Популярні гайди'),
     'BEGINNER_GUIDES': KeyboardButton(text='Гайди для початківців'),
     'ADVANCED_TECHNIQUES': KeyboardButton(text='Просунуті техніки'),
     'TEAMPLAY_GUIDES': KeyboardButton(text='Командна гра'),
-
     'COUNTER_SEARCH': KeyboardButton(text='Пошук контр-піку'),
     'COUNTER_LIST': KeyboardButton(text='Список контр-піків'),
-
     'CREATE_BUILD': KeyboardButton(text='Створення білду'),
     'MY_BUILDS': KeyboardButton(text='Мої білди'),
     'POPULAR_BUILDS': KeyboardButton(text='Популярні білди'),
-
     'CURRENT_VOTES': KeyboardButton(text='Поточні опитування'),
     'MY_VOTES': KeyboardButton(text='Мої голосування'),
     'SUGGEST_TOPIC': KeyboardButton(text='Пропозиція теми'),
-
     'SEND_FEEDBACK': KeyboardButton(text='Надіслати відгук'),
     'REPORT_BUG': KeyboardButton(text='Повідомити про помилку'),
-
     'LANGUAGE': KeyboardButton(text='Мова'),
     'CHANGE_USERNAME': KeyboardButton(text='Змінити Username'),
     'UPDATE_ID': KeyboardButton(text='Оновити ID'),
     'NOTIFICATIONS': KeyboardButton(text='Сповіщення'),
-
     'INSTRUCTIONS': KeyboardButton(text='Інструкції'),
     'FAQ': KeyboardButton(text='FAQ'),
     'HELP_SUPPORT': KeyboardButton(text='Підтримка'),
+}
 
-    # Додайте кнопки, які використовуються в меню, але раніше не були визначені:
-    'STATISTICS': KeyboardButton(text='📈 Статистика'),
-    'ACHIEVEMENTS': KeyboardButton(text='🏆 Досягнення'),
-    'SETTINGS': KeyboardButton(text='⚙️ Налаштування'),
-    'FEEDBACK': KeyboardButton(text='💌 Відгук'),
-    'HELP': KeyboardButton(text='❓ Допомога'),
-
-    'ACTIVITY': KeyboardButton(text='📊 Активність'),
-    'RANKING': KeyboardButton(text='🥇 Рейтинг'),
-    'GAME_STATS': KeyboardButton(text='🎮 Ігрова Статистика'),
-    'BADGES': KeyboardButton(text='🎖️ Бейджі'),
-    'PROGRESS': KeyboardButton(text='🚀 Прогрес'),
-    'TOURNAMENT_STATS': KeyboardButton(text='🏅 Турнірна Статистика'),
-    'AWARDS': KeyboardButton(text='🎟️ Нагороди'),
+# Відповідність кнопок класам героїв
+menu_button_to_class = {
+    "🛡️ Танк": "Танк",
+    "🧙‍♂️ Маг": "Маг",
+    "🏹 Стрілець": "Стрілець",
+    "⚔️ Асасін": "Асасін",
+    "❤️ Підтримка": "Підтримка",
+    "🗡️ Боєць": "Боєць",
+    "🔥 META": "META",
 }
 
 def get_main_menu():
@@ -116,9 +103,8 @@ def get_heroes_menu():
     return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # Ви можете динамічно додати сюди героїв з hero_class,
-    # якщо у вас є список героїв у constants.characters
-    # Наразі просто повертаємо меню з кнопкою BACK
+    # Тут ви можете додати перелік героїв за класом, використовуючи змінну 'hero_class'
+    # Для прикладу, просто повертаємо кнопку BACK.
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BACK']],
