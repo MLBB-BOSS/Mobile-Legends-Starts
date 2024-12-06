@@ -4,7 +4,34 @@ from rich.table import Table
 from rich.console import Console
 from rich.box import DOUBLE
 
-# Створюємо консоль у пам'яті
+def create_inline_table(title: str, headers: list[str], rows: list[list[str]]) -> str:
+    """
+    Створює ASCII-таблицю з використанням rich та повертає її як текст.
+    
+    :param title: Заголовок таблиці.
+    :param headers: Список назв стовпчиків.
+    :param rows: Дані для таблиці - список списків, де кожен внутрішній список - це рядок таблиці.
+    :return: Рядок з ASCII-поданням таблиці.
+    """
+    console = Console(record=True)
+    table = Table(
+        title=title,
+        box=DOUBLE,
+        show_header=True,
+        header_style="bold cyan",
+        style="dim"
+    )
+
+    for header in headers:
+        table.add_column(header, style="bold yellow", justify="center")
+
+    for row in rows:
+        table.add_row(*row)
+
+    console.print(table)
+    return console.export_text()
+
+# Створюємо консоль у пам'яті для профілю
 console = Console(record=True)
 
 # Створюємо та покращуємо таблицю профілю
@@ -18,8 +45,7 @@ profile_table = Table(
 profile_table.add_column("Параметр", style="bold yellow", no_wrap=True)
 profile_table.add_column("Значення", style="magenta", justify="center")
 
-# Використовуємо плейсхолдери {username}, {level}, {rating}, {achievements_count},
-# які будуть замінені під час виконання коду бота.
+# Використовуємо плейсхолдери {username}, {level}, {rating}, {achievements_count}
 profile_table.add_row("Ім'я користувача", "{username}")
 profile_table.add_row("Рівень", "{level}")
 profile_table.add_row("Рейтинг", "{rating}")
@@ -618,3 +644,22 @@ GPT_INTERACTIVE_TEXT = (
 📚 Отримайте поради
 🧠 Складні питання"""
 )
+
+# Приклад використання create_inline_table:
+if __name__ == "__main__":
+    # Приклад таблиці зі списком героїв
+    heroes_data = [
+        ["Alucard", "Fighter/Assassin", "Середня", "Висока"],
+        ["Layla", "Marksman", "Легка", "Середня"],
+        ["Tigreal", "Tank", "Важка", "Низька"]
+    ]
+
+    table_text = create_inline_table(
+        title="Список героїв",
+        headers=["Герой", "Клас", "Складність", "Потенціал"],
+        rows=heroes_data
+    )
+
+    # У ботові можна використати:
+    # await bot.send_message(chat_id, text=table_text)
+    print(table_text)
