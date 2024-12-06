@@ -19,6 +19,8 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
+    GPT_SUPPORT = "🤖 GPT Підтримка"       # Новий
+    M6_ANALYTICS = "🔮 M6 Аналітика"       # Новий
     BACK_NAV = "🔙 Назад"
 
     # Розділ Персонажі
@@ -173,6 +175,8 @@ def get_navigation_menu():
             MenuButton.COUNTER_PICKS,
             MenuButton.BUILDS,
             MenuButton.VOTING,
+            MenuButton.GPT_SUPPORT,     # Додано
+            MenuButton.M6_ANALYTICS,    # Додано
             MenuButton.BACK_NAV
         ],
         row_width=3
