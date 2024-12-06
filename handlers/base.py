@@ -1,13 +1,12 @@
 # handlers/base.py
 import logging
-from aiogram import Dispatcher
-from handlers_navigation import register_navigation_handlers
-from aiogram import Router, F, Bot, Dispatcher
+from aiogram import Bot, Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram import types  # Для використання ReplyKeyboardRemove
+
+from handlers_navigation import register_navigation_handlers
 
 from keyboards.menus import (
     MenuButton,
@@ -112,6 +111,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 router = Router()
 
+
 class MenuStates(StatesGroup):
     INTRO_PAGE_1 = State()
     INTRO_PAGE_2 = State()
@@ -136,6 +136,7 @@ class MenuStates(StatesGroup):
     RECEIVE_FEEDBACK = State()
     REPORT_BUG = State()
 
+
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     user_name = message.from_user.first_name
@@ -149,6 +150,7 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_intro_page_1_keyboard()
     )
     await state.update_data(interactive_message_id=interactive_message.message_id)
+
 
 @router.callback_query(F.data == "intro_next_1")
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
@@ -174,6 +176,7 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     await state.set_state(MenuStates.INTRO_PAGE_2)
     await callback.answer()
 
+
 @router.callback_query(F.data == "intro_next_2")
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
     state_data = await state.get_data()
@@ -197,6 +200,7 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
         return
     await state.set_state(MenuStates.INTRO_PAGE_3)
     await callback.answer()
+
 
 @router.callback_query(F.data == "intro_start")
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot):
@@ -228,6 +232,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
+
 
 @router.message(MenuStates.MAIN_MENU)
 async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -389,6 +394,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
 
     await state.set_state(new_state)
 
+
 @router.message(MenuStates.COUNTER_PICKS_MENU)
 async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -463,6 +469,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
     await state.set_state(new_state)
+
 
 @router.message(MenuStates.BUILDS_MENU)
 async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -539,6 +546,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
     await state.set_state(new_state)
+
 
 @router.message(MenuStates.VOTING_MENU)
 async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -617,6 +625,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
     await state.set_state(new_state)
+
 
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -710,6 +719,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
 
     await state.set_state(new_state)
 
+
 @router.message(MenuStates.STATISTICS_MENU)
 async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -785,6 +795,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
     await state.set_state(new_state)
+
 
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
 async def handle_achievements_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -864,6 +875,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
     await state.set_state(new_state)
+
 
 @router.message(MenuStates.SETTINGS_MENU)
 async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot: Bot):
@@ -946,6 +958,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
 
     await state.set_state(new_state)
 
+
 @router.callback_query()
 async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data
@@ -992,6 +1005,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
 
     await callback.answer()
 
+
 @router.message(MenuStates.SEARCH_HERO)
 async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     hero_name = message.text.strip()
@@ -1009,6 +1023,7 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_generic_inline_keyboard()
     )
     await state.set_state(MenuStates.HEROES_MENU)
+
 
 @router.message(MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
@@ -1028,6 +1043,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     )
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
+
 @router.message(MenuStates.CHANGE_USERNAME)
 async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
     new_username = message.text.strip()
@@ -1045,6 +1061,7 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_generic_inline_keyboard()
     )
     await state.set_state(MenuStates.SETTINGS_MENU)
+
 
 @router.message(MenuStates.RECEIVE_FEEDBACK)
 async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot):
@@ -1064,6 +1081,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot)
     )
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
+
 @router.message(MenuStates.REPORT_BUG)
 async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
     bug_report = message.text.strip()
@@ -1081,6 +1099,7 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
         reply_markup=get_generic_inline_keyboard()
     )
     await state.set_state(MenuStates.FEEDBACK_MENU)
+
 
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
@@ -1109,7 +1128,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_interactive_text = "Меню Персонажі"
         new_state = MenuStates.HEROES_MENU
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        from keyboards.menus import get_hero_class_menu, menu_button_to_class
+        from keyboards.menus import get_hero_class_menu
         hero_class = data.get('hero_class', 'Танк')
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_hero_class_menu(hero_class)
@@ -1216,9 +1235,9 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(bot_message_id=new_bot_message_id)
     await state.set_state(new_state)
 
+
 def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
-    # Імпорт та підключення роутера героїв
     from handlers.hero_handlers import hero_router
     dp.include_router(hero_router)
     # dp.include_router(ai_router)  # Підключення AI-роутера виконується в bot.py
