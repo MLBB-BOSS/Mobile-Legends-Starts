@@ -1,9 +1,10 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+import os
+import aiohttp  # Додано для роботи з HTTP-запитами
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command
 from config import settings
@@ -19,23 +20,32 @@ logging.basicConfig(
 logger = logging.getLogger("bot")
 
 # Налаштування OpenAI API
-openai.api_key = settings.OPENAI_API_KEY
+openai.api_key = os.getenv('OPENAI_API_KEY')
+API_URL = "https://api.openai.com/v1/chat/completions"
 
-# Функція для взаємодії з OpenAI
+# Функція для взаємодії з OpenAI через URL
 async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {openai.api_key}",
+            "Content-Type": "application/json",
+        }
+        json_data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [
                 {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=max_tokens,
-            temperature=0.7,  # Налаштування креативності
-        )
-        return response["choices"][0]["message"]["content"].strip()
-    except openai.error.OpenAIError as e:
-        logger.error(f"OpenAI error: {e}")
+            "max_tokens": max_tokens,
+            "temperature": 0.7,
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(API_URL, headers=headers, json=json_data) as response:
+                result = await response.json()
+                return result['choices'][0]['message']['content'].strip()
+    except aiohttp.ClientError as e:
+        logger.error(f"HTTP error: {e}")
         return "Не вдалося отримати відповідь. Спробуйте пізніше."
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
@@ -45,7 +55,7 @@ async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        parse_mode=ParseMode.HTML,
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
@@ -58,18 +68,6 @@ async def main():
 
     # Підключення обробників
     setup_handlers(dp)
-
-    # Команда для OpenAI інтеграції
-    @dp.message(Command("ai"))
-    async def handle_openai_request(message):
-        user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
-        if not user_prompt or user_prompt == "/ai":
-            await message.answer("Введіть текст запиту після команди /ai.")
-            return
-
-        await message.answer("Запит обробляється, зачекайте...")
-        response = await ask_openai(user_prompt)  # Виклик функції OpenAI
-        await message.answer(response)
 
     # Використання асинхронного контекстного менеджера
     try:
