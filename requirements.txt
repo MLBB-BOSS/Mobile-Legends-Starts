@@ -20,3 +20,6 @@ asyncpg>=0.28.0
 # Additional Dependencies
 typing-extensions>=4.7.1  # Додано для кращої сумісності з Python 3.11
 openai==1.55.3  # Додано останню версію бібліотеки OpenAI
+
+# Покращення тексту
+rich>=13.5.2
