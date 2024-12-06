@@ -1,21 +1,33 @@
+# bot.py
+
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, executor
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.filters import Command  # Додано імпорт
+from aiogram.filters import Command
+from rich.logging import RichHandler
+from rich.console import Console
+from rich.traceback import install
+
 from config import settings
 from handlers.base import setup_handlers
+
 import openai  # Інтеграція OpenAI
 
-# Налаштування логування
+# Встановлюємо красиві трасування помилок з використанням rich
+install(show_locals=True)
+
+# Налаштування логування з rich
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    level="INFO",
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(console=Console(stderr=True))]
 )
+
 logger = logging.getLogger("bot")
 
 # Налаштування OpenAI API
@@ -58,7 +70,7 @@ async def main():
 
     # Команда для OpenAI інтеграції
     @dp.message(Command("ai"))
-    async def handle_openai_request(message):
+    async def handle_openai_request(message: Message):
         user_prompt = message.text.split(maxsplit=1)[-1]  # Отримуємо текст після команди
         if not user_prompt or user_prompt == "/ai":
             await message.answer("Введіть текст запиту після команди /ai.")
