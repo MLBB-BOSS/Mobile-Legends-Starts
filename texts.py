@@ -1,4 +1,3 @@
-# texts.py
 from rich.text import Text
 
 # Привітальні повідомлення
@@ -29,10 +28,25 @@ INTRO_PAGE_2_TEXT.append("🔧 Білди: Створюйте та редагу�
 INTRO_PAGE_2_TEXT.append("🏆 Турніри: Дізнавайтеся про змагання, умови участі та нагороди, перевіряйте свої навички.\n\n", style="bold cyan")
 INTRO_PAGE_2_TEXT.append("Натисніть «Далі», щоб дізнатися про інші можливості цього застосунку.\n", style="bold yellow")
 
+INTRO_PAGE_3_TEXT = Text()
+INTRO_PAGE_3_TEXT.append("🪪 Ваш Профіль:\n", style="bold magenta")
+INTRO_PAGE_3_TEXT.append("🏅 Ім'я користувача: {username} – ваш унікальний псевдонім у світі Mobile Legends.\n", style="cyan")
+INTRO_PAGE_3_TEXT.append("🧬 Рівень: {level} – показник вашого загального розвитку в грі.\n", style="cyan")
+INTRO_PAGE_3_TEXT.append("📈 Рейтинг: {rating} – відображає ваші результати та позицію відносно інших гравців.\n", style="cyan")
+INTRO_PAGE_3_TEXT.append("🎯 Досягнення: {achievements_count} – кількість здобутих нагород, що свідчать про ваш ігровий досвід.\n\n", style="cyan")
+INTRO_PAGE_3_TEXT.append("🚀 Розпочніть свою подорож прямо зараз! Натисніть «Розпочати» для переходу до головного меню.\n", style="bold yellow")
+
 # Головне меню
 MAIN_MENU_TEXT = Text()
 MAIN_MENU_TEXT.append("👋 Вітаємо, {user_first_name}, у Mobile Legends: Starts!\n", style="bold cyan")
 MAIN_MENU_TEXT.append("Оберіть потрібну опцію нижче, щоб досліджувати можливості та вдосконалювати свій ігровий досвід.\n", style="bold green")
+
+MAIN_MENU_DESCRIPTION = Text()
+MAIN_MENU_DESCRIPTION.append("🎮 Mobile Legends: Starts допоможе вам:\n", style="bold magenta")
+MAIN_MENU_DESCRIPTION.append("🏆 Організовувати турніри, керувати ними та запрошувати друзів.\n", style="cyan")
+MAIN_MENU_DESCRIPTION.append("📸 Зберігати скріншоти персонажів та ділитися ними.\n", style="cyan")
+MAIN_MENU_DESCRIPTION.append("📊 Відстежувати активність та результати матчів.\n", style="cyan")
+MAIN_MENU_DESCRIPTION.append("🥇 Отримувати досягнення за ваші успіхи у грі.\n", style="cyan")
 
 MAIN_MENU_ERROR_TEXT = Text()
 MAIN_MENU_ERROR_TEXT.append("❗ Сталася помилка.\n", style="bold red")
@@ -52,13 +66,13 @@ HEROES_INTERACTIVE_TEXT.append("⚔️ Асасін: швидкі атаки п�
 HEROES_INTERACTIVE_TEXT.append("❤️ Підтримка: лікування та посилення союзників.\n", style="cyan")
 HEROES_INTERACTIVE_TEXT.append("🗡️ Боєць: збалансовані герої з атакою і захистом.\n", style="cyan")
 
-# Використання
-if __name__ == "__main__":
-    from rich.console import Console
+# Повідомлення для інших меню
+UNKNOWN_COMMAND_TEXT = Text()
+UNKNOWN_COMMAND_TEXT.append("❗ Невідома команда. Скористайтеся меню нижче або зверніться до розділу «Допомога».\n", style="bold red")
 
-    console = Console()
-    console.print(WELCOME_NEW_USER_TEXT)
-    console.print(MAIN_MENU_TEXT.format(user_first_name="Гравець"))
-    console.print(HEROES_MENU_TEXT)
-    console.print(HEROES_INTERACTIVE_TEXT)
-    console.print(MAIN_MENU_ERROR_TEXT)
+# Загальні повідомлення про помилки
+GENERIC_ERROR_MESSAGE_TEXT = Text()
+GENERIC_ERROR_MESSAGE_TEXT.append("⚠️ Сталася технічна помилка. Будь ласка, спробуйте пізніше.\n", style="bold yellow")
+
+USE_BUTTON_NAVIGATION_TEXT = Text()
+USE_BUTTON_NAVIGATION_TEXT.append("🔘 Використовуйте кнопки навігації нижче для переходу між розділами.\n", style="bold green")
