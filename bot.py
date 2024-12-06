@@ -1,5 +1,3 @@
-# bot.py
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -7,7 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
+# from aiogram.contrib.middlewares.logging import LoggingMiddleware  # Видаляємо імпорт
 
 from config import settings
 from handlers import setup_handlers
@@ -28,7 +26,7 @@ def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
-    dp.message.middleware(LoggingMiddleware())
+    # dp.message.middleware(LoggingMiddleware())  # Видаляємо рядок з middleware
     return bot, dp
 
 # Основна функція запуску бота
