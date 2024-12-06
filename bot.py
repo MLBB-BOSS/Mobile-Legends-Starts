@@ -7,6 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command
+from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
 from config import settings
 from handlers.base import setup_handlers
 import openai  # Інтеграція OpenAI
@@ -55,7 +56,7 @@ async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
         token=settings.TELEGRAM_BOT_TOKEN,
-        parse_mode=ParseMode.HTML,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),  # Використання параметрів за замовчуванням
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
