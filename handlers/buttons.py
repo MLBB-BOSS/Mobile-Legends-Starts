@@ -1,13 +1,26 @@
-import os
-import aiohttp
-from aiogram import types, Dispatcher
-from aiogram.filters import Text  # Використання нового фільтру для тексту
+import asyncio
 import logging
+import os
+import aiohttp  # Додано для роботи з HTTP-запитами
+from aiogram import Bot, Dispatcher, types
+from aiogram.enums import ParseMode
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
+from config import settings
+from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
+from handlers_navigation import register_navigation_handlers
+from aiogram.filters import Text  # Перевірте правильність імпорту фільтрів
 
 # Налаштування логування
-logger = logging.getLogger("handlers_navigation")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
+    datefmt="%Y-%м-%д %H:%М:%С",
+)
+logger = logging.getLogger("bot")
 
-# Отримання ключа OpenAI API з оточення
+# Налаштування OpenAI API
 openai_api_key = os.getenv('OPENAI_API_KEY')
 API_URL = "https://api.openai.com/v1/chat/completions"
 
@@ -39,24 +52,42 @@ async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
         logger.error(f"Unexpected error: {e}")
         return "Сталася непередбачувана помилка. Спробуйте пізніше."
 
-async def show_meta_menu(message: types.Message):
-    await message.answer("📈 <b>Мета:</b> Тут ви знайдете актуальну інформацію про мету гри.", parse_mode='HTML')
+# Окрема функція для створення бота і диспетчера
+def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
+    bot = Bot(
+        token=settings.TELEGRAM_BOT_TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),  # Використання параметрів за замовчуванням
+        session=AiohttpSession()  # Явна сесія для HTTP-запитів
+    )
+    dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
+    return bot, dp
 
-async def show_m6_menu(message: types.Message):
-    await message.answer("🎮 <b>М6:</b> Останні новини та події про турніри M6.", parse_mode='HTML')
+# Основна функція запуску бота
+async def main():
+    logger.info("Starting bot...")
+    bot, dp = create_bot_and_dispatcher()
 
-async def show_gpt_menu(message: types.Message):
-    await message.answer("👾 Введіть ваше запитання для GPT:")
+    # Підключення обробників
+    register_buttons_handlers(dp)
+    register_navigation_handlers(dp)
 
-async def handle_gpt_query(message: types.Message):
-    user_prompt = message.text
-    if user_prompt:
-        await message.answer("Запит обробляється, зачекайте...")
-        response = await ask_openai(user_prompt)
-        await message.answer(response)
+    # Використання асинхронного контекстного менеджера
+    try:
+        async with bot:
+            logger.info("Bot is polling...")
+            await dp.start_polling(bot)
+    except (KeyboardInterrupt, SystemExit):
+        logger.warning("Bot stopped manually.")
+    except Exception as e:
+        logger.error("Critical error occurred: %s", e, exc_info=True)
+    finally:
+        logger.info("Closing bot session...")
+        if bot.session:
+            await bot.session.close()
 
-def register_navigation_handlers(dp: Dispatcher):
-    dp.message.register(show_meta_menu, Text(equals=MenuButton.META.value))
-    dp.message.register(show_m6_menu, Text(equals=MenuButton.M6.value))
-    dp.message.register(show_gpt_menu, Text(equals=MenuButton.GPT.value))
-    dp.message.register(handle_gpt_query)
+# Точка входу
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Bot has been stopped gracefully!")
