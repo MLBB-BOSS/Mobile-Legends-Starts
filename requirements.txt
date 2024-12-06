@@ -1,21 +1,12 @@
-# Core Framework and Utilities
-aiogram==3.14.0  # Фіксуємо версію для стабільності
-
-# Data and Configuration Management
+aiogram==3.14.0
 pydantic>=2.3.0
 pydantic-settings>=2.3.0
 python-dotenv>=1.0.0
-
-# Database Tools
-SQLAlchemy>=2.0.20  # Змінено з == на >= для сумісності
+SQLAlchemy>=2.0.20
 asyncpg>=0.28.0
-
-# Additional Dependencies
-typing-extensions>=4.7.1  # Додано для кращої сумісності з Python 3.11
-openai==1.55.3  # Додано останню версію бібліотеки OpenAI
-
-# Visualization Libraries
-matplotlib>=3.8.0  # Потужна бібліотека для створення статичних, анімованих та інтерактивних візуалізацій
-seaborn>=0.13.0    # Високорівнева бібліотека для привабливих статистичних графіків, побудована на основі Matplotlib
-plotly>=5.17.0     # Бібліотека для створення інтерактивних графіків, з можливістю збереження як статичних зображень
+typing-extensions>=4.7.1
+openai==1.55.3
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.17.0
 rich>=13.9.4
