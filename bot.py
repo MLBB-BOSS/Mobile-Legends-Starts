@@ -6,16 +6,17 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
 from config import settings
-from handlers_navigation import register_navigation_handlers  # Імпорт обробників навігації
-from aiogram.filters import F  # Імпорт фільтра F
+from handlers.buttons import register_buttons_handlers  # Імпорт обробників кнопок
+from handlers_navigation import register_navigation_handlers
 
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
-    datefmt="%Y-%м-%d %H:%М:%С",
+    datefmt="%Y-%м-%д %H:%М:%С",
 )
 logger = logging.getLogger("bot")
 
@@ -67,6 +68,7 @@ async def main():
     bot, dp = create_bot_and_dispatcher()
 
     # Підключення обробників
+    register_buttons_handlers(dp)
     register_navigation_handlers(dp)
 
     # Використання асинхронного контекстного менеджера
