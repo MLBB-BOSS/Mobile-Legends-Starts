@@ -19,10 +19,10 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    META = "🔥 META"            # Новий
-    M6 = "🏆 M6"                # Новий
-    GPT = "👾 GPT"              # Новий
-    BACK = "🔙"                 # Універсальна кнопка "Back"
+    META = "🔥 META"            # Новий розділ META
+    M6 = "🏆 M6"                # Новий розділ M6
+    GPT = "👾 GPT"              # Новий розділ GPT
+    BACK = "🔙"                 # Універсальна кнопка повернення
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -88,6 +88,10 @@ class MenuButton(Enum):
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
 
+    # Додаткові кнопки для повернення
+    BACK_TO_PROFILE = "🔙 Повернутись до профілю"  # Додано для уникнення помилки AttributeError
+
+
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -127,10 +131,10 @@ heroes_by_class = {
         "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Rafaela", "Lolita", "Estes", "Angela", "Florin", "Johnson"  # "Johnson" вже є в Танк
+        "Rafaela", "Lolita", "Estes", "Angela", "Florin", "Johnson" # Johnson вже є в Танк, але тут як приклад
     ],
     "META": [
-        "MetaHero1", "MetaHero2"  # Додайте тут Метових персонажів, якщо вони існують
+        "MetaHero1", "MetaHero2"
     ],
 }
 
@@ -153,7 +157,6 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Структура меню
 menus = {
     "main": {
         "buttons": [
@@ -169,9 +172,9 @@ menus = {
             MenuButton.COUNTER_PICKS,
             MenuButton.BUILDS,
             MenuButton.VOTING,
-            MenuButton.META,        # Додано
-            MenuButton.M6,           # Додано
-            MenuButton.GPT,          # Додано
+            MenuButton.META,
+            MenuButton.M6,
+            MenuButton.GPT,
             MenuButton.BACK
         ],
         "row_width": 3
@@ -405,4 +408,4 @@ def get_hero_class_menu(hero_class):
     return create_menu(
         buttons,
         row_width=3
-)
+    )
