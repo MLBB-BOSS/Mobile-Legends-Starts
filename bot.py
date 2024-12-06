@@ -10,7 +10,6 @@ from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties  # Додано для встановлення параметрів за замовчуванням
 from config import settings
 from handlers.base import setup_handlers
-import openai  # Інтеграція OpenAI
 
 # Налаштування логування
 logging.basicConfig(
@@ -21,18 +20,18 @@ logging.basicConfig(
 logger = logging.getLogger("bot")
 
 # Налаштування OpenAI API
-openai.api_key = os.getenv('OPENAI_API_KEY')
+openai_api_key = os.getenv('OPENAI_API_KEY')
 API_URL = "https://api.openai.com/v1/chat/completions"
 
 # Функція для взаємодії з OpenAI через URL
 async def ask_openai(prompt: str, max_tokens: int = 500) -> str:
     try:
         headers = {
-            "Authorization": f"Bearer {openai.api_key}",
+            "Authorization": f"Bearer {openai_api_key}",
             "Content-Type": "application/json",
         }
         json_data = {
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-4",
             "messages": [
                 {"role": "system", "content": "Ти є експертом Mobile Legends. Відповідай коротко і точно."},
                 {"role": "user", "content": prompt},
