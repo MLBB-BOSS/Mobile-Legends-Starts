@@ -486,3 +486,15 @@ PROFILE_INTERACTIVE_TEXT = 'Це текст для інтерактивного 
 PROFILE_INTERACTIVE_TEXT = 'This is a placeholder for PROFILE_INTERACTIVE_TEXT'
 # Placeholder for #ДоданокомуNAVIGATION_MENU_TEXT
 #ДоданокомуNAVIGATION_MENU_TEXT = 'This is a placeholder for #ДоданокомуNAVIGATION_MENU_TEXT'
+
+# Added missing constant
+
+BUILD_MENU_TEXT = (
+    """🛠️ <b>Білди</b>
+
+    Оберіть опцію для створення, редагування або перегляду білдів:
+    - 🆕 <b>Новий білд</b>
+    - 📂 <b>Мої білди</b>
+    - 🔥 <b>Популярні білди</b>
+    """
+)
