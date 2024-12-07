@@ -1,3 +1,5 @@
+# handlers/visual_handler.py
+
 from aiogram import Router, types
 from utils.visual_utils import (
     generate_matplotlib_bar_chart,
@@ -6,30 +8,40 @@ from utils.visual_utils import (
     format_table_with_rich
 )
 import seaborn as sns
+from aiogram.types import InputFile  # Додайте цей імпорт, якщо ще не додано
 
 router = Router()
 
 @router.message(commands=["plot"])
 async def cmd_plot(message: types.Message):
+    """
+    Обробник команди /plot.
+    Генерує графіки та відправляє їх користувачу.
+    """
     # Генерація Matplotlib графіка
-    matches = ['Мач 1', 'Мач 2', 'Мач 3', 'Мач 4', 'Мач 5']
-    wins = [1, 0, 1, 1, 0]
-    buf_matplotlib = generate_matplotlib_bar_chart(matches, wins)
-    await message.answer_photo(photo=buf_matplotlib, caption="📊 Статистика Перемог")
+    categories = ['Перемоги', 'Поразки', 'Нічі']
+    values = [15, 5, 2]
+    title = "Ваші Ігрові Статистики"
+    buf_matplotlib = generate_matplotlib_bar_chart(categories, values, title=title)
+    await message.answer_photo(photo=InputFile(buf_matplotlib, filename="stats.png"), caption="📊 Статистика Перемог")
 
     # Генерація Seaborn графіка
     data = sns.load_dataset("tips")
-    buf_seaborn = generate_seaborn_scatter_plot(data)
-    await message.answer_photo(photo=buf_seaborn, caption="📉 Відношення Чеку до Чаю")
+    buf_seaborn = generate_seaborn_scatter_plot(data, x='total_bill', y='tip', hue='day', title="Відношення Чеку до Чаю")
+    await message.answer_photo(photo=InputFile(buf_seaborn, filename="scatter.png"), caption="📉 Відношення Чеку до Чаю")
 
     # Генерація Plotly графіка
     labels = ['Атака', 'Захист', 'Магія', 'Лікування']
-    values = [55, 20, 15, 10]
-    buf_plotly = generate_plotly_pie_chart(labels, values)
-    await message.answer_photo(photo=buf_plotly, caption="📈 Розподіл Навичок")
+    values_plotly = [55, 20, 15, 10]
+    buf_plotly = generate_plotly_pie_chart(labels, values_plotly, title="Розподіл Навичок")
+    await message.answer_photo(photo=InputFile(buf_plotly, filename="pie_chart.png"), caption="📈 Розподіл Навичок")
 
 @router.message(commands=["table"])
 async def cmd_table(message: types.Message):
+    """
+    Обробник команди /table.
+    Генерує таблицю та відправляє її користувачу.
+    """
     # Дані для таблиці
     data = [
         ["Мач 1", "Перемога"],
