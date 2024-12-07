@@ -540,7 +540,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         new_interactive_text = "Статистика"
         new_main_keyboard = get_meta_menu()
         new_state = MenuStates.META_MENU
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
         # Повернення до головного меню
         main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         main_message = await bot.send_message(
@@ -601,7 +601,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
             message_id=interactive_message_id,
             text=new_interactive_text,
             parse_mode="HTML",
-            reply_markup=get_generic_inline_keyboard()
+            reply_markup=new_interactive_keyboard
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
@@ -660,7 +660,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         new_interactive_text = "Отримати поради"
         new_main_keyboard = get_gpt_menu()  # Або інша клавіатура
         new_state = MenuStates.GPT_MENU
-    elif user_choice == "🔙 Меню":
+    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
         # Повертаємось до головного меню
         main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         main_message = await bot.send_message(
@@ -721,7 +721,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
             message_id=interactive_message_id,
             text=new_interactive_text,
             parse_mode="HTML",
-            reply_markup=get_generic_inline_keyboard()
+            reply_markup=new_interactive_keyboard
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
@@ -930,7 +930,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         new_interactive_text = "Запропонувати тему"
         new_main_keyboard = ReplyKeyboardRemove()
         new_state = MenuStates.SEARCH_TOPIC  # Припускаю, що є відповідний стан
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
         # Повертаємось до головного меню
         main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         main_message = await bot.send_message(
@@ -991,7 +991,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
             message_id=interactive_message_id,
             text=new_interactive_text,
             parse_mode="HTML",
-            reply_markup=get_generic_inline_keyboard()
+            reply_markup=new_interactive_keyboard
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
@@ -1255,11 +1255,11 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         "🗡️ Бійці",
         "🔎 Шукати",
         "⚖️ Порівняти",
-        MenuButton.BACK.value
+        MenuButton.BACK_TO_MAIN_MENU.value
     ]
 
     if user_choice in hero_classes:
-        if user_choice == MenuButton.BACK.value:
+        if user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
             # Повертаємось до головного меню
             main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
             main_message = await bot.send_message(
