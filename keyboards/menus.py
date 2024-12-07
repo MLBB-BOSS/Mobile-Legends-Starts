@@ -1,4 +1,4 @@
-# keyboards/keyboards.py
+# keyboards/menus.py
 
 from aiogram.types import (
     ReplyKeyboardMarkup, KeyboardButton,
@@ -16,6 +16,7 @@ MenuButton = {
     'GPT': KeyboardButton(text='👾 GPT'),
 
     # Інші кнопки...
+    'BACK': KeyboardButton(text='🔙 Назад'),
     'BACK_TO_MAIN_MENU': KeyboardButton(text='🔙 Меню'),
 }
 
