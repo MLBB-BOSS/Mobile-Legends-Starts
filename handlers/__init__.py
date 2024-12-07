@@ -1,7 +1,10 @@
-from .base import router as base_router
+# handlers/__init__.py
 
-def setup_handlers(dp):
-    """
-    Реєстрація обробників.
-    """
-    dp.include_router(base_router)
+from .visual_handler import router as visual_router
+# Імпортуйте інші роутери тут, наприклад:
+# from .openai_handler import router as openai_router
+
+def setup_handlers(dispatcher):
+    dispatcher.include_router(visual_router)
+    # Додайте інші роутери тут, наприклад:
+    # dispatcher.include_router(openai_router)
