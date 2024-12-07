@@ -32,6 +32,7 @@ from keyboards import (
 )
 
 from texts import (
+    WELCOME_NEW_USER_TEXT,
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
     INTRO_PAGE_3_TEXT,
@@ -419,6 +420,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
                     chat_id=callback.message.chat.id,
                     message_id=interactive_message_id,
                     text=new_interactive_text,
+                    parse_mode="HTML",
                     reply_markup=new_interactive_keyboard
                 )
             except Exception as e:
@@ -605,7 +607,7 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
 
     if hero_name:
         # Тут можна додати логіку пошуку героя, наприклад, звернення до бази даних
-        response_text = f"Результати пошуку для героя: {hero_name}"
+        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
     else:
         response_text = "Будь ласка, введіть назву героя."
 
@@ -714,7 +716,7 @@ async def handle_gpt_question(message: Message, state: FSMContext, bot: Bot):
 
         await bot.send_message(
             chat_id=message.chat.id,
-            text=response,
+            text=AI_RESPONSE_TEXT.format(response=response),
             reply_markup=get_generic_inline_keyboard()
         )
     else:
