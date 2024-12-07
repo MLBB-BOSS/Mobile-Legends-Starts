@@ -1,6 +1,5 @@
-# handlers/visual_handler.py
-
 from aiogram import Router, types
+from aiogram.filters import Command  # Імпорт фільтра для команд
 from utils.visual_utils import (
     generate_matplotlib_bar_chart,
     generate_seaborn_scatter_plot,
@@ -12,7 +11,7 @@ from aiogram.types import InputFile  # Додайте цей імпорт, як�
 
 router = Router()
 
-@router.message(commands=["plot"])
+@router.message(Command("plot"))
 async def cmd_plot(message: types.Message):
     """
     Обробник команди /plot.
@@ -36,7 +35,7 @@ async def cmd_plot(message: types.Message):
     buf_plotly = generate_plotly_pie_chart(labels, values_plotly, title="Розподіл Навичок")
     await message.answer_photo(photo=InputFile(buf_plotly, filename="pie_chart.png"), caption="📈 Розподіл Навичок")
 
-@router.message(commands=["table"])
+@router.message(Command("table"))
 async def cmd_table(message: types.Message):
     """
     Обробник команди /table.
