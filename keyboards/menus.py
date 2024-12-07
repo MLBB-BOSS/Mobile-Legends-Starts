@@ -21,7 +21,7 @@ class MenuButton(Enum):
     GPT = "👾 GPT"
 
     # Інші кнопки...
-    BACK = "🔙"
+    BACK = "🔙 Назад"
     BACK_TO_MAIN_MENU = "🔙 Меню"
 
 # Відповідність кнопок класам героїв
@@ -29,16 +29,6 @@ menu_button_to_class = {
     MenuButton.NAVIGATION.value: "Навігація",
     MenuButton.PROFILE.value: "Профіль",
     # Додайте відповідність для інших кнопок за потребою
-}
-
-# Структура для героїв за класами
-heroes_by_class = {
-    "Танк": ["Герой1", "Герой2"],
-    "Маг": ["Герой3", "Герой4"],
-    "Стрілець": ["Герой5", "Герой6"],
-    "Асасін": ["Герой7", "Герой8"],
-    "Підтримка": ["Герой9", "Герой10"],
-    "Боєць": ["Герой11", "Герой12"],
 }
 
 # Функція для створення клавіатури з заданою кількістю кнопок у рядку
@@ -61,7 +51,7 @@ def create_menu(buttons, row_width=3):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Функції для різних меню
+# Відновлені функції меню
 
 def get_main_menu():
     return create_menu(
@@ -70,7 +60,7 @@ def get_main_menu():
             MenuButton.PROFILE,
             MenuButton.META,
             MenuButton.M6,
-            MenuButton.GPT,
+            MenuButton.GPT
         ],
         row_width=3  # Розміщення у двох рядках по три кнопки
     )
@@ -85,7 +75,7 @@ def get_navigation_menu():
             '📊 Голосування',
             MenuButton.BACK
         ],
-        row_width=3  # Розміщення у трьох рядках по три кнопки
+        row_width=3  # Розміщення у двох рядках по три кнопки
     )
 
 def get_guides_menu():
@@ -98,7 +88,7 @@ def get_guides_menu():
             '🤝 Командна Гра',
             MenuButton.BACK
         ],
-        row_width=3  # Розміщення у трьох рядках по три кнопки
+        row_width=3  # Розміщення у двох рядках по три кнопки
     )
 
 def get_meta_menu() -> ReplyKeyboardMarkup:
@@ -150,7 +140,7 @@ def get_heroes_menu() -> ReplyKeyboardMarkup:
     return keyboard
 
 def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
-    # Створення клавіатури з героями певного класу
+    # Приклад: створення клавіатури з героями певного класу
     heroes = heroes_by_class.get(hero_class, [])
     buttons = [KeyboardButton(text=hero) for hero in heroes]
     # Додатково додаємо кнопку '🔙 Назад'
@@ -256,7 +246,7 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=2)
     buttons = [
         InlineKeyboardButton("MLS Button", callback_data="mls_button"),
-        InlineKeyboardButton("🔙", callback_data="menu_back"),
+        InlineKeyboardButton("🔙 Назад", callback_data="menu_back"),
     ]
     keyboard.add(*buttons)
     return keyboard
