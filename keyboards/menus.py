@@ -1,5 +1,3 @@
-# keyboards.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 # Визначення кнопок для Reply Keyboards
@@ -84,7 +82,23 @@ MenuButton = {
     'INSTRUCTIONS': KeyboardButton(text='📄 Гайд'),
     'FAQ': KeyboardButton(text='❔ FAQ'),
     'HELP_SUPPORT': KeyboardButton(text='📞 Контакти'),
+
+    # Додаткові кнопки для META
+    'ANALYSIS_TRENDS': KeyboardButton(text='📈 Аналіз тенденцій'),
+    'TOP_HEROES': KeyboardButton(text='🥇 Топ героїв'),
+    'STRATEGIES': KeyboardButton(text='🧠 Стратегії'),
+
+    # Додаткові кнопки для M6
+    'SPECIAL_EVENTS': KeyboardButton(text='🎉 Події'),
+    'EXCLUSIVE_REWARDS': KeyboardButton(text='🏅 Нагороди'),
+    'UNIQUE_OPPORTUNITIES': KeyboardButton(text='🚀 Можливості'),
+
+    # Додаткові кнопки для GPT
+    'ASK_QUESTION': KeyboardButton(text='🤖 Запитати'),
+    'GET_TIPS': KeyboardButton(text='📚 Поради'),
+    'COMPLEX_ANSWERS': KeyboardButton(text='🧠 Відповіді'),
 }
+
 
 # Функції для створення Reply Keyboards
 
@@ -133,7 +147,7 @@ def get_heroes_menu():
     return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # Якщо знадобиться – можна додати героїв з heroes_by_class[hero_class]
+    # При необхідності додайте героїв для кожного класу
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BACK']],
@@ -230,6 +244,36 @@ def get_help_menu():
         keyboard=[
             [MenuButton['INSTRUCTIONS'], MenuButton['FAQ']],
             [MenuButton['HELP_SUPPORT'], MenuButton['BACK_TO_PROFILE']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_meta_menu():
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [MenuButton['ANALYSIS_TRENDS'], MenuButton['TOP_HEROES']],
+            [MenuButton['STRATEGIES'], MenuButton['BACK']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_m6_menu():
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [MenuButton['SPECIAL_EVENTS'], MenuButton['EXCLUSIVE_REWARDS']],
+            [MenuButton['UNIQUE_OPPORTUNITIES'], MenuButton['BACK']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_gpt_menu():
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [MenuButton['ASK_QUESTION'], MenuButton['GET_TIPS'], MenuButton['COMPLEX_ANSWERS']],
+            [MenuButton['BACK']],
         ],
         resize_keyboard=True
     )
