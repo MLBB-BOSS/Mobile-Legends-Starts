@@ -1,6 +1,7 @@
 # config.py
 import logging
 from pydantic_settings import BaseSettings
+import sys
 
 # Налаштування логування
 logging.basicConfig(
@@ -44,17 +45,16 @@ class Settings(BaseSettings):
             logger.info("Додаток працює в режимі DEBUG.")
 
     class Config:
-        # env_file = ".env"  # Вилучено, оскільки Heroku надає змінні середовища
+        # env_file = ".env"  # Вилучено, оскільки ви використовуєте GitHub для деплою
         env_file_encoding = "utf-8"
         case_sensitive = True
 
 
 # Створення екземпляра налаштувань
-settings = Settings()
-
-# Валідація налаштувань
 try:
+    settings = Settings()
+    # Валідація налаштувань
     settings.validate()
 except Exception as e:
     logger.error(f"Помилка конфігурації: {e}")
-    raise
+    sys.exit(1)  # Завершити програму, якщо конфігурація некоректна
