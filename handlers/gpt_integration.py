@@ -1,16 +1,17 @@
 # gpt_integration.py
 
 import openai
-import asyncio
-from config import settings
+import config
 
-def sync_get_gpt_response(question: str) -> str:
-    openai.api_key = settings.OPENAI_API_KEY
+from config import settings
+openai.api_key = settings.OPENAI_API_KEY
+
+async def get_gpt_response(question: str) -> str:
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": "Ви допомагаєте користувачам Mobile Legends: Bang Bang."},
                 {"role": "user", "content": question},
             ],
             max_tokens=150,
@@ -18,11 +19,11 @@ def sync_get_gpt_response(question: str) -> str:
             stop=None,
             temperature=0.7,
         )
-        answer = response.choices[0].message.content.strip()
+        answer = response.choices[0].message['content'].strip()
         return answer
     except Exception as e:
-        print(f"Error in GPT response: {e}")
-        return "Виникла помилка при обробці вашого запитання."
-
-async def get_gpt_response(question: str) -> str:
-    return await asyncio.to_thread(sync_get_gpt_response, question)
+        # Логування помилки
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Помилка при отриманні відповіді від GPT: {e}")
+        return "Вибачте, виникла помилка при обробці вашого запитання."
