@@ -1,8 +1,5 @@
-# keyboards/__init__.py
-
-from .keyboards import (
+from keyboards.menus import (
     get_main_menu,
-    get_generic_inline_keyboard,
     get_navigation_menu,
     get_profile_menu,
     get_meta_menu,
@@ -18,8 +15,5 @@ from .keyboards import (
     get_achievements_menu,
     get_settings_menu,
     get_feedback_menu,
-    get_help_menu,
-    get_intro_page_1_keyboard,
-    get_intro_page_2_keyboard,
-    get_intro_page_3_keyboard
+    get_help_menu
 )
