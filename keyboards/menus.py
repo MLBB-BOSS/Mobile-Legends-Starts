@@ -21,7 +21,7 @@ class MenuButton(Enum):
     GPT = "👾 GPT"
 
     # Інші кнопки...
-    BACK = "🔙 Назад"
+    BACK = "🔙"
     BACK_TO_MAIN_MENU = "🔙 Меню"
 
 # Відповідність кнопок класам героїв
@@ -58,9 +58,6 @@ def get_main_menu():
         [
             MenuButton.NAVIGATION,
             MenuButton.PROFILE,
-            MenuButton.META,
-            MenuButton.M6,
-            MenuButton.GPT
         ],
         row_width=3  # Розміщення у двох рядках по три кнопки
     )
@@ -73,6 +70,9 @@ def get_navigation_menu():
             '⚖️ Контр-піки',
             '🛡️ Білди',
             '📊 Голосування',
+            MenuButton.META,
+            MenuButton.M6,
+            MenuButton.GPT,
             MenuButton.BACK
         ],
         row_width=3  # Розміщення у двох рядках по три кнопки
