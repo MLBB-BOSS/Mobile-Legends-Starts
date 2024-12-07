@@ -1,20 +1,28 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+# keyboards.py
+
+from aiogram.types import (
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardRemove
+)
 
 # Визначення кнопок для Reply Keyboards
 MenuButton = {
     # Головне меню
-    'NAVIGATION': KeyboardButton(text='🧭 Розділи'),
+    'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
     'PROFILE': KeyboardButton(text='🪪 Профіль'),
-
-    # Розділ Навігація
-    'HEROES': KeyboardButton(text='🥷 Герої'),
-    'GUIDES': KeyboardButton(text='📚 Гайди'),
-    'COUNTER_PICKS': KeyboardButton(text='⚖️ Протидії'),
-    'BUILDS': KeyboardButton(text='🛡️ Снаряга'),
-    'VOTING': KeyboardButton(text='📊 Опитування'),
     'META': KeyboardButton(text='🔥 META'),
     'M6': KeyboardButton(text='🏆 M6'),
     'GPT': KeyboardButton(text='👾 GPT'),
+
+    # Розділ Навігація
+    'HEROES': KeyboardButton(text='🥷 Персонажі'),
+    'GUIDES': KeyboardButton(text='📚 Гайди'),
+    'COUNTER_PICKS': KeyboardButton(text='⚖️ Контр-піки'),
+    'BUILDS': KeyboardButton(text='🛡️ Білди'),
+    'VOTING': KeyboardButton(text='📊 Голосування'),
     'BACK': KeyboardButton(text='🔙 Назад'),
 
     # Розділ Персонажі
@@ -82,23 +90,7 @@ MenuButton = {
     'INSTRUCTIONS': KeyboardButton(text='📄 Гайд'),
     'FAQ': KeyboardButton(text='❔ FAQ'),
     'HELP_SUPPORT': KeyboardButton(text='📞 Контакти'),
-
-    # Додаткові кнопки для META
-    'ANALYSIS_TRENDS': KeyboardButton(text='📈 Аналіз тенденцій'),
-    'TOP_HEROES': KeyboardButton(text='🥇 Топ героїв'),
-    'STRATEGIES': KeyboardButton(text='🧠 Стратегії'),
-
-    # Додаткові кнопки для M6
-    'SPECIAL_EVENTS': KeyboardButton(text='🎉 Події'),
-    'EXCLUSIVE_REWARDS': KeyboardButton(text='🏅 Нагороди'),
-    'UNIQUE_OPPORTUNITIES': KeyboardButton(text='🚀 Можливості'),
-
-    # Додаткові кнопки для GPT
-    'ASK_QUESTION': KeyboardButton(text='🤖 Запитати'),
-    'GET_TIPS': KeyboardButton(text='📚 Поради'),
-    'COMPLEX_ANSWERS': KeyboardButton(text='🧠 Відповіді'),
 }
-
 
 # Функції для створення Reply Keyboards
 
@@ -147,7 +139,7 @@ def get_heroes_menu():
     return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # При необхідності додайте героїв для кожного класу
+    # Можна додати додаткові кнопки залежно від обраного класу
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BACK']],
@@ -249,32 +241,31 @@ def get_help_menu():
     )
     return keyboard
 
-def get_meta_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['ANALYSIS_TRENDS'], MenuButton['TOP_HEROES']],
-            [MenuButton['STRATEGIES'], MenuButton['BACK']],
-        ],
-        resize_keyboard=True
-    )
+# Функції для створення Inline Keyboards
+
+def get_generic_inline_keyboard():
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    buttons = [
+        InlineKeyboardButton("MLS Button", callback_data="mls_button"),
+        InlineKeyboardButton("🔙 Назад", callback_data="menu_back"),
+    ]
+    keyboard.add(*buttons)
     return keyboard
 
-def get_m6_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['SPECIAL_EVENTS'], MenuButton['EXCLUSIVE_REWARDS']],
-            [MenuButton['UNIQUE_OPPORTUNITIES'], MenuButton['BACK']],
-        ],
-        resize_keyboard=True
-    )
+def get_intro_page_1_keyboard():
+    keyboard = InlineKeyboardMarkup()
+    button = InlineKeyboardButton("Далі", callback_data="intro_next_1")
+    keyboard.add(button)
     return keyboard
 
-def get_gpt_menu():
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [MenuButton['ASK_QUESTION'], MenuButton['GET_TIPS'], MenuButton['COMPLEX_ANSWERS']],
-            [MenuButton['BACK']],
-        ],
-        resize_keyboard=True
-    )
+def get_intro_page_2_keyboard():
+    keyboard = InlineKeyboardMarkup()
+    button = InlineKeyboardButton("Далі", callback_data="intro_next_2")
+    keyboard.add(button)
+    return keyboard
+
+def get_intro_page_3_keyboard():
+    keyboard = InlineKeyboardMarkup()
+    button = InlineKeyboardButton("Розпочати", callback_data="intro_start")
+    keyboard.add(button)
     return keyboard
