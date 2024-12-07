@@ -1,6 +1,5 @@
 # handlers/__init__.py
 
-from .base import setup_handlers
 from .base import router as base_router
 from .ai_handler import router as ai_router
 
