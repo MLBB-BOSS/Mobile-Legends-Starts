@@ -1,6 +1,10 @@
-# keyboards.py
+# keyboards/keyboards.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import (
+    ReplyKeyboardMarkup, KeyboardButton,
+    InlineKeyboardMarkup, InlineKeyboardButton,
+    ReplyKeyboardRemove
+)
 
 # Визначення кнопок для Reply Keyboards
 MenuButton = {
@@ -88,7 +92,7 @@ MenuButton = {
 
 # Функції для створення Reply Keyboards
 
-def get_main_menu():
+def get_main_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['NAVIGATION'], MenuButton['PROFILE']],
@@ -98,7 +102,16 @@ def get_main_menu():
     )
     return keyboard
 
-def get_navigation_menu():
+def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    buttons = [
+        InlineKeyboardButton("MLS Button", callback_data="mls_button"),
+        InlineKeyboardButton("🔙 Назад", callback_data="menu_back"),
+    ]
+    keyboard.add(*buttons)
+    return keyboard
+
+def get_navigation_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['HEROES'], MenuButton['GUIDES']],
@@ -109,7 +122,7 @@ def get_navigation_menu():
     )
     return keyboard
 
-def get_profile_menu():
+def get_profile_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['STATISTICS'], MenuButton['ACHIEVEMENTS']],
@@ -120,7 +133,37 @@ def get_profile_menu():
     )
     return keyboard
 
-def get_heroes_menu():
+def get_meta_menu() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='📈 Аналітика'), KeyboardButton(text='📊 Статистика')],
+            [MenuButton['BACK_TO_MAIN_MENU']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_m6_menu() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='🏆 Результати'), KeyboardButton(text='🔍 Деталі')],
+            [MenuButton['BACK_TO_MAIN_MENU']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_gpt_menu() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='📝 Задати питання'), KeyboardButton(text='❓ Допомога')],
+            [MenuButton['BACK_TO_MAIN_MENU']],
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
+
+def get_heroes_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['TANK'], MenuButton['MAGE'], MenuButton['MARKSMAN']],
@@ -132,7 +175,7 @@ def get_heroes_menu():
     )
     return keyboard
 
-def get_hero_class_menu(hero_class: str):
+def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
     # Можна додати додаткові кнопки залежно від обраного класу
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
@@ -142,7 +185,7 @@ def get_hero_class_menu(hero_class: str):
     )
     return keyboard
 
-def get_guides_menu():
+def get_guides_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['NEW_GUIDES'], MenuButton['POPULAR_GUIDES']],
@@ -153,7 +196,7 @@ def get_guides_menu():
     )
     return keyboard
 
-def get_counter_picks_menu():
+def get_counter_picks_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['COUNTER_SEARCH'], MenuButton['COUNTER_LIST']],
@@ -163,7 +206,7 @@ def get_counter_picks_menu():
     )
     return keyboard
 
-def get_builds_menu():
+def get_builds_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['CREATE_BUILD'], MenuButton['MY_BUILDS']],
@@ -173,7 +216,7 @@ def get_builds_menu():
     )
     return keyboard
 
-def get_voting_menu():
+def get_voting_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['CURRENT_VOTES'], MenuButton['MY_VOTES']],
@@ -183,7 +226,7 @@ def get_voting_menu():
     )
     return keyboard
 
-def get_statistics_menu():
+def get_statistics_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['ACTIVITY'], MenuButton['RANKING'], MenuButton['GAME_STATS']],
@@ -193,7 +236,7 @@ def get_statistics_menu():
     )
     return keyboard
 
-def get_achievements_menu():
+def get_achievements_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BADGES'], MenuButton['PROGRESS']],
@@ -204,7 +247,7 @@ def get_achievements_menu():
     )
     return keyboard
 
-def get_settings_menu():
+def get_settings_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['LANGUAGE'], MenuButton['CHANGE_USERNAME']],
@@ -215,7 +258,7 @@ def get_settings_menu():
     )
     return keyboard
 
-def get_feedback_menu():
+def get_feedback_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['SEND_FEEDBACK'], MenuButton['REPORT_BUG']],
@@ -225,7 +268,7 @@ def get_feedback_menu():
     )
     return keyboard
 
-def get_help_menu():
+def get_help_menu() -> ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['INSTRUCTIONS'], MenuButton['FAQ']],
@@ -237,28 +280,19 @@ def get_help_menu():
 
 # Функції для створення Inline Keyboards
 
-def get_generic_inline_keyboard():
-    keyboard = InlineKeyboardMarkup(row_width=2)
-    buttons = [
-        InlineKeyboardButton("MLS Button", callback_data="mls_button"),
-        InlineKeyboardButton("🔙 Назад", callback_data="menu_back"),
-    ]
-    keyboard.add(*buttons)
-    return keyboard
-
-def get_intro_page_1_keyboard():
+def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
     button = InlineKeyboardButton("Далі", callback_data="intro_next_1")
     keyboard.add(button)
     return keyboard
 
-def get_intro_page_2_keyboard():
+def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
     button = InlineKeyboardButton("Далі", callback_data="intro_next_2")
     keyboard.add(button)
     return keyboard
 
-def get_intro_page_3_keyboard():
+def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup()
     button = InlineKeyboardButton("Розпочати", callback_data="intro_start")
     keyboard.add(button)
