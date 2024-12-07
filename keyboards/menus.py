@@ -2,6 +2,7 @@
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+# Визначення кнопок для Reply Keyboards
 MenuButton = {
     # Головне меню
     'NAVIGATION': KeyboardButton(text='🧭 Розділи'),
@@ -84,6 +85,8 @@ MenuButton = {
     'FAQ': KeyboardButton(text='❔ FAQ'),
     'HELP_SUPPORT': KeyboardButton(text='📞 Контакти'),
 }
+
+# Функції для створення Reply Keyboards
 
 def get_main_menu():
     keyboard = ReplyKeyboardMarkup(
