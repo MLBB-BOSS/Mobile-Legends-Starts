@@ -19,10 +19,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("bot")
 
+# Змінна для токена (логування)
+TELEGRAM_BOT_TOKEN = settings.TELEGRAM_BOT_TOKEN
+logger.info(f"Loaded TELEGRAM_BOT_TOKEN: {TELEGRAM_BOT_TOKEN[:5]}***")  # Логування перших символів токена
+
 # Окрема функція для створення бота і диспетчера
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
-        token=settings.TELEGRAM_BOT_TOKEN,
+        token=TELEGRAM_BOT_TOKEN,  # Використання токена
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
