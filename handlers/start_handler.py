@@ -1,11 +1,10 @@
-from aiogram import Router, types
+Юfrom aiogram import Router, types
+import logging
 
+logger = logging.getLogger("start_handler")
 router = Router()
 
 @router.message(commands=["start"])
 async def send_welcome(message: types.Message):
-    """
-    Обробник команди /start.
-    Відповідає користувачу вітальним повідомленням.
-    """
-    await message.answer("Привіт! Я бот Mobile Legends: Starts! 🚀")
+    logger.info(f"User {message.from_user.id} triggered /start command.")
+    await message.answer("Привіт! Це Mobile Legends: Starts! 🚀 Оберіть команду для початку.")
