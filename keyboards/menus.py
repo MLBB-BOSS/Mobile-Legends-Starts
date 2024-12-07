@@ -1,110 +1,86 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 MenuButton = {
-    'NAVIGATION': KeyboardButton(text='🧭 Навігація'),
+    # Головне меню
+    'NAVIGATION': KeyboardButton(text='🧭 Розділи'),
     'PROFILE': KeyboardButton(text='🪪 Профіль'),
-    'HEROES': KeyboardButton(text='🥷 Персонажі'),
+
+    # Розділ Навігація
+    'HEROES': KeyboardButton(text='🥷 Герої'),
     'GUIDES': KeyboardButton(text='📚 Гайди'),
-    'COUNTER_PICKS': KeyboardButton(text='⚖️ Контр-піки'),
-    'BUILDS': KeyboardButton(text='🛡️ Білди'),
-    'VOTING': KeyboardButton(text='📊 Голосування'),
+    'COUNTER_PICKS': KeyboardButton(text='⚖️ Протидії'),
+    'BUILDS': KeyboardButton(text='🛡️ Снаряга'),
+    'VOTING': KeyboardButton(text='📊 Опитування'),
     'META': KeyboardButton(text='🔥 META'),
     'M6': KeyboardButton(text='🏆 M6'),
     'GPT': KeyboardButton(text='👾 GPT'),
-    'BACK': KeyboardButton(text='🔙'),
-    'TANK': KeyboardButton(text='🛡️ Танк'),
-    'MAGE': KeyboardButton(text='🧙‍♂️ Маг'),
-    'MARKSMAN': KeyboardButton(text='🏹 Стрілець'),
-    'ASSASSIN': KeyboardButton(text='⚔️ Асасін'),
-    'SUPPORT': KeyboardButton(text='❤️ Підтримка'),
-    'FIGHTER': KeyboardButton(text='🗡️ Боєць'),
-    'COMPARISON': KeyboardButton(text='⚖️ Порівняння'),
-    'SEARCH_HERO': KeyboardButton(text='🔎 Пошук'),
-    'NEW_GUIDES': KeyboardButton(text='Нові гайди'),
-    'POPULAR_GUIDES': KeyboardButton(text='Популярні гайди'),
-    'BEGINNER_GUIDES': KeyboardButton(text='Гайди для початківців'),
-    'ADVANCED_TECHNIQUES': KeyboardButton(text='Просунуті техніки'),
-    'TEAMPLAY_GUIDES': KeyboardButton(text='Командна гра'),
-    'COUNTER_SEARCH': KeyboardButton(text='Пошук контр-піку'),
-    'COUNTER_LIST': KeyboardButton(text='Список контр-піків'),
-    'CREATE_BUILD': KeyboardButton(text='Створення білду'),
-    'MY_BUILDS': KeyboardButton(text='Мої білди'),
-    'POPULAR_BUILDS': KeyboardButton(text='Популярні білди'),
-    'CURRENT_VOTES': KeyboardButton(text='Поточні опитування'),
-    'MY_VOTES': KeyboardButton(text='Мої голосування'),
-    'SUGGEST_TOPIC': KeyboardButton(text='Пропозиція теми'),
-    'SEND_FEEDBACK': KeyboardButton(text='Надіслати відгук'),
-    'REPORT_BUG': KeyboardButton(text='Повідомити про помилку'),
-    'LANGUAGE': KeyboardButton(text='Мова'),
-    'CHANGE_USERNAME': KeyboardButton(text='Змінити Username'),
-    'UPDATE_ID': KeyboardButton(text='Оновити ID'),
-    'NOTIFICATIONS': KeyboardButton(text='Сповіщення'),
-    'INSTRUCTIONS': KeyboardButton(text='Інструкції'),
-    'FAQ': KeyboardButton(text='FAQ'),
-    'HELP_SUPPORT': KeyboardButton(text='Підтримка'),
+    'BACK': KeyboardButton(text='🔙 Назад'),
 
-    'STATISTICS': KeyboardButton(text='Статистика'),
-    'ACHIEVEMENTS': KeyboardButton(text='Досягнення'),
-    'SETTINGS': KeyboardButton(text='Налаштування'),
-    'FEEDBACK': KeyboardButton(text='Зворотний зв\'язок'),
-    'HELP': KeyboardButton(text='Допомога'),
+    # Розділ Персонажі
+    'TANK': KeyboardButton(text='🛡️ Танки'),
+    'MAGE': KeyboardButton(text='🧙‍♂️ Маги'),
+    'MARKSMAN': KeyboardButton(text='🏹 Стрільці'),
+    'ASSASSIN': KeyboardButton(text='⚔️ Асасіни'),
+    'SUPPORT': KeyboardButton(text='❤️ Сапорти'),
+    'FIGHTER': KeyboardButton(text='🗡️ Бійці'),
+    'COMPARISON': KeyboardButton(text='⚖️ Порівняти'),
+    'SEARCH_HERO': KeyboardButton(text='🔎 Шукати'),
 
-    'ACTIVITY': KeyboardButton(text='Загальна активність'),
-    'RANKING': KeyboardButton(text='Рейтинг'),
-    'GAME_STATS': KeyboardButton(text='Ігрова статистика'),
+    # Розділ Гайди
+    'NEW_GUIDES': KeyboardButton(text='🆕 Нові'),
+    'POPULAR_GUIDES': KeyboardButton(text='🌟 Топ'),
+    'BEGINNER_GUIDES': KeyboardButton(text='📘 Новачкам'),
+    'ADVANCED_TECHNIQUES': KeyboardButton(text='🧙 Стратегії'),
+    'TEAMPLAY_GUIDES': KeyboardButton(text='🤝 Команда'),
 
-    'BADGES': KeyboardButton(text='Бейджі'),
-    'PROGRESS': KeyboardButton(text='Прогрес'),
-    'TOURNAMENT_STATS': KeyboardButton(text='Турнірна статистика'),
-    'AWARDS': KeyboardButton(text='Отримані нагороди'),
+    # Розділ Контр-піки
+    'COUNTER_SEARCH': KeyboardButton(text='🔎 Шукати'),
+    'COUNTER_LIST': KeyboardButton(text='📄 Список'),
 
-    # Додані кнопки для повного відтворення логіки старого прикладу:
-    'BACK_TO_MAIN_MENU': KeyboardButton(text='🔙 Повернутися до головного меню'),
-    'BACK_TO_PROFILE': KeyboardButton(text='🔙 Повернутися до профілю'),
-}
+    # Розділ Білди
+    'CREATE_BUILD': KeyboardButton(text='🏗️ Новий'),
+    'MY_BUILDS': KeyboardButton(text='📄 Збережені'),
+    'POPULAR_BUILDS': KeyboardButton(text='🔥 Популярні'),
 
-# Відповідність кнопок класам героїв
-menu_button_to_class = {
-    "🛡️ Танк": "Танк",
-    "🧙‍♂️ Маг": "Маг",
-    "🏹 Стрілець": "Стрілець",
-    "⚔️ Асасін": "Асасін",
-    "❤️ Підтримка": "Підтримка",
-    "🗡️ Боєць": "Боєць",
-    "🔥 META": "META",
-}
+    # Розділ Голосування
+    'CURRENT_VOTES': KeyboardButton(text='📍 Активні'),
+    'MY_VOTES': KeyboardButton(text='📋 Ваші'),
+    'SUGGEST_TOPIC': KeyboardButton(text='➕ Ідея'),
 
-# Перелік персонажів Mobile Legends за класами
-heroes_by_class = {
-    "Боєць": [
-        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
-        "Gatotkaca", "Grock", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla",
-        "X.Borg", "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
-        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
-        "Badang", "Guinevere"
-    ],
-    "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
-    ],
-    "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
-    ],
-    "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin",
-        "Moskov", "Roger", "Karrie", "Irithel", "Lesley"
-    ],
-    "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin",
-        "Harley", "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana",
-        "Odette", "Zhask"
-    ],
-    "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
-    ]
+    # Розділ Профіль
+    'STATISTICS': KeyboardButton(text='📈 Дані'),
+    'ACHIEVEMENTS': KeyboardButton(text='🏆 Успіхи'),
+    'SETTINGS': KeyboardButton(text='⚙️ Опції'),
+    'FEEDBACK': KeyboardButton(text='💌 Відгук'),
+    'HELP': KeyboardButton(text='❓ Питання'),
+    'BACK_TO_MAIN_MENU': KeyboardButton(text='🔙 Меню'),
+
+    # Підрозділ Статистика
+    'ACTIVITY': KeyboardButton(text='📊 Активність'),
+    'RANKING': KeyboardButton(text='🥇 Рейтинг'),
+    'GAME_STATS': KeyboardButton(text='🎮 Ігри'),
+    'BACK_TO_PROFILE': KeyboardButton(text='🔙 Назад'),
+
+    # Підрозділ Досягнення
+    'BADGES': KeyboardButton(text='🎖️ Бейджі'),
+    'PROGRESS': KeyboardButton(text='🚀 Прогрес'),
+    'TOURNAMENT_STATS': KeyboardButton(text='🏅 Турніри'),
+    'AWARDS': KeyboardButton(text='🎟️ Нагороди'),
+
+    # Підрозділ Налаштування
+    'LANGUAGE': KeyboardButton(text='🌐 Мова'),
+    'CHANGE_USERNAME': KeyboardButton(text='ℹ️ Нік'),
+    'UPDATE_ID': KeyboardButton(text='🆔 ID'),
+    'NOTIFICATIONS': KeyboardButton(text='🔔 Алєрти'),
+
+    # Підрозділ Зворотний Зв'язок
+    'SEND_FEEDBACK': KeyboardButton(text='✏️ Пропозиція'),
+    'REPORT_BUG': KeyboardButton(text='🐛 Помилка'),
+
+    # Підрозділ Допомога
+    'INSTRUCTIONS': KeyboardButton(text='📄 Гайд'),
+    'FAQ': KeyboardButton(text='❔ FAQ'),
+    'HELP_SUPPORT': KeyboardButton(text='📞 Контакти'),
 }
 
 def get_main_menu():
@@ -152,8 +128,7 @@ def get_heroes_menu():
     return keyboard
 
 def get_hero_class_menu(hero_class: str):
-    # Тут, за потреби, можна динамічно додавати героїв із heroes_by_class[hero_class]
-    # Для прикладу, поки що повертатимемо лише назад:
+    # Якщо знадобиться – можна додати героїв з heroes_by_class[hero_class]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [MenuButton['BACK']],
