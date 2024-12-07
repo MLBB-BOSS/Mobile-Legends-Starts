@@ -3,7 +3,8 @@
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
     Message,
