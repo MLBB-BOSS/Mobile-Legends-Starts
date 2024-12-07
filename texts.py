@@ -703,3 +703,7 @@ CHANGE_USERNAME_RESPONSE_TEXT = (
 
 # Placeholder for PROFILE_INTERACTIVE_TEXT
 PROFILE_INTERACTIVE_TEXT = 'This is a placeholder for PROFILE_INTERACTIVE_TEXT'
+
+
+# Placeholder for PROFILE_INTERACTIVE_TEXT
+PROFILE_INTERACTIVE_TEXT = 'Це текст для інтерактивного профільного меню. Замініть його на потрібний контент.'
