@@ -57,10 +57,7 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE,
-            MenuButton.META,
-            MenuButton.M6,
-            MenuButton.GPT
+            MenuButton.PROFILE
         ],
         row_width=3  # Розміщення у двох рядках по три кнопки
     )
@@ -73,6 +70,9 @@ def get_navigation_menu():
             '⚖️ Контр-піки',
             '🛡️ Білди',
             '📊 Голосування',
+            MenuButton.META,
+            MenuButton.M6,
+            MenuButton.GPT,
             MenuButton.BACK
         ],
         row_width=3  # Розміщення у двох рядках по три кнопки
