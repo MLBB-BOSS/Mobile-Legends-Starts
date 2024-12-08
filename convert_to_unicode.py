@@ -10,25 +10,22 @@ with open(input_file, 'r', encoding='utf-8') as f:
     content = f.read()
 
 # Регулярний вираз для пошуку рядкових констант
-pattern = re.compile(r'(""""(.*?)""""")|("""(.*?)""")|("([^"\\]*(\\.[^"\\]*)*)")|(\'([^\'\\]*(\\.[^\'\\]*)*)\')', re.DOTALL)
+# Підтримує потрійні лапки (''' або """) та одиночні лапки (' або ")
+pattern = re.compile(r'("""(.*?)""")|("([^"\\]*(\\.[^"\\]*)*)")|(\'([^\'\\]*(\\.[^\'\\]*)*)\')', re.DOTALL)
 
 def replacer(match):
     if match.group(2):
         original = match.group(2)
         escaped = escape_unicode(original)
-        return '("""{}""")'.format(escaped)
+        return f'"""{escaped}"""'
     elif match.group(4):
         original = match.group(4)
         escaped = escape_unicode(original)
-        return '("""{}""")'.format(escaped)
-    elif match.group(6):
-        original = match.group(6)
+        return f'"{escaped}"'
+    elif match.group(7):
+        original = match.group(7)
         escaped = escape_unicode(original)
-        return '"{}"'.format(escaped)
-    elif match.group(9):
-        original = match.group(9)
-        escaped = escape_unicode(original)
-        return "'{}'".format(escaped)
+        return f"'{escaped}'"
     else:
         return match.group(0)
 
