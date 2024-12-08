@@ -117,7 +117,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 # Визначаємо стани меню
-class MenuStates(StatesGroup):
+class MenuStates(
     INTRO_PAGE_1 = State()
     INTRO_PAGE_2 = State()
     INTRO_PAGE_3 = State()
