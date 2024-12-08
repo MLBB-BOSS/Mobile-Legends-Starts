@@ -2,7 +2,7 @@
 
 import logging
 from aiogram import Router, F, Bot
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
 from aiogram.types import (
     Message,
     CallbackQuery,
@@ -213,7 +213,7 @@ async def handle_unknown_command(
     bot: Bot
 ):
     """
-    Обробляє невідомі команди залежно від поточного стану.
+    Обробляє невідомі команди залежно від поточного стану користувача.
     """
     new_main_text = UNKNOWN_COMMAND_TEXT
     new_main_keyboard = get_main_menu()
@@ -277,11 +277,15 @@ async def handle_unknown_command(
         MenuStates.RECEIVE_FEEDBACK.state,
         MenuStates.REPORT_BUG.state
     ]:
-        new_main_text = USE_BUTTON_NAVIGATION_TEXT
-        new_main_keyboard = get_generic_inline_keyboard()
-        new_interactive_text = ""
-        new_state = current_state
-        # Не змінюємо стан
+        # Якщо користувач перебуває в процесі введення, надсилаємо підказку
+        await bot.send_message(
+            chat_id=chat_id,
+            text=USE_BUTTON_NAVIGATION_TEXT,
+            reply_markup=get_generic_inline_keyboard(),
+            parse_mode="HTML"
+        )
+        await state.set_state(current_state)
+        return
     else:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name="Користувач")
         new_main_keyboard = get_main_menu()
@@ -456,6 +460,66 @@ async def handle_intro_next(callback: CallbackQuery, state: FSMContext, bot: Bot
 
     # Оновлюємо стан
     await state.set_state(new_state)
+    await callback.answer()
+
+# Обробник інлайн-кнопок
+@router.callback_query()
+async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    data = callback.data
+    user_id = callback.from_user.id
+    chat_id = callback.message.chat.id
+    logger.info(f"Користувач {user_id} натиснув інлайн-кнопку: {data}")
+
+    # Отримуємо interactive_message_id з стану
+    state_data = await state.get_data()
+    interactive_message_id = state_data.get('interactive_message_id')
+
+    if interactive_message_id:
+        # Обробляємо інлайн-кнопки
+        if data == "mls_button":
+            await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
+        elif data == "menu_back":
+            # Повернення до головного меню
+            user_first_name = callback.from_user.first_name
+            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+            try:
+                await bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=interactive_message_id,
+                    text=MAIN_MENU_DESCRIPTION,
+                    parse_mode="HTML",
+                    reply_markup=get_generic_inline_keyboard()
+                )
+                main_message = await send_new_main_message(
+                    chat_id=chat_id,
+                    text=main_menu_text_formatted,
+                    reply_markup=get_main_menu(),
+                    parse_mode="HTML",
+                    state=state,
+                    bot=bot
+                )
+                # Видаляємо попереднє повідомлення з клавіатурою
+                old_bot_message_id = state_data.get('bot_message_id')
+                if old_bot_message_id:
+                    try:
+                        await bot.delete_message(chat_id=chat_id, message_id=old_bot_message_id)
+                    except Exception as e:
+                        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+            except Exception as e:
+                logger.error(f"Помилка при поверненні до головного меню: {e}")
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=GENERIC_ERROR_MESSAGE_TEXT,
+                    reply_markup=get_generic_inline_keyboard(),
+                    parse_mode="HTML"
+                )
+        else:
+            # Додайте обробку інших інлайн-кнопок за потребою
+            await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
+    else:
+        logger.error("interactive_message_id не знайдено")
+        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
+
     await callback.answer()
 
 # Загальний обробник повідомлень на основі стану
@@ -1532,6 +1596,131 @@ async def handle_gpt_question(message: Message, state: FSMContext, bot: Bot, que
     # Повертаємо користувача до меню GPT
     await state.set_state(MenuStates.GPT_MENU)
 
+# Обробник для прийому пошуку героя
+async def handle_search_hero(message: Message, state: FSMContext, bot: Bot, hero_name: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} шукає героя: {hero_name}")
+
+    # Тут додайте логіку пошуку героя
+    # Наприклад, перевірка чи існує герой, відправка інформації тощо
+    # Поки що відправимо повідомлення про отримання запиту
+
+    if hero_name:
+        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
+    else:
+        response_text = "Будь ласка, введіть ім'я героя для пошуку."
+
+    await bot.send_message(
+        chat_id=chat_id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+    # Повертаємо користувача до попереднього меню
+    await state.set_state(MenuStates.HEROES_MENU)
+
+# Обробник для прийому теми пропозиції
+async def handle_search_topic(message: Message, state: FSMContext, bot: Bot, topic: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} пропонує тему: {topic}")
+
+    # Тут додайте логіку обробки пропозиції теми
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання запиту
+
+    if topic:
+        response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
+    else:
+        response_text = "Будь ласка, введіть тему для пропозиції."
+
+    await bot.send_message(
+        chat_id=chat_id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+    # Повертаємо користувача до меню Голосування
+    await state.set_state(MenuStates.VOTING_MENU)
+
+# Обробник для зміни Username
+async def handle_change_username(message: Message, state: FSMContext, bot: Bot, new_username: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} змінює Username на: {new_username}")
+
+    # Тут додайте логіку зміни Username
+    # Наприклад, перевірка унікальності, оновлення в базі даних тощо
+    # Поки що відправимо повідомлення про отримання запиту
+
+    if new_username:
+        response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
+    else:
+        response_text = "Будь ласка, введіть новий Username."
+
+    await bot.send_message(
+        chat_id=chat_id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+    # Повертаємо користувача до меню Налаштування
+    await state.set_state(MenuStates.SETTINGS_MENU)
+
+# Обробник для прийому відгуку
+async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot, feedback: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} надіслав відгук: {feedback}")
+
+    # Тут додайте логіку зберігання відгуку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання відгуку
+
+    if feedback:
+        response_text = FEEDBACK_RECEIVED_TEXT
+    else:
+        response_text = "Будь ласка, залиште свій відгук."
+
+    await bot.send_message(
+        chat_id=chat_id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+    # Повертаємо користувача до меню Зворотний Зв'язок
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробник для звіту про помилку
+async def handle_report_bug(message: Message, state: FSMContext, bot: Bot, bug_report: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} повідомив про помилку: {bug_report}")
+
+    # Тут додайте логіку обробки звіту про помилку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання звіту
+
+    if bug_report:
+        response_text = BUG_REPORT_RECEIVED_TEXT
+    else:
+        response_text = "Будь ласка, опишіть помилку, яку ви знайшли."
+
+    await bot.send_message(
+        chat_id=chat_id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+    # Повертаємо користувача до меню Зворотний Зв'язок
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
 # Обробник для меню GPT
 async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot, user_choice: str):
     user_id = message.from_user.id
@@ -1565,6 +1754,7 @@ async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot, user_ch
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_state = MenuStates.GPT_MENU
 
     # Відправляємо нове повідомлення з клавіатурою
     main_message = await send_new_main_message(
@@ -1598,75 +1788,35 @@ async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot, user_ch
     # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробник для меню META
-async def handle_meta_menu(message: Message, state: FSMContext, bot: Bot, user_choice: str):
-    # Функція вже визначена вище
-    pass  # Виправлення дублювання, функція вже існує
+# Обробник для AI підтримки (GPT)
+async def handle_gpt_question(message: Message, state: FSMContext, bot: Bot, question: str):
+    user_id = message.from_user.id
+    chat_id = message.chat.id
+    logger.info(f"Користувач {user_id} задав запитання GPT: {question}")
 
-# Обробник для меню M6
-async def handle_m6_menu(message: Message, state: FSMContext, bot: Bot, user_choice: str):
-    # Функція вже визначена вище
-    pass  # Виправлення дублювання, функція вже існує
+    # Видаляємо повідомлення користувача
+    await message.delete()
 
-# Обробник інлайн-кнопок
-@router.callback_query()
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    data = callback.data
-    user_id = callback.from_user.id
-    chat_id = callback.message.chat.id
-    logger.info(f"Користувач {user_id} натиснув інлайн-кнопку: {data}")
+    # Тут додайте інтеграцію з GPT (наприклад, через OpenAI API)
+    # Наприклад:
+    # response = await get_gpt_response(question)
+    # Поки що ми використаємо загальну відповідь
 
-    # Отримуємо interactive_message_id з стану
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
-
-    if interactive_message_id:
-        # Обробляємо інлайн-кнопки
-        if data == "mls_button":
-            await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
-        elif data == "menu_back":
-            # Повернення до головного меню
-            user_first_name = callback.from_user.first_name
-            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
-            try:
-                await bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=interactive_message_id,
-                    text=MAIN_MENU_DESCRIPTION,
-                    parse_mode="HTML",
-                    reply_markup=get_generic_inline_keyboard()
-                )
-                main_message = await send_new_main_message(
-                    chat_id=chat_id,
-                    text=main_menu_text_formatted,
-                    reply_markup=get_main_menu(),
-                    parse_mode="HTML",
-                    state=state,
-                    bot=bot
-                )
-                # Видаляємо попереднє повідомлення з клавіатурою
-                old_bot_message_id = state_data.get('bot_message_id')
-                if old_bot_message_id:
-                    try:
-                        await bot.delete_message(chat_id=chat_id, message_id=old_bot_message_id)
-                    except Exception as e:
-                        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
-            except Exception as e:
-                logger.error(f"Помилка при поверненні до головного меню: {e}")
-                await bot.send_message(
-                    chat_id=chat_id,
-                    text=GENERIC_ERROR_MESSAGE_TEXT,
-                    reply_markup=get_generic_inline_keyboard(),
-                    parse_mode="HTML"
-                )
-        else:
-            # Додайте обробку інших інлайн-кнопок за потребою
-            await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
+    if question:
+        # Приклад відповіді, замініть на реальну інтеграцію з GPT
+        response = "Це приклад відповіді від GPT. Реалізуйте інтеграцію з API для отримання дійсних відповідей."
     else:
-        logger.error("interactive_message_id не знайдено")
-        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
+        response = "Будь ласка, введіть запитання."
 
-    await callback.answer()
+    await bot.send_message(
+        chat_id=chat_id,
+        text=f"<b>Відповідь AI:</b>\n{response}",
+        parse_mode="HTML",
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+    # Повертаємо користувача до меню GPT
+    await state.set_state(MenuStates.GPT_MENU)
 
 # Обробник невідомих повідомлень
 @router.message()
@@ -1683,139 +1833,5 @@ async def handle_error(update: object, exception: Exception):
     # Можна реалізувати повідомлення користувачеві про помилку тут
 
 # Функція для налаштування обробників
-def setup_handlers(dp: Bot):
-    dp.include_router(router)
-
-# Додаткові обробники для різних станів
-
-async def handle_search_hero(message: Message, state: FSMContext, bot: Bot, hero_name: str):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    logger.info(f"Користувач {user_id} шукає героя: {hero_name}")
-
-    # Тут додайте логіку пошуку героя
-    # Наприклад, перевірка чи існує герой, відправка інформації тощо
-    # Поки що відправимо повідомлення про отримання запиту
-
-    if hero_name:
-        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
-    else:
-        response_text = "Будь ласка, введіть ім'я героя для пошуку."
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard(),
-        parse_mode="HTML"
-    )
-
-    # Повертаємо користувача до попереднього меню
-    await state.set_state(MenuStates.HEROES_MENU)
-
-async def handle_search_topic(message: Message, state: FSMContext, bot: Bot, topic: str):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    logger.info(f"Користувач {user_id} пропонує тему: {topic}")
-
-    # Тут додайте логіку обробки пропозиції теми
-    # Наприклад, збереження в базі даних або відправка адміністратору
-    # Поки що відправимо повідомлення про отримання запиту
-
-    if topic:
-        response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
-    else:
-        response_text = "Будь ласка, введіть тему для пропозиції."
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard(),
-        parse_mode="HTML"
-    )
-
-    # Повертаємо користувача до меню Голосування
-    await state.set_state(MenuStates.VOTING_MENU)
-
-async def handle_change_username(message: Message, state: FSMContext, bot: Bot, new_username: str):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    logger.info(f"Користувач {user_id} змінює Username на: {new_username}")
-
-    # Тут додайте логіку зміни Username
-    # Наприклад, перевірка унікальності, оновлення в базі даних тощо
-    # Поки що відправимо повідомлення про отримання запиту
-
-    if new_username:
-        response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-    else:
-        response_text = "Будь ласка, введіть новий Username."
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard(),
-        parse_mode="HTML"
-    )
-
-    # Повертаємо користувача до меню Налаштування
-    await state.set_state(MenuStates.SETTINGS_MENU)
-
-async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot, feedback: str):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    logger.info(f"Користувач {user_id} надіслав відгук: {feedback}")
-
-    # Тут додайте логіку зберігання відгуку
-    # Наприклад, збереження в базі даних або відправка адміністратору
-    # Поки що відправимо повідомлення про отримання відгуку
-
-    if feedback:
-        response_text = FEEDBACK_RECEIVED_TEXT
-    else:
-        response_text = "Будь ласка, залиште свій відгук."
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard(),
-        parse_mode="HTML"
-    )
-
-    # Повертаємо користувача до меню Зворотний Зв'язок
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-async def handle_report_bug(message: Message, state: FSMContext, bot: Bot, bug_report: str):
-    user_id = message.from_user.id
-    chat_id = message.chat.id
-    logger.info(f"Користувач {user_id} повідомив про помилку: {bug_report}")
-
-    # Тут додайте логіку обробки звіту про помилку
-    # Наприклад, збереження в базі даних або відправка адміністратору
-    # Поки що відправимо повідомлення про отримання звіту
-
-    if bug_report:
-        response_text = BUG_REPORT_RECEIVED_TEXT
-    else:
-        response_text = "Будь ласка, опишіть помилку, яку ви знайшли."
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard(),
-        parse_mode="HTML"
-    )
-
-    # Повертаємо користувача до меню Зворотний Зв'язок
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-async def handle_gpt_menu(message: Message, state: FSMContext, bot: Bot, user_choice: str):
-    # Функція вже визначена вище
-    pass  # Функція вже реалізована
-
-# Додаткові обробники можна додати тут за потребою
-
-# В кінці файлу, після визначення всіх функцій, підключаємо обробники
-
-# Функція для налаштування обробників
-def setup_handlers(dp: Bot):
+def setup_handlers(dp):
     dp.include_router(router)
