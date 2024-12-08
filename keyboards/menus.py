@@ -1,12 +1,11 @@
-# keyboards/menus.py
+# keyboard/menus.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-from enum import Enum
 
 def create_reply_keyboard(buttons, row_width=2):
     """
     Допоміжна функція для створення Reply Keyboard Markup.
-    :param buttons: Список екземплярів MenuButton.
+    :param buttons: Список текстів кнопок.
     :param row_width: Кількість кнопок у рядку.
     :return: Об'єкт ReplyKeyboardMarkup.
     """
@@ -27,118 +26,49 @@ def create_inline_keyboard(buttons, row_width=2):
     keyboard.add(*buttons)
     return keyboard
 
-class MenuButton(Enum):
-    # Головне Меню
-    NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Профіль"
-    META = "🔥 META"
-    M6 = "🏆 M6"
-    GPT = "👾 GPT"
-
-    # Навігаційне меню
-    HEROES = "🥷 Персонажі"
-    GUIDES = "📚 Гайди"
-    COUNTER_PICKS = "⚖️ Контр-піки"
-    BUILDS = "🛡️ Білди"
-    VOTING = "📊 Голосування"
-    BACK = "🔙 Назад"
-
-    # Профіль меню
-    STATISTICS = "📈 Статистика"
-    ACHIEVEMENTS = "🏆 Досягнення"
-    SETTINGS = "⚙️ Налаштування"
-    FEEDBACK = "💌 Зворотний Зв’язок"
-    HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔙 Меню"
-
-    # Гайди меню
-    NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Топ Гайди"
-    BEGINNER_GUIDES = "📘 Новачкам"
-    ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
-    TEAMPLAY_GUIDES = "🤝 Командна Гра"
-
-    # Контр-піки меню
-    COUNTER_SEARCH = "🔎 Пошук Контр-піку"
-    COUNTER_LIST = "📝 Список Персонажів"
-
-    # Білди меню
-    CREATE_BUILD = "🏗️ Створити Білд"
-    MY_BUILDS = "📄 Збережені Білди"
-    POPULAR_BUILDS = "🔥 Популярні Білди"
-
-    # Голосування меню
-    CURRENT_VOTES = "📍 Поточні Опитування"
-    MY_VOTES = "📋 Мої Голосування"
-    SUGGEST_TOPIC = "➕ Запропонувати Тему"
-
-    # Статистика меню
-    ACTIVITY = "📊 Загальна Активність"
-    RANKING = "🥇 Рейтинг"
-    GAME_STATS = "🎮 Ігрова Статистика"
-
-    # Досягнення меню
-    BADGES = "🎖️ Мої Бейджі"
-    PROGRESS = "🚀 Прогрес"
-    TOURNAMENT_STATS = "🏅 Турнірна Статистика"
-    AWARDS = "🎟️ Отримані Нагороди"
-
-    # Налаштування меню
-    LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "ℹ️ Змінити Username"
-    UPDATE_ID = "🆔 Оновити ID"
-    NOTIFICATIONS = "🔔 Сповіщення"
-
-# Відповідність кнопок класам героїв (можна розширити за потребою)
-menu_button_to_class = {
-    MenuButton.HEROES.value: "Навігація",
-    MenuButton.PROFILE.value: "Профіль",
-    # Додайте відповідність для інших кнопок за потребою
-}
-
 # Визначення кнопок меню
 MAIN_MENU_BUTTONS = [
-    MenuButton.NAVIGATION,
-    MenuButton.PROFILE,
-    MenuButton.META,
-    MenuButton.M6,
-    MenuButton.GPT
+    KeyboardButton("🧭 Навігація"),
+    KeyboardButton("🪪 Профіль"),
+    KeyboardButton("🔥 META"),
+    KeyboardButton("🏆 M6"),
+    KeyboardButton("👾 GPT")
 ]
 
 NAVIGATION_MENU_BUTTONS = [
-    MenuButton.HEROES,
-    MenuButton.GUIDES,
-    MenuButton.COUNTER_PICKS,
-    MenuButton.BUILDS,
-    MenuButton.VOTING,
-    MenuButton.BACK
+    KeyboardButton("🥷 Персонажі"),
+    KeyboardButton("📚 Гайди"),
+    KeyboardButton("⚖️ Контр-піки"),
+    KeyboardButton("🛡️ Білди"),
+    KeyboardButton("📊 Голосування"),
+    KeyboardButton("🔙 Назад")
 ]
 
 PROFILE_MENU_BUTTONS = [
-    MenuButton.STATISTICS,
-    MenuButton.ACHIEVEMENTS,
-    MenuButton.SETTINGS,
-    MenuButton.FEEDBACK,
-    MenuButton.HELP,
-    MenuButton.BACK_TO_MAIN_MENU
+    KeyboardButton("📈 Статистика"),
+    KeyboardButton("🏆 Досягнення"),
+    KeyboardButton("⚙️ Налаштування"),
+    KeyboardButton("💌 Зворотний Зв’язок"),
+    KeyboardButton("❓ Допомога"),
+    KeyboardButton("🔙 Меню")
 ]
 
 META_MENU_BUTTONS = [
-    MenuButton("📈 Аналітика", "📈 Аналітика"),
-    MenuButton("📊 Статистика", "📊 Статистика"),
-    MenuButton.BACK_TO_MAIN_MENU
+    KeyboardButton("📈 Аналітика"),
+    KeyboardButton("📊 Статистика"),
+    KeyboardButton("🔙 Меню")
 ]
 
 M6_MENU_BUTTONS = [
-    MenuButton("🏆 Результати", "🏆 Результати"),
-    MenuButton("🔍 Деталі", "🔍 Деталі"),
-    MenuButton.BACK_TO_MAIN_MENU
+    KeyboardButton("🏆 Результати"),
+    KeyboardButton("🔍 Деталі"),
+    KeyboardButton("🔙 Меню")
 ]
 
 GPT_MENU_BUTTONS = [
-    MenuButton("📝 Задати питання", "📝 Задати питання"),
-    MenuButton("❓ Допомога", "❓ Допомога"),
-    MenuButton.BACK_TO_MAIN_MENU
+    KeyboardButton("📝 Задати питання"),
+    KeyboardButton("❓ Допомога"),
+    KeyboardButton("🔙 Меню")
 ]
 
 # Визначення Inline-кнопок
@@ -161,40 +91,26 @@ INTRO_PAGE_3_BUTTONS = [
 
 # Функції для отримання клавіатур
 def get_main_menu():
-    return create_reply_keyboard(MAIN_MENU_BUTTONS, row_width=3)
+    return create_reply_keyboard(MAIN_MENU_BUTTONS)
 
 def get_navigation_menu():
-    return create_reply_keyboard(NAVIGATION_MENU_BUTTONS, row_width=3)
+    return create_reply_keyboard(NAVIGATION_MENU_BUTTONS)
 
 def get_profile_menu():
-    return create_reply_keyboard(PROFILE_MENU_BUTTONS, row_width=3)
+    return create_reply_keyboard(PROFILE_MENU_BUTTONS)
 
 def get_meta_menu():
-    meta_buttons = [
-        MenuButton("📈 Аналітика", "📈 Аналітика"),
-        MenuButton("📊 Статистика", "📊 Статистика"),
-        MenuButton.BACK_TO_MAIN_MENU
-    ]
-    return create_reply_keyboard(meta_buttons, row_width=2)
+    return create_reply_keyboard(META_MENU_BUTTONS)
 
 def get_m6_menu():
-    m6_buttons = [
-        MenuButton("🏆 Результати", "🏆 Результати"),
-        MenuButton("🔍 Деталі", "🔍 Деталі"),
-        MenuButton.BACK_TO_MAIN_MENU
-    ]
-    return create_reply_keyboard(m6_buttons, row_width=2)
+    return create_reply_keyboard(M6_MENU_BUTTONS)
 
 def get_gpt_menu():
-    gpt_buttons = [
-        MenuButton("📝 Задати питання", "📝 Задати питання"),
-        MenuButton("❓ Допомога", "❓ Допомога"),
-        MenuButton.BACK_TO_MAIN_MENU
-    ]
-    return create_reply_keyboard(gpt_buttons, row_width=2)
+    return create_reply_keyboard(GPT_MENU_BUTTONS)
 
+# Функції для отримання Inline-клавіатур
 def get_generic_inline_keyboard():
-    return create_inline_keyboard(GENERIC_INLINE_BUTTONS, row_width=2)
+    return create_inline_keyboard(GENERIC_INLINE_BUTTONS)
 
 def get_intro_page_1_keyboard():
     return create_inline_keyboard(INTRO_PAGE_1_BUTTONS)
