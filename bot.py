@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher, F, types
-from aiogram.filters import Command
+from aiogram.filters import Command, BaseFilter
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -22,6 +22,11 @@ logger = logging.getLogger("bot")
 # Змінна для токена (логування)
 TELEGRAM_BOT_TOKEN = settings.TELEGRAM_BOT_TOKEN
 logger.info(f"Loaded TELEGRAM_BOT_TOKEN: {TELEGRAM_BOT_TOKEN[:5]}***")  # Логування перших символів токена
+
+# Власний фільтр для перевірки, що повідомлення не є командою
+class NotCommand(BaseFilter):
+    async def __call__(self, message: Message) -> bool:
+        return not message.text.startswith('/')
 
 # Окрема функція для створення бота і диспетчера
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
@@ -66,7 +71,7 @@ def setup_handlers(dp: Dispatcher):
     dp.message.register(cmd_start, Command(commands=["start"]))
     dp.message.register(cmd_help, Command(commands=["help"]))
     dp.message.register(cmd_echo, Command(commands=["echo"]))
-    dp.message.register(handle_all_text, F.text & ~Command())  # Реєстрація обробника для всіх текстових повідомлень, які не є командами
+    dp.message.register(handle_all_text, NotCommand(), F.text)  # Реєстрація обробника для всіх текстових повідомлень, які не є командами
 
 # Основна функція запуску бота
 async def main():
