@@ -6,7 +6,7 @@ import os
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command, BaseFilter
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 
@@ -40,11 +40,27 @@ def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
     return bot, dp
 
-# Приклад обробників
+# Створення клавіатури
+def get_main_keyboard() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text="Команда 1"),
+                KeyboardButton(text="Команда 2"),
+            ],
+            [
+                KeyboardButton(text="Команда 3"),
+            ],
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True,
+    )
+    return keyboard
 
 # Обробник команди /start
 async def cmd_start(message: Message):
-    await message.answer("Привіт! Я бот. Як я можу допомогти?")
+    keyboard = get_main_keyboard()
+    await message.answer("Привіт! Я бот. Як я можу допомогти?", reply_markup=keyboard)
 
 # Обробник команди /help
 async def cmd_help(message: Message):
@@ -52,7 +68,7 @@ async def cmd_help(message: Message):
         "Доступні команди:\n"
         "/start - Запустити бота\n"
         "/help - Отримати допомогу\n"
-        "/echo <текст> - Ехо повідомлення"
+        "/echo &lt;текст&gt; - Ехо повідомлення"
     )
     await message.answer(help_text)
 
