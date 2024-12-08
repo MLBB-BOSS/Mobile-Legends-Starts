@@ -1,1 +1,6 @@
-62257796eb6fecc454e20de606f69d17a2e2cbb4
+from .start_handler import router as start_router
+from .base import router as base_router
+
+def setup_handlers(dispatcher):
+    dispatcher.include_router(start_router)
+    dispatcher.include_router(base_router)
