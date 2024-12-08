@@ -1,5 +1,5 @@
 # keyboards/menus.py
-
+from keyboards.menus import heroes_by_class
 from aiogram.types import (
     ReplyKeyboardMarkup, KeyboardButton,
     InlineKeyboardMarkup, InlineKeyboardButton,
