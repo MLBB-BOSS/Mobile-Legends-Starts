@@ -1,5 +1,9 @@
 # texts.py
+from texts_unicode import *
 
+# Використовуйте константи з texts_unicode.py
+print(INTRO_PAGE_1_TEXT
+      
 # Привітальні повідомлення
 INTRO_PAGE_1_TEXT = (
     """🔥 <b>Mobile Legends: Starts!</b> 
