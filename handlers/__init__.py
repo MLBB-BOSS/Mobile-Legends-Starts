@@ -1,10 +1,6 @@
-# handlers/__init__.py
-
 from .start_handler import router as start_router
-# Імпортуйте інші роутери тут, наприклад:
-# from .visual_handler import router as visual_router
+from .base import router as base_router  # Імпортуємо базовий роутер
 
 def setup_handlers(dispatcher):
     dispatcher.include_router(start_router)
-    # dispatcher.include_router(visual_router)
-    # Додайте інші роутери тут
+    dispatcher.include_router(base_router)  # Додаємо базовий роутер
