@@ -2,14 +2,13 @@
 
 import asyncio
 import logging
+import os
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command, BaseFilter
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
-
-from config import settings
 
 # Налаштування логування
 logging.basicConfig(
@@ -19,8 +18,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("bot")
 
-# Змінна для токена (логування)
-TELEGRAM_BOT_TOKEN = settings.TELEGRAM_BOT_TOKEN
+# Зчитування токена з змінних середовища
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+if not TELEGRAM_BOT_TOKEN:
+    logger.error("TELEGRAM_BOT_TOKEN не встановлений в змінних середовища!")
+    exit(1)
 logger.info(f"Loaded TELEGRAM_BOT_TOKEN: {TELEGRAM_BOT_TOKEN[:5]}***")  # Логування перших символів токена
 
 # Власний фільтр для перевірки, що повідомлення не є командою
