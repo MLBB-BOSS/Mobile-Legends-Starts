@@ -29,7 +29,10 @@ def create_inline_keyboard(buttons, row_width=2):
 # Визначення кнопок меню
 MAIN_MENU_BUTTONS = [
     KeyboardButton("🧭 Навігація"),
-    KeyboardButton("🪪 Профіль")
+    KeyboardButton("🪪 Профіль"),
+    KeyboardButton("🔥 META"),
+    KeyboardButton("🏆 M6"),
+    KeyboardButton("👾 GPT")
 ]
 
 NAVIGATION_MENU_BUTTONS = [
@@ -38,9 +41,6 @@ NAVIGATION_MENU_BUTTONS = [
     KeyboardButton("⚖️ Контр-піки"),
     KeyboardButton("🛡️ Білди"),
     KeyboardButton("📊 Голосування"),
-    KeyboardButton("🔥 META"),
-    KeyboardButton("🏆 M6"),
-    KeyboardButton("👾 GPT"),
     KeyboardButton("🔙 Назад")
 ]
 
