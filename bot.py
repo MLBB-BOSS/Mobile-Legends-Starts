@@ -57,18 +57,16 @@ async def cmd_echo(message: Message):
     else:
         await message.answer("Будь ласка, введіть текст після команди /echo.")
 
-# Реєстрація обробників з використанням F-фільтрів
+# Обробник всіх текстових повідомлень, які не є командами
+async def handle_all_text(message: Message):
+    await message.answer(f"Ви написали: {message.text}")
+
+# Реєстрація обробників
 def setup_handlers(dp: Dispatcher):
     dp.message.register(cmd_start, Command(commands=["start"]))
     dp.message.register(cmd_help, Command(commands=["help"]))
     dp.message.register(cmd_echo, Command(commands=["echo"]))
-    
-    # Приклад використання F-фільтрів для більш складних умов
-    # Наприклад, обробник всіх текстових повідомлень, які не є командами
-    @dp.message.register()
-    async def handle_all_text(message: Message):
-        if F.text and not message.text.startswith('/'):
-            await message.answer(f"Ви написали: {message.text}")
+    dp.message.register(handle_all_text, F.text & ~Command())  # Реєстрація обробника для всіх текстових повідомлень, які не є командами
 
 # Основна функція запуску бота
 async def main():
