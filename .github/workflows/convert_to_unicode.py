@@ -4,13 +4,12 @@ def escape_unicode(s):
     return ''.join(['\\u{:04x}'.format(ord(c)) if ord(c) > 127 else c for c in s])
 
 input_file = 'texts.py'
-output_file = 'texts_unicode.py'
+output_file = 'texts.py'  # Перезаписуємо оригінальний файл
 
 with open(input_file, 'r', encoding='utf-8') as f:
     content = f.read()
 
 # Регулярний вираз для пошуку рядкових констант
-# Підтримує потрійні лапки (''' або """) та одиночні лапки (' або ")
 pattern = re.compile(r'("""(.*?)""")|("([^"\\]*(\\.[^"\\]*)*)")|(\'([^\'\\]*(\\.[^\'\\]*)*)\')', re.DOTALL)
 
 def replacer(match):
@@ -34,4 +33,4 @@ escaped_content = pattern.sub(replacer, content)
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(escaped_content)
 
-print(f"Перетворення завершено. Новий файл збережено як {output_file}.")
+print(f"Перетворення завершено. Файл {output_file} оновлено.")
