@@ -2,14 +2,14 @@
 
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.dispatcher.filters import Command
 
 from config import settings
-from handlers import setup_handlers
 
 # Налаштування логування
 logging.basicConfig(
@@ -32,6 +32,36 @@ def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
     return bot, dp
+
+# Приклад обробників
+
+# Команда /start
+async def cmd_start(message: types.Message):
+    await message.answer("Привіт! Я бот. Як я можу допомогти?")
+
+# Команда /help
+async def cmd_help(message: types.Message):
+    help_text = (
+        "Доступні команди:\n"
+        "/start - Запустити бота\n"
+        "/help - Отримати допомогу\n"
+        "/echo <текст> - Ехо повідомлення"
+    )
+    await message.answer(help_text)
+
+# Команда /echo
+async def cmd_echo(message: types.Message):
+    args = message.get_args()
+    if args:
+        await message.answer(args)
+    else:
+        await message.answer("Будь ласка, введіть текст після команди /echo.")
+
+# Реєстрація обробників
+def setup_handlers(dp: Dispatcher):
+    dp.message.register(cmd_start, Command("start"))
+    dp.message.register(cmd_help, Command("help"))
+    dp.message.register(cmd_echo, Command("echo"))
 
 # Основна функція запуску бота
 async def main():
