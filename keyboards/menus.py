@@ -1,270 +1,253 @@
-# keyboards/menus.py
+Ось список констант, використаних у коді:
 
-from aiogram.types import (
-    ReplyKeyboardMarkup, KeyboardButton,
-    InlineKeyboardMarkup, InlineKeyboardButton,
-    ReplyKeyboardRemove
-)
-from enum import Enum
-import logging
+Привітальні повідомлення:
 
-# Налаштування логування
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+INTRO_PAGE_1_TEXT
 
-class MenuButton(Enum):
-    # Головне Меню
-    NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Профіль"
-    META = "🔥 META"
-    M6 = "🏆 M6"
-    GPT = "👾 GPT"
+INTRO_PAGE_2_TEXT
 
-    # Інші кнопки...
-    BACK = "🔙 Назад"
-    BACK_TO_MAIN_MENU = "🔙 Меню"
+INTRO_PAGE_3_TEXT
 
-# Відповідність кнопок класам героїв
-menu_button_to_class = {
-    MenuButton.NAVIGATION.value: "Навігація",
-    MenuButton.PROFILE.value: "Профіль",
-    # Додайте відповідність для інших кнопок за потребою
-}
+WELCOME_NEW_USER_TEXT
 
-# Функція для створення клавіатури з заданою кількістю кнопок у рядку
-def create_menu(buttons, row_width=3):
-    """
-    Створює клавіатуру з кнопками.
-    :param buttons: Список кнопок (MenuButton або str).
-    :param row_width: Кількість кнопок у рядку.
-    :return: ReplyKeyboardMarkup
-    """
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
-    keyboard_buttons = [
-        KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
-    ]
-    keyboard = [
-        keyboard_buttons[i:i + row_width]
-        for i in range(0, len(keyboard_buttons), row_width)
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-# Відновлені функції меню
+Кнопки для навігації:
 
-def get_main_menu():
-    return create_menu(
-        [
-            MenuButton.NAVIGATION,
-            MenuButton.PROFILE
-        ],
-        row_width=3  # Розміщення у двох рядках по три кнопки
-    )
+BUTTON_NEXT
 
-def get_navigation_menu():
-    return create_menu(
-        [
-            '🥷 Персонажі',
-            '📚 Гайди',
-            '⚖️ Контр-піки',
-            '🛡️ Білди',
-            '📊 Голосування',
-            MenuButton.META,
-            MenuButton.M6,
-            MenuButton.GPT,
-            MenuButton.BACK
-        ],
-        row_width=3  # Розміщення у двох рядках по три кнопки
-    )
+BUTTON_START
 
-def get_guides_menu():
-    return create_menu(
-        [
-            '🆕 Нові Гайди',
-            '🌟 Топ Гайди',
-            '📘 Новачкам',
-            '🧙 Стратегії гри',
-            '🤝 Командна Гра',
-            MenuButton.BACK
-        ],
-        row_width=3  # Розміщення у двох рядках по три кнопки
-    )
 
-def get_meta_menu() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            ['📈 Аналітика', '📊 Статистика', '🔙 Меню'],
-        ],
-        resize_keyboard=True
-    )
-    return keyboard
+Головне меню:
 
-def get_m6_menu() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            ['🏆 Результати', '🔍 Деталі', '🔙 Меню'],
-        ],
-        resize_keyboard=True
-    )
-    return keyboard
+MAIN_MENU_TEXT
 
-def get_gpt_menu() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            ['📝 Задати питання', '❓ Допомога', '🔙 Меню'],
-        ],
-        resize_keyboard=True
-    )
-    return keyboard
+PROFILE_MENU_TEXT
 
-def get_profile_menu() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            ['📈 Статистика', '🏆 Досягнення', '⚙️ Налаштування'],
-            ['💌 Зворотний Зв’язок', '❓ Допомога', MenuButton.BACK_TO_MAIN_MENU.value],
-        ],
-        resize_keyboard=True
-    )
-    return keyboard
+MAIN_MENU_DESCRIPTION
 
-def get_heroes_menu() -> ReplyKeyboardMarkup:
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            ['🛡️ Танки', '🧙‍♂️ Маги', '🏹 Стрільці'],
-            ['⚔️ Асасіни', '❤️ Сапорти', '🗡️ Бійці'],
-            ['⚖️ Порівняти', '🔎 Шукати', MenuButton.BACK.value],
-        ],
-        resize_keyboard=True
-    )
-    return keyboard
+MAIN_MENU_ERROR_TEXT
 
-def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
-    # Приклад: створення клавіатури з героями певного класу
-    heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
-    # Додатково додаємо кнопку '🔙 Назад'
-    buttons.append(KeyboardButton(text=MenuButton.BACK.value))
-    row_width = 3
-    keyboard = [
-        buttons[i:i + row_width]
-        for i in range(0, len(buttons), row_width)
-    ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+MAIN_MENU_BACK_TO_PROFILE_TEXT
 
-def get_counter_picks_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '🔎 Пошук Контр-піку',
-            '📝 Список Персонажів',
-            MenuButton.BACK
-        ],
-        row_width=3  # Розміщення у одному рядку з трьома кнопками
-    )
 
-def get_builds_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '🏗️ Створити Білд',
-            '📄 Збережені Білди',
-            '🔥 Популярні Білди',
-            MenuButton.BACK
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
+Меню навігації:
 
-def get_voting_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '📍 Поточні Опитування',
-            '📋 Мої Голосування',
-            '➕ Запропонувати Тему',
-            MenuButton.BACK
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
+NAVIGATION_MENU_TEXT
 
-def get_statistics_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '📊 Загальна Активність',
-            '🥇 Рейтинг',
-            '🎮 Ігрова Статистика',
-            '🔙 Повернутися до Профілю'
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
+NAVIGATION_INTERACTIVE_TEXT
 
-def get_achievements_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '🎖️ Мої Бейджі',
-            '🚀 Прогрес',
-            '🏅 Турнірна Статистика',
-            '🎟️ Отримані Нагороди',
-            '🔙 Повернутися до Профілю'
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
 
-def get_settings_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '🌐 Мова Інтерфейсу',
-            'ℹ️ Змінити Username',
-            '🆔 Оновити ID',
-            '🔔 Сповіщення',
-            '🔙 Повернутися до Профілю'
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
+Меню персонажів:
 
-def get_feedback_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '✏️ Надіслати Відгук',
-            '🐛 Повідомити про Помилку',
-            '🔙 Повернутися до Профілю'
-        ],
-        row_width=3  # Розміщення у одному рядку з трьома кнопками
-    )
+HEROES_MENU_TEXT
 
-def get_help_menu() -> ReplyKeyboardMarkup:
-    return create_menu(
-        [
-            '📄 Інструкції',
-            '❔ FAQ',
-            '📞 Підтримка',
-            '🔙 Повернутися до Профілю'
-        ],
-        row_width=3  # Розміщення у двох рядках
-    )
+HEROES_INTERACTIVE_TEXT
 
-# Функції для створення Inline Keyboards залишаються без змін
+HERO_CLASS_MENU_TEXT
 
-def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup(row_width=2)
-    buttons = [
-        InlineKeyboardButton("MLS Button", callback_data="mls_button"),
-        InlineKeyboardButton("🔙 Назад", callback_data="menu_back"),
-    ]
-    keyboard.add(*buttons)
-    return keyboard
+HERO_CLASS_INTERACTIVE_TEXT
 
-def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup()
-    button = InlineKeyboardButton("Далі", callback_data="intro_next_1")
-    keyboard.add(button)
-    return keyboard
 
-def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup()
-    button = InlineKeyboardButton("Далі", callback_data="intro_next_2")
-    keyboard.add(button)
-    return keyboard
+Меню гайдів:
 
-def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup()
-    button = InlineKeyboardButton("Розпочати", callback_data="intro_start")
-    keyboard.add(button)
-    return keyboard
+GUIDES_MENU_TEXT
+
+GUIDES_INTERACTIVE_TEXT
+
+NEW_GUIDES_TEXT
+
+POPULAR_GUIDES_TEXT
+
+BEGINNER_GUIDES_TEXT
+
+ADVANCED_TECHNIQUES_TEXT
+
+TEAMPLAY_GUIDES_TEXT
+
+
+Меню контр-піків:
+
+COUNTER_PICKS_MENU_TEXT
+
+COUNTER_PICKS_INTERACTIVE_TEXT
+
+COUNTER_SEARCH_TEXT
+
+COUNTER_LIST_TEXT
+
+
+Меню білдів:
+
+BUILDS_MENU_TEXT
+
+BUILDS_INTERACTIVE_TEXT
+
+CREATE_BUILD_TEXT
+
+MY_BUILDS_TEXT
+
+POPULAR_BUILDS_TEXT
+
+
+Меню голосування:
+
+VOTING_MENU_TEXT
+
+VOTING_INTERACTIVE_TEXT
+
+CURRENT_VOTES_TEXT
+
+MY_VOTES_TEXT
+
+SUGGEST_TOPIC_TEXT
+
+SUGGESTION_RESPONSE_TEXT
+
+
+Меню статистики:
+
+STATISTICS_MENU_TEXT
+
+STATISTICS_INTERACTIVE_TEXT
+
+ACTIVITY_TEXT
+
+RANKING_TEXT
+
+GAME_STATS_TEXT
+
+
+Меню досягнень:
+
+ACHIEVEMENTS_MENU_TEXT
+
+ACHIEVEMENTS_INTERACTIVE_TEXT
+
+BADGES_TEXT
+
+PROGRESS_TEXT
+
+TOURNAMENT_STATS_TEXT
+
+AWARDS_TEXT
+
+
+Меню налаштувань:
+
+SETTINGS_MENU_TEXT
+
+SETTINGS_INTERACTIVE_TEXT
+
+LANGUAGE_TEXT
+
+CHANGE_USERNAME_TEXT
+
+CHANGE_USERNAME_RESPONSE_TEXT
+
+UPDATE_ID_TEXT
+
+NOTIFICATIONS_TEXT
+
+
+Меню зворотного зв'язку:
+
+FEEDBACK_MENU_TEXT
+
+FEEDBACK_INTERACTIVE_TEXT
+
+SEND_FEEDBACK_TEXT
+
+REPORT_BUG_TEXT
+
+FEEDBACK_RECEIVED_TEXT
+
+BUG_REPORT_RECEIVED_TEXT
+
+
+Меню допомоги:
+
+HELP_MENU_TEXT
+
+HELP_INTERACTIVE_TEXT
+
+INSTRUCTIONS_TEXT
+
+FAQ_TEXT
+
+HELP_SUPPORT_TEXT
+
+
+Невідома команда:
+
+UNKNOWN_COMMAND_TEXT
+
+
+Загальні повідомлення про помилки:
+
+GENERIC_ERROR_MESSAGE_TEXT
+
+ERROR_MESSAGE_TEXT
+
+
+Загальний запит на навігацію:
+
+USE_BUTTON_NAVIGATION_TEXT
+
+
+Відповіді на натискання інлайн кнопок:
+
+MLS_BUTTON_RESPONSE_TEXT
+
+UNHANDLED_INLINE_BUTTON_TEXT
+
+
+Інтеграція з GPT:
+
+AI_INTRO_TEXT
+
+AI_RESPONSE_TEXT
+
+
+Додаткові тексти для нових функцій:
+
+LAST_MATCH_ANALYSIS_TEXT
+
+
+Меню META:
+
+META_MENU_TEXT
+
+META_INTERACTIVE_TEXT
+
+
+Меню M6:
+
+M6_MENU_TEXT
+
+M6_INTERACTIVE_TEXT
+
+
+Меню GPT:
+
+GPT_MENU_TEXT
+
+GPT_INTERACTIVE_TEXT
+
+
+Додаткові відповіді:
+
+SEARCH_HERO_RESPONSE_TEXT
+
+CHANGE_USERNAME_RESPONSE_TEXT
+
+
+Placeholder текст:
+
+PROFILE_INTERACTIVE_TEXT
+
+BUILD_MENU_TEXT
+
+
+Це всі константи, які визначено у цьому файлі.
+
