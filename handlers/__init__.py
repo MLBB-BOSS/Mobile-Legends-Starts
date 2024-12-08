@@ -1,6 +1,8 @@
-from .start_handler import router as start_router
-from .base import router as base_router
+# handlers/__init__.py
 
-def setup_handlers(dispatcher):
-    dispatcher.include_router(start_router)
-    dispatcher.include_router(base_router)
+from .base import router as base_router
+# from .ai_handler import router as ai_router  # Видалено або закоментовано
+
+def setup_handlers(dp):
+    dp.include_router(base_router)
+    # dp.include_router(ai_router)  # Видалено або закоментовано
