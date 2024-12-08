@@ -1,17 +1,13 @@
-# handlers/base.py
+handlers/base.py
 
 import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.types import (
-    Message,
-    CallbackQuery,
-    ReplyKeyboardRemove
-)
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram import types  # Додано для використання ReplyKeyboardRemove
 
-# Імпортуємо клавіатури
 from keyboards.menus import (
     MenuButton,
     menu_button_to_class,
@@ -29,9 +25,121 @@ from keyboards.menus import (
     get_settings_menu,
     get_feedback_menu,
     get_help_menu,
-    get_meta_menu,
-    get_m6_menu,
-    get_gpt_menu
+    heroes_by_class,
+)
+from keyboards.inline_menus import (
+    get_generic_inline_keyboard,
+    get_intro_page_1_keyboard,
+    get_intro_page_2_keyboard,
+    get_intro_page_3_keyboard
+)
+
+# Імпортуємо тексти
+from texts import (
+    INTRO_PAGE_1_TEXT,
+    INTRO_PAGE_2_TEXT,
+    INTRO_PAGE_3_TEXT,
+    MAIN_MENU_TEXT,
+    MAIN_MENU_DESCRIPTION,
+    MAIN_MENU_ERROR_TEXT,
+    NAVIGATION_MENU_TEXT,
+    NAVIGATION_INTERACTIVE_TEXT,
+    PROFILE_MENU_TEXT,
+    PROFILE_INTERACTIVE_TEXT,
+    UNKNOWN_COMMAND_TEXT,
+    ERROR_MESSAGE_TEXT,
+    HEROES_MENU_TEXT,
+    HEROES_INTERACTIVE_TEXT,
+    HERO_CLASS_MENU_TEXT,
+    HERO_CLASS_INTERACTIVE_TEXT,
+    GUIDES_MENU_TEXT,
+    GUIDES_INTERACTIVE_TEXT,
+    NEW_GUIDES_TEXT,
+    POPULAR_GUIDES_TEXT,
+    BEGINNER_GUIDES_TEXT,
+    ADVANCED_TECHNIQUES_TEXT,
+    TEAMPLAY_GUIDES_TEXT,
+    COUNTER_PICKS_MENU_TEXT,
+    COUNTER_PICKS_INTERACTIVE_TEXT,
+    COUNTER_SEARCH_TEXT,
+    COUNTER_LIST_TEXT,
+    BUILDS_MENU_TEXT,
+    BUILDS_INTERACTIVE_TEXT,
+    CREATE_BUILD_TEXT,
+    MY_BUILDS_TEXT,
+    POPULAR_BUILDS_TEXT,
+    VOTING_MENU_TEXT,
+    VOTING_INTERACTIVE_TEXT,
+    CURRENT_VOTES_TEXT,
+    MY_VOTES_TEXT,
+    SUGGEST_TOPIC_TEXT,
+    SUGGESTION_RESPONSE_TEXT,
+    STATISTICS_MENU_TEXT,
+    STATISTICS_INTERACTIVE_TEXT,
+    ACTIVITY_TEXT,
+    RANKING_TEXT,
+    GAME_STATS_TEXT,
+    ACHIEVEMENTS_MENU_TEXT,
+    ACHIEVEMENTS_INTERACTIVE_TEXT,
+    BADGES_TEXT,
+    PROGRESS_TEXT,
+    TOURNAMENT_STATS_TEXT,
+    AWARDS_TEXT,
+    SETTINGS_MENU_TEXT,
+    SETTINGS_INTERACTIVE_TEXT,
+    LANGUAGE_TEXT,
+    CHANGE_USERNAME_TEXT,
+    UPDATE_ID_TEXT,
+    NOTIFICATIONS_TEXT,
+    FEEDBACK_MENU_TEXT,
+    FEEDBACK_INTERACTIVE_TEXT,
+    SEND_FEEDBACK_TEXT,
+    REPORT_BUG_TEXT,
+    FEEDBACK_RECEIVED_TEXT,
+    BUG_REPORT_RECEIVED_TEXT,
+    HELP_MENU_TEXT,
+    HELP_INTERACTIVE_TEXT,
+    INSTRUCTIONS_TEXT,
+    FAQ_TEXT,
+    HELP_SUPPORT_TEXT,
+    GENERIC_ERROR_MESSAGE_TEXT,
+    USE_BUTTON_NAVIGATION_TEXT,
+    SEARCH_HERO_RESPONSE_TEXT,
+    CHANGE_USERNAME_RESPONSE_TEXT,
+    MLS_BUTTON_RESPONSE_TEXT,
+    UNHANDLED_INLINE_BUTTON_TEXT,
+    MAIN_MENU_BACK_TO_PROFILE_TEXT,
+)
+
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+router = Router()
+
+# Визначаємо стани меню
+class MenuStates(StatesGroup):
+    INTRO_PAGE_1 = State()
+    INTRO_PAGE_2 = State()
+    INTRO_PAGE_3 = State()
+    MAIN_MENU = State()
+    NAVIGATION_MENU = State()
+    HEROES_MENU = State()
+    HERO_CLASS_MENU = State()
+    GUIDES_MENU = State()
+    COUNTER_PICKS_MENU = State()
+    BUILDS_MENU = State()
+    VOTING_MENU = State()
+    PROFILE_MENU = State()
+    STATISTICS_MENU = State()
+    ACHIEVEMENTS_MENU = State()
+    SETTINGS_MENU = State()
+    FEEDBACK_MENU = State()
+    HELP_MENU = State()
+    SEARCH_HERO = State()
+    SEARCH_TOPIC = State()
+    CHANGE_USERNAME = State()
+    RECEIVE_from keyboards.menus import heroes_by_classFEEDBACK = State()
+    REPORT_BUG = State()
 )
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
