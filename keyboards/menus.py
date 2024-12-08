@@ -1,4 +1,14 @@
-# texts.py
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+def get_main_menu() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton("Навігація"), KeyboardButton("Профіль"))
+    return keyboard
+
+def get_navigation_menu() -> ReplyKeyboardMarkup:
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton("Герої"), KeyboardButton("Гайди"))
+    return keyboard
 
 # Привітальні повідомлення
 INTRO_PAGE_1_TEXT = (
