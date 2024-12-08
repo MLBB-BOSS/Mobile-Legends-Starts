@@ -1,4 +1,3 @@
-from utils.hero_repository import HeroRepository
 from keyboards.menus import (
     get_main_menu,
     get_navigation_menu,
