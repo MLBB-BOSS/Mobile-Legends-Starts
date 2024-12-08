@@ -1,15 +1,4 @@
 # texts.py
-import logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-logger.info("Початок імпорту функцій з keyboards.menus...")
-from keyboards.menus import (
-    get_main_menu,
-    get_navigation_menu,
-    # інші функції
-)
-logger.info("Імпорт завершено успішно.")
 
 # Привітальні повідомлення
 INTRO_PAGE_1_TEXT = (
