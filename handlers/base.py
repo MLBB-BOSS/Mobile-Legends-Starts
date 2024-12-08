@@ -1,6 +1,7 @@
 # handlers/base.py
 
 import logging
+from utils.hero_data import load_hero_data
 from utils.hero_repository import HeroRepository
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
