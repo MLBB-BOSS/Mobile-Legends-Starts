@@ -161,17 +161,7 @@ def get_main_menu():
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
         ],
-        row_width=3
-    )
-
-def get_tournaments_menu():
-    return create_reply_menu(
-        [
-            MenuButton.CREATE_TOURNAMENT,
-            MenuButton.VIEW_TOURNAMENTS,
-            MenuButton.BACK
-        ],
-        row_width=3
+        row_width=2 
     )
 
 def get_navigation_menu():
@@ -190,6 +180,16 @@ def get_navigation_menu():
         ],
         row_width=3
     )
+
+def get_tournaments_menu():
+    return create_reply_menu(
+        [
+            MenuButton.CREATE_TOURNAMENT,
+            MenuButton.VIEW_TOURNAMENTS,
+            MenuButton.BACK
+        ],
+        row_width=3
+    ) 
 
 def get_heroes_menu():
     return create_reply_menu(
