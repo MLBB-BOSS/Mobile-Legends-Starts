@@ -168,6 +168,7 @@ def get_main_menu():
 def get_navigation_menu():
     return create_reply_menu(
         [
+            MenuButton.TOURNAMENTS,
             MenuButton.HEROES,
             MenuButton.BUILDS,
             MenuButton.COUNTER_PICKS,
@@ -176,7 +177,6 @@ def get_navigation_menu():
             MenuButton.M6,
             MenuButton.GPT,
             MenuButton.META,
-            MenuButton.TOURNAMENTS,
             MenuButton.BACK
         ],
         row_width=3
