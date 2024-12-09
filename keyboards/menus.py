@@ -14,12 +14,13 @@ class MenuButton(Enum):
     PROFILE = "🪪 Мій Профіль"
 
     # Розділ Навігація
+    TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
     BUILDS = "🛡️ Білди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     GUIDES = "📚 Гайди"
     VOTING = "📊 Голосування"
-    M6 = "🏆 M6"
+    M6 = "🇲🇾 M6"
     GPT = "👾 GPT"
     META = "🔥 META"
     BACK = "🔙 Назад"
