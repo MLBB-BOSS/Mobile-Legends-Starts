@@ -1,5 +1,3 @@
-# keyboards/inline_menus.py
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
