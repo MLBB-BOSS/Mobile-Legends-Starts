@@ -1,5 +1,4 @@
-#  keyboards/menus.py
-
+# keyboards/menus.py
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
 import logging
