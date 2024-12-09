@@ -12,15 +12,15 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
+    TOURNAMENTS = "🏆 Турніри"  # Додано кнопку "Турніри"
 
     # Розділ Навігація
-    TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
     BUILDS = "🛡️ Білди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     GUIDES = "📚 Гайди"
     VOTING = "📊 Голосування"
-    M6 = "🇲🇾 M6"
+    M6 = "🏆 M6"
     GPT = "👾 GPT"
     META = "🔥 META"
     BACK = "🔙 Назад"
@@ -160,24 +160,8 @@ def get_main_menu():
     return create_reply_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE
-        ],
-        row_width=2 
-    )
-
-def get_navigation_menu():
-    return create_reply_menu(
-        [
-            MenuButton.TOURNAMENTS,
-            MenuButton.HEROES,
-            MenuButton.BUILDS,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.GUIDES,
-            MenuButton.VOTING,
-            MenuButton.M6,
-            MenuButton.GPT,
-            MenuButton.META,
-            MenuButton.BACK
+            MenuButton.PROFILE,
+            MenuButton.TOURNAMENTS  # Додано кнопку "Турніри"
         ],
         row_width=3
     )
@@ -189,8 +173,25 @@ def get_tournaments_menu():
             MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
+        row_width=2
+    )
+
+def get_navigation_menu():
+    return create_reply_menu(
+        [
+            MenuButton.HEROES,
+            MenuButton.BUILDS,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.GUIDES,
+            MenuButton.VOTING,
+            MenuButton.M6,
+            MenuButton.GPT,
+            MenuButton.META,
+            MenuButton.TOURNAMENTS,
+            MenuButton.BACK
+        ],
         row_width=3
-    ) 
+    )
 
 def get_heroes_menu():
     return create_reply_menu(
@@ -250,7 +251,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_profile_menu():
@@ -263,7 +264,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_statistics_menu():
@@ -274,7 +275,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_achievements_menu():
@@ -286,7 +287,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_settings_menu():
@@ -298,7 +299,7 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_feedback_menu():
@@ -308,7 +309,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 def get_help_menu():
@@ -319,7 +320,7 @@ def get_help_menu():
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=3
+        row_width=2
     )
 
 # Додавання функції get_hero_class_menu
