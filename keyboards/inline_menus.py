@@ -3,12 +3,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def get_generic_inline_keyboard():
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="MLS Button", callback_data="mls_button")],
-            [InlineKeyboardButton(text="Назад до меню", callback_data="menu_back")],
-        ]
-    )
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[])
     return keyboard
 
 def get_intro_page_1_keyboard():
