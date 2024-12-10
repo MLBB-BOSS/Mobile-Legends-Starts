@@ -1,7 +1,6 @@
 # handlers/base.py
-
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.types import (
     Message,
