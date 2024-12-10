@@ -1,16 +1,14 @@
 # handlers/base.py
 
-import logging
-from aiogram import Router, Bot
-from aiogram.filters import Command
 from aiogram.types import (
     Message,
     CallbackQuery,
     ReplyKeyboardRemove,
     InlineKeyboardButton,
-    InlineKeyboardMarkup
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup  # Додано
 )
-from aiogram.fsm.context import FSMContext
+ FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from keyboards.menus import (
