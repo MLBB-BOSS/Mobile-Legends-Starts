@@ -322,35 +322,3 @@ def get_help_menu():
         ],
         row_width=2
     )
-
-# Додавання функції get_hero_class_menu
-def get_hero_class_menu(hero_class):
-    """
-    Створює меню з героями відповідного класу.
-    :param hero_class: Клас героя (наприклад, "Танк", "Маг" тощо)
-    :return: ReplyKeyboardMarkup
-    """
-    heroes = heroes_by_class.get(hero_class, [])
-    if not heroes:
-        logger.warning(f"Не знайдено героїв для класу: {hero_class}")
-        return create_reply_menu([MenuButton.BACK], row_width=1)
-
-    # Створення кнопок для героїв
-    buttons = [hero for hero in heroes]
-    buttons.append(MenuButton.BACK.value)  # Додавання кнопки "🔙 Назад"
-
-    logger.info(f"Створення меню для класу {hero_class} з героями: {heroes}")
-
-    # Використання функції create_reply_menu для створення клавіатури
-    keyboard = []
-    row = []
-    for button in buttons:
-        if len(row) < 2:
-            row.append(button)
-        else:
-            keyboard.append(row)
-            row = [button]
-    if row:
-        keyboard.append(row)
-
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, one_time_keyboard=False)
