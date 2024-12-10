@@ -3,7 +3,14 @@
 import logging
 from aiogram import Router, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    ReplyKeyboardRemove,
+    ReplyKeyboardMarkup,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup
+)
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
@@ -190,8 +197,9 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
             new_state=transition["state"]
         )
     else:
-        await message.answer(
-            UNKNOWN_COMMAND_TEXT,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=UNKNOWN_COMMAND_TEXT,
             reply_markup=get_main_menu()
         )
         await state.set_state(MenuStates.MAIN_MENU)
@@ -279,8 +287,9 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
             new_state=transition["state"]
         )
     else:
-        await message.answer(
-            UNKNOWN_COMMAND_TEXT,
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=UNKNOWN_COMMAND_TEXT,
             reply_markup=get_navigation_menu()
         )
         await state.set_state(MenuStates.NAVIGATION_MENU)
@@ -423,7 +432,8 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     if transition:
         await bot.send_message(
             chat_id=message.chat.id,
-            text=transition["interactive_text"]
+            text=transition["interactive_text"],
+            reply_markup=transition["keyboard"]
         )
         await state.set_state(transition["state"])
     else:
@@ -1305,7 +1315,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         await bot.send_message(
             chat_id=message.chat.id,
             text=transition["interactive_text"],
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=transition["keyboard"]
         )
         await state.set_state(transition["state"])
     elif user_choice == MenuButton.VIEW_TOURNAMENTS.value:
@@ -1313,7 +1323,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         await bot.send_message(
             chat_id=message.chat.id,
             text=transition["interactive_text"],
-            reply_markup=ReplyKeyboardRemove()
+            reply_markup=transition["keyboard"]
         )
         await state.set_state(transition["state"])
     elif transition:
