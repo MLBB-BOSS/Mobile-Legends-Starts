@@ -1,5 +1,4 @@
 from aiogram import Router, Bot
-from handlers.start_handler import router as start_router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
