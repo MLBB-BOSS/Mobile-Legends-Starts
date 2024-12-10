@@ -1,4 +1,4 @@
-# keyboards/menus.py
+#keyboards/menus.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum
@@ -12,18 +12,14 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
-    TOURNAMENTS = "🏆 Турніри"  # Додано кнопку "Турніри"
 
     # Розділ Навігація
     HEROES = "🥷 Персонажі"
-    BUILDS = "🛡️ Білди"
-    COUNTER_PICKS = "⚖️ Контр-піки"
     GUIDES = "📚 Гайди"
+    COUNTER_PICKS = "⚖️ Контр-піки"
+    BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    M6 = "🏆 M6"
-    GPT = "👾 GPT"
-    META = "🔥 META"
-    BACK = "🔙 Назад"
+    BACK = "🔙"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -37,7 +33,7 @@ class MenuButton(Enum):
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Топ Гайди"
+    POPULAR_GUIDES = "🌟 Тор Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
@@ -62,13 +58,13 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Зворотний Зв'язок"
     HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔙 Назад до Головного Меню"
+    BACK_TO_MAIN_MENU = "🔙"
 
     # Підрозділ Статистика
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔙 Назад до Профілю"
+    BACK_TO_PROFILE = "🔙"
 
     # Підрозділ Досягнення
     BADGES = "🎖️ Мої Бейджі"
@@ -82,18 +78,14 @@ class MenuButton(Enum):
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотного Зв'язку
+    # Підрозділ Зворотний Зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
-    # Підрозділ Допомоги
+    # Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
-
-    # Підрозділ Турніри
-    CREATE_TOURNAMENT = "🆕 Створити Турнір"
-    VIEW_TOURNAMENTS = "📋 Переглянути Турніри"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -137,9 +129,9 @@ heroes_by_class = {
     ],
 }
 
-def create_reply_menu(buttons, row_width=2):
+def create_menu(buttons, row_width=2):
     """
-    Створює клавіатуру ReplyKeyboardMarkup з кнопками.
+    Створює клавіатуру з кнопками.
     :param buttons: Список кнопок (MenuButton або str).
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
@@ -154,47 +146,32 @@ def create_reply_menu(buttons, row_width=2):
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
     ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, one_time_keyboard=False)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_main_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE,
-            MenuButton.TOURNAMENTS  # Додано кнопку "Турніри"
-        ],
-        row_width=3
-    )
-
-def get_tournaments_menu():
-    return create_reply_menu(
-        [
-            MenuButton.CREATE_TOURNAMENT,
-            MenuButton.VIEW_TOURNAMENTS,
-            MenuButton.BACK
+            MenuButton.PROFILE
         ],
         row_width=2
     )
 
 def get_navigation_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.HEROES,
             MenuButton.BUILDS,
             MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
             MenuButton.VOTING,
-            MenuButton.M6,
-            MenuButton.GPT,
-            MenuButton.META,
-            MenuButton.TOURNAMENTS,
             MenuButton.BACK
         ],
         row_width=3
     )
 
 def get_heroes_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.TANK,
             MenuButton.MAGE,
@@ -209,8 +186,16 @@ def get_heroes_menu():
         row_width=3
     )
 
+def get_hero_class_menu(hero_class):
+    heroes = heroes_by_class.get(hero_class, [])
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    row_width = 3
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
 def get_guides_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.NEW_GUIDES,
             MenuButton.POPULAR_GUIDES,
@@ -223,39 +208,39 @@ def get_guides_menu():
     )
 
 def get_counter_picks_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.COUNTER_SEARCH,
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_builds_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.CREATE_BUILD,
             MenuButton.MY_BUILDS,
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_voting_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.CURRENT_VOTES,
             MenuButton.MY_VOTES,
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_profile_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.STATISTICS,
             MenuButton.ACHIEVEMENTS,
@@ -264,22 +249,22 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK_TO_MAIN_MENU
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_statistics_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_achievements_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.BADGES,
             MenuButton.PROGRESS,
@@ -287,11 +272,11 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_settings_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.LANGUAGE,
             MenuButton.CHANGE_USERNAME,
@@ -299,26 +284,26 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_feedback_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
+        row_width=3
     )
 
 def get_help_menu():
-    return create_reply_menu(
+    return create_menu(
         [
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK_TO_PROFILE
         ],
-        row_width=2
-    )
+        row_width=3
+)
