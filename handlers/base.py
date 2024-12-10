@@ -7,31 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # Додано для використання ReplyKeyboardRemove
 
-from keyboards.menus import (
-    MenuButton,
-    menu_button_to_class,
-    get_main_menu,
-    get_navigation_menu,
-    get_profile_menu,
-    get_heroes_menu,
-    get_hero_class_menu,
-    get_guides_menu,
-    get_counter_picks_menu,
-    get_builds_menu,
-    get_voting_menu,
-    get_statistics_menu,
-    get_achievements_menu,
-    get_settings_menu,
-    get_feedback_menu,
-    get_help_menu,
-    heroes_by_class,
-)
-from keyboards.inline_menus import (
-    get_generic_inline_keyboard,
-    get_intro_page_1_keyboard,
-    get_intro_page_2_keyboard,
-    get_intro_page_3_keyboard
-)
+From keyboards.menus 
 
 # Ініціалізація маршрутизатора
 router = Router()
