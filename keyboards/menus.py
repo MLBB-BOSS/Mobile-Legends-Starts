@@ -331,6 +331,20 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
     return keyboard
 
 def get_help_menu() -> ReplyKeyboardMarkup:
+
+    from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
+    buttons = [
+        KeyboardButton(text=f"Обрати героя з класу: {hero_class}"),
+        KeyboardButton(text="🔙 Назад")
+    ]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[buttons],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
+    return keyboard
     buttons = [
         KeyboardButton(text=MenuButton.INSTRUCTIONS.value),
         KeyboardButton(text=MenuButton.FAQ.value),
