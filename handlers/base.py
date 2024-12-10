@@ -1,4 +1,4 @@
-# handlers/base
+# handlers/base.py
 
 import logging
 from aiogram import Router, Bot
@@ -9,7 +9,7 @@ from aiogram.types import (
     ReplyKeyboardRemove,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    ReplyKeyboardMarkup  # Додано
+    ReplyKeyboardMarkup
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -37,6 +37,8 @@ from keyboards.menus import (
     menu_button_to_class
 )
 
+from states import MenuStates  # Додано
+
 # Ініціалізація маршрутизатора
 router = Router()
 
@@ -44,7 +46,50 @@ router = Router()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Інші частини коду...
+# Приклад обробника для стану MAIN_MENU
+@router.message(MenuStates.MAIN_MENU)
+async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} у головному меню")
+
+    # Видаляємо повідомлення користувача
+    try:
+        await message.delete()
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
+
+    transition = {
+        MenuButton.NAVIGATION.value: {
+            "text": MenuButton.NAVIGATION.value,
+            "keyboard": get_navigation_menu(),
+            "interactive_text": "Оберіть опцію в меню Навігації.",
+            "state": MenuStates.NAVIGATION_MENU
+        },
+        MenuButton.PROFILE.value: {
+            "text": MenuButton.PROFILE.value,
+            "keyboard": get_profile_menu_buttons(),
+            "interactive_text": "Оберіть опцію в меню Профіль.",
+            "state": MenuStates.PROFILE_MENU
+        }
+    }.get(user_choice)
+
+    if transition:
+        await update_menu(
+            message=message,
+            state=state,
+            bot=bot,
+            new_main_text=transition["text"],
+            new_main_keyboard=transition["keyboard"],
+            new_interactive_text=transition["interactive_text"],
+            new_state=transition["state"]
+        )
+    else:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Вибрана опція невідома. Будь ласка, спробуйте ще раз.",
+            reply_markup=get_main_menu()
+        )
+        await state.set_state(MenuStates.MAIN_MENU)
 
 # Визначаємо ID адміністратора (замініть на фактичний)
 ADMIN_CHAT_ID = 123456789  # Змініть на фактичний Chat ID адміністратора
