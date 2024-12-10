@@ -23,7 +23,7 @@ class MenuButton(Enum):
     GPT = "👾 GPT"
     META = "🔥 META"
     TOURNAMENTS = "🏆 Турніри"  # Додана нова кнопка
-    BACK = "🔙"
+    BACK = "🔙 Назад"  # Додано опис для кнопки назад
 
     # Підменю Персонажів
     TANK = "🛡️ Танк"
@@ -62,13 +62,13 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Зворотний Зв'язок"
     HELP = "❓ Допомога"
-    BACK_TO_MAIN_MENU = "🔙"
+    BACK_TO_MAIN_MENU = "🔙 Назад до Головного Меню"
 
     # Підменю Статистика
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔙"
+    BACK_TO_PROFILE = "🔙 Назад до Профілю"
 
     # Підменю Досягнення
     BADGES = "🎖️ Мої Бейджі"
@@ -213,7 +213,7 @@ def get_hero_class_menu(hero_class):
     buttons = [KeyboardButton(text=hero) for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    keyboard.append([MenuButton.BACK.value])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
@@ -356,47 +356,5 @@ def get_active_tournaments_menu():
 
     keyboard.append([MenuButton.BACK.value])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
-
-# Відповідність кнопок класам героїв
-menu_button_to_class = {
-    MenuButton.TANK.value: "Танк",
-    MenuButton.MAGE.value: "Маг",
-    MenuButton.MARKSMAN.value: "Стрілець",
-    MenuButton.ASSASSIN.value: "Асасін",
-    MenuButton.SUPPORT.value: "Підтримка",
-    MenuButton.FIGHTER.value: "Боєць",
-}
-
-# Повний список героїв за класами
-heroes_by_class = {
-    "Боєць": [
-        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
-        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
-        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
-        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
-        "Badang", "Guinevere"
-    ],
-    "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
-    ],
-    "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
-    ],
-    "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
-    ],
-    "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
-        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
-    ],
-    "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
-    ],
-}
 
 # Додаткові функції можуть бути додані тут при необхідності
