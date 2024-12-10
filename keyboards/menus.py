@@ -1,5 +1,3 @@
-# keyboards/menus.py
-
 from enum import Enum
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
@@ -97,9 +95,22 @@ menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.DAMAGER.value: "Дамагер",
     MenuButton.SUPPORT.value: "Підтримка",
-    # Додайте інші мапінги, якщо необхідно
 }
 
+# Функція для клавіатури класів героїв
+def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
+    buttons = [
+        KeyboardButton(text=f"Обрати героя з класу: {hero_class}"),
+        KeyboardButton(text=MenuButton.BACK.value)
+    ]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[buttons],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
+    return keyboard
+
+# Інші функції меню
 def get_main_menu() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text=MenuButton.NAVIGATION.value),
@@ -331,29 +342,3 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
     return keyboard
 
 def get_help_menu() -> ReplyKeyboardMarkup:
-
-    from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-
-def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
-    buttons = [
-        KeyboardButton(text=f"Обрати героя з класу: {hero_class}"),
-        KeyboardButton(text="🔙 Назад")
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[buttons],
-        resize_keyboard=True,
-        one_time_keyboard=False
-    )
-    return keyboard
-    buttons = [
-        KeyboardButton(text=MenuButton.INSTRUCTIONS.value),
-        KeyboardButton(text=MenuButton.FAQ.value),
-        KeyboardButton(text=MenuButton.HELP_SUPPORT.value),
-        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_HELP.value)
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[buttons],
-        resize_keyboard=True,
-        one_time_keyboard=False
-    )
-    return keyboard
