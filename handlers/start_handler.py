@@ -1,4 +1,4 @@
-from aiogram.filters import Command, F  # Додайте F тут
+from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
