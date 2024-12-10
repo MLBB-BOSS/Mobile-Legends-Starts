@@ -61,9 +61,7 @@ from constants import (
     SEARCH_HERO_RESPONSE_TEXT,
     SUGGESTION_RESPONSE_TEXT,
     CHANGE_USERNAME_RESPONSE_TEXT,
-    # Додайте інші константи за необхідності
 )
-
 def setup_handlers(dispatcher):
     dispatcher.include_router(start_router)
         new_main_keyboard = get_main_menu()
