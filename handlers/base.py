@@ -64,6 +64,17 @@ from constants import (
     # Додайте інші константи за необхідності
 )
 
+def setup_handlers(dispatcher):
+    dispatcher.include_router(start_router)
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
+
+        await update_menu(
+            message=message,
+            state=state,
+            bot=bot,
+
 # Ініціалізація маршрутизатора
 router = Router()
 
