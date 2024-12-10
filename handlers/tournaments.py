@@ -1,6 +1,6 @@
 # handlers/tournaments.py
 
-from aiogram import Router, types, Bot
+from aiogram import Router, F, Bot
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from keyboards.menus import get_tournaments_menu
