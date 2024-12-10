@@ -8,8 +8,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     ReplyKeyboardMarkup  # Додано
 )
-
- FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 from keyboards.menus import (
