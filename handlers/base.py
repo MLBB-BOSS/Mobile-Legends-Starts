@@ -62,6 +62,7 @@ from constants import (
     SUGGESTION_RESPONSE_TEXT,
     CHANGE_USERNAME_RESPONSE_TEXT,
 )
+
 def setup_handlers(dispatcher):
     dispatcher.include_router(start_router)
         new_main_keyboard = get_main_menu()
@@ -72,9 +73,7 @@ def setup_handlers(dispatcher):
             message=message,
             state=state,
             bot=bot,
-
-# Ініціалізація маршрутизатора
-router = Router()
+            router = Router()
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
