@@ -1,3 +1,4 @@
+from .start_handler import router as start_router
 from .base import router as base_router
 
 def setup_handlers(dispatcher):
