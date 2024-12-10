@@ -2257,6 +2257,11 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         # Якщо стан невідомий, повертаємося до головного меню
         user_first_name = message.from_user.first_name
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+
+        from handlers.start_handler import router as start_router
+
+def setup_handlers(dispatcher):
+    dispatcher.include_router(start_router)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
