@@ -1,8 +1,9 @@
 # keyboards/menus.py
 
+from enum import Enum
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-class MenuButton:
+class MenuButton(Enum):
     # Основне меню
     NAVIGATION = "🔧 Навігація"
     PROFILE = "👤 Профіль"
@@ -93,8 +94,8 @@ class MenuButton:
 
 def get_main_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.NAVIGATION),
-        KeyboardButton(text=MenuButton.PROFILE)
+        KeyboardButton(text=MenuButton.NAVIGATION.value),
+        KeyboardButton(text=MenuButton.PROFILE.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -105,15 +106,15 @@ def get_main_menu() -> ReplyKeyboardMarkup:
 
 def get_navigation_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.HEROES),
-        KeyboardButton(text=MenuButton.BUILDS),
-        KeyboardButton(text=MenuButton.COUNTER_PICKS),
-        KeyboardButton(text=MenuButton.GUIDES),
-        KeyboardButton(text=MenuButton.VOTING),
-        KeyboardButton(text=MenuButton.M6),
-        KeyboardButton(text=MenuButton.GPT),
-        KeyboardButton(text=MenuButton.META),
-        KeyboardButton(text=MenuButton.TOURNAMENTS)
+        KeyboardButton(text=MenuButton.HEROES.value),
+        KeyboardButton(text=MenuButton.BUILDS.value),
+        KeyboardButton(text=MenuButton.COUNTER_PICKS.value),
+        KeyboardButton(text=MenuButton.GUIDES.value),
+        KeyboardButton(text=MenuButton.VOTING.value),
+        KeyboardButton(text=MenuButton.M6.value),
+        KeyboardButton(text=MenuButton.GPT.value),
+        KeyboardButton(text=MenuButton.META.value),
+        KeyboardButton(text=MenuButton.TOURNAMENTS.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -124,24 +125,10 @@ def get_navigation_menu() -> ReplyKeyboardMarkup:
 
 def get_heroes_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.TANK),
-        KeyboardButton(text=MenuButton.DAMAGER),
-        KeyboardButton(text=MenuButton.SUPPORT),
-        KeyboardButton(text=MenuButton.BACK)
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[buttons],
-        resize_keyboard=True,
-        one_time_keyboard=False
-    )
-    return keyboard
-
-def get_hero_class_menu() -> ReplyKeyboardMarkup:
-    buttons = [
-        KeyboardButton(text=MenuButton.TANK),
-        KeyboardButton(text=MenuButton.DAMAGER),
-        KeyboardButton(text=MenuButton.SUPPORT),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.TANK.value),
+        KeyboardButton(text=MenuButton.DAMAGER.value),
+        KeyboardButton(text=MenuButton.SUPPORT.value),
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -155,7 +142,7 @@ def get_builds_menu() -> ReplyKeyboardMarkup:
         KeyboardButton(text="Створити Білд"),
         KeyboardButton(text="Мої Білди"),
         KeyboardButton(text="Популярні Білди"),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -168,14 +155,14 @@ def get_counter_picks_menu() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text="Пошук Контр-піку"),
         KeyboardButton(text="Список Контр-піків"),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_guides_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -184,92 +171,92 @@ def get_guides_menu() -> ReplyKeyboardMarkup:
         KeyboardButton(text="Гайди для Початківців"),
         KeyboardButton(text="Розширені Техніки"),
         KeyboardButton(text="Гайди для Командної Гри"),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_voting_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.CURRENT_VOTES),
-        KeyboardButton(text=MenuButton.MY_VOTES),
-        KeyboardButton(text=MenuButton.SUGGEST_TOPIC),
-        KeyboardButton(text=MenuButton.BACK_TO_NAVIGATION)
+        KeyboardButton(text=MenuButton.CURRENT_VOTES.value),
+        KeyboardButton(text=MenuButton.MY_VOTES.value),
+        KeyboardButton(text=MenuButton.SUGGEST_TOPIC.value),
+        KeyboardButton(text=MenuButton.BACK_TO_NAVIGATION.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_m6_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.M6_TOURNAMENT_INFO),
-        KeyboardButton(text=MenuButton.M6_STATISTICS),
-        KeyboardButton(text=MenuButton.M6_NEWS),
-        KeyboardButton(text=MenuButton.BACK_M6)
+        KeyboardButton(text=MenuButton.M6_TOURNAMENT_INFO.value),
+        KeyboardButton(text=MenuButton.M6_STATISTICS.value),
+        KeyboardButton(text=MenuButton.M6_NEWS.value),
+        KeyboardButton(text=MenuButton.BACK_M6.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_gpt_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.GPT_DATA_GENERATION),
-        KeyboardButton(text=MenuButton.GPT_HINTS),
-        KeyboardButton(text=MenuButton.GPT_HERO_STATISTICS),
-        KeyboardButton(text=MenuButton.BACK_GPT)
+        KeyboardButton(text=MenuButton.GPT_DATA_GENERATION.value),
+        KeyboardButton(text=MenuButton.GPT_HINTS.value),
+        KeyboardButton(text=MenuButton.GPT_HERO_STATISTICS.value),
+        KeyboardButton(text=MenuButton.BACK_GPT.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_meta_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.META_HERO_LIST),
-        KeyboardButton(text=MenuButton.META_RECOMMENDATIONS),
-        KeyboardButton(text=MenuButton.META_UPDATE),
-        KeyboardButton(text=MenuButton.BACK_META)
+        KeyboardButton(text=MenuButton.META_HERO_LIST.value),
+        KeyboardButton(text=MenuButton.META_RECOMMENDATIONS.value),
+        KeyboardButton(text=MenuButton.META_UPDATE.value),
+        KeyboardButton(text=MenuButton.BACK_META.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_tournaments_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.CREATE_TOURNAMENT),
-        KeyboardButton(text=MenuButton.VIEW_TOURNAMENTS),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.CREATE_TOURNAMENT.value),
+        KeyboardButton(text=MenuButton.VIEW_TOURNAMENTS.value),
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard  # Виправлено
+    return keyboard
 
 def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.STATISTICS),
-        KeyboardButton(text=MenuButton.ACHIEVEMENTS),
-        KeyboardButton(text=MenuButton.SETTINGS),
-        KeyboardButton(text=MenuButton.FEEDBACK),
-        KeyboardButton(text=MenuButton.HELP),
-        KeyboardButton(text=MenuButton.BACK_TO_MAIN_MENU)
+        KeyboardButton(text=MenuButton.STATISTICS.value),
+        KeyboardButton(text=MenuButton.ACHIEVEMENTS.value),
+        KeyboardButton(text=MenuButton.SETTINGS.value),
+        KeyboardButton(text=MenuButton.FEEDBACK.value),
+        KeyboardButton(text=MenuButton.HELP.value),
+        KeyboardButton(text=MenuButton.BACK_TO_MAIN_MENU.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -280,10 +267,10 @@ def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
 
 def get_statistics_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.ACTIVITY),
-        KeyboardButton(text=MenuButton.RANKING),
-        KeyboardButton(text=MenuButton.GAME_STATS),
-        KeyboardButton(text=MenuButton.BACK_TO_PROFILE)
+        KeyboardButton(text=MenuButton.ACTIVITY.value),
+        KeyboardButton(text=MenuButton.RANKING.value),
+        KeyboardButton(text=MenuButton.GAME_STATS.value),
+        KeyboardButton(text=MenuButton.BACK_TO_PROFILE.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -294,11 +281,11 @@ def get_statistics_menu() -> ReplyKeyboardMarkup:
 
 def get_achievements_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.BADGES),
-        KeyboardButton(text=MenuButton.PROGRESS),
-        KeyboardButton(text=MenuButton.TOURNAMENT_STATS),
-        KeyboardButton(text=MenuButton.AWARDS),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.BADGES.value),
+        KeyboardButton(text=MenuButton.PROGRESS.value),
+        KeyboardButton(text=MenuButton.TOURNAMENT_STATS.value),
+        KeyboardButton(text=MenuButton.AWARDS.value),
+        KeyboardButton(text=MenuButton.BACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -309,11 +296,11 @@ def get_achievements_menu() -> ReplyKeyboardMarkup:
 
 def get_settings_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.LANGUAGE),
-        KeyboardButton(text=MenuButton.CHANGE_USERNAME),
-        KeyboardButton(text=MenuButton.UPDATE_ID),
-        KeyboardButton(text=MenuButton.NOTIFICATIONS),
-        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_SETTINGS)
+        KeyboardButton(text=MenuButton.LANGUAGE.value),
+        KeyboardButton(text=MenuButton.CHANGE_USERNAME.value),
+        KeyboardButton(text=MenuButton.UPDATE_ID.value),
+        KeyboardButton(text=MenuButton.NOTIFICATIONS.value),
+        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_SETTINGS.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -324,9 +311,9 @@ def get_settings_menu() -> ReplyKeyboardMarkup:
 
 def get_feedback_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.SEND_FEEDBACK),
-        KeyboardButton(text=MenuButton.REPORT_BUG),
-        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_FEEDBACK)
+        KeyboardButton(text=MenuButton.SEND_FEEDBACK.value),
+        KeyboardButton(text=MenuButton.REPORT_BUG.value),
+        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_FEEDBACK.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
@@ -337,10 +324,10 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
 
 def get_help_menu() -> ReplyKeyboardMarkup:
     buttons = [
-        KeyboardButton(text=MenuButton.INSTRUCTIONS),
-        KeyboardButton(text=MenuButton.FAQ),
-        KeyboardButton(text=MenuButton.HELP_SUPPORT),
-        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_HELP)
+        KeyboardButton(text=MenuButton.INSTRUCTIONS.value),
+        KeyboardButton(text=MenuButton.FAQ.value),
+        KeyboardButton(text=MenuButton.HELP_SUPPORT.value),
+        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_HELP.value)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
