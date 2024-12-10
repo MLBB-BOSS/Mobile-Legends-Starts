@@ -92,6 +92,14 @@ class MenuButton(Enum):
     CREATE_TOURNAMENT = "🆕 Створити Турнір"
     VIEW_TOURNAMENTS = "👁️‍🗨️ Переглянути Турніри"
 
+# Словник, який мапить кнопки класів героїв до їхніх назв
+menu_button_to_class = {
+    MenuButton.TANK.value: "Танк",
+    MenuButton.DAMAGER.value: "Дамагер",
+    MenuButton.SUPPORT.value: "Підтримка",
+    # Додайте інші мапінги, якщо необхідно
+}
+
 def get_main_menu() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text=MenuButton.NAVIGATION.value),
