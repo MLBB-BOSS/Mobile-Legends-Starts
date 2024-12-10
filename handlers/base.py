@@ -33,6 +33,13 @@ from keyboards.inline_menus import (
     get_intro_page_3_keyboard
 )
 
+# Ініціалізація маршрутизатора
+router = Router()
+
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Імпортуємо тексти
 from texts import (
     INTRO_PAGE_1_TEXT,
