@@ -8,11 +8,10 @@ from aiogram.types import (
     CallbackQuery,
     ReplyKeyboardRemove,
     InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    ReplyKeyboardMarkup
+    InlineKeyboardMarkup
 )
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State
+from aiogram.fsm.state import StatesGroup, State
 
 from keyboards.menus import (
     MenuButton,
@@ -33,69 +32,70 @@ from keyboards.menus import (
     get_achievements_menu,
     get_settings_menu,
     get_feedback_menu,
-    get_help_menu,
-    menu_button_to_class
+    get_help_menu
 )
-from states import MenuStates
-from constants import (
+
+from keyboards.inline_menus import get_generic_inline_keyboard  # Якщо ви використовуєте інлайн-клавіші
+from texts import (
     MAIN_MENU_TEXT,
+    MAIN_MENU_DESCRIPTION,
     UNKNOWN_COMMAND_TEXT,
-    NAVIGATION_INTERACTIVE_TEXT,
-    PROFILE_INTERACTIVE_TEXT,
-    STATISTICS_INTERACTIVE_TEXT,
-    ACHIEVEMENTS_INTERACTIVE_TEXT,
-    SETTINGS_INTERACTIVE_TEXT,
-    FEEDBACK_INTERACTIVE_TEXT,
-    HELP_INTERACTIVE_TEXT,
-    ACTIVITY_TEXT,
-    RANKING_TEXT,
-    GAME_STATS_TEXT,
-    BADGES_TEXT,
-    PROGRESS_TEXT,
-    TOURNAMENT_STATS_TEXT,
-    AWARDS_TEXT,
-    LANGUAGE_TEXT,
-    NOTIFICATIONS_TEXT,
-    FEEDBACK_RECEIVED_TEXT,
-    BUG_REPORT_RECEIVED_TEXT,
+    USE_BUTTON_NAVIGATION_TEXT,
     SEARCH_HERO_RESPONSE_TEXT,
     SUGGESTION_RESPONSE_TEXT,
     CHANGE_USERNAME_RESPONSE_TEXT,
+    FEEDBACK_RECEIVED_TEXT,
+    BUG_REPORT_RECEIVED_TEXT
 )
 
-def setup_handlers(dispatcher):
-    dispatcher.include_router(start_router)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
+import logging
 
-        await update_menu(
-            message=message,
-            state=state,
-            bot=bot,
-            router = Router()
+# Ініціалізація маршрутизатора
+router = Router()
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Визначаємо ID адміністратора (забезпечте, щоб цей ID був правильно в constants.py)
+# Визначаємо стани меню
+class MenuStates(StatesGroup):
+    MAIN_MENU = State()
+    NAVIGATION_MENU = State()
+    HEROES_MENU = State()
+    HERO_CLASS_MENU = State()
+    GUIDES_MENU = State()
+    COUNTER_PICKS_MENU = State()
+    BUILDS_MENU = State()
+    VOTING_MENU = State()
+    PROFILE_MENU = State()
+    STATISTICS_MENU = State()
+    ACHIEVEMENTS_MENU = State()
+    SETTINGS_MENU = State()
+    FEEDBACK_MENU = State()
+    HELP_MENU = State()
+    SEARCH_HERO = State()
+    SUGGEST_TOPIC = State()
+    CHANGE_USERNAME = State()
+    UPDATE_ID = State()
+    RECEIVE_FEEDBACK = State()
+    REPORT_BUG = State()
+    M6_MENU = State()
+    GPT_MENU = State()
+    META_MENU = State()
+    TOURNAMENTS_MENU = State()
+    CREATE_TOURNAMENT = State()
+    VIEW_TOURNAMENTS = State()
+    # Додайте додаткові стани, якщо це необхідно
+
+# Визначаємо ID адміністратора (замініть на фактичний)
 ADMIN_CHAT_ID = 123456789  # Змініть на фактичний Chat ID адміністратора
 
 # Зберігання тимчасових турнірів (для прикладу, використовується словник)
 # У реальному застосунку рекомендується використовувати базу даних
 pending_tournaments = {}
 
-# Приклад мапінгу героїв за класами
-heroes_by_class = {
-    "Танк": ["Герой1", "Герой2"],
-    "Дамагер": ["Герой3", "Герой4"],
-    "Підтримка": ["Герой5", "Герой6"],
-    # Додайте інших героїв відповідно до класів
-}
-
 # Визначаємо кнопки для підтвердження адміністратором
-def get_admin_confirmation_keyboard(tournament_id: int) -> InlineKeyboardMarkup:
+def get_admin_confirmation_keyboard(tournament_id: int):
     buttons = [
         InlineKeyboardButton(text="✅ Підтвердити", callback_data=f'confirm_tournament:{tournament_id}'),
         InlineKeyboardButton(text="❌ Відхилити", callback_data=f'reject_tournament:{tournament_id}')
@@ -193,15 +193,15 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
 
     transition = {
         MenuButton.NAVIGATION.value: {
-            "text": "Навігація",
+            "text": MenuButton.NAVIGATION.value,
             "keyboard": get_navigation_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть опцію навігації:",
             "state": MenuStates.NAVIGATION_MENU
         },
         MenuButton.PROFILE.value: {
-            "text": "Профіль",
+            "text": MenuButton.PROFILE.value,
             "keyboard": get_profile_menu_buttons(),
-            "interactive_text": PROFILE_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть опцію профілю:",
             "state": MenuStates.PROFILE_MENU
         }
     }.get(user_choice)
@@ -238,61 +238,61 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
 
     transition = {
         MenuButton.HEROES.value: {
-            "text": "Персонажі",
+            "text": MenuButton.HEROES.value,
             "keyboard": get_heroes_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Персонажів:",
             "state": MenuStates.HEROES_MENU
         },
         MenuButton.BUILDS.value: {
-            "text": "Білди",
+            "text": MenuButton.BUILDS.value,
             "keyboard": get_builds_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Білд:",
             "state": MenuStates.BUILDS_MENU
         },
         MenuButton.COUNTER_PICKS.value: {
-            "text": "Контр-піки",
+            "text": MenuButton.COUNTER_PICKS.value,
             "keyboard": get_counter_picks_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Контр-піків:",
             "state": MenuStates.COUNTER_PICKS_MENU
         },
         MenuButton.GUIDES.value: {
-            "text": "Гайди",
+            "text": MenuButton.GUIDES.value,
             "keyboard": get_guides_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Гайдів:",
             "state": MenuStates.GUIDES_MENU
         },
         MenuButton.VOTING.value: {
-            "text": "Голосування",
+            "text": MenuButton.VOTING.value,
             "keyboard": get_voting_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Голосування:",
             "state": MenuStates.VOTING_MENU
         },
         MenuButton.M6.value: {
-            "text": "M6",
+            "text": MenuButton.M6.value,
             "keyboard": get_m6_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ M6:",
             "state": MenuStates.M6_MENU
         },
         MenuButton.GPT.value: {
-            "text": "GPT",
+            "text": MenuButton.GPT.value,
             "keyboard": get_gpt_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ GPT:",
             "state": MenuStates.GPT_MENU
         },
         MenuButton.META.value: {
-            "text": "META",
+            "text": MenuButton.META.value,
             "keyboard": get_meta_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ META:",
             "state": MenuStates.META_MENU
         },
         MenuButton.TOURNAMENTS.value: {
-            "text": "Турніри",
+            "text": MenuButton.TOURNAMENTS.value,
             "keyboard": get_tournaments_menu(),
-            "interactive_text": NAVIGATION_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ Турнірів:",
             "state": MenuStates.TOURNAMENTS_MENU
         },
         MenuButton.BACK.value: {
-            "text": "Назад",
+            "text": MenuButton.BACK.value,
             "keyboard": get_main_menu(),
             "interactive_text": "Повернення до Головного Меню.",
             "state": MenuStates.MAIN_MENU
@@ -336,7 +336,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         # Зберігаємо вибраний клас героя в стані
         await state.update_data(hero_class=hero_class)
         # Створюємо меню для обраного класу героя
-        hero_class_menu = get_hero_class_menu(hero_class=hero_class)
+        hero_class_menu = get_hero_class_menu(hero_class)
         await bot.send_message(
             chat_id=message.chat.id,
             text=f"Оберіть героя класу **{hero_class}**:",
@@ -344,6 +344,22 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
             parse_mode="Markdown"
         )
         await state.set_state(MenuStates.HERO_CLASS_MENU)
+    elif user_choice == MenuButton.COMPARISON.value:
+        # Обробка порівняння героїв (функціонал ще не реалізований)
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Порівняння героїв ще в розробці.",
+            reply_markup=get_heroes_menu()
+        )
+        await state.set_state(MenuStates.HEROES_MENU)
+    elif user_choice == MenuButton.SEARCH_HERO.value:
+        # Повернення до пошуку героя
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="Введіть ім'я героя для пошуку:",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.set_state(MenuStates.SEARCH_HERO)
     elif user_choice == MenuButton.BACK.value:
         # Повернення до меню Навігації
         await bot.send_message(
@@ -365,11 +381,10 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 @router.message(MenuStates.HERO_CLASS_MENU)
 async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     hero_name = message.text
-    data = await state.get_data()
-    hero_class = data.get('hero_class')
+    hero_class = (await state.get_data()).get('hero_class')
 
     if hero_class and hero_name in heroes_by_class.get(hero_class, []):
-        # Обробка вибору героя (можна додати додаткову логіку тут)
+        # Обробка вибору героя (функціонал залежить від вашої реалізації)
         await bot.send_message(
             chat_id=message.chat.id,
             text=f"Ви обрали героя **{hero_name}** класу **{hero_class}**.",
@@ -387,7 +402,7 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         await bot.send_message(
             chat_id=message.chat.id,
             text=f"Герой **{hero_name}** не знайдений в класі **{hero_class}**. Будь ласка, спробуйте ще раз.",
-            reply_markup=get_hero_class_menu(hero_class=hero_class),
+            reply_markup=get_hero_class_menu(hero_class),
             parse_mode="Markdown"
         )
         await state.set_state(MenuStates.HERO_CLASS_MENU)
@@ -405,38 +420,38 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        "Нові Гайди": {
-            "text": "Нові Гайди",
+        MenuButton.NEW_GUIDES.value: {
+            "text": MenuButton.NEW_GUIDES.value,
             "keyboard": get_guides_menu(),
             "interactive_text": "Оберіть нові гайди:",
             "state": MenuStates.GUIDES_MENU
         },
-        "Популярні Гайди": {
-            "text": "Популярні Гайди",
+        MenuButton.POPULAR_GUIDES.value: {
+            "text": MenuButton.POPULAR_GUIDES.value,
             "keyboard": get_guides_menu(),
             "interactive_text": "Оберіть топ гайди:",
             "state": MenuStates.GUIDES_MENU
         },
-        "Гайди для Початківців": {
-            "text": "Гайди для Початківців",
+        MenuButton.BEGINNER_GUIDES.value: {
+            "text": MenuButton.BEGINNER_GUIDES.value,
             "keyboard": get_guides_menu(),
             "interactive_text": "Оберіть гайди для початківців:",
             "state": MenuStates.GUIDES_MENU
         },
-        "Розширені Техніки": {
-            "text": "Розширені Техніки",
+        MenuButton.ADVANCED_TECHNIQUES.value: {
+            "text": MenuButton.ADVANCED_TECHNIQUES.value,
             "keyboard": get_guides_menu(),
             "interactive_text": "Оберіть стратегії гри:",
             "state": MenuStates.GUIDES_MENU
         },
-        "Гайди для Командної Гри": {
-            "text": "Гайди для Командної Гри",
+        MenuButton.TEAMPLAY_GUIDES.value: {
+            "text": MenuButton.TEAMPLAY_GUIDES.value,
             "keyboard": get_guides_menu(),
             "interactive_text": "Оберіть гайди для командної гри:",
             "state": MenuStates.GUIDES_MENU
         },
         MenuButton.BACK.value: {
-            "text": "Назад",
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
@@ -471,20 +486,20 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        "Пошук Контр-піку": {
-            "text": "Пошук Контр-піку",
+        MenuButton.COUNTER_SEARCH.value: {
+            "text": MenuButton.COUNTER_SEARCH.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Введіть ім'я героя для пошуку контр-піку:",
             "state": MenuStates.SEARCH_HERO
         },
-        "Список Контр-піків": {
-            "text": "Список Контр-піків",
+        MenuButton.COUNTER_LIST.value: {
+            "text": MenuButton.COUNTER_LIST.value,
             "keyboard": get_counter_picks_menu(),
             "interactive_text": "Список контр-піків доступний.",
             "state": MenuStates.COUNTER_PICKS_MENU
         },
-        MenuButton.BACK.value: {
-            "text": "Назад",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
@@ -492,18 +507,11 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     }.get(user_choice)
 
     if transition:
-        if user_choice == "Пошук Контр-піку":
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
-        else:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=transition["interactive_text"],
+            reply_markup=transition["keyboard"]
+        )
         await state.set_state(transition["state"])
     else:
         await bot.send_message(
@@ -526,26 +534,26 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        "Створити Білд": {
-            "text": "Створити Білд",
-            "keyboard": ReplyKeyboardRemove(),
-            "interactive_text": "Введіть деталі нового білду:",
-            "state": MenuStates.CREATE_BUILD
+        MenuButton.CREATE_BUILD.value: {
+            "text": MenuButton.CREATE_BUILD.value,
+            "keyboard": get_builds_menu(),
+            "interactive_text": "Оберіть опцію створення білду:",
+            "state": MenuStates.BUILDS_MENU
         },
-        "Мої Білди": {
-            "text": "Мої Білди",
+        MenuButton.MY_BUILDS.value: {
+            "text": MenuButton.MY_BUILDS.value,
             "keyboard": get_builds_menu(),
             "interactive_text": "Ваші обрані білди.",
             "state": MenuStates.BUILDS_MENU
         },
-        "Популярні Білди": {
-            "text": "Популярні Білди",
+        MenuButton.POPULAR_BUILDS.value: {
+            "text": MenuButton.POPULAR_BUILDS.value,
             "keyboard": get_builds_menu(),
             "interactive_text": "Популярні білди доступні.",
             "state": MenuStates.BUILDS_MENU
         },
-        MenuButton.BACK.value: {
-            "text": "Назад",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
@@ -553,18 +561,11 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     }.get(user_choice)
 
     if transition:
-        if user_choice == "Створити Білд":
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
-        else:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=transition["interactive_text"],
+            reply_markup=transition["keyboard"]
+        )
         await state.set_state(transition["state"])
     else:
         await bot.send_message(
@@ -588,25 +589,25 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
 
     transition = {
         MenuButton.CURRENT_VOTES.value: {
-            "text": "Поточні Опитування",
+            "text": MenuButton.CURRENT_VOTES.value,
             "keyboard": get_voting_menu(),
             "interactive_text": "Оберіть поточні опитування:",
             "state": MenuStates.VOTING_MENU
         },
         MenuButton.MY_VOTES.value: {
-            "text": "Мої Голосування",
+            "text": MenuButton.MY_VOTES.value,
             "keyboard": get_voting_menu(),
             "interactive_text": "Ваші голосування.",
             "state": MenuStates.VOTING_MENU
         },
         MenuButton.SUGGEST_TOPIC.value: {
-            "text": "Пропозиція Теми",
+            "text": MenuButton.SUGGEST_TOPIC.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Введіть тему для пропозиції:",
             "state": MenuStates.SUGGEST_TOPIC
         },
-        MenuButton.BACK_TO_NAVIGATION.value: {
-            "text": "Назад до Навігації",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
@@ -649,37 +650,37 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
 
     transition = {
         MenuButton.STATISTICS.value: {
-            "text": "Статистика",
+            "text": MenuButton.STATISTICS.value,
             "keyboard": get_statistics_menu(),
-            "interactive_text": STATISTICS_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ статистики:",
             "state": MenuStates.STATISTICS_MENU
         },
         MenuButton.ACHIEVEMENTS.value: {
-            "text": "Досягнення",
+            "text": MenuButton.ACHIEVEMENTS.value,
             "keyboard": get_achievements_menu(),
-            "interactive_text": ACHIEVEMENTS_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ досягнень:",
             "state": MenuStates.ACHIEVEMENTS_MENU
         },
         MenuButton.SETTINGS.value: {
-            "text": "Налаштування",
+            "text": MenuButton.SETTINGS.value,
             "keyboard": get_settings_menu(),
-            "interactive_text": SETTINGS_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ налаштувань:",
             "state": MenuStates.SETTINGS_MENU
         },
         MenuButton.FEEDBACK.value: {
-            "text": "Зворотний зв'язок",
+            "text": MenuButton.FEEDBACK.value,
             "keyboard": get_feedback_menu(),
-            "interactive_text": FEEDBACK_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть опцію зворотного зв'язку:",
             "state": MenuStates.FEEDBACK_MENU
         },
         MenuButton.HELP.value: {
-            "text": "Допомога",
+            "text": MenuButton.HELP.value,
             "keyboard": get_help_menu(),
-            "interactive_text": HELP_INTERACTIVE_TEXT,
+            "interactive_text": "Оберіть розділ допомоги:",
             "state": MenuStates.HELP_MENU
         },
         MenuButton.BACK_TO_MAIN_MENU.value: {
-            "text": "Головне меню",
+            "text": MenuButton.BACK_TO_MAIN_MENU.value,
             "keyboard": get_main_menu(),
             "interactive_text": "Повернення до головного меню.",
             "state": MenuStates.MAIN_MENU
@@ -715,25 +716,25 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
 
     transition = {
         MenuButton.ACTIVITY.value: {
-            "text": "Активність",
+            "text": MenuButton.ACTIVITY.value,
             "keyboard": get_statistics_menu(),
-            "interactive_text": ACTIVITY_TEXT,
+            "interactive_text": "Оберіть опцію загальної активності:",
             "state": MenuStates.STATISTICS_MENU
         },
         MenuButton.RANKING.value: {
-            "text": "Рейтинг",
+            "text": MenuButton.RANKING.value,
             "keyboard": get_statistics_menu(),
-            "interactive_text": RANKING_TEXT,
+            "interactive_text": "Оберіть опцію рейтингу:",
             "state": MenuStates.STATISTICS_MENU
         },
         MenuButton.GAME_STATS.value: {
-            "text": "Ігрова Статистика",
+            "text": MenuButton.GAME_STATS.value,
             "keyboard": get_statistics_menu(),
-            "interactive_text": GAME_STATS_TEXT,
+            "interactive_text": "Оберіть ігрову статистику:",
             "state": MenuStates.STATISTICS_MENU
         },
         MenuButton.BACK_TO_PROFILE.value: {
-            "text": "Назад до Профілю",
+            "text": MenuButton.BACK_TO_PROFILE.value,
             "keyboard": get_profile_menu_buttons(),
             "interactive_text": "Повернення до меню Профілю.",
             "state": MenuStates.PROFILE_MENU
@@ -769,31 +770,31 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
 
     transition = {
         MenuButton.BADGES.value: {
-            "text": "Бейджі",
+            "text": MenuButton.BADGES.value,
             "keyboard": get_achievements_menu(),
-            "interactive_text": BADGES_TEXT,
+            "interactive_text": "Ваші бейджі.",
             "state": MenuStates.ACHIEVEMENTS_MENU
         },
         MenuButton.PROGRESS.value: {
-            "text": "Прогрес",
+            "text": MenuButton.PROGRESS.value,
             "keyboard": get_achievements_menu(),
-            "interactive_text": PROGRESS_TEXT,
+            "interactive_text": "Ваш прогрес.",
             "state": MenuStates.ACHIEVEMENTS_MENU
         },
         MenuButton.TOURNAMENT_STATS.value: {
-            "text": "Турнірна Статистика",
+            "text": MenuButton.TOURNAMENT_STATS.value,
             "keyboard": get_achievements_menu(),
-            "interactive_text": TOURNAMENT_STATS_TEXT,
+            "interactive_text": "Турнірна статистика.",
             "state": MenuStates.ACHIEVEMENTS_MENU
         },
         MenuButton.AWARDS.value: {
-            "text": "Нагороди",
+            "text": MenuButton.AWARDS.value,
             "keyboard": get_achievements_menu(),
-            "interactive_text": AWARDS_TEXT,
+            "interactive_text": "Ваші нагороди.",
             "state": MenuStates.ACHIEVEMENTS_MENU
         },
-        MenuButton.BACK.value: {
-            "text": "Назад",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_profile_menu_buttons(),
             "interactive_text": "Повернення до меню Профілю.",
             "state": MenuStates.PROFILE_MENU
@@ -829,31 +830,31 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
 
     transition = {
         MenuButton.LANGUAGE.value: {
-            "text": "Мова Інтерфейсу",
+            "text": MenuButton.LANGUAGE.value,
             "keyboard": get_settings_menu(),
-            "interactive_text": LANGUAGE_TEXT,
+            "interactive_text": "Оберіть мову інтерфейсу:",
             "state": MenuStates.SETTINGS_MENU
         },
         MenuButton.CHANGE_USERNAME.value: {
-            "text": "Змінити Username",
+            "text": MenuButton.CHANGE_USERNAME.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Введіть новий Username:",
             "state": MenuStates.CHANGE_USERNAME
         },
         MenuButton.UPDATE_ID.value: {
-            "text": "Оновити ID",
+            "text": MenuButton.UPDATE_ID.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Введіть новий ID:",
             "state": MenuStates.UPDATE_ID
         },
         MenuButton.NOTIFICATIONS.value: {
-            "text": "Налаштування Сповіщень",
+            "text": MenuButton.NOTIFICATIONS.value,
             "keyboard": get_settings_menu(),
-            "interactive_text": NOTIFICATIONS_TEXT,
+            "interactive_text": "Оберіть налаштування сповіщень:",
             "state": MenuStates.SETTINGS_MENU
         },
-        MenuButton.BACK_TO_PROFILE_SETTINGS.value: {
-            "text": "Назад до Профілю",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_profile_menu_buttons(),
             "interactive_text": "Повернення до меню Профілю.",
             "state": MenuStates.PROFILE_MENU
@@ -882,7 +883,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
         )
         await state.set_state(MenuStates.SETTINGS_MENU)
 
-# Обробник для меню Зворотного Зв'язку
+# Обробник для меню Зворотний Зв'язок
 @router.message(MenuStates.FEEDBACK_MENU)
 async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -896,19 +897,19 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
 
     transition = {
         MenuButton.SEND_FEEDBACK.value: {
-            "text": "Надіслати Відгук",
+            "text": MenuButton.SEND_FEEDBACK.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Введіть свій відгук:",
             "state": MenuStates.RECEIVE_FEEDBACK
         },
         MenuButton.REPORT_BUG.value: {
-            "text": "Повідомити про Помилку",
+            "text": MenuButton.REPORT_BUG.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": "Опишіть знайдену помилку:",
             "state": MenuStates.REPORT_BUG
         },
-        MenuButton.BACK.value: {
-            "text": "Назад",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_profile_menu_buttons(),
             "interactive_text": "Повернення до меню Профілю.",
             "state": MenuStates.PROFILE_MENU
@@ -944,25 +945,25 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
 
     transition = {
         MenuButton.INSTRUCTIONS.value: {
-            "text": "Інструкції",
+            "text": MenuButton.INSTRUCTIONS.value,
             "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть інструкції:",
+            "interactive_text": "Оберіть розділ Інструкцій:",
             "state": MenuStates.HELP_MENU
         },
         MenuButton.FAQ.value: {
-            "text": "FAQ",
+            "text": MenuButton.FAQ.value,
             "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть FAQ:",
+            "interactive_text": "Оберіть розділ FAQ:",
             "state": MenuStates.HELP_MENU
         },
         MenuButton.HELP_SUPPORT.value: {
-            "text": "Підтримка",
+            "text": MenuButton.HELP_SUPPORT.value,
             "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть опцію підтримки:",
+            "interactive_text": "Оберіть розділ Підтримки:",
             "state": MenuStates.HELP_MENU
         },
-        MenuButton.BACK_TO_PROFILE_HELP.value: {
-            "text": "Назад до Профілю",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_profile_menu_buttons(),
             "interactive_text": "Повернення до меню Профілю.",
             "state": MenuStates.PROFILE_MENU
@@ -1026,7 +1027,10 @@ async def handle_suggest_topic(message: Message, state: FSMContext, bot: Bot):
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    # Перевірка введеної теми
+    # Тут можна додати логіку обробки пропозиції теми
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання запиту
+
     if topic:
         response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
         # Тут можна додати логіку збереження пропозиції
@@ -1055,7 +1059,10 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    # Перевірка введеного Username
+    # Тут можна додати логіку зміни Username
+    # Наприклад, перевірка унікальності, оновлення в базі даних тощо
+    # Поки що відправимо повідомлення про отримання запиту
+
     if new_username:
         response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
         # Тут можна додати логіку оновлення Username
@@ -1084,7 +1091,10 @@ async def handle_update_id(message: Message, state: FSMContext, bot: Bot):
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    # Перевірка введеного ID
+    # Тут можна додати логіку оновлення ID
+    # Наприклад, перевірка формату, оновлення в базі даних тощо
+    # Поки що відправимо повідомлення про отримання запиту
+
     if new_id:
         response_text = f"Ваш ID було успішно оновлено на **{new_id}**."
         # Тут можна додати логіку оновлення ID
@@ -1113,10 +1123,13 @@ async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot)
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    # Перевірка введеного відгуку
+    # Тут можна додати логіку зберігання відгуку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання відгуку
+
     if feedback:
         response_text = FEEDBACK_RECEIVED_TEXT
-        # Тут можна додати логіку збереження відгуку або відправки адміністратору
+        # Тут можна додати логіку збереження відгуку
     else:
         response_text = "Будь ласка, залиште свій відгук."
 
@@ -1142,468 +1155,13 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    # Перевірка введеного звіту
+    # Тут можна додати логіку обробки звіту про помилку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання звіту
+
     if bug_report:
         response_text = BUG_REPORT_RECEIVED_TEXT
-        # Тут можна додати логіку збереження звіту або відправки адміністратору
-    else:
-        response_text = "Будь ласка, опишіть помилку, яку ви знайшли."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_feedback_menu()
-    )
-
-    # Повертаємо користувача до меню Зворотного Зв'язку
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Обробник для меню Статистика
-@router.message(MenuStates.STATISTICS_MENU)
-async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Статистика")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    transition = {
-        MenuButton.ACTIVITY.value: {
-            "text": "Активність",
-            "keyboard": get_statistics_menu(),
-            "interactive_text": ACTIVITY_TEXT,
-            "state": MenuStates.STATISTICS_MENU
-        },
-        MenuButton.RANKING.value: {
-            "text": "Рейтинг",
-            "keyboard": get_statistics_menu(),
-            "interactive_text": RANKING_TEXT,
-            "state": MenuStates.STATISTICS_MENU
-        },
-        MenuButton.GAME_STATS.value: {
-            "text": "Ігрова Статистика",
-            "keyboard": get_statistics_menu(),
-            "interactive_text": GAME_STATS_TEXT,
-            "state": MenuStates.STATISTICS_MENU
-        },
-        MenuButton.BACK_TO_PROFILE.value: {
-            "text": "Назад до Профілю",
-            "keyboard": get_profile_menu_buttons(),
-            "interactive_text": "Повернення до меню Профілю.",
-            "state": MenuStates.PROFILE_MENU
-        }
-    }.get(user_choice)
-
-    if transition:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=transition["interactive_text"],
-            reply_markup=transition["keyboard"]
-        )
-        await state.set_state(transition["state"])
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_statistics_menu()
-        )
-        await state.set_state(MenuStates.STATISTICS_MENU)
-
-# Обробник для меню Досягнення
-@router.message(MenuStates.ACHIEVEMENTS_MENU)
-async def handle_achievements_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Досягнення")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    transition = {
-        MenuButton.BADGES.value: {
-            "text": "Бейджі",
-            "keyboard": get_achievements_menu(),
-            "interactive_text": BADGES_TEXT,
-            "state": MenuStates.ACHIEVEMENTS_MENU
-        },
-        MenuButton.PROGRESS.value: {
-            "text": "Прогрес",
-            "keyboard": get_achievements_menu(),
-            "interactive_text": PROGRESS_TEXT,
-            "state": MenuStates.ACHIEVEMENTS_MENU
-        },
-        MenuButton.TOURNAMENT_STATS.value: {
-            "text": "Турнірна Статистика",
-            "keyboard": get_achievements_menu(),
-            "interactive_text": TOURNAMENT_STATS_TEXT,
-            "state": MenuStates.ACHIEVEMENTS_MENU
-        },
-        MenuButton.AWARDS.value: {
-            "text": "Нагороди",
-            "keyboard": get_achievements_menu(),
-            "interactive_text": AWARDS_TEXT,
-            "state": MenuStates.ACHIEVEMENTS_MENU
-        },
-        MenuButton.BACK.value: {
-            "text": "Назад",
-            "keyboard": get_profile_menu_buttons(),
-            "interactive_text": "Повернення до меню Профілю.",
-            "state": MenuStates.PROFILE_MENU
-        }
-    }.get(user_choice)
-
-    if transition:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=transition["interactive_text"],
-            reply_markup=transition["keyboard"]
-        )
-        await state.set_state(transition["state"])
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_achievements_menu()
-        )
-        await state.set_state(MenuStates.ACHIEVEMENTS_MENU)
-
-# Обробник для меню Налаштування
-@router.message(MenuStates.SETTINGS_MENU)
-async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Налаштування")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    transition = {
-        MenuButton.LANGUAGE.value: {
-            "text": "Мова Інтерфейсу",
-            "keyboard": get_settings_menu(),
-            "interactive_text": LANGUAGE_TEXT,
-            "state": MenuStates.SETTINGS_MENU
-        },
-        MenuButton.CHANGE_USERNAME.value: {
-            "text": "Змінити Username",
-            "keyboard": ReplyKeyboardRemove(),
-            "interactive_text": "Введіть новий Username:",
-            "state": MenuStates.CHANGE_USERNAME
-        },
-        MenuButton.UPDATE_ID.value: {
-            "text": "Оновити ID",
-            "keyboard": ReplyKeyboardRemove(),
-            "interactive_text": "Введіть новий ID:",
-            "state": MenuStates.UPDATE_ID
-        },
-        MenuButton.NOTIFICATIONS.value: {
-            "text": "Налаштування Сповіщень",
-            "keyboard": get_settings_menu(),
-            "interactive_text": NOTIFICATIONS_TEXT,
-            "state": MenuStates.SETTINGS_MENU
-        },
-        MenuButton.BACK_TO_PROFILE_SETTINGS.value: {
-            "text": "Назад до Профілю",
-            "keyboard": get_profile_menu_buttons(),
-            "interactive_text": "Повернення до меню Профілю.",
-            "state": MenuStates.PROFILE_MENU
-        }
-    }.get(user_choice)
-
-    if transition:
-        if user_choice in [MenuButton.CHANGE_USERNAME.value, MenuButton.UPDATE_ID.value]:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
-        else:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=transition["interactive_text"],
-                reply_markup=transition["keyboard"]
-            )
-        await state.set_state(transition["state"])
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_settings_menu()
-        )
-        await state.set_state(MenuStates.SETTINGS_MENU)
-
-# Обробник для меню Зворотного Зв'язку
-@router.message(MenuStates.FEEDBACK_MENU)
-async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Зворотний Зв'язок")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    transition = {
-        MenuButton.SEND_FEEDBACK.value: {
-            "text": "Надіслати Відгук",
-            "keyboard": ReplyKeyboardRemove(),
-            "interactive_text": "Введіть свій відгук:",
-            "state": MenuStates.RECEIVE_FEEDBACK
-        },
-        MenuButton.REPORT_BUG.value: {
-            "text": "Повідомити про Помилку",
-            "keyboard": ReplyKeyboardRemove(),
-            "interactive_text": "Опишіть знайдену помилку:",
-            "state": MenuStates.REPORT_BUG
-        },
-        MenuButton.BACK.value: {
-            "text": "Назад",
-            "keyboard": get_profile_menu_buttons(),
-            "interactive_text": "Повернення до меню Профілю.",
-            "state": MenuStates.PROFILE_MENU
-        }
-    }.get(user_choice)
-
-    if transition:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=transition["interactive_text"],
-            reply_markup=transition["keyboard"]
-        )
-        await state.set_state(transition["state"])
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_feedback_menu()
-        )
-        await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Обробник для меню Допомога
-@router.message(MenuStates.HELP_MENU)
-async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Допомога")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    transition = {
-        MenuButton.INSTRUCTIONS.value: {
-            "text": "Інструкції",
-            "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть інструкції:",
-            "state": MenuStates.HELP_MENU
-        },
-        MenuButton.FAQ.value: {
-            "text": "FAQ",
-            "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть FAQ:",
-            "state": MenuStates.HELP_MENU
-        },
-        MenuButton.HELP_SUPPORT.value: {
-            "text": "Підтримка",
-            "keyboard": get_help_menu(),
-            "interactive_text": "Оберіть опцію підтримки:",
-            "state": MenuStates.HELP_MENU
-        },
-        MenuButton.BACK_TO_PROFILE_HELP.value: {
-            "text": "Назад до Профілю",
-            "keyboard": get_profile_menu_buttons(),
-            "interactive_text": "Повернення до меню Профілю.",
-            "state": MenuStates.PROFILE_MENU
-        }
-    }.get(user_choice)
-
-    if transition:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=transition["interactive_text"],
-            reply_markup=transition["keyboard"]
-        )
-        await state.set_state(transition["state"])
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_help_menu()
-        )
-        await state.set_state(MenuStates.HELP_MENU)
-
-# Обробник для пошуку героя
-@router.message(MenuStates.SEARCH_HERO)
-async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
-    hero_name = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} шукає героя: {hero_name}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка чи існує герой
-    all_heroes = [hero for heroes in heroes_by_class.values() for hero in heroes]
-    if hero_name in all_heroes:
-        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
-        # Тут можна додати логіку отримання інформації про героя
-    else:
-        response_text = f"Герой '{hero_name}' не знайдений. Будь ласка, спробуйте ще раз."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_heroes_menu()
-    )
-
-    # Повертаємо користувача до меню Персонажів
-    await state.set_state(MenuStates.HEROES_MENU)
-
-# Обробник для пропозиції теми голосування
-@router.message(MenuStates.SUGGEST_TOPIC)
-async def handle_suggest_topic(message: Message, state: FSMContext, bot: Bot):
-    topic = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} пропонує тему: {topic}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка введеної теми
-    if topic:
-        response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
-        # Тут можна додати логіку збереження пропозиції
-    else:
-        response_text = "Будь ласка, введіть тему для пропозиції."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_voting_menu()
-    )
-
-    # Повертаємо користувача до меню Голосування
-    await state.set_state(MenuStates.VOTING_MENU)
-
-# Обробник для зміни Username
-@router.message(MenuStates.CHANGE_USERNAME)
-async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
-    new_username = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} змінює Username на: {new_username}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка введеного Username
-    if new_username:
-        response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-        # Тут можна додати логіку оновлення Username
-    else:
-        response_text = "Будь ласка, введіть новий Username."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_settings_menu()
-    )
-
-    # Повертаємо користувача до меню Налаштувань
-    await state.set_state(MenuStates.SETTINGS_MENU)
-
-# Обробник для оновлення ID
-@router.message(MenuStates.UPDATE_ID)
-async def handle_update_id(message: Message, state: FSMContext, bot: Bot):
-    new_id = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} оновлює ID на: {new_id}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка введеного ID
-    if new_id:
-        response_text = f"Ваш ID було успішно оновлено на **{new_id}**."
-        # Тут можна додати логіку оновлення ID
-    else:
-        response_text = "Будь ласка, введіть новий ID."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_settings_menu()
-    )
-
-    # Повертаємо користувача до меню Налаштувань
-    await state.set_state(MenuStates.SETTINGS_MENU)
-
-# Обробник для отримання відгуку
-@router.message(MenuStates.RECEIVE_FEEDBACK)
-async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot):
-    feedback = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} надіслав відгук: {feedback}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка введеного відгуку
-    if feedback:
-        response_text = FEEDBACK_RECEIVED_TEXT
-        # Тут можна додати логіку збереження відгуку або відправки адміністратору
-    else:
-        response_text = "Будь ласка, залиште свій відгук."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        parse_mode="Markdown",
-        reply_markup=get_feedback_menu()
-    )
-
-    # Повертаємо користувача до меню Зворотного Зв'язку
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Обробник для звіту про помилку
-@router.message(MenuStates.REPORT_BUG)
-async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
-    bug_report = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} повідомив про помилку: {bug_report}")
-
-    # Видаляємо повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
-
-    # Перевірка введеного звіту
-    if bug_report:
-        response_text = BUG_REPORT_RECEIVED_TEXT
-        # Тут можна додати логіку збереження звіту або відправки адміністратору
+        # Тут можна додати логіку збереження звіту про помилку
     else:
         response_text = "Будь ласка, опишіть помилку, яку ви знайшли."
 
@@ -1630,31 +1188,28 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        MenuButton.M6_TOURNAMENT_INFO.value: {
-            "text": "Інформація про Турніри",
-            "keyboard": get_m6_menu(),
-            "interactive_text": "Інформація про турніри, правила, учасники.",
-            "state": MenuStates.M6_MENU
-        },
-        MenuButton.M6_STATISTICS.value: {
-            "text": "Статистика M6",
-            "keyboard": get_m6_menu(),
-            "interactive_text": "Статистика M6.",
-            "state": MenuStates.M6_MENU
-        },
-        MenuButton.M6_NEWS.value: {
-            "text": "Новини M6",
-            "keyboard": get_m6_menu(),
-            "interactive_text": "Новини M6.",
-            "state": MenuStates.M6_MENU
-        },
-        MenuButton.BACK_M6.value: {
-            "text": "Назад до Навігації",
+        # Припустимо, що ви маєте відповідні кнопки у MenuButton
+        # Додайте їх у Enum MenuButton
+        # Наприклад:
+        # MenuButton.M6_TOURNAMENT_INFO.value: {
+        #     "text": "Інформація про турніри",
+        #     "keyboard": get_m6_menu(),
+        #     "interactive_text": "Інформація про турніри, правила, учасники.",
+        #     "state": MenuStates.M6_MENU
+        # },
+        # ...
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
         }
     }.get(user_choice)
+
+    # Додайте ваші власні переходи, якщо вони є
+    # Наприклад:
+    # elif user_choice == MenuButton.M6_TOURNAMENT_INFO.value:
+    #     ...
 
     if transition:
         await bot.send_message(
@@ -1684,31 +1239,28 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        MenuButton.GPT_DATA_GENERATION.value: {
-            "text": "Генерація Даних",
-            "keyboard": get_gpt_menu(),
-            "interactive_text": "Використання GPT для генерації контенту, стратегій тощо.",
-            "state": MenuStates.GPT_MENU
-        },
-        MenuButton.GPT_HINTS.value: {
-            "text": "Поради GPT",
-            "keyboard": get_gpt_menu(),
-            "interactive_text": "Поради GPT.",
-            "state": MenuStates.GPT_MENU
-        },
-        MenuButton.GPT_HERO_STATISTICS.value: {
-            "text": "Статистика Героїв GPT",
-            "keyboard": get_gpt_menu(),
-            "interactive_text": "Статистика Героїв GPT.",
-            "state": MenuStates.GPT_MENU
-        },
-        MenuButton.BACK_GPT.value: {
-            "text": "Назад до Навігації",
+        # Припустимо, що ви маєте відповідні кнопки у MenuButton
+        # Додайте їх у Enum MenuButton
+        # Наприклад:
+        # MenuButton.GPT_DATA_GENERATION.value: {
+        #     "text": "Генерація даних",
+        #     "keyboard": get_gpt_menu(),
+        #     "interactive_text": "Використання GPT для генерації контенту, стратегій тощо.",
+        #     "state": MenuStates.GPT_MENU
+        # },
+        # ...
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
         }
     }.get(user_choice)
+
+    # Додайте ваші власні переходи, якщо вони є
+    # Наприклад:
+    # elif user_choice == MenuButton.GPT_DATA_GENERATION.value:
+    #     ...
 
     if transition:
         await bot.send_message(
@@ -1738,31 +1290,28 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
     transition = {
-        MenuButton.META_HERO_LIST.value: {
-            "text": "Перелік Героїв",
-            "keyboard": get_meta_menu(),
-            "interactive_text": "Перелік героїв, актуальних у поточній меті гри.",
-            "state": MenuStates.META_MENU
-        },
-        MenuButton.META_RECOMMENDATIONS.value: {
-            "text": "Рекомендації META",
-            "keyboard": get_meta_menu(),
-            "interactive_text": "Рекомендації META.",
-            "state": MenuStates.META_MENU
-        },
-        MenuButton.META_UPDATE.value: {
-            "text": "Оновлення META",
-            "keyboard": get_meta_menu(),
-            "interactive_text": "Оновлення META.",
-            "state": MenuStates.META_MENU
-        },
-        MenuButton.BACK_META.value: {
-            "text": "Назад до Навігації",
+        # Припустимо, що ви маєте відповідні кнопки у MenuButton
+        # Додайте їх у Enum MenuButton
+        # Наприклад:
+        # MenuButton.META_HERO_LIST.value: {
+        #     "text": "Перелік героїв",
+        #     "keyboard": get_meta_menu(),
+        #     "interactive_text": "Перелік героїв, актуальних у поточній меті гри.",
+        #     "state": MenuStates.META_MENU
+        # },
+        # ...
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
         }
     }.get(user_choice)
+
+    # Додайте ваші власні переходи, якщо вони є
+    # Наприклад:
+    # elif user_choice == MenuButton.META_HERO_LIST.value:
+    #     ...
 
     if transition:
         await bot.send_message(
@@ -1793,7 +1342,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
 
     transition = {
         MenuButton.CREATE_TOURNAMENT.value: {
-            "text": "Створити Турнір",
+            "text": MenuButton.CREATE_TOURNAMENT.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": (
                 "Процес Створення Турніру:\n\n"
@@ -1809,7 +1358,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
             "state": MenuStates.CREATE_TOURNAMENT
         },
         MenuButton.VIEW_TOURNAMENTS.value: {
-            "text": "Переглянути Турніри",
+            "text": MenuButton.VIEW_TOURNAMENTS.value,
             "keyboard": ReplyKeyboardRemove(),
             "interactive_text": (
                 "Огляд Доступних Турнірів:\n\n"
@@ -1820,8 +1369,8 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
             ),
             "state": MenuStates.VIEW_TOURNAMENTS
         },
-        MenuButton.BACK.value: {
-            "text": "Назад",
+        MenuButton.BACK.value: {  # Використовується загальна кнопка "🔙 Назад"
+            "text": MenuButton.BACK.value,
             "keyboard": get_navigation_menu(),
             "interactive_text": "Повернення до меню Навігації.",
             "state": MenuStates.NAVIGATION_MENU
@@ -1980,7 +1529,7 @@ async def handle_view_tournaments(message: Message, state: FSMContext, bot: Bot)
     await state.set_state(MenuStates.TOURNAMENTS_MENU)
 
 # Обробник для підтвердження турніру адміністратором
-@router.callback_query(lambda c: c.data.startswith('confirm_tournament:'))
+@router.callback_query(lambda c: c.data.startswith('confirm_tournament'))
 async def handle_confirm_tournament(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data.split(':')
     if len(data) != 2:
@@ -1999,7 +1548,10 @@ async def handle_confirm_tournament(callback: CallbackQuery, state: FSMContext, 
         await callback.answer("Турнір не знайдено або вже підтверджено.", show_alert=True)
         return
 
-    # Логіка підтвердження турніру
+    # Тут можна додати логіку підтвердження турніру
+    # Наприклад, збереження в базі даних
+    # Для прикладу, ми просто видалимо його з тимчасового сховища та повідомимо користувача
+
     creator_id = tournament["creator_id"]
     del pending_tournaments[tournament_id]
 
@@ -2014,11 +1566,11 @@ async def handle_confirm_tournament(callback: CallbackQuery, state: FSMContext, 
     except Exception as e:
         logger.error(f"Не вдалося відправити повідомлення користувачу {creator_id}: {e}")
 
-    # Відповідаємо адміністратору, що турнір підтверджено
+    # Відповідаємо адміністраторам, що турнір підтверджено
     await callback.answer("Турнір підтверджено.", show_alert=True)
 
 # Обробник для відхилення турніру адміністратором
-@router.callback_query(lambda c: c.data.startswith('reject_tournament:'))
+@router.callback_query(lambda c: c.data.startswith('reject_tournament'))
 async def handle_reject_tournament(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data.split(':')
     if len(data) != 2:
@@ -2034,10 +1586,11 @@ async def handle_reject_tournament(callback: CallbackQuery, state: FSMContext, b
 
     tournament = pending_tournaments.get(tournament_id)
     if not tournament:
-        await callback.answer("Турнір не знайдено або вже відхилено.", show_alert=True)
+        await callback.answer("Турнір не знайдено або вже підтверджено.", show_alert=True)
         return
 
-    # Логіка відхилення турніру
+    # Тут можна додати логіку відхилення турніру
+    # Наприклад, відправка повідомлення користувачу про відхилення
     creator_id = tournament["creator_id"]
     del pending_tournaments[tournament_id]
 
@@ -2051,14 +1604,14 @@ async def handle_reject_tournament(callback: CallbackQuery, state: FSMContext, b
     except Exception as e:
         logger.error(f"Не вдалося відправити повідомлення користувачу {creator_id}: {e}")
 
-    # Відповідаємо адміністратору, що турнір відхилено
+    # Відповідаємо адміністраторам, що турнір відхилено
     await callback.answer("Турнір відхилено.", show_alert=True)
 
-# Обробник для перегляду детальної інформації про турнір (опціонально)
+# Обробник для перегляду турнірів (можливо, деталізація турніру)
 @router.message(MenuStates.VIEW_TOURNAMENTS)
 async def handle_view_tournaments_detail(message: Message, state: FSMContext, bot: Bot):
-    tournament_id_str = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} переглядає деталі турніру з ID: {tournament_id_str}")
+    tournament_name = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} переглядає деталі турніру: {tournament_name}")
 
     # Видаляємо повідомлення користувача
     try:
@@ -2066,33 +1619,19 @@ async def handle_view_tournaments_detail(message: Message, state: FSMContext, bo
     except Exception as e:
         logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
 
-    try:
-        tournament_id = int(tournament_id_str)
-    except ValueError:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="Невірний формат ID турніру. Будь ласка, введіть числовий ID.",
-            reply_markup=get_tournaments_menu()
-        )
-        await state.set_state(MenuStates.VIEW_TOURNAMENTS)
-        return
+    # Тут реалізуйте логіку отримання деталей турніру
+    # Наприклад, пошук у базі даних або в тимчасовому сховищі
+    # Поки що відправимо приклад деталей турніру
 
-    tournament = pending_tournaments.get(tournament_id)
-    if not tournament:
-        # Якщо турнір не знайдений у тимчасовому сховищі, можливо, він підтверджений та збережений у базі даних
-        # Тут можна реалізувати логіку пошуку у базі даних
-        # Поки що відправимо повідомлення про відсутність турніру
-        response_text = f"Турнір з ID {tournament_id} не знайдений."
-    else:
-        # Відправляємо деталі турніру
-        response_text = (
-            f"**Турнір:** {tournament['name']}\n"
-            f"**Тип:** {tournament['type']}\n"
-            f"**Дата та Час:** {tournament['date_time']}\n"
-            f"**Опис:** {tournament['description']}\n"
-            f"**Умови Участі:** {tournament['conditions']}\n\n"
-            f"📋 Зареєструватися на турнір можна за посиланням: [Реєстрація](https://example.com/register)"
-        )
+    # Приклад відповіді
+    response_text = (
+        f"**Турнір:** {tournament_name}\n"
+        f"**Тип:** 5х5\n"
+        f"**Дата та Час:** 25.12.2024 18:00\n"
+        f"**Опис:** Це опис турніру.\n"
+        f"**Умови Участі:** Вимоги для учасників.\n\n"
+        f"📋 Зареєструватися на турнір можна за посиланням: [Реєстрація](https://example.com/register)"
+    )
 
     await bot.send_message(
         chat_id=message.chat.id,
@@ -2141,7 +1680,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         },
         MenuStates.HERO_CLASS_MENU.state: {
             "new_main_text": UNKNOWN_COMMAND_TEXT,
-            "new_main_keyboard": get_hero_class_menu(hero_class=(await state.get_data()).get('hero_class', 'Танк')),
+            "new_main_keyboard": get_hero_class_menu((await state.get_data()).get('hero_class', 'Танк')),
             "new_interactive_text": f"Меню класу {(await state.get_data()).get('hero_class', 'Танк')}",
             "new_state": MenuStates.HERO_CLASS_MENU
         },
@@ -2245,7 +1784,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             # Якщо користувач перебуває в процесі введення, надсилаємо підказку
             await bot.send_message(
                 chat_id=message.chat.id,
-                text="Будь ласка, використовуйте кнопки меню для навігації.",
+                text=USE_BUTTON_NAVIGATION_TEXT,
                 reply_markup=ReplyKeyboardRemove()
             )
             # Залишаємо стан без змін
@@ -2265,11 +1804,296 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         # Якщо стан невідомий, повертаємося до головного меню
         user_first_name = message.from_user.first_name
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
 
-        from handlers.start_handler import router as start_router
+        await update_menu(
+            message=message,
+            state=state,
+            bot=bot,
+            new_main_text=new_main_text,
+            new_main_keyboard=new_main_keyboard,
+            new_interactive_text=new_interactive_text,
+            new_state=new_state
+        )
 
-def setup_handlers(dispatcher):
-    dispatcher.include_router(start_router)
+# Обробник для підтвердження турніру адміністратором
+@router.callback_query(lambda c: c.data.startswith('confirm_tournament:'))
+async def handle_confirm_tournament(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    data = callback.data.split(':')
+    if len(data) != 2:
+        await callback.answer("Невірний формат даних.", show_alert=True)
+        return
+
+    action, tournament_id_str = data
+    try:
+        tournament_id = int(tournament_id_str)
+    except ValueError:
+        await callback.answer("Невірний ID турніру.", show_alert=True)
+        return
+
+    tournament = pending_tournaments.get(tournament_id)
+    if not tournament:
+        await callback.answer("Турнір не знайдено або вже підтверджено.", show_alert=True)
+        return
+
+    # Тут можна додати логіку підтвердження турніру
+    # Наприклад, збереження в базі даних
+    # Для прикладу, ми просто видалимо його з тимчасового сховища та повідомимо користувача
+
+    creator_id = tournament["creator_id"]
+    del pending_tournaments[tournament_id]
+
+    # Відправляємо повідомлення користувачу про підтвердження турніру
+    try:
+        await bot.send_message(
+            chat_id=creator_id,
+            text=f"Ваш турнір **{tournament['name']}** було підтверджено адміністратором.",
+            parse_mode="Markdown",
+            reply_markup=get_tournaments_menu()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося відправити повідомлення користувачу {creator_id}: {e}")
+
+    # Відповідаємо адміністратору, що турнір підтверджено
+    await callback.answer("Турнір підтверджено.", show_alert=True)
+
+# Обробник для відхилення турніру адміністратором
+@router.callback_query(lambda c: c.data.startswith('reject_tournament:'))
+async def handle_reject_tournament(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    data = callback.data.split(':')
+    if len(data) != 2:
+        await callback.answer("Невірний формат даних.", show_alert=True)
+        return
+
+    action, tournament_id_str = data
+    try:
+        tournament_id = int(tournament_id_str)
+    except ValueError:
+        await callback.answer("Невірний ID турніру.", show_alert=True)
+        return
+
+    tournament = pending_tournaments.get(tournament_id)
+    if not tournament:
+        await callback.answer("Турнір не знайдено або вже відхилено.", show_alert=True)
+        return
+
+    # Тут можна додати логіку відхилення турніру
+    # Наприклад, відправка повідомлення користувачу про відхилення
+    creator_id = tournament["creator_id"]
+    del pending_tournaments[tournament_id]
+
+    try:
+        await bot.send_message(
+            chat_id=creator_id,
+            text=f"Ваш турнір **{tournament['name']}** було відхилено адміністратором.",
+            parse_mode="Markdown",
+            reply_markup=get_tournaments_menu()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося відправити повідомлення користувачу {creator_id}: {e}")
+
+    # Відповідаємо адміністратору, що турнір відхилено
+    await callback.answer("Турнір відхилено.", show_alert=True)
+
+# Обробник для перегляду детальної інформації про турнір (опціонально)
+@router.message(MenuStates.VIEW_TOURNAMENTS)
+async def handle_view_tournaments_detail(message: Message, state: FSMContext, bot: Bot):
+    tournament_name = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} переглядає деталі турніру: {tournament_name}")
+
+    # Видаляємо повідомлення користувача
+    try:
+        await message.delete()
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення користувача: {e}")
+
+    # Тут реалізуйте логіку отримання деталей турніру
+    # Наприклад, пошук у базі даних або в тимчасовому сховищі
+    # Поки що відправимо приклад деталей турніру
+
+    # Приклад відповіді
+    response_text = (
+        f"**Турнір:** {tournament_name}\n"
+        f"**Тип:** 5х5\n"
+        f"**Дата та Час:** 25.12.2024 18:00\n"
+        f"**Опис:** Це опис турніру.\n"
+        f"**Умови Участі:** Вимоги для учасників.\n\n"
+        f"📋 Зареєструватися на турнір можна за посиланням: [Реєстрація](https://example.com/register)"
+    )
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        parse_mode="Markdown",
+        disable_web_page_preview=True,
+        reply_markup=get_tournaments_menu()
+    )
+
+    # Повертаємо користувача до меню Турнірів
+    await state.set_state(MenuStates.TOURNAMENTS_MENU)
+
+# Обробник для невідомих повідомлень
+@router.message()
+async def unknown_command(message: Message, state: FSMContext, bot: Bot):
+    logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
+
+    # Видаляємо повідомлення користувача
+    try:
+        await message.delete()
+    except Exception as e:
+        logger.error(f"Не вдалося видалити невідоме повідомлення: {e}")
+
+    # Отримуємо поточний стан
+    current_state = await state.get_state()
+
+    # Визначаємо новий текст та клавіатуру залежно від стану
+    transitions = {
+        MenuStates.MAIN_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_main_menu(),
+            "new_interactive_text": "Головне меню",
+            "new_state": MenuStates.MAIN_MENU
+        },
+        MenuStates.NAVIGATION_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_navigation_menu(),
+            "new_interactive_text": "Меню Навігації",
+            "new_state": MenuStates.NAVIGATION_MENU
+        },
+        MenuStates.HEROES_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_heroes_menu(),
+            "new_interactive_text": "Меню Персонажів",
+            "new_state": MenuStates.HEROES_MENU
+        },
+        MenuStates.HERO_CLASS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_hero_class_menu((await state.get_data()).get('hero_class', 'Танк')),
+            "new_interactive_text": f"Меню класу {(await state.get_data()).get('hero_class', 'Танк')}",
+            "new_state": MenuStates.HERO_CLASS_MENU
+        },
+        MenuStates.GUIDES_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_guides_menu(),
+            "new_interactive_text": "Меню Гайди",
+            "new_state": MenuStates.GUIDES_MENU
+        },
+        MenuStates.COUNTER_PICKS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_counter_picks_menu(),
+            "new_interactive_text": "Меню Контр-піки",
+            "new_state": MenuStates.COUNTER_PICKS_MENU
+        },
+        MenuStates.BUILDS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_builds_menu(),
+            "new_interactive_text": "Меню Білди",
+            "new_state": MenuStates.BUILDS_MENU
+        },
+        MenuStates.VOTING_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_voting_menu(),
+            "new_interactive_text": "Меню Голосування",
+            "new_state": MenuStates.VOTING_MENU
+        },
+        MenuStates.PROFILE_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_profile_menu_buttons(),
+            "new_interactive_text": "Меню Профіль",
+            "new_state": MenuStates.PROFILE_MENU
+        },
+        MenuStates.STATISTICS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_statistics_menu(),
+            "new_interactive_text": "Меню Статистика",
+            "new_state": MenuStates.STATISTICS_MENU
+        },
+        MenuStates.ACHIEVEMENTS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_achievements_menu(),
+            "new_interactive_text": "Меню Досягнення",
+            "new_state": MenuStates.ACHIEVEMENTS_MENU
+        },
+        MenuStates.SETTINGS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_settings_menu(),
+            "new_interactive_text": "Меню Налаштування",
+            "new_state": MenuStates.SETTINGS_MENU
+        },
+        MenuStates.FEEDBACK_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_feedback_menu(),
+            "new_interactive_text": "Меню Зворотного Зв'язку",
+            "new_state": MenuStates.FEEDBACK_MENU
+        },
+        MenuStates.HELP_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_help_menu(),
+            "new_interactive_text": "Меню Допомоги",
+            "new_state": MenuStates.HELP_MENU
+        },
+        MenuStates.M6_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_m6_menu(),
+            "new_interactive_text": "Меню M6",
+            "new_state": MenuStates.M6_MENU
+        },
+        MenuStates.GPT_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_gpt_menu(),
+            "new_interactive_text": "Меню GPT",
+            "new_state": MenuStates.GPT_MENU
+        },
+        MenuStates.META_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_meta_menu(),
+            "new_interactive_text": "Меню META",
+            "new_state": MenuStates.META_MENU
+        },
+        MenuStates.TOURNAMENTS_MENU.state: {
+            "new_main_text": UNKNOWN_COMMAND_TEXT,
+            "new_main_keyboard": get_tournaments_menu(),
+            "new_interactive_text": "Меню Турнірів",
+            "new_state": MenuStates.TOURNAMENTS_MENU
+        }
+    }
+
+    transition = transitions.get(current_state)
+
+    if transition:
+        if current_state in [
+            MenuStates.SEARCH_HERO.state,
+            MenuStates.SUGGEST_TOPIC.state,
+            MenuStates.CHANGE_USERNAME.state,
+            MenuStates.UPDATE_ID.state,
+            MenuStates.RECEIVE_FEEDBACK.state,
+            MenuStates.REPORT_BUG.state
+        ]:
+            # Якщо користувач перебуває в процесі введення, надсилаємо підказку
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=USE_BUTTON_NAVIGATION_TEXT,
+                reply_markup=ReplyKeyboardRemove()
+            )
+            # Залишаємо стан без змін
+            return
+        else:
+            # Оновлюємо меню
+            await update_menu(
+                message=message,
+                state=state,
+                bot=bot,
+                new_main_text=transition["new_main_text"],
+                new_main_keyboard=transition["new_main_keyboard"],
+                new_interactive_text=transition["new_interactive_text"],
+                new_state=transition["new_state"]
+            )
+    else:
+        # Якщо стан невідомий, повертаємося до головного меню
+        user_first_name = message.from_user.first_name
+        new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
