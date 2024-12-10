@@ -7,6 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 from config import settings
 from handlers import setup_handlers
@@ -19,18 +20,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("bot")
 
-# Змінна для токена (логування)
-TELEGRAM_BOT_TOKEN = settings.TELEGRAM_BOT_TOKEN
-logger.info(f"Loaded TELEGRAM_BOT_TOKEN: {TELEGRAM_BOT_TOKEN[:5]}***")  # Логування перших символів токена
-
 # Окрема функція для створення бота і диспетчера
 def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
     bot = Bot(
-        token=TELEGRAM_BOT_TOKEN,  # Використання токена
+        token=settings.TELEGRAM_BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         session=AiohttpSession()  # Явна сесія для HTTP-запитів
     )
     dp = Dispatcher(storage=MemoryStorage())  # FSM сховище
+    dp.message.middleware(LoggingMiddleware())
     return bot, dp
 
 # Основна функція запуску бота
