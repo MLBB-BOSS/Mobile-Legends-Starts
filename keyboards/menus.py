@@ -43,7 +43,7 @@ class MenuButton:
     PROGRESS = "📈 Прогрес"
     TOURNAMENT_STATS = "📊 Турнірна Статистика"
     AWARDS = "🏆 Нагороди"
-    BACK_TO_PROFILE = "🔙 Назад до Профілю"
+    BACK_TO_PROFILE_ACHIEVEMENTS = "🔙 Назад до Профілю"
 
     # Меню Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
@@ -175,7 +175,7 @@ def get_counter_picks_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return counter_picks_menu
+    return keyboard  # Виправлено
 
 def get_guides_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -191,7 +191,7 @@ def get_guides_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return guides_menu
+    return keyboard  # Виправлено
 
 def get_voting_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -205,7 +205,7 @@ def get_voting_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return voting_menu
+    return keyboard  # Виправлено
 
 def get_m6_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -219,7 +219,7 @@ def get_m6_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return m6_menu
+    return keyboard  # Виправлено
 
 def get_gpt_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -233,7 +233,7 @@ def get_gpt_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return gpt_menu
+    return keyboard  # Виправлено
 
 def get_meta_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -247,7 +247,7 @@ def get_meta_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return meta_menu
+    return keyboard  # Виправлено
 
 def get_tournaments_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -260,7 +260,7 @@ def get_tournaments_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return tournaments_menu
+    return keyboard  # Виправлено
 
 def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
     buttons = [
@@ -276,7 +276,7 @@ def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return profile_menu_buttons
+    return keyboard
 
 def get_statistics_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -290,7 +290,7 @@ def get_statistics_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return statistics_menu
+    return keyboard
 
 def get_achievements_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -305,7 +305,7 @@ def get_achievements_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return achievements_menu
+    return keyboard
 
 def get_settings_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -320,7 +320,7 @@ def get_settings_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return settings_menu
+    return keyboard
 
 def get_feedback_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -333,7 +333,7 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return feedback_menu
+    return keyboard
 
 def get_help_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -347,4 +347,4 @@ def get_help_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return help_menu
+    return keyboard
