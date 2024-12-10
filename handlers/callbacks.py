@@ -1,7 +1,7 @@
 # handlers/callbacks.py
 
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, Bot
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
