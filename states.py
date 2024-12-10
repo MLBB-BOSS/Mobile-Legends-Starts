@@ -28,4 +28,3 @@ class MenuStates(StatesGroup):
     REPORT_BUG = State()
     CREATE_TOURNAMENT = State()
     VIEW_TOURNAMENTS = State()
-    # Додайте інші стани за необхідності
