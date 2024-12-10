@@ -50,7 +50,7 @@ class MenuButton:
     CHANGE_USERNAME = "✏️ Змінити Username"
     UPDATE_ID = "🔢 Оновити ID"
     NOTIFICATIONS = "🔔 Налаштування Сповіщень"
-    BACK_TO_PROFILE = "🔙 Назад до Профілю"
+    BACK_TO_PROFILE_SETTINGS = "🔙 Назад до Профілю"
 
     # Меню Зворотного Зв'язку
     SEND_FEEDBACK = "✉️ Надіслати Відгук"
@@ -136,6 +136,20 @@ def get_heroes_menu() -> ReplyKeyboardMarkup:
     )
     return keyboard
 
+def get_hero_class_menu() -> ReplyKeyboardMarkup:
+    buttons = [
+        KeyboardButton(text=MenuButton.TANK),
+        KeyboardButton(text=MenuButton.DAMAGER),
+        KeyboardButton(text=MenuButton.SUPPORT),
+        KeyboardButton(text=MenuButton.BACK)
+    ]
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[buttons],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
+    return keyboard
+
 def get_builds_menu() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text="Створити Білд"),
@@ -161,7 +175,7 @@ def get_counter_picks_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return counter_picks_menu
 
 def get_guides_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -177,7 +191,7 @@ def get_guides_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return guides_menu
 
 def get_voting_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -191,7 +205,7 @@ def get_voting_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return voting_menu
 
 def get_m6_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -205,7 +219,7 @@ def get_m6_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return m6_menu
 
 def get_gpt_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -219,7 +233,7 @@ def get_gpt_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return gpt_menu
 
 def get_meta_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -233,7 +247,7 @@ def get_meta_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return meta_menu
 
 def get_tournaments_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -246,7 +260,7 @@ def get_tournaments_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return tournaments_menu
 
 def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
     buttons = [
@@ -262,7 +276,7 @@ def get_profile_menu_buttons() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return profile_menu_buttons
 
 def get_statistics_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -276,7 +290,7 @@ def get_statistics_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return statistics_menu
 
 def get_achievements_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -291,7 +305,7 @@ def get_achievements_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return achievements_menu
 
 def get_settings_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -299,14 +313,14 @@ def get_settings_menu() -> ReplyKeyboardMarkup:
         KeyboardButton(text=MenuButton.CHANGE_USERNAME),
         KeyboardButton(text=MenuButton.UPDATE_ID),
         KeyboardButton(text=MenuButton.NOTIFICATIONS),
-        KeyboardButton(text=MenuButton.BACK)
+        KeyboardButton(text=MenuButton.BACK_TO_PROFILE_SETTINGS)
     ]
     keyboard = ReplyKeyboardMarkup(
         keyboard=[buttons],
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return settings_menu
 
 def get_feedback_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -319,7 +333,7 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return feedback_menu
 
 def get_help_menu() -> ReplyKeyboardMarkup:
     buttons = [
@@ -333,4 +347,4 @@ def get_help_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         one_time_keyboard=False
     )
-    return keyboard
+    return help_menu
