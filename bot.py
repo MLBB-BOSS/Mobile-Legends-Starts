@@ -8,7 +8,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
-from handlers.base import setup_handlers
+from handlers import setup_handlers  # Імпортуємо функцію реєстрації обробників
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()  # Додано для явного визначення сесії
+    session=AiohttpSession()  # Явне визначення сесії
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
@@ -27,7 +27,7 @@ dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
 async def main():
     logger.info("Starting bot...")
     try:
-        setup_handlers(dp)
+        setup_handlers(dp)  # Реєстрація всіх обробників
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
