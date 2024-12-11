@@ -5,7 +5,16 @@ from aiogram.types import CallbackQuery
 from keyboards.inline_menus import CallbackData, get_main_inline_keyboard, get_heroes_inline_keyboard
 from utils.menu_messages import MenuMessages
 from utils.message_formatter import MessageFormatter
+from aiogram import Router
 
+router = Router()
+
+def register_handlers(dp):
+    """
+    Реєстрація хендлерів для турнірів
+    """
+    dp.include_router(router)
+    
 router = Router()
 
 @router.callback_query(F.data == CallbackData.HEROES.value)
