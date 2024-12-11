@@ -138,7 +138,8 @@ def create_menu(buttons, row_width=2):
     """
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
+    button_texts = [button.value if isinstance(button, MenuButton) else button for button in buttons]
+    logger.info(f"Створення меню з кнопками: {button_texts}")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
@@ -188,10 +189,13 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    if not heroes:
+        logger.warning(f"Клас героїв '{hero_class}' не знайдено.")
+    buttons = [hero for hero in heroes]  # Використовуємо лише рядки
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
     keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    logger.info(f"Створення меню для класу '{hero_class}' з героями: {heroes}")
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
