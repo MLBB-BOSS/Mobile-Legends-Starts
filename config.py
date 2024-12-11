@@ -1,60 +1,51 @@
-# config.py
+import os
 import logging
 from pydantic_settings import BaseSettings
-import sys
+from dotenv import load_dotenv
 
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger("ConfigLogger")
+# Load .env file
+load_dotenv()
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
-    OPENAI_API_KEY: str
     DATABASE_URL: str | None = None
     APP_NAME: str = "Mobile Legends Tournament Bot"
     DEBUG: bool = False
 
     @property
     def db_url(self) -> str | None:
-        """
-        Повертає відформатований URL для бази даних, якщо він заданий.
-        """
+        """Returns formatted database URL if it exists."""
         if not self.DATABASE_URL:
-            logger.warning("DATABASE_URL не встановлено!")
+            logger.warning("DATABASE_URL is not set!")
             return None
         url = self.DATABASE_URL
-        # Форматування для використання з asyncpg
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
-        logger.info("URL бази даних відформатовано успішно.")
+        logger.info("Database URL formatted successfully")
         return url
 
     def validate(self):
-        """
-        Перевіряє необхідні налаштування.
-        """
+        """Validates required settings"""
         if not self.TELEGRAM_BOT_TOKEN:
-            raise ValueError("TELEGRAM_BOT_TOKEN не встановлено!")
-        if not self.OPENAI_API_KEY:
-            raise ValueError("OPENAI_API_KEY не встановлено!")
+            raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
         if self.DEBUG:
-            logger.info("Додаток працює в режимі DEBUG.")
+            logger.info("Application is running in DEBUG mode")
 
     class Config:
-        # env_file = ".env"  # Вилучено, оскільки ви використовуєте GitHub для деплою
+        env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
 
+# Create settings instance
+settings = Settings()
 
-# Створення екземпляра налаштувань
+# Validate settings
 try:
-    settings = Settings()
-    # Валідація налаштувань
     settings.validate()
 except Exception as e:
-    logger.error(f"Помилка конфігурації: {e}")
-    sys.exit(1)  # Завершити програму, якщо конфігурація некоректна
+    logger.error(f"Configuration error: {e}")
+    raise
