@@ -7,7 +7,6 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # Додано для використання ReplyKeyboardRemove
-from aiogram import Router
 
 from keyboards.menus import (
     MenuButton,
@@ -111,14 +110,6 @@ from texts import (
     UNHANDLED_INLINE_BUTTON_TEXT,
     MAIN_MENU_BACK_TO_PROFILE_TEXT,
 )
-
-router = Router()
-
-def register_handlers(dp):
-    """
-    Реєстрація хендлерів для турнірів
-    """
-    dp.include_router(router)
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
