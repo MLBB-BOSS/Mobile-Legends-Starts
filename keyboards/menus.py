@@ -33,7 +33,7 @@ class MenuButton(Enum):
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
-    POPULAR_GUIDES = "🌟 Топ Гайди"
+    POPULAR_GUIDES = "🌟 Тор Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Стратегії гри"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
@@ -138,19 +138,14 @@ def create_menu(buttons, row_width=2):
     """
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    
-    button_texts = [button.value if isinstance(button, MenuButton) else button for button in buttons]
-    logger.info(f"Створення меню з кнопками: {button_texts}")
-    
+    logger.info(f"Створення меню з кнопками: {[button.value if isinstance(button, MenuButton) else button for button in buttons]}")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
-    
     keyboard = [
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
     ]
-    
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_main_menu():
@@ -193,15 +188,11 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    if not heroes:
-        logger.warning(f"Клас героїв '{hero_class}' не знайдено.")
-    
-    # Додаємо кнопку "🔙" для повернення
-    buttons = heroes + [MenuButton.BACK]
-    
-    logger.info(f"Створення меню для класу '{hero_class}' з героями: {heroes}")
-    
-    return create_menu(buttons, row_width=3)
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    row_width = 3
+    keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
+    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
     return create_menu(
@@ -315,4 +306,4 @@ def get_help_menu():
             MenuButton.BACK_TO_PROFILE
         ],
         row_width=3
-    )
+)
