@@ -86,7 +86,6 @@ INTRO_PAGE_3_TEXT = """🚀 Час розпочати свою епічну по
 
 # Головне меню
 MAIN_MENU_TEXT = """👋 Вітаємо, {user_first_name}, у Mobile Legends Tournament Bot!
-
 Обери опцію з меню нижче 👇
 """
 
