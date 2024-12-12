@@ -120,7 +120,6 @@ from texts import (
     M6_INFO_TEXT,
     M6_STATS_TEXT,
     M6_NEWS_TEXT,
-    MAIN_MENU_DESCRIPTION,
 )
 
 # Налаштування логування
@@ -142,6 +141,7 @@ class MenuStates(StatesGroup):
     GUIDES_MENU = State()
     COUNTER_PICKS_MENU = State()
     BUILDS_MENU = State()
+    CREATE_BUILD = State()  # Додано цей рядок
     VOTING_MENU = State()
     PROFILE_MENU = State()
     STATISTICS_MENU = State()
@@ -157,7 +157,7 @@ class MenuStates(StatesGroup):
     TOURNAMENTS_MENU = State()
     META_MENU = State()
     M6_MENU = State()
-    GPT_MENU = State()  # Додано цей рядок
+    GPT_MENU = State()
 
 # ======================
 # Основні Хендлери
@@ -399,13 +399,13 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     elif user_choice == MenuButton.GPT.value:
         new_main_text = "🤖 GPT Menu"  # Замінити на відповідний текст з texts.py
         new_main_keyboard = get_gpt_menu()
-        new_interactive_text = "Welcome to the GPT Menu. Choose an option below:"
+        new_interactive_text = "🤖 GPT Menu. Choose an option below:"
         new_state = MenuStates.GPT_MENU
     else:
         # Невідомий вибір у головному меню
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_main_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.MAIN_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -521,11 +521,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_main_keyboard = get_m6_menu()
         new_interactive_text = "🔥 Welcome to the M6 Menu!"
         new_state = MenuStates.M6_MENU
-    elif user_choice == MenuButton.GPT.value:
-        new_main_text = "🤖 GPT Menu"  # Замінити на відповідний текст з texts.py
-        new_main_keyboard = get_gpt_menu()
-        new_interactive_text = "Welcome to the GPT Menu. Choose an option below:"
-        new_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.META.value:
         new_main_text = META_HERO_LIST_TEXT  # Або відповідний текст з texts.py
         new_main_keyboard = get_meta_menu()
@@ -545,7 +540,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         # Невідомий вибір у меню "Навігація"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.NAVIGATION_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -646,7 +641,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     elif user_choice == MenuButton.COMPARISON.value:
         new_main_text = "⚖️ Функція порівняння героїв ще розробляється."
         new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Функція порівняння героїв ще не доступна."
+        new_interactive_text = "⚖️ Функція порівняння героїв ще не доступна."
         new_state = MenuStates.HEROES_MENU
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
@@ -657,7 +652,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         # Невідомий вибір у меню "Персонажі"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.HEROES_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -715,7 +710,7 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     user_choice = message.text
     # Отримати клас героя з даних стану
     data = await state.get_data()
-    hero_class = data.get('hero_class', 'Unknown')
+    hero_class = data.get('hero_class', 'Танк')
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in Hero Class Menu for class {hero_class}")
 
     # Видалити повідомлення користувача
@@ -774,7 +769,7 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         # Невідомий вибір у меню класу героїв
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}"
+        new_interactive_text = f"❓ Невідома команда для класу {hero_class}."
         new_state = MenuStates.HERO_CLASS_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -867,7 +862,46 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     # Повернутися до меню "Персонажі"
     await state.set_state(MenuStates.HEROES_MENU)
 
-# 10. Обробка голосування
+# 10. Обробка створення білду
+@router.message(MenuStates.CREATE_BUILD)
+async def handle_create_build(message: Message, state: FSMContext, bot: Bot):
+    build_name = message.text.strip()
+    logger.info(f"User {message.from_user.id} is creating a build: {build_name}")
+
+    # Видалити повідомлення користувача
+    try:
+        await message.delete()
+    except Exception as e:
+        logger.error(f"Failed to delete user message in Create Build: {e}")
+
+    # Додати логіку створення білду тут
+    if build_name:
+        # Приклад відповіді (замінити на реальну логіку)
+        response_text = f"✅ Білд <b>{build_name}</b> успішно створено!"
+        try:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=response_text,
+                parse_mode="HTML",
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e:
+            logger.error(f"Failed to send build creation response: {e}")
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT
+            )
+    else:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text="🔍 Будь ласка, введіть назву білду.",
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+    # Повернутися до меню "Білди"
+    await state.set_state(MenuStates.BUILDS_MENU)
+
+# 11. Обробка голосування
 @router.message(MenuStates.VOTING_MENU)
 async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -928,7 +962,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         # Невідомий вибір у меню "Голосування"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_voting_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.VOTING_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -980,7 +1014,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     # Оновити стан користувача
     await state.set_state(new_state)
 
-# 11. Обробка створення турніру
+# 12. Обробка вибору кнопок у меню "Турніри"
 @router.message(MenuStates.TOURNAMENTS_MENU)
 async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1036,7 +1070,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         # Невідомий вибір у меню "Турніри"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_tournaments_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.TOURNAMENTS_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1088,7 +1122,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
     # Оновити стан користувача
     await state.set_state(new_state)
 
-# 12. Обробка META Menu buttons
+# 13. Обробка META Menu buttons
 @router.message(MenuStates.META_MENU)
 async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1148,7 +1182,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         # Невідомий вибір у меню "META"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_meta_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.META_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1200,7 +1234,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
     # Оновити стан користувача
     await state.set_state(new_state)
 
-# 13. Обробка GPT Menu buttons
+# 14. Обробка GPT Menu buttons
 @router.message(MenuStates.GPT_MENU)
 async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1297,13 +1331,12 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
 
         # Встановити стан на MAIN_MENU
         await state.set_state(MenuStates.MAIN_MENU)
-        await bot.answer_callback_query(callback.id, "Повернуто до головного меню.")
         return
     else:
         # Невідомий вибір у GPT меню
-        new_main_text = "Невідома команда."
+        new_main_text = "❓ Невідома команда."
         new_main_keyboard = get_gpt_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.GPT_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1355,9 +1388,10 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
 
     # Оновити стан користувача
     await state.set_state(new_state)
-    await bot.answer_callback_query(callback.id)
+    # Note: Вихідний виклик 'await bot.answer_callback_query(callback.id)' видалено, оскільки це message handler
+    # Якщо ви хочете відповісти на callback query, використовуйте callback_query handler
 
-# 14. Обробка кнопок "Профіль"
+# 15. Обробка кнопок "Профіль"
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1425,7 +1459,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         # Невідомий вибір у меню "Профіль"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_profile_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.PROFILE_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1477,7 +1511,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     # Оновити стан користувача
     await state.set_state(new_state)
 
-# 15. Обробка меню "Статистика"
+# 16. Обробка меню "Статистика"
 @router.message(MenuStates.STATISTICS_MENU)
 async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1536,7 +1570,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         # Невідомий вибір у меню "Статистика"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_statistics_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.STATISTICS_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1588,7 +1622,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     # Оновити стан користувача
     await state.set_state(new_state)
 
-# 16. Обробка меню "Досягнення"
+# 17. Обробка меню "Досягнення"
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
 async def handle_achievements_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1652,7 +1686,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         # Невідомий вибір у меню "Досягнення"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_achievements_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.ACHIEVEMENTS_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1700,124 +1734,6 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
             await state.update_data(interactive_message_id=new_interactive_message.message_id)
         except Exception as ex:
             logger.error(f"Failed to send new interactive message in Achievements Menu: {ex}")
-
-    # Оновити стан користувача
-    await state.set_state(new_state)
-
-# 17. Обробка меню "Налаштування"
-@router.message(MenuStates.SETTINGS_MENU)
-async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected {user_choice} in Settings Menu")
-
-    # Видалити повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Failed to delete user message in Settings Menu: {e}")
-
-    # Отримати ID повідомлення бота та інтерактивного повідомлення
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found in Settings Menu handler")
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=MAIN_MENU_ERROR_TEXT,
-            reply_markup=get_main_menu()
-        )
-        await state.set_state(MenuStates.MAIN_MENU)
-        return
-
-    # Визначити, яку дію обрати залежно від вибору користувача
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_interactive_keyboard = get_generic_inline_keyboard()
-    new_state = None
-
-    if user_choice == MenuButton.LANGUAGE.value:
-        new_main_text = LANGUAGE_TEXT
-        new_interactive_text = "🌐 Виберіть бажану мову інтерфейсу."
-        # Додати клавіатуру для вибору мови, якщо є
-        new_main_keyboard = get_settings_menu()
-        new_state = MenuStates.SETTINGS_MENU
-    elif user_choice == MenuButton.CHANGE_USERNAME.value:
-        new_main_text = CHANGE_USERNAME_TEXT
-        new_main_keyboard = ReplyKeyboardRemove()
-        new_interactive_text = "ℹ️ Будь ласка, введіть ваш новий Username."
-        new_state = MenuStates.CHANGE_USERNAME
-    elif user_choice == MenuButton.UPDATE_ID.value:
-        new_main_text = UPDATE_ID_TEXT
-        new_interactive_text = "🆔 Будь ласка, введіть ваш новий Player ID."
-        new_main_keyboard = get_settings_menu()
-        new_state = MenuStates.SETTINGS_MENU
-    elif user_choice == MenuButton.NOTIFICATIONS.value:
-        new_main_text = NOTIFICATIONS_TEXT
-        new_interactive_text = "🔔 Налаштуйте ваші сповіщення."
-        # Додати клавіатуру для налаштування сповіщень, якщо є
-        new_main_keyboard = get_settings_menu()
-        new_state = MenuStates.SETTINGS_MENU
-    elif user_choice == MenuButton.BACK.value:
-        # Повернутися до меню "Профіль"
-        new_main_text = PROFILE_MENU_TEXT
-        new_main_keyboard = get_profile_menu()
-        new_interactive_text = PROFILE_INTERACTIVE_TEXT
-        new_state = MenuStates.PROFILE_MENU
-    else:
-        # Невідомий вибір у меню "Налаштування"
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_settings_menu()
-        new_interactive_text = "Невідома команда."
-        new_state = MenuStates.SETTINGS_MENU
-
-    # Надіслати нове повідомлення з клавіатурою
-    try:
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=new_main_text,
-            reply_markup=new_main_keyboard
-        )
-        new_bot_message_id = main_message.message_id
-    except Exception as e:
-        logger.error(f"Failed to send new Settings Menu message: {e}")
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=GENERIC_ERROR_MESSAGE_TEXT
-        )
-        return
-
-    # Видалити попереднє повідомлення бота
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-    except Exception as e:
-        logger.error(f"Failed to delete previous bot message in Settings Menu: {e}")
-
-    # Оновити ID повідомлення бота в стані
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Редагувати інтерактивне повідомлення
-    try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            reply_markup=new_interactive_keyboard
-        )
-    except Exception as e:
-        logger.error(f"Failed to edit interactive message in Settings Menu: {e}")
-        # Надіслати нове інтерактивне повідомлення, якщо редагування не вдалося
-        try:
-            new_interactive_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
-            )
-            await state.update_data(interactive_message_id=new_interactive_message.message_id)
-        except Exception as ex:
-            logger.error(f"Failed to send new interactive message in Settings Menu: {ex}")
 
     # Оновити стан користувача
     await state.set_state(new_state)
@@ -1876,7 +1792,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         # Невідомий вибір у меню "Зворотний Зв'язок"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_feedback_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.FEEDBACK_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -1987,7 +1903,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
         # Невідомий вибір у меню "Допомога"
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_help_menu()
-        new_interactive_text = "Невідома команда."
+        new_interactive_text = "❓ Невідома команда."
         new_state = MenuStates.HELP_MENU
 
     # Надіслати нове повідомлення з клавіатурою
@@ -2174,7 +2090,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_heroes_menu()
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        hero_class = state_data.get('hero_class', 'Tank')
+        hero_class = state_data.get('hero_class', 'Танк')
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_hero_class_menu(hero_class)
     elif current_state == MenuStates.GUIDES_MENU.state:
