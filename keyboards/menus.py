@@ -12,6 +12,9 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
+    TOURNAMENTS = "🏆 Турніри"
+    META = "📊 META"
+    M6 = "🔱 M6"
 
     # Розділ Навігація
     HEROES = "🥷 Персонажі"
@@ -19,9 +22,6 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📊 Голосування"
-    TOURNAMENTS = "🏆 Турніри"
-    META = "📊 META"
-    M6 = "🔱 M6"
     BACK = "🔙"
 
     # Розділ Персонажі
@@ -99,6 +99,10 @@ class MenuButton(Enum):
     M6_INFO = "ℹ️ Інформація про M6"
     M6_STATS = "📊 Статистика M6"
     M6_NEWS = "📰 Новини M6"
+
+    # Розділ Турніри
+    CREATE_TOURNAMENT = "🏗️ Створити Турнір"
+    VIEW_TOURNAMENTS = "📄 Переглянути Турніри"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -204,10 +208,10 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [KeyboardButton(text=hero) for hero in heroes]
+    buttons = [hero for hero in heroes]
     row_width = 3
     keyboard = [buttons[i:i+row_width] for i in range(0, len(buttons), row_width)]
-    keyboard.append([KeyboardButton(text=MenuButton.BACK.value)])
+    keyboard.append([MenuButton.BACK.value])
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
@@ -327,8 +331,8 @@ def get_help_menu():
 def get_tournaments_menu():
     return create_menu(
         [
-            MenuButton.CREATE_BUILD,  # Assuming 'CREATE_BUILD' is for creating tournaments
-            MenuButton.MY_BUILDS,     # Assuming 'MY_BUILDS' is for viewing tournaments
+            MenuButton.CREATE_TOURNAMENT,
+            MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
         row_width=3
