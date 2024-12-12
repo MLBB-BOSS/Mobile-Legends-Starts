@@ -197,11 +197,9 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.GPT,
             MenuButton.PROFILE
-
         ],
-        row_width=3 
+        row_width=2
     )
 
 
@@ -216,6 +214,7 @@ def get_navigation_menu():
             MenuButton.M6,
             MenuButton.META,
             MenuButton.VOTING,
+            MenuButton.GPT,  # Додано GPT до навігації
             MenuButton.BACK
         ],
         row_width=3
