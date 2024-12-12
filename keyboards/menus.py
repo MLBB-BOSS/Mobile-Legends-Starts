@@ -13,7 +13,7 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
-    GPT = "🤖 GPT"
+    GPT = "👾 GPT"
 
     # Розділ Навігація
     TOURNAMENTS = "🏆 Турніри"
