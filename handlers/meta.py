@@ -1,10 +1,10 @@
-# handlers/meta.pyhandlers/meta.py
-
-from aiogram import types, Dispatcher
+from aiogram import Router, types, Dispatcher
 from keyboards.menus import MenuButton, get_meta_menu
 import logging
 
 logger = logging.getLogger(__name__)
+
+router = Router()
 
 def register_handlers(dp: Dispatcher):
     # Обробник кнопки "🔥 META"
@@ -31,7 +31,7 @@ def register_handlers(dp: Dispatcher):
             "Рекомендація 2",
             "Рекомендація 3"
         ]
-        recommendations_text = "\n".join(recommendations)
+        recommendations_text = "\n.join(recommendations)
         await message.answer(f"Рекомендації:\n{recommendations_text}", reply_markup=get_meta_menu())
 
     # Обробник кнопки "🔄 Оновлення Мети"
@@ -43,5 +43,5 @@ def register_handlers(dp: Dispatcher):
             "Оновлення 2",
             "Оновлення 3"
         ]
-        updates_text = "\n".join(updates)
+        updates_text = "\n.join(updates)
         await message.answer(f"Оновлення Мети:\n{updates_text}", reply_markup=get_meta_menu())
