@@ -8,6 +8,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
+from handlers import setup_handlers  # Імпортуємо функцію реєстрації обробників
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
