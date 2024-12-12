@@ -1,6 +1,6 @@
 # keyboards/menus.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from enum import Enum
 import logging
 
@@ -105,6 +105,9 @@ class MenuButton(Enum):
     M6_STATS = "📈 Статистика M6"
     M6_NEWS = "📰 Новини M6"
 
+    # Підменю GPT
+    GPT_FEATURES = "📚 Функції GPT"
+
 def create_menu(buttons, row_width=2):
     """
     Створює клавіатуру з кнопками.
@@ -128,6 +131,16 @@ def create_menu(buttons, row_width=2):
     ]
 
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+def create_inline_menu(buttons):
+    """
+    Створює інлайн клавіатуру з кнопками.
+    :param buttons: Список інлайн кнопок (InlineKeyboardButton).
+    :return: InlineKeyboardMarkup
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[buttons]
+    )
 
 def get_main_menu():
     return create_menu(
@@ -177,9 +190,9 @@ def get_hero_class_menu(hero_class):
         logger.warning(f"Клас героїв '{hero_class}' не знайдено.")
 
     # Додаємо кнопку "🔙 Повернутися" для повернення
-    buttons = [MenuButton(button) for button in heroes] + [MenuButton.BACK]
+    buttons = heroes + [MenuButton.BACK]
 
-    logger.info(f"Створення меню для класу '{hero_class}' з героями: {[hero.value for hero in buttons]}")
+    logger.info(f"Створення меню для класу '{hero_class}' з героями: {buttons}")
 
     return create_menu(buttons, row_width=3)
 
@@ -348,6 +361,16 @@ def get_m6_menu():
         row_width=2
     )
 
+# Додавання функцій для GPT
+def get_gpt_menu():
+    return create_menu(
+        [
+            MenuButton.GPT_FEATURES,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -361,121 +384,31 @@ menu_button_to_class = {
 # Повний список героїв за класами
 heroes_by_class = {
     "Боєць": [
-        MenuButton.BALMOND.value, MenuButton.ALUCARD.value, MenuButton.BANE.value, MenuButton.ZILONG.value,
-        MenuButton.FREYA.value, MenuButton.ALPHA.value, MenuButton.RUBY.value, MenuButton.ROGER.value,
-        MenuButton.GATOTKACA.value, MenuButton.JAWHEAD.value, MenuButton.MARTIS.value, MenuButton.ALDOUS.value,
-        MenuButton.MINSITTHAR.value, MenuButton.TERIZLA.value, MenuButton.X_BORG.value, MenuButton.DYROTH.value,
-        MenuButton.MASHA.value, MenuButton.SILVANNA.value, MenuButton.YU_ZHONG.value, MenuButton.KHALEED.value,
-        MenuButton.BARATS.value, MenuButton.PAQUITO.value, MenuButton.PHOVEUS.value, MenuButton.AULUS.value,
-        MenuButton.FIDDRIN.value, MenuButton.ARLOTT.value, MenuButton.CICI.value, MenuButton.KAJA.value,
-        MenuButton.LEOMORD.value, MenuButton.THAMUZ.value, MenuButton.BADANG.value, MenuButton.GUINEVERE.value
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
+        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
+        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
+        "Badang", "Guinevere"
     ],
     "Танк": [
-        MenuButton.ALICE.value, MenuButton.TIGREAL.value, MenuButton.AKAI.value, MenuButton.FRANCO.value,
-        MenuButton.MINOTAUR.value, MenuButton.LOLIA.value, MenuButton.GATOTKACA.value, MenuButton.GROCK.value,
-        MenuButton.HYLOS.value, MenuButton.URANUS.value, MenuButton.BELERICK.value, MenuButton.KHUFRA.value,
-        MenuButton.ESMERALDA.value, MenuButton.TERIZLA.value, MenuButton.BAXIA.value, MenuButton.MASHA.value,
-        MenuButton.ATLAS.value, MenuButton.BARATS.value, MenuButton.EDITH.value, MenuButton.FREDRIN.value,
-        MenuButton.JOHNSON.value, MenuButton.HILDA.value, MenuButton.CARMILLA.value, MenuButton.GLOO.value,
-        MenuButton.CHIP.value
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
+        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
-        MenuButton.SABER.value, MenuButton.ALUCARD.value, MenuButton.ZILONG.value, MenuButton.FANNY.value,
-        MenuButton.NATALIA.value, MenuButton.YI_SUN_SHIN.value, MenuButton.LANCELOT.value, MenuButton.HEL_CURT.value,
-        MenuButton.LESLEY.value, MenuButton.SELENA.value, MenuButton.MATHILDA.value, MenuButton.PAQUITO.value,
-        MenuButton.YIN.value, MenuButton.ARLOTT.value, MenuButton.HARLEY.value, MenuButton.SUYOU.value
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
+        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
     ],
     "Стрілець": [
-        MenuButton.POPOL_AND_KUPA.value, MenuButton.BRODY.value, MenuButton.BEATRIX.value, MenuButton.NATAN.value,
-        MenuButton.MELISSA.value, MenuButton.IXIA.value, MenuButton.HANABI.value, MenuButton.CLAUDE.value,
-        MenuButton.KIMMY.value, MenuButton.GRANGER.value, MenuButton.WANWAN.value, MenuButton.MIYA.value,
-        MenuButton.BRUNO.value, MenuButton.CLINT.value, MenuButton.LAYLA.value, MenuButton.YI_SUN_SHIN.value,
-        MenuButton.MOSKOV.value, MenuButton.ROGER.value, MenuButton.KARRIE.value, MenuButton.IRITHEL.value,
-        MenuButton.LESLEY.value
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
+        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
+        "Roger", "Karrie", "Irithel", "Lesley"
     ],
     "Маг": [
-        MenuButton.VALE.value, MenuButton.LUNOX.value, MenuButton.KADITA.value, MenuButton.CECILLION.value,
-        MenuButton.LUO_YI.value, MenuButton.XAVIER.value, MenuButton.NOVARIA.value, MenuButton.ZHUXIN.value,
-        MenuButton.HARLEY.value, MenuButton.YVE.value, MenuButton.AURORA.value, MenuButton.FARAMIS.value,
-        MenuButton.ESMERALDA.value, MenuButton.KAGURA.value, MenuButton.CYCLOPS.value, MenuButton.VEXANA.value,
-        MenuButton.ODETTE.value, MenuButton.ZHASK.value
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
+        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        MenuButton.RAFAELA.value, MenuButton.MINOTAUR.value, MenuButton.LOLITA.value, MenuButton.ESTES.value,
-        MenuButton.ANGELA.value, MenuButton.FARAMIS.value, MenuButton.MATHILDA.value, MenuButton.FLO
-        "RIN.value", MenuButton.JOHNSON.value
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
     ],
 }
-
-# Додавання нових кнопок для героїв
-MenuButton.BALMOND = MenuButton("Balmond")
-MenuButton.ALICE = MenuButton("Alice")
-MenuButton.SABER = MenuButton("Saber")
-MenuButton.POPOL_AND_KUPA = MenuButton("Popol and Kupa")
-MenuButton.VALE = MenuButton("Vale")
-MenuButton.RAFAELA = MenuButton("Rafaela")
-
-def get_generic_inline_keyboard():
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="🔙 Повернутися", callback_data="menu_back")
-            ]
-        ]
-    )
-
-def get_intro_page_1_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Далі")]
-        ],
-        resize_keyboard=True
-    )
-
-def get_intro_page_2_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Далі")]
-        ],
-        resize_keyboard=True
-    )
-
-def get_intro_page_3_keyboard():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Розпочати")]
-        ],
-        resize_keyboard=True
-    )
-
-# Додаткові функції для META, M6, GPT, Турніри
-def get_meta_features_menu():
-    return create_menu(
-        [
-            MenuButton.META_HERO_LIST,
-            MenuButton.META_RECOMMENDATIONS,
-            MenuButton.META_UPDATES,
-            MenuButton.BACK
-        ],
-        row_width=2
-    )
-
-def get_m6_menu():
-    return create_menu(
-        [
-            MenuButton.M6_INFO,
-            MenuButton.M6_STATS,
-            MenuButton.M6_NEWS,
-            MenuButton.BACK
-        ],
-        row_width=2
-    )
-
-def get_gpt_menu():
-    return create_menu(
-        [
-            MenuButton.GPT_FEATURES,
-            MenuButton.BACK
-        ],
-        row_width=2
-    )
