@@ -1,10 +1,12 @@
 # handlers/m6.py
 
-from aiogram import types, Dispatcher
+from aiogram import Router, types, Dispatcher
 from keyboards.menus import MenuButton, get_m6_menu
 import logging
 
 logger = logging.getLogger(__name__)
+
+router = Router()
 
 def register_handlers(dp: Dispatcher):
     # Обробник кнопки "🏆 M6"
