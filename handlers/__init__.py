@@ -1,4 +1,4 @@
-from .tournaments import router as register_handlers
+from .m6 import import router as register_m6_handlers
 from .base import router as base_router
 
 routers = [
