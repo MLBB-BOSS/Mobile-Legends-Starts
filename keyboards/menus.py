@@ -69,7 +69,7 @@ class MenuButton(Enum):
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    BACK_TO_PROFILE = "🔙 Повернутися до Профілю"
+    BACK_TO_PROFILE = "🔙 Назад"
 
     # Підрозділ Досягнення
     BADGES = "🎖️ Мої Бейджі"
@@ -301,7 +301,7 @@ def get_profile_menu():
             MenuButton.SETTINGS,
             MenuButton.FEEDBACK,
             MenuButton.HELP,
-            MenuButton.BACK_TO_MAIN_MENU
+            MenuButton.BACK
         ],
         row_width=3
     )
@@ -313,7 +313,7 @@ def get_statistics_menu():
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK
         ],
         row_width=3
     )
@@ -326,7 +326,7 @@ def get_achievements_menu():
             MenuButton.PROGRESS,
             MenuButton.TOURNAMENT_STATS,
             MenuButton.AWARDS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK
         ],
         row_width=3
     )
@@ -339,7 +339,7 @@ def get_settings_menu():
             MenuButton.CHANGE_USERNAME,
             MenuButton.UPDATE_ID,
             MenuButton.NOTIFICATIONS,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK
         ],
         row_width=3
     )
@@ -350,7 +350,7 @@ def get_feedback_menu():
         [
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK
         ],
         row_width=3
     )
@@ -362,7 +362,7 @@ def get_help_menu():
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
             MenuButton.HELP_SUPPORT,
-            MenuButton.BACK_TO_PROFILE
+            MenuButton.BACK
         ],
         row_width=3
     )
