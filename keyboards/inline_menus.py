@@ -1,4 +1,3 @@
-from aiogram.utils.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Визначення CallbackData
