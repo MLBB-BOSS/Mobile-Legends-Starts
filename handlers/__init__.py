@@ -1,4 +1,4 @@
-from .m6 import import router as m6_router
+from .m6 import router as m6_router
 from .base import router as base_router
 
 routers = [
