@@ -22,7 +22,7 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📋 Голосування"
-    BACK = "🔙"
+    BACK = "🔙 Назад"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
@@ -104,6 +104,23 @@ class MenuButton(Enum):
     CREATE_TOURNAMENT = "🏗️ Створити Турнір"
     VIEW_TOURNAMENTS = "📄 Переглянути Турніри"
 
+    # Додатковий функціонал у підменю "Персонажі"
+    HERO_BIO = "📜 Біографія Героя"
+    HERO_SKILLS = "⚔️ Навички"
+    HERO_BUILDS = "🛠️ Оптимальні Білди"
+    HERO_ROLES = "🎮 Ролі в Команді"
+    HERO_STATS = "📊 Статистика Героя"
+
+    # META (4-й рівень)
+    META_SKILLS_STRENGTHS = "⚔️ Навички та Сильні Сторони"
+    META_GAME_TIPS = "📜 Поради щодо Гри"
+    META_BUILDS = "🛠️ Білди для Мети"
+
+    # Перегляд Турнірів (4-й рівень)
+    TOURNAMENT_RESULTS = "🏅 Результати Турнірів"
+    TOURNAMENT_SCHEDULE = "📅 Розклад Матчів"
+    TOURNAMENT_PARTICIPANTS = "👥 Список Учасників"
+
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -177,13 +194,13 @@ def get_main_menu():
 def get_navigation_menu():
     return create_menu(
         [
-            MenuButton.TOURNAMENTS,
             MenuButton.HEROES,
-            MenuButton.META,
-            MenuButton.M6,
             MenuButton.BUILDS,
             MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
+            MenuButton.TOURNAMENTS,
+            MenuButton.M6,
+            MenuButton.META,
             MenuButton.VOTING,
             MenuButton.BACK
         ],
@@ -358,4 +375,39 @@ def get_m6_menu():
             MenuButton.BACK
         ],
         row_width=3
+    )
+
+def get_hero_details_menu():
+    return create_menu(
+        [
+            MenuButton.HERO_BIO,
+            MenuButton.HERO_SKILLS,
+            MenuButton.HERO_BUILDS,
+            MenuButton.HERO_ROLES,
+            MenuButton.HERO_STATS,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+def get_meta_submenu():
+    return create_menu(
+        [
+            MenuButton.META_SKILLS_STRENGTHS,
+            MenuButton.META_GAME_TIPS,
+            MenuButton.META_BUILDS,
+            MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+def get_tournament_view_submenu():
+    return create_menu(
+        [
+            MenuButton.TOURNAMENT_RESULTS,
+            MenuButton.TOURNAMENT_SCHEDULE,
+            MenuButton.TOURNAMENT_PARTICIPANTS,
+            MenuButton.BACK
+        ],
+        row_width=2
     )
