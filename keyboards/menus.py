@@ -82,16 +82,16 @@ class MenuButton(Enum):
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підменю Зворотний зв'язок
+    # Підменю Зворотного зв'язку
     SEND_FEEDBACK = "📝 Надіслати відгук"
     REPORT_BUG = "🐛 Повідомити про помилку"
 
-    # Підменю Допомога
+    # Підменю Допомоги
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
 
-    # Підменю Турніри
+    # Підменю Турнірів
     CREATE_TOURNAMENT = "🆕 Створити турнір"
     VIEW_TOURNAMENTS = "📋 Переглянути турніри"
 
@@ -131,6 +131,20 @@ def create_menu(buttons, row_width=2):
     ]
 
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
+def get_tournament_type_menu():
+    """
+    Створює меню типів турнірів.
+    :return: ReplyKeyboardMarkup
+    """
+    buttons = [
+        KeyboardButton(text="5х5"),
+        KeyboardButton(text="2х2"),
+        KeyboardButton(text="1 на 1"),
+        MenuButton.BACK.value
+    ]
+    logger.info(f"Створення меню типів турнірів: {[button.text for button in buttons]}")
+    return ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
 
 def create_inline_menu(buttons):
     """
@@ -190,11 +204,17 @@ def get_hero_class_menu(hero_class):
         logger.warning(f"Клас героїв '{hero_class}' не знайдено.")
 
     # Додаємо кнопку "🔙 Повернутися" для повернення
-    buttons = heroes + [MenuButton.BACK]
+    buttons = heroes + [MenuButton.BACK.value]
 
     logger.info(f"Створення меню для класу '{hero_class}' з героями: {buttons}")
 
-    return create_menu(buttons, row_width=3)
+    # Розбиваємо кнопки на рядки по 3
+    keyboard = [
+        buttons[i:i + 3]
+        for i in range(0, len(buttons), 3)
+    ]
+
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_guides_menu():
     return create_menu(
@@ -317,6 +337,17 @@ def get_tournaments_menu():
             MenuButton.CREATE_TOURNAMENT,  # Створити турнір
             MenuButton.VIEW_TOURNAMENTS,   # Переглянути турніри
             MenuButton.BACK
+        ],
+        row_width=2
+    )
+
+def get_tournament_type_menu():
+    return create_menu(
+        [
+            "5х5",
+            "2х2",
+            "1 на 1",
+            MenuButton.BACK.value
         ],
         row_width=2
     )
