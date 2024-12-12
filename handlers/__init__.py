@@ -1,5 +1,4 @@
 from .base import router as base_router
-from .callbacks import router as callbacks_router
 from .m6 import router as m6_router
 from .meta import router as meta_router
 from .tournaments import router as tournaments_router
