@@ -31,7 +31,7 @@ def register_handlers(dp: Dispatcher):
             "Рекомендація 2",
             "Рекомендація 3"
         ]
-        recommendations_text = "\n.join(recommendations)
+        recommendations_text = "\n".join(recommendations)  # Виправлений рядок
         await message.answer(f"Рекомендації:\n{recommendations_text}", reply_markup=get_meta_menu())
 
     # Обробник кнопки "🔄 Оновлення Мети"
@@ -43,5 +43,5 @@ def register_handlers(dp: Dispatcher):
             "Оновлення 2",
             "Оновлення 3"
         ]
-        updates_text = "\n.join(updates)
+        updates_text = "\n".join(updates)  # Виправлений рядок
         await message.answer(f"Оновлення Мети:\n{updates_text}", reply_markup=get_meta_menu())
