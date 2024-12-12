@@ -1,6 +1,4 @@
-# handlers/tournaments.py
-
-from aiogram import types, Dispatcher
+from aiogram import Router, types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from keyboards.menus import MenuButton, get_tournaments_menu, get_tournament_type_menu, get_active_tournaments_menu, get_navigation_menu
@@ -17,6 +15,8 @@ class TournamentCreation(StatesGroup):
     confirmation = State()
 
 logger = logging.getLogger(__name__)
+
+router = Router()
 
 def register_handlers(dp: Dispatcher):
     # Обробник кнопки "🏆 Турніри"
