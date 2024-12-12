@@ -81,7 +81,7 @@ class MenuButton(Enum):
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотний Зв'язок
+    # Підрозділ Зворотний зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
