@@ -566,6 +566,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     except Exception as e:
         logger.error(f"Failed to delete previous bot message in Navigation Menu: {e}")
 
+    new_interactive_keyboard = get_generic_inline_keyboard()
     # Оновити ID повідомлення бота в стані
     await state.update_data(bot_message_id=new_bot_message_id)
 
