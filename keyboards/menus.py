@@ -12,16 +12,16 @@ class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
-    TOURNAMENTS = "🏆 Турніри"
-    META = "📊 META"
-    M6 = "🔱 M6"
 
     # Розділ Навігація
+    TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
+    META = "📊 META"
+    M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
-    VOTING = "📊 Голосування"
+    VOTING = "📋 Голосування"
     BACK = "🔙"
 
     # Розділ Персонажі
@@ -169,10 +169,7 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE,
-            MenuButton.TOURNAMENTS,
-            MenuButton.META,
-            MenuButton.M6
+            MenuButton.PROFILE
         ],
         row_width=2
     )
@@ -180,7 +177,10 @@ def get_main_menu():
 def get_navigation_menu():
     return create_menu(
         [
+            MenuButton.TOURNAMENTS,
             MenuButton.HEROES,
+            MenuButton.META,
+            MenuButton.M6,
             MenuButton.BUILDS,
             MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
@@ -197,8 +197,8 @@ def get_heroes_menu():
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
-            MenuButton.SUPPORT,
             MenuButton.FIGHTER,
+            MenuButton.SUPPORT,
             MenuButton.COMPARISON,
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
