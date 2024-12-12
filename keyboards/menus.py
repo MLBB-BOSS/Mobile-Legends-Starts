@@ -197,10 +197,11 @@ def get_main_menu():
     return create_menu(
         [
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE,
-            MenuButton.GPT
+            MenuButton.GPT,
+            MenuButton.PROFILE
+
         ],
-        row_width=2
+        row_width=3 
     )
 
 
