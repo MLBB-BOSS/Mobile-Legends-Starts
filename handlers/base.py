@@ -37,7 +37,7 @@ from keyboards.inline_menus import (
     get_intro_page_3_keyboard
 )
 
-# Importing text constants
+# Importing text constants and generate_heroes_list
 from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
@@ -120,6 +120,7 @@ from texts import (
     M6_INFO_TEXT,
     M6_STATS_TEXT,
     M6_NEWS_TEXT,
+    generate_heroes_list,  # Додано функцію для генерації списку героїв
 )
 
 # Налаштування логування
@@ -628,9 +629,13 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 
     if user_choice in menu_button_to_class:
         hero_class = menu_button_to_class[user_choice]
+        # Отримати список героїв для цього класу
+        heroes = heroes_by_class.get(hero_class, [])
+        # Генерувати текст зі списком героїв
+        heroes_list = generate_heroes_list(hero_class, heroes)
         new_main_text = HERO_CLASS_MENU_TEXT.format(hero_class=hero_class)
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class)
+        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class, heroes_list=heroes_list)
         new_state = MenuStates.HERO_CLASS_MENU
         await state.update_data(hero_class=hero_class)
     elif user_choice == MenuButton.SEARCH_HERO.value:
@@ -2014,49 +2019,6 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
         await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
 
     await callback.answer()
-
-# ======================
-# Обробка інших станів
-# ======================
-
-# 10. Обробка створення білду (як приклад)
-@router.message(MenuStates.CREATE_BUILD)
-async def handle_create_build(message: Message, state: FSMContext, bot: Bot):
-    build_name = message.text.strip()
-    logger.info(f"User {message.from_user.id} is creating a build: {build_name}")
-
-    # Видалити повідомлення користувача
-    try:
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Failed to delete user message in Create Build: {e}")
-
-    # Додати логіку створення білду тут
-    if build_name:
-        # Приклад відповіді (замінити на реальну логіку)
-        response_text = f"✅ Білд <b>{build_name}</b> успішно створено!"
-        try:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=response_text,
-                parse_mode="HTML",
-                reply_markup=get_generic_inline_keyboard()
-            )
-        except Exception as e:
-            logger.error(f"Failed to send build creation response: {e}")
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text=GENERIC_ERROR_MESSAGE_TEXT
-            )
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="🔍 Будь ласка, введіть назву білду.",
-            reply_markup=get_generic_inline_keyboard()
-        )
-
-    # Повернутися до меню "Білди"
-    await state.set_state(MenuStates.BUILDS_MENU)
 
 # ======================
 # Обробка невідомих команд
