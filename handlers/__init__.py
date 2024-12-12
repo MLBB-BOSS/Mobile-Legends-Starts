@@ -5,7 +5,6 @@ from .tournaments import router as tournaments_router
 
 routers = [
     base_router,
-    callbacks_router,
     m6_router,
     meta_router,
     tournaments_router,
