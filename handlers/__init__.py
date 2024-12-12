@@ -1,3 +1,4 @@
+from .tournaments import as register_handlers
 from .base import router as base_router
 
 routers = [
