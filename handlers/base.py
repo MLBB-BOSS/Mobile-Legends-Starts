@@ -1149,7 +1149,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         new_main_keyboard = get_help_menu()
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = MenuStates.HELP_MENU
-    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
+    elif user_choice == MenuButton.BACK.value:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
