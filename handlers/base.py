@@ -121,7 +121,6 @@ from texts import (
     M6_INFO_TEXT,
     M6_STATS_TEXT,
     M6_NEWS_TEXT,
-    M6_MENU_TEXT,
     TOURNAMENTS_MENU_TEXT,
     META_MENU_TEXT,
     GPT_MENU_TEXT,
