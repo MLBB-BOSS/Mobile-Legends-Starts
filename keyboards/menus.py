@@ -24,7 +24,6 @@ class MenuButton(Enum):
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📋 Голосування"
-    BACK = "🔙 Назад"
 
     # Розділ Персонажі
     TANK = "🛡️ Танк"
