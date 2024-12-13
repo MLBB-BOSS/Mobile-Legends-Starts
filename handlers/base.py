@@ -121,6 +121,9 @@ from texts import (
     M6_INFO_TEXT,
     M6_STATS_TEXT,
     M6_NEWS_TEXT,
+    M6_MENU_TEXT,              # Додані нові константи
+    TOURNAMENTS_MENU_TEXT,     # Додані нові константи
+    META_MENU_TEXT,
 )
 
 # Setting up logging
