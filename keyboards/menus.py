@@ -1,14 +1,14 @@
 # keyboards/menus.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from enum import Enum
+from enum import Enum, unique
 import logging
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+@unique
 class MenuButton(Enum):
     # Головне Меню
     NAVIGATION = "🧭 Навігація"
@@ -68,7 +68,6 @@ class MenuButton(Enum):
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
-    BACK = "🔙 Назад"
 
     # Підрозділ Досягнення
     BADGES = "🎖️ Мої Бейджі"
@@ -127,7 +126,6 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
-
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -170,7 +168,6 @@ heroes_by_class = {
     ],
 }
 
-
 def create_menu(buttons, row_width=2):
     """
     Створює клавіатуру з кнопками.
@@ -191,7 +188,6 @@ def create_menu(buttons, row_width=2):
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-
 def get_main_menu():
     return create_menu(
         [
@@ -200,7 +196,6 @@ def get_main_menu():
         ],
         row_width=2
     )
-
 
 def get_navigation_menu():
     return create_menu(
@@ -219,7 +214,6 @@ def get_navigation_menu():
         row_width=3
     )
 
-
 def get_heroes_menu():
     return create_menu(
         [
@@ -236,12 +230,10 @@ def get_heroes_menu():
         row_width=3
     )
 
-
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = heroes + [MenuButton.BACK]
     return create_menu(buttons, row_width=3)
-
 
 def get_guides_menu():
     return create_menu(
@@ -256,7 +248,6 @@ def get_guides_menu():
         row_width=3
     )
 
-
 def get_counter_picks_menu():
     return create_menu(
         [
@@ -266,7 +257,6 @@ def get_counter_picks_menu():
         ],
         row_width=3
     )
-
 
 def get_builds_menu():
     return create_menu(
@@ -279,7 +269,6 @@ def get_builds_menu():
         row_width=3
     )
 
-
 def get_voting_menu():
     return create_menu(
         [
@@ -290,7 +279,6 @@ def get_voting_menu():
         ],
         row_width=3
     )
-
 
 def get_profile_menu():
     return create_menu(
@@ -305,7 +293,6 @@ def get_profile_menu():
         row_width=3
     )
 
-
 def get_statistics_menu():
     return create_menu(
         [
@@ -316,7 +303,6 @@ def get_statistics_menu():
         ],
         row_width=3
     )
-
 
 def get_achievements_menu():
     return create_menu(
@@ -330,7 +316,6 @@ def get_achievements_menu():
         row_width=3
     )
 
-
 def get_settings_menu():
     return create_menu(
         [
@@ -343,7 +328,6 @@ def get_settings_menu():
         row_width=3
     )
 
-
 def get_feedback_menu():
     return create_menu(
         [
@@ -353,7 +337,6 @@ def get_feedback_menu():
         ],
         row_width=3
     )
-
 
 def get_help_menu():
     return create_menu(
@@ -366,7 +349,6 @@ def get_help_menu():
         row_width=3
     )
 
-
 def get_tournaments_menu():
     return create_menu(
         [
@@ -376,7 +358,6 @@ def get_tournaments_menu():
         ],
         row_width=3
     )
-
 
 def get_meta_menu():
     return create_menu(
@@ -389,7 +370,6 @@ def get_meta_menu():
         row_width=3
     )
 
-
 def get_m6_menu():
     return create_menu(
         [
@@ -400,7 +380,6 @@ def get_m6_menu():
         ],
         row_width=3
     )
-
 
 def get_hero_details_menu():
     return create_menu(
@@ -415,7 +394,6 @@ def get_hero_details_menu():
         row_width=2
     )
 
-
 def get_meta_submenu():
     return create_menu(
         [
@@ -427,7 +405,6 @@ def get_meta_submenu():
         row_width=2
     )
 
-
 def get_tournament_view_submenu():
     return create_menu(
         [
@@ -437,7 +414,6 @@ def get_tournament_view_submenu():
         ],
         row_width=2
     )
-
 
 def get_gpt_menu():
     """
@@ -453,7 +429,6 @@ def get_gpt_menu():
         ],
         row_width=2
     )
-
 
 def get_generic_inline_keyboard():
     """
