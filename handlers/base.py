@@ -1428,7 +1428,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     elif user_choice == MenuButton.NOTIFICATIONS.value:
         new_main_text = NOTIFICATIONS_TEXT
         new_interactive_text = "Notifications"
-    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+    elif user_choice == MenuButton.BACK.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
