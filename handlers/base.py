@@ -1,6 +1,3 @@
-
-# This is the corrected base.py content with the requested fixes.
-# Original logic preserved with updates for FSM, logging, and menu generation.
 # handlers/base.py
 
 import logging
@@ -32,7 +29,7 @@ from keyboards.menus import (
     get_tournaments_menu,
     get_meta_menu,
     get_m6_menu,
-    heroes_by_class,
+    heroes_by_class,  # Assuming this is a dict mapping classes to hero lists
 )
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
@@ -654,11 +651,17 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 
     if user_choice in hero_classes:
         hero_class = menu_button_to_class.get(user_choice)
+        heroes_list = heroes_by_class.get(hero_class, [])
+        heroes_formatted = ", ".join(heroes_list) if heroes_list else "No available heroes."
+
         new_main_text = HERO_CLASS_MENU_TEXT.format(hero_class=hero_class)
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class)
+        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(
+            hero_class=hero_class,
+            heroes_list=heroes_formatted  # Pass heroes_list
+        )
         new_state = MenuStates.HERO_CLASS_MENU
-        await state.update_data(hero_class=hero_class)
+        await state.update_data(hero_class=hero_class, heroes_list=heroes_formatted)
     elif user_choice == MenuButton.SEARCH_HERO.value:
         new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")  # Placeholder, handled separately
         new_main_keyboard = types.ReplyKeyboardRemove()
@@ -677,6 +680,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         hero_class = data.get('hero_class', 'Tank')
+        heroes_list = data.get('heroes_list', 'No available heroes.')
         new_main_keyboard = get_hero_class_menu(hero_class)
         new_interactive_text = "Unknown command"
         new_state = MenuStates.HEROES_MENU
@@ -1478,7 +1482,9 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     user_choice = message.text
     # Retrieve state data before logging
     data = await state.get_data()
-    logger.info(f"User {message.from_user.id} selected '{user_choice}' in Hero Class Menu for class {data.get('hero_class', 'Unknown')}")
+    hero_class = data.get('hero_class', 'Unknown')
+    heroes_list = data.get('heroes_list', 'No available heroes.')
+    logger.info(f"User {message.from_user.id} selected '{user_choice}' in Hero Class Menu for class {hero_class}")
 
     # Delete the user's message
     await message.delete()
@@ -1494,11 +1500,10 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         new_interactive_text = HEROES_INTERACTIVE_TEXT
         new_state = MenuStates.HEROES_MENU
     else:
-        # Other options can be added as needed
+        # Handle other options as needed
         new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}"
+        new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
         new_state = MenuStates.HERO_CLASS_MENU
 
     # Send the new main message with keyboard
@@ -1994,481 +1999,9 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         hero_class = data.get('hero_class', 'Tank')
+        heroes_list = data.get('heroes_list', 'No available heroes.')
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}"
-        new_state = MenuStates.HERO_CLASS_MENU
-    elif current_state == MenuStates.GUIDES_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_guides_menu()
-        new_interactive_text = "Guides Menu"
-        new_state = MenuStates.GUIDES_MENU
-    elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_counter_picks_menu()
-        new_interactive_text = "Counter Picks Menu"
-        new_state = MenuStates.COUNTER_PICKS_MENU
-    elif current_state == MenuStates.BUILDS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_builds_menu()
-        new_interactive_text = "Builds Menu"
-        new_state = MenuStates.BUILDS_MENU
-    elif current_state == MenuStates.VOTING_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_voting_menu()
-        new_interactive_text = "Voting Menu"
-        new_state = MenuStates.VOTING_MENU
-    elif current_state == MenuStates.PROFILE_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_profile_menu()
-        new_interactive_text = "Profile Menu"
-        new_state = MenuStates.PROFILE_MENU
-    elif current_state == MenuStates.STATISTICS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_statistics_menu()
-        new_interactive_text = "Statistics Menu"
-        new_state = MenuStates.STATISTICS_MENU
-    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_achievements_menu()
-        new_interactive_text = "Achievements Menu"
-        new_state = MenuStates.ACHIEVEMENTS_MENU
-    elif current_state == MenuStates.SETTINGS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_settings_menu()
-        new_interactive_text = "Settings Menu"
-        new_state = MenuStates.SETTINGS_MENU
-    elif current_state in [
-        MenuStates.SEARCH_HERO.state,
-        MenuStates.SEARCH_TOPIC.state,
-        MenuStates.CHANGE_USERNAME.state,
-        MenuStates.RECEIVE_FEEDBACK.state,
-        MenuStates.REPORT_BUG.state
-    ]:
-        # If the user is in the middle of an input process, send a hint
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=USE_BUTTON_NAVIGATION_TEXT,
-            reply_markup=get_generic_inline_keyboard()
-        )
-        await state.set_state(current_state)
-        return
-    else:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
-
-    # Send the new main message
-    main_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text=new_main_text,
-        reply_markup=new_main_keyboard
-    )
-    new_bot_message_id = main_message.message_id
-
-    # Delete the previous bot message
-    if bot_message_id:
-        try:
-            await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-        except Exception as e:
-            logger.error(f"Failed to delete bot message: {e}")
-
-    # Edit the interactive message
-    if interactive_message_id:
-        try:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=interactive_message_id,
-                text=new_interactive_text,
-                parse_mode=ParseMode.HTML,
-                reply_markup=get_generic_inline_keyboard()
-            )
-        except Exception as e:
-            logger.error(f"Failed to edit interactive message: {e}")
-            # If editing fails, send a new interactive message
-            interactive_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
-            )
-            await state.update_data(interactive_message_id=interactive_message.message_id)
-    else:
-        interactive_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=new_interactive_text,
-            reply_markup=get_generic_inline_keyboard()
-        )
-        await state.update_data(interactive_message_id=interactive_message.message_id)
-
-    # Update the user's state
-    await state.set_state(new_state)
-
-# Handler for Inline Buttons
-@router.callback_query()
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    data = callback.data
-    logger.info(f"User {callback.from_user.id} pressed inline button: {data}")
-
-    # Retrieve interactive_message_id from state
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
-
-    if interactive_message_id:
-        # Handle inline buttons
-        if data == "mls_button":
-            await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
-        elif data == "menu_back":
-            # Return to main menu
-            await state.set_state(MenuStates.MAIN_MENU)
-            new_interactive_text = MAIN_MENU_DESCRIPTION
-            new_interactive_keyboard = get_generic_inline_keyboard()
-
-            # Edit the interactive message
-            try:
-                await bot.edit_message_text(
-                    chat_id=callback.message.chat.id,
-                    message_id=interactive_message_id,
-                    text=new_interactive_text,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=new_interactive_keyboard
-                )
-            except Exception as e:
-                logger.error(f"Failed to edit interactive message: {e}")
-
-            # Send the main menu
-            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=callback.from_user.first_name)
-            main_message = await bot.send_message(
-                chat_id=callback.message.chat.id,
-                text=main_menu_text_formatted,
-                reply_markup=get_main_menu()
-            )
-            # Update the bot_message_id
-            await state.update_data(bot_message_id=main_message.message_id)
-
-            # Delete the old bot message
-            old_bot_message_id = state_data.get('bot_message_id')
-            if old_bot_message_id:
-                try:
-                    await bot.delete_message(chat_id=callback.message.chat.id, message_id=old_bot_message_id)
-                except Exception as e:
-                    logger.error(f"Failed to delete old bot message: {e}")
-        else:
-            # Handle other inline buttons as needed
-            await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
-    else:
-        logger.error("interactive_message_id not found")
-        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
-
-    await callback.answer()
-
-# Handler for Searching Hero
-@router.message(MenuStates.SEARCH_HERO)
-async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
-    hero_name = message.text.strip()
-    logger.info(f"User {message.from_user.id} is searching for hero: {hero_name}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Add your hero search logic here
-    # For now, send a placeholder response
-
-    if hero_name:
-        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
-    else:
-        response_text = "Please enter the name of the hero you want to search for."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Return the user to the previous menu
-    await state.set_state(MenuStates.HEROES_MENU)
-
-# Handler for Suggesting a Topic
-@router.message(MenuStates.SEARCH_TOPIC)
-async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
-    topic = message.text.strip()
-    logger.info(f"User {message.from_user.id} is suggesting a topic: {topic}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Add your topic suggestion logic here
-    # For now, send a placeholder response
-
-    if topic:
-        response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
-    else:
-        response_text = "Please enter the topic you would like to suggest."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Return the user to the Feedback Menu
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Handler for Changing Username
-@router.message(MenuStates.CHANGE_USERNAME)
-async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
-    new_username = message.text.strip()
-    logger.info(f"User {message.from_user.id} is changing username to: {new_username}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Add your username change logic here
-    # For now, send a placeholder response
-
-    if new_username:
-        response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-    else:
-        response_text = "Please enter a new username."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Return the user to the Settings Menu
-    await state.set_state(MenuStates.SETTINGS_MENU)
-
-# Handler for Receiving Feedback
-@router.message(MenuStates.RECEIVE_FEEDBACK)
-async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot):
-    feedback = message.text.strip()
-    logger.info(f"User {message.from_user.id} sent feedback: {feedback}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Add your feedback handling logic here
-    # For now, send a placeholder response
-
-    if feedback:
-        response_text = FEEDBACK_RECEIVED_TEXT
-    else:
-        response_text = "Please provide your feedback."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Return the user to the Feedback Menu
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Handler for Reporting a Bug
-@router.message(MenuStates.REPORT_BUG)
-async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
-    bug_report = message.text.strip()
-    logger.info(f"User {message.from_user.id} reported a bug: {bug_report}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Add your bug reporting logic here
-    # For now, send a placeholder response
-
-    if bug_report:
-        response_text = BUG_REPORT_RECEIVED_TEXT
-    else:
-        response_text = "Please describe the bug you encountered."
-
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=response_text,
-        reply_markup=get_generic_inline_keyboard()
-    )
-
-    # Return the user to the Feedback Menu
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Handler for Tournaments Menu buttons
-@router.message(MenuStates.TOURNAMENTS_MENU)
-async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected '{user_choice}' in Tournaments Menu")
-
-    # Delete the user's message
-    await message.delete()
-
-    if not user_choice:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_tournaments_menu()
-        )
-        return
-
-    if user_choice == MenuButton.CREATE_TOURNAMENT.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=TOURNAMENT_CREATE_TEXT,
-            reply_markup=get_tournaments_menu()
-        )
-    elif user_choice == MenuButton.VIEW_TOURNAMENTS.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=TOURNAMENT_VIEW_TEXT,
-            reply_markup=get_tournaments_menu()
-        )
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
-        )
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_tournaments_menu()
-        )
-
-# Handler for META Menu buttons
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected '{user_choice}' in META Menu")
-
-    # Delete the user's message
-    await message.delete()
-
-    if not user_choice:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_meta_menu()
-        )
-        return
-
-    if user_choice == MenuButton.META_HERO_LIST.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=META_HERO_LIST_TEXT,
-            reply_markup=get_meta_menu()
-        )
-    elif user_choice == MenuButton.META_RECOMMENDATIONS.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=META_RECOMMENDATIONS_TEXT,
-            reply_markup=get_meta_menu()
-        )
-    elif user_choice == MenuButton.META_UPDATES.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=META_UPDATES_TEXT,
-            reply_markup=get_meta_menu()
-        )
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
-        )
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_meta_menu()
-        )
-
-# Handler for M6 Menu buttons
-@router.message(MenuStates.M6_MENU)
-async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected '{user_choice}' in M6 Menu")
-
-    # Delete the user's message
-    await message.delete()
-
-    if not user_choice:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_m6_menu()
-        )
-        return
-
-    if user_choice == MenuButton.M6_INFO.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=M6_INFO_TEXT,
-            reply_markup=get_m6_menu()
-        )
-    elif user_choice == MenuButton.M6_STATS.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=M6_STATS_TEXT,
-            reply_markup=get_m6_menu()
-        )
-    elif user_choice == MenuButton.M6_NEWS.value:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=M6_NEWS_TEXT,
-            reply_markup=get_m6_menu()
-        )
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
-        )
-    else:
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=UNKNOWN_COMMAND_TEXT,
-            reply_markup=get_m6_menu()
-        )
-
-# Handler for Unknown Commands
-@router.message()
-async def unknown_command(message: Message, state: FSMContext, bot: Bot):
-    logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
-
-    # Delete the user's message
-    await message.delete()
-
-    # Retrieve message IDs from state
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-
-    # Determine the current state
-    current_state = await state.get_state()
-
-    # Determine new text and keyboard based on the current state
-    if current_state == MenuStates.MAIN_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = "Main Menu"
-        new_state = MenuStates.MAIN_MENU
-    elif current_state == MenuStates.NAVIGATION_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Navigation Screen"
-        new_state = MenuStates.NAVIGATION_MENU
-    elif current_state == MenuStates.HEROES_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Heroes Menu"
-        new_state = MenuStates.HEROES_MENU
-    elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
-        new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}"
+        new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
         new_state = MenuStates.HERO_CLASS_MENU
     elif current_state == MenuStates.GUIDES_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
