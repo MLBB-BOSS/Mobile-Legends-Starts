@@ -249,19 +249,6 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Решта коду лишається без змін, оскільки всі виправлення були внесені.
-# Вам важливо переконатися, що у Вашому файлі keyboards/menus.py додані константи CREATE_TOURNAMENT, VIEW_TOURNAMENTS, M6_INFO, M6_STATS, M6_NEWS та інші, які використовуються в коді.
-
-# Переконайтеся також, що ніде більше немає старих звернень до кнопок, що не існують.
-
-# Handler-логіка далі залишена без змін, весь код як у попередній відповіді, але з уже доданими константами.
-# Просто переконайтеся, що повністю замінили файл "handlers/base.py" на цей варіант, а також оновили "keyboards/menus.py" за наданим раніше прикладом.
-
-# Завершення коду
-
-def setup_handlers(dp: Router):
-    dp.include_router(router)
-
     # Send the main menu with keyboard
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
     main_menu_message = await bot.send_message(
