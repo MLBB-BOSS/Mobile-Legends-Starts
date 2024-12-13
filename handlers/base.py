@@ -5,6 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.enums import ParseMode
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from keyboards.menus import (
     MenuButton,
@@ -156,20 +157,19 @@ class MenuStates(StatesGroup):
     M6_MENU = State()
 
 # Helper function to fetch user profile
-async def get_user_profile(db_session, telegram_id, username=None):
-    from models.user import User
-    user = await db_session.execute(
+async def get_user_profile(db_session: AsyncSession, telegram_id: int, username: str = None):
+    from models.user import User  # Ensure this path is correct
+    result = await db_session.execute(
         User.__table__.select().where(User.telegram_id == telegram_id)
     )
-    user = user.scalar_one_or_none()
-    if not user:
-        if username:
-            # Якщо користувача немає в базі, створимо його
-            new_user = User(telegram_id=telegram_id, username=username)
-            db_session.add(new_user)
-            await db_session.commit()
-            await db_session.refresh(new_user)
-            return new_user
+    user = result.scalar_one_or_none()
+    if not user and username:
+        # Якщо користувача немає в базі, створимо його
+        new_user = User(telegram_id=telegram_id, username=username)
+        db_session.add(new_user)
+        await db_session.commit()
+        await db_session.refresh(new_user)
+        return new_user
     return user
 
 # Command /start
@@ -1127,7 +1127,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
 
 # Handler for Profile Menu buttons
 @router.message(MenuStates.PROFILE_MENU)
-async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot, db: AsyncSession):
     user_choice = message.text
     telegram_id = message.from_user.id
     logger.info(f"User {telegram_id} selected {user_choice} in Profile Menu")
@@ -1676,7 +1676,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
 
 # Handler for Inline Buttons
 @router.callback_query()
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
+async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot, db: AsyncSession):
     data = callback.data
     telegram_id = callback.from_user.id
     logger.info(f"User {telegram_id} pressed inline button: {data}")
@@ -1692,7 +1692,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
         elif data == "menu_back":
             # Return to main menu
             await state.set_state(MenuStates.MAIN_MENU)
-            user = await get_user_profile(state_data.get('db_session'), telegram_id, username=callback.from_user.username)
+            user = await get_user_profile(db, telegram_id, username=callback.from_user.username)
             new_interactive_text = MAIN_MENU_DESCRIPTION
             new_interactive_keyboard = get_generic_inline_keyboard()
 
@@ -1810,6 +1810,7 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot, 
 
     if new_username:
         try:
+            from models.user import User  # Ensure correct import path
             await db.execute(
                 User.__table__.update()
                 .where(User.telegram_id == telegram_id)
@@ -1848,8 +1849,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot,
 
     if feedback:
         try:
-            # Припустимо, у вас є модель Feedback
-            from models.feedback import Feedback
+            from models.feedback import Feedback  # Ensure correct import path
             new_feedback = Feedback(telegram_id=telegram_id, content=feedback)
             db.add(new_feedback)
             await db.commit()
@@ -1885,8 +1885,7 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot, db: A
 
     if bug_report:
         try:
-            # Припустимо, у вас є модель BugReport
-            from models.bug_report import BugReport
+            from models.bug_report import BugReport  # Ensure correct import path
             new_bug = BugReport(telegram_id=telegram_id, description=bug_report)
             db.add(new_bug)
             await db.commit()
