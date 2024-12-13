@@ -433,8 +433,7 @@ def get_tournament_view_submenu():
         [
             MenuButton.TOURNAMENT_RESULTS,
             MenuButton.TOURNAMENT_SCHEDULE,
-            MenuButton.TOURNAMENT_PARTICIPANTS,
-            MenuButton.BACK
+            MenuButton.TOURNAMENT_PARTICIPANTS
         ],
         row_width=2
     )
