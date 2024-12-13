@@ -95,33 +95,12 @@ class MenuButton(Enum):
     META_RECOMMENDATIONS = "🌟 Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
 
-    # Підрозділ M6
-    M6_INFO = "ℹ️ Інформація про M6"
-    M6_STATS = "📊 Статистика M6"
-    M6_NEWS = "📰 Новини M6"
-
-    # Розділ Турніри
-    CREATE_TOURNAMENT = "🏗️ Створити Турнір"
-    VIEW_TOURNAMENTS = "📄 Переглянути Турніри"
-
-    # Додатковий функціонал у підменю "Персонажі"
-    HERO_BIO = "📜 Біографія Героя"
-    HERO_SKILLS = "⚔️ Навички"
-    HERO_BUILDS = "🛠️ Оптимальні Білди"
-    HERO_ROLES = "🎮 Ролі в Команді"
-    HERO_STATS = "📊 Статистика Героя"
-
-    # META (4-й рівень)
-    META_SKILLS_STRENGTHS = "⚔️ Навички та Сильні Сторони"
-    META_GAME_TIPS = "📜 Поради щодо Гри"
-    META_BUILDS = "🛠️ Білди для Мети"
-
-    # Перегляд Турнірів (4-й рівень)
+    # Перегляд Турнірів
     TOURNAMENT_RESULTS = "🏅 Результати Турнірів"
     TOURNAMENT_SCHEDULE = "📅 Розклад Матчів"
     TOURNAMENT_PARTICIPANTS = "👥 Список Учасників"
 
-    # GPT Меню (новий розділ)
+    # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
@@ -230,7 +209,7 @@ def get_heroes_menu():
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
-        placeholder="Оберіть клас персонажа",
+        placeholder="GPT-4: Персонажі",  # Оновлено
         row_width=3
     )
 
@@ -239,7 +218,7 @@ def get_hero_class_menu(hero_class):
     buttons = heroes + [MenuButton.BACK]
     return create_menu(
         buttons=buttons,
-        placeholder=f"Виберіть героя з класу {hero_class}",
+        placeholder=f"GPT-4: {hero_class}",  # Оновлено для конкретного класу
         row_width=3
     )
 
@@ -253,7 +232,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        placeholder="Оберіть категорію гайдів",
+        placeholder="GPT-4: Гайди",  # Оновлено
         row_width=3
     )
 
@@ -264,7 +243,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        placeholder="Виберіть опцію для контр-піків",
+        placeholder="GPT-4: Контр-пік",  # Оновлено
         row_width=3
     )
 
@@ -276,7 +255,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть дію з білдами",
+        placeholder="GPT-4: Білд",  # Оновлено
         row_width=3
     )
 
@@ -386,7 +365,7 @@ def get_meta_menu():
             MenuButton.META_UPDATES,
             MenuButton.BACK
         ],
-        placeholder="Оберіть розділ META",
+        placeholder="Оберіть опцію META",
         row_width=3
     )
 
