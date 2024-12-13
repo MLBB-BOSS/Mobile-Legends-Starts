@@ -168,36 +168,24 @@ heroes_by_class = {
     ],
 }
 
-def create_menu(buttons, row_width=2, max_rows=None):
+def create_menu(buttons, row_width=2):
     """
-    Створює клавіатуру з кнопками з обмеженням по кількості рядків.
+    Створює клавіатуру з кнопками.
     :param buttons: Список кнопок (MenuButton або str).
     :param row_width: Кількість кнопок у рядку.
-    :param max_rows: Максимальна кількість рядків для основних кнопок. Якщо None, обмеження не застосовується.
     :return: ReplyKeyboardMarkup
     """
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
-    
-    # Отримання тексту кнопок для логування
     button_texts = [button.value if isinstance(button, MenuButton) else button for button in buttons]
     logger.info(f"Створення меню з кнопками: {button_texts}")
-    
-    # Створення об'єктів KeyboardButton
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
-    
-    # Розбиття кнопок на рядки з урахуванням row_width
     keyboard = [
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
     ]
-    
-    # Обмеження кількості рядків, якщо задано
-    if max_rows is not None:
-        keyboard = keyboard[:max_rows]
-    
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 def get_main_menu():
@@ -206,8 +194,7 @@ def get_main_menu():
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
         ],
-        row_width=2,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=2
     )
 
 def get_navigation_menu():
@@ -224,8 +211,7 @@ def get_navigation_menu():
             MenuButton.GPT,  # Додано GPT до навігації
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_heroes_menu():
@@ -241,14 +227,13 @@ def get_heroes_menu():
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
-def get_hero_class_menu(hero_class, row_width=3, max_rows=3):
+def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = heroes + [MenuButton.BACK]
-    return create_menu(buttons, row_width=row_width, max_rows=max_rows)
+    return create_menu(buttons, row_width=3)
 
 def get_guides_menu():
     return create_menu(
@@ -260,8 +245,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_counter_picks_menu():
@@ -271,8 +255,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_builds_menu():
@@ -283,8 +266,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_voting_menu():
@@ -295,8 +277,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_profile_menu():
@@ -309,8 +290,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_statistics_menu():
@@ -321,8 +301,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_achievements_menu():
@@ -334,8 +313,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_settings_menu():
@@ -347,8 +325,7 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_feedback_menu():
@@ -358,8 +335,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_help_menu():
@@ -370,8 +346,7 @@ def get_help_menu():
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_tournaments_menu():
@@ -381,8 +356,7 @@ def get_tournaments_menu():
             MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=3
     )
 
 def get_meta_menu():
@@ -393,8 +367,7 @@ def get_meta_menu():
             MenuButton.META_UPDATES,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_m6_menu():
@@ -405,8 +378,7 @@ def get_m6_menu():
             MenuButton.M6_NEWS,
             MenuButton.BACK
         ],
-        row_width=3,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=3
     )
 
 def get_hero_details_menu():
@@ -419,8 +391,7 @@ def get_hero_details_menu():
             MenuButton.HERO_STATS,
             MenuButton.BACK
         ],
-        row_width=2,
-        max_rows=3  # Максимум 3 рядки основних кнопок
+        row_width=2
     )
 
 def get_meta_submenu():
@@ -431,8 +402,7 @@ def get_meta_submenu():
             MenuButton.META_BUILDS,
             MenuButton.BACK
         ],
-        row_width=2,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=2
     )
 
 def get_tournament_view_submenu():
@@ -442,13 +412,12 @@ def get_tournament_view_submenu():
             MenuButton.TOURNAMENT_SCHEDULE,
             MenuButton.TOURNAMENT_PARTICIPANTS
         ],
-        row_width=2,
-        max_rows=2  # Наприклад, максимум 2 рядки
+        row_width=2
     )
 
 def get_gpt_menu():
     """
-    Створює клавіатуру для GPT Меню з обмеженням по кількості рядків.
+    Створює клавіатуру для GPT Меню.
     :return: ReplyKeyboardMarkup
     """
     return create_menu(
@@ -458,8 +427,7 @@ def get_gpt_menu():
             MenuButton.GPT_HERO_STATS,
             MenuButton.BACK
         ],
-        row_width=2,
-        max_rows=2  # Наприклад, максимум 2 рядки основних кнопок
+        row_width=2
     )
 
 def get_generic_inline_keyboard():
