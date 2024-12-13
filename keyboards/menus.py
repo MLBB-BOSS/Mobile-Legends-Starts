@@ -168,17 +168,18 @@ heroes_by_class = {
     ],
 }
 
-def create_menu(buttons, row_width=2):
+def create_menu(buttons, placeholder, row_width=2):
     """
-    Створює клавіатуру з кнопками.
+    Створює клавіатуру з кнопками та встановлює текст підказки.
     :param buttons: Список кнопок (MenuButton або str).
+    :param placeholder: Текст підказки для input_field_placeholder.
     :param row_width: Кількість кнопок у рядку.
     :return: ReplyKeyboardMarkup
     """
     if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
     button_texts = [button.value if isinstance(button, MenuButton) else button for button in buttons]
-    logger.info(f"Створення меню з кнопками: {button_texts}")
+    logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
     keyboard_buttons = [
         KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
     ]
@@ -186,20 +187,21 @@ def create_menu(buttons, row_width=2):
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
     ]
-    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True, input_field_placeholder=placeholder)
 
 def get_main_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.NAVIGATION,
             MenuButton.PROFILE
         ],
+        placeholder="Оберіть одну з основних опцій",
         row_width=2
     )
 
 def get_navigation_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.HEROES,
             MenuButton.BUILDS,
             MenuButton.COUNTER_PICKS,
@@ -211,12 +213,13 @@ def get_navigation_menu():
             MenuButton.GPT,  # Додано GPT до навігації
             MenuButton.BACK
         ],
+        placeholder="Виберіть розділ у навігації",
         row_width=3
     )
 
 def get_heroes_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.TANK,
             MenuButton.MAGE,
             MenuButton.MARKSMAN,
@@ -227,17 +230,22 @@ def get_heroes_menu():
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
+        placeholder="Оберіть клас персонажа",
         row_width=3
     )
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
     buttons = heroes + [MenuButton.BACK]
-    return create_menu(buttons, row_width=3)
+    return create_menu(
+        buttons=buttons,
+        placeholder=f"Виберіть героя з класу {hero_class}",
+        row_width=3
+    )
 
 def get_guides_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.NEW_GUIDES,
             MenuButton.POPULAR_GUIDES,
             MenuButton.BEGINNER_GUIDES,
@@ -245,44 +253,48 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
+        placeholder="Оберіть категорію гайдів",
         row_width=3
     )
 
 def get_counter_picks_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.COUNTER_SEARCH,
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
+        placeholder="Виберіть опцію для контр-піків",
         row_width=3
     )
 
 def get_builds_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.CREATE_BUILD,
             MenuButton.MY_BUILDS,
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть дію з білдами",
         row_width=3
     )
 
 def get_voting_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.CURRENT_VOTES,
             MenuButton.MY_VOTES,
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
+        placeholder="Оберіть опцію голосування",
         row_width=3
     )
 
 def get_profile_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.STATISTICS,
             MenuButton.ACHIEVEMENTS,
             MenuButton.SETTINGS,
@@ -290,100 +302,109 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK
         ],
+        placeholder="Оберіть дію з профілем",
         row_width=3
     )
 
 def get_statistics_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.ACTIVITY,
             MenuButton.RANKING,
             MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть тип статистики",
         row_width=3
     )
 
 def get_achievements_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.BADGES,
             MenuButton.PROGRESS,
             MenuButton.TOURNAMENT_STATS,
             MenuButton.AWARDS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть категорію досягнень",
         row_width=3
     )
 
 def get_settings_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.LANGUAGE,
             MenuButton.CHANGE_USERNAME,
             MenuButton.UPDATE_ID,
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
+        placeholder="Налаштуйте свій профіль",
         row_width=3
     )
 
 def get_feedback_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.SEND_FEEDBACK,
             MenuButton.REPORT_BUG,
             MenuButton.BACK
         ],
+        placeholder="Виберіть тип зворотного зв'язку",
         row_width=3
     )
 
 def get_help_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.INSTRUCTIONS,
             MenuButton.FAQ,
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK
         ],
+        placeholder="Оберіть розділ допомоги",
         row_width=3
     )
 
 def get_tournaments_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.CREATE_TOURNAMENT,
             MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть дію з турнірами",
         row_width=3
     )
 
 def get_meta_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.META_HERO_LIST,
             MenuButton.META_RECOMMENDATIONS,
             MenuButton.META_UPDATES,
             MenuButton.BACK
         ],
+        placeholder="Оберіть розділ META",
         row_width=3
     )
 
 def get_m6_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.M6_INFO,
             MenuButton.M6_STATS,
             MenuButton.M6_NEWS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть інформацію про M6",
         row_width=3
     )
 
 def get_hero_details_menu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.HERO_BIO,
             MenuButton.HERO_SKILLS,
             MenuButton.HERO_BUILDS,
@@ -391,27 +412,30 @@ def get_hero_details_menu():
             MenuButton.HERO_STATS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть деталь про героя",
         row_width=2
     )
 
 def get_meta_submenu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.META_SKILLS_STRENGTHS,
             MenuButton.META_GAME_TIPS,
             MenuButton.META_BUILDS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть опцію META",
         row_width=2
     )
 
 def get_tournament_view_submenu():
     return create_menu(
-        [
+        buttons=[
             MenuButton.TOURNAMENT_RESULTS,
             MenuButton.TOURNAMENT_SCHEDULE,
             MenuButton.TOURNAMENT_PARTICIPANTS
         ],
+        placeholder="Оберіть перегляд турніру",
         row_width=2
     )
 
@@ -421,12 +445,13 @@ def get_gpt_menu():
     :return: ReplyKeyboardMarkup
     """
     return create_menu(
-        [
+        buttons=[
             MenuButton.GPT_DATA_GENERATION,
             MenuButton.GPT_HINTS,
             MenuButton.GPT_HERO_STATS,
             MenuButton.BACK
         ],
+        placeholder="Оберіть опцію GPT",
         row_width=2
     )
 
