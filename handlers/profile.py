@@ -5,14 +5,8 @@ from typing import Callable, Dict, Any, Awaitable
 from sqlalchemy.orm import Session
 from utils.db import get_db_session
 
-# Імпорти власних сервісів та утиліт
 from services.user_service import get_user_profile_text
 from utils.charts import generate_rating_chart
-
-# Припускаємо, що у вас є функція, яка повертає сесію БД
-# Наприклад:
-# from utils.db import get_db_session
-
 
 class DbSessionMiddleware(BaseMiddleware):
     async def __call__(
@@ -21,8 +15,8 @@ class DbSessionMiddleware(BaseMiddleware):
         event: Message, 
         data: Dict[str, Any]
     ) -> Any:
-        # Отримати сесію БД
-        db_session = get_db_session()  
+        # Отримати асинхронну сесію БД з використанням await
+        db_session = await get_db_session()  
         data["db"] = db_session
         return await handler(event, data)
 
