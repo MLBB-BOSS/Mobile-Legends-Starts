@@ -58,3 +58,29 @@ async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
         f"\nОстаннє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
     )
     return profile_text
+
+async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> dict:
+    """
+    Формує дані профілю користувача для відображення.
+    """
+    user = await get_user(session, telegram_id)
+    if not user:
+        return {"text": "Користувач не знайдений."}
+
+    stats = await get_or_create_user_stats(session, user)
+    level = stats.rating // 100  # Кожні 100 рейтингу - новий рівень
+
+    profile_text = (
+        f"🔎 <b>Ваш Профіль:</b>\n\n"
+        f"🏅 Ім'я користувача: <b>{user.username or 'Невідомо'}</b>\n"
+        f"🚀 Рівень: <b>{level}</b>\n"
+        f"📈 Рейтинг: <b>{stats.rating}</b>\n"
+        f"🎯 Досягнення: <b>{stats.achievements_count} досягнень</b>\n"
+        f"🎮 Матчі: {stats.total_matches}, Перемоги: {stats.total_wins}, Поразки: {stats.total_losses}\n"
+        f"\nОстаннє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+    return {
+        "text": profile_text,
+        "rating_history": stats.rating_history or []
+    }
