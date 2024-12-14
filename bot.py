@@ -8,11 +8,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
 from handlers.base import setup_handlers
-from database import engine, DatabaseMiddleware
+from database import engine, DatabaseMiddleware, async_session  # Імпортуємо async_session
 from models.base import Base
 import models.user
 import models.user_stats
-from utils.db import get_db_session
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,9 +33,10 @@ async def main():
     try:
         await create_tables()
 
-        # Реєстрація мідлвару для керування сесіями
-        dp.message.middleware(DatabaseMiddleware(get_db_session))
-        dp.callback_query.middleware(DatabaseMiddleware(get_db_session))
+        # Замість get_db_session передаємо async_session напряму
+        # async_session - це sessionmaker, при виклику async_session() отримуємо AsyncSession
+        dp.message.middleware(DatabaseMiddleware(async_session))
+        dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
         setup_handlers(dp)
         await dp.start_polling(bot)
