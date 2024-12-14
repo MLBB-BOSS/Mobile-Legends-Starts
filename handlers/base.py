@@ -1598,20 +1598,17 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
     # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1639,7 +1636,6 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1647,16 +1643,13 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1667,7 +1660,6 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1675,10 +1667,8 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Inline Buttons
 @router.callback_query()
 async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data
@@ -1728,13 +1718,11 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
 
     await callback.answer()
 
-# Handler for Searching Hero
 @router.message(MenuStates.SEARCH_HERO)
 async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     hero_name = message.text.strip()
     logger.info(f"User {message.from_user.id} is searching for hero: {hero_name}")
 
-    # Delete the user's message
     await message.delete()
 
     if hero_name:
@@ -1750,13 +1738,11 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
 
     await state.set_state(MenuStates.HEROES_MENU)
 
-# Handler for Suggesting a Topic
 @router.message(MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     topic = message.text.strip()
     logger.info(f"User {message.from_user.id} is suggesting a topic: {topic}")
 
-    # Delete the user's message
     await message.delete()
 
     if topic:
@@ -1772,13 +1758,11 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
 
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Handler for Changing Username
 @router.message(MenuStates.CHANGE_USERNAME)
 async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
     new_username = message.text.strip()
     logger.info(f"User {message.from_user.id} is changing username to: {new_username}")
 
-    # Delete the user's message
     await message.delete()
 
     if new_username:
@@ -1794,13 +1778,11 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
 
     await state.set_state(MenuStates.SETTINGS_MENU)
 
-# Handler for Receiving Feedback
 @router.message(MenuStates.RECEIVE_FEEDBACK)
 async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot):
     feedback = message.text.strip()
     logger.info(f"User {message.from_user.id} sent feedback: {feedback}")
 
-    # Delete the user's message
     await message.delete()
 
     if feedback:
@@ -1816,13 +1798,11 @@ async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot)
 
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Handler for Reporting a Bug
 @router.message(MenuStates.REPORT_BUG)
 async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
     bug_report = message.text.strip()
     logger.info(f"User {message.from_user.id} reported a bug: {bug_report}")
 
-    # Delete the user's message
     await message.delete()
 
     if bug_report:
@@ -1844,7 +1824,6 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in Tournaments Menu")
 
-    # Delete the user's message
     await message.delete()
 
     if not user_choice:
@@ -1868,12 +1847,26 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
             reply_markup=get_tournaments_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
+        # Тепер повертаємо в меню Навігації, а не Головне
+        await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
+            text=NAVIGATION_MENU_TEXT,
+            reply_markup=get_navigation_menu()
         )
+        data = await state.get_data()
+        interactive_message_id = data.get('interactive_message_id')
+        if interactive_message_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=NAVIGATION_INTERACTIVE_TEXT,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=get_generic_inline_keyboard()
+                )
+            except Exception as e:
+                logger.error(f"Failed to edit interactive message: {e}")
     else:
         await bot.send_message(
             chat_id=message.chat.id,
@@ -1887,7 +1880,6 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in META Menu")
 
-    # Delete the user's message
     await message.delete()
 
     if not user_choice:
@@ -1917,12 +1909,26 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
             reply_markup=get_meta_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
+        # Повернення до NAVIGATION_MENU
+        await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
+            text=NAVIGATION_MENU_TEXT,
+            reply_markup=get_navigation_menu()
         )
+        data = await state.get_data()
+        interactive_message_id = data.get('interactive_message_id')
+        if interactive_message_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=NAVIGATION_INTERACTIVE_TEXT,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=get_generic_inline_keyboard()
+                )
+            except Exception as e:
+                logger.error(f"Failed to edit interactive message: {e}")
     else:
         await bot.send_message(
             chat_id=message.chat.id,
@@ -1936,7 +1942,6 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in M6 Menu")
 
-    # Delete the user's message
     await message.delete()
 
     if not user_choice:
@@ -1966,12 +1971,26 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
             reply_markup=get_m6_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.MAIN_MENU)
+        # Повернення до NAVIGATION_MENU
+        await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
-            text="You have returned to the main menu.",
-            reply_markup=get_main_menu()
+            text=NAVIGATION_MENU_TEXT,
+            reply_markup=get_navigation_menu()
         )
+        data = await state.get_data()
+        interactive_message_id = data.get('interactive_message_id')
+        if interactive_message_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=NAVIGATION_INTERACTIVE_TEXT,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=get_generic_inline_keyboard()
+                )
+            except Exception as e:
+                logger.error(f"Failed to edit interactive message: {e}")
     else:
         await bot.send_message(
             chat_id=message.chat.id,
@@ -2077,7 +2096,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -2085,14 +2103,12 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message if exists
     if bot_message_id:
         try:
             await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
         except Exception as e:
             logger.error(f"Failed to delete bot message: {e}")
 
-    # Edit the interactive message if exists
     if interactive_message_id:
         try:
             await bot.edit_message_text(
@@ -2104,7 +2120,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             )
         except Exception as e:
             logger.error(f"Failed to edit interactive message: {e}")
-            # If editing fails, send a new interactive message
             interactive_message = await bot.send_message(
                 chat_id=message.chat.id,
                 text=new_interactive_text,
@@ -2112,7 +2127,6 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             )
             await state.update_data(interactive_message_id=interactive_message.message_id)
     else:
-        # If no interactive message exists, send one
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -2120,9 +2134,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Function to set up handlers
 def setup_handlers(dp: Router):
     dp.include_router(router)
