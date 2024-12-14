@@ -1,7 +1,7 @@
 # handlers/profile.py
 from aiogram import Router, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputFile
 from services.user_service import get_or_create_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils.charts import generate_rating_chart
@@ -29,9 +29,7 @@ async def show_profile(message: types.Message, db: AsyncSession):
             await db.commit()
             await db.refresh(stats)
         
-        # Отримуємо історію рейтингу (припускаємо, що вона зберігається)
-        # Наприклад, ви можете мати поле history у моделі UserStats або окрему таблицю
-        # Тут ми використовуємо простий приклад
+        # Отримуємо історію рейтингу (замініть на реальні дані)
         rating_history = [stats.rating]  # Замініть на реальні дані історії рейтингу
         
         # Переконайтеся, що rating_history не порожній
@@ -39,7 +37,8 @@ async def show_profile(message: types.Message, db: AsyncSession):
             rating_history = [stats.rating]  # Впевніться, що є хоча б одне значення
         
         # Генеруємо графік рейтингу
-        chart = generate_rating_chart(rating_history)
+        chart_bytes = generate_rating_chart(rating_history)
+        chart = InputFile(chart_bytes, filename="rating.png")
         
         # Створюємо текст профілю
         profile_text = (
