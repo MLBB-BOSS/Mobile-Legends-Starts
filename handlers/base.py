@@ -6,13 +6,48 @@ from aiogram.fsm.state import StatesGroup,State
 from aiogram import types
 from aiogram.enums import ParseMode
 from handlers.profile import profile_router
-from keyboards.menus import MenuButton,menu_button_to_class,get_main_menu,get_navigation_menu,get_profile_menu,get_heroes_menu,get_hero_class_menu,get_guides_menu,get_counter_picks_menu,get_builds_menu,get_voting_menu,get_statistics_menu,get_achievements_menu,get_settings_menu,get_feedback_menu,get_help_menu,get_tournaments_menu,get_meta_menu,get_m6_menu,get_gpt_menu,heroes_by_class
-from keyboards.inline_menus import get_generic_inline_keyboard,get_intro_page_1_keyboard,get_intro_page_2_keyboard,get_intro_page_3_keyboard
-from texts import INTRO_PAGE_1_TEXT,INTRO_PAGE_2_TEXT,INTRO_PAGE_3_TEXT,MAIN_MENU_TEXT,MAIN_MENU_DESCRIPTION,MAIN_MENU_ERROR_TEXT,NAVIGATION_MENU_TEXT,NAVIGATION_INTERACTIVE_TEXT,PROFILE_MENU_TEXT,PROFILE_INTERACTIVE_TEXT,UNKNOWN_COMMAND_TEXT,ERROR_MESSAGE_TEXT,HEROES_MENU_TEXT,HEROES_INTERACTIVE_TEXT,HERO_CLASS_MENU_TEXT,HERO_CLASS_INTERACTIVE_TEXT,GUIDES_MENU_TEXT,GUIDES_INTERACTIVE_TEXT,NEW_GUIDES_TEXT,POPULAR_GUIDES_TEXT,BEGINNER_GUIDES_TEXT,ADVANCED_TECHNIQUES_TEXT,TEAMPLAY_GUIDES_TEXT,COUNTER_PICKS_MENU_TEXT,COUNTER_PICKS_INTERACTIVE_TEXT,COUNTER_SEARCH_TEXT,COUNTER_LIST_TEXT,BUILDS_MENU_TEXT,BUILDS_INTERACTIVE_TEXT,CREATE_BUILD_TEXT,MY_BUILDS_TEXT,POPULAR_BUILDS_TEXT,VOTING_MENU_TEXT,VOTING_INTERACTIVE_TEXT,CURRENT_VOTES_TEXT,MY_VOTES_TEXT,SUGGEST_TOPIC_TEXT,SUGGESTION_RESPONSE_TEXT,STATISTICS_MENU_TEXT,STATISTICS_INTERACTIVE_TEXT,ACTIVITY_TEXT,RANKING_TEXT,GAME_STATS_TEXT,ACHIEVEMENTS_MENU_TEXT,ACHIEVEMENTS_INTERACTIVE_TEXT,BADGES_TEXT,PROGRESS_TEXT,TOURNAMENT_STATS_TEXT,AWARDS_TEXT,SETTINGS_MENU_TEXT,SETTINGS_INTERACTIVE_TEXT,LANGUAGE_TEXT,CHANGE_USERNAME_TEXT,UPDATE_ID_TEXT,NOTIFICATIONS_TEXT,FEEDBACK_MENU_TEXT,FEEDBACK_INTERACTIVE_TEXT,SEND_FEEDBACK_TEXT,REPORT_BUG_TEXT,FEEDBACK_RECEIVED_TEXT,BUG_REPORT_RECEIVED_TEXT,HELP_MENU_TEXT,HELP_INTERACTIVE_TEXT,INSTRUCTIONS_TEXT,FAQ_TEXT,HELP_SUPPORT_TEXT,GENERIC_ERROR_MESSAGE_TEXT,USE_BUTTON_NAVIGATION_TEXT,SEARCH_HERO_RESPONSE_TEXT,CHANGE_USERNAME_RESPONSE_TEXT,MLS_BUTTON_RESPONSE_TEXT,UNHANDLED_INLINE_BUTTON_TEXT,MAIN_MENU_BACK_TO_PROFILE_TEXT,TOURNAMENT_CREATE_TEXT,TOURNAMENT_VIEW_TEXT,META_HERO_LIST_TEXT,META_RECOMMENDATIONS_TEXT,META_UPDATES_TEXT,M6_INFO_TEXT,M6_STATS_TEXT,M6_NEWS_TEXT
+from keyboards.menus import (MenuButton, menu_button_to_class, get_main_menu, 
+                             get_navigation_menu, get_profile_menu, get_heroes_menu, 
+                             get_hero_class_menu, get_guides_menu, get_counter_picks_menu, 
+                             get_builds_menu, get_voting_menu, get_statistics_menu, 
+                             get_achievements_menu, get_settings_menu, get_feedback_menu, 
+                             get_help_menu, get_tournaments_menu, get_meta_menu, 
+                             get_m6_menu, get_gpt_menu, heroes_by_class)
+from keyboards.inline_menus import (get_generic_inline_keyboard, get_intro_page_1_keyboard,
+                                   get_intro_page_2_keyboard, get_intro_page_3_keyboard)
+from texts import (INTRO_PAGE_1_TEXT,INTRO_PAGE_2_TEXT,INTRO_PAGE_3_TEXT,MAIN_MENU_TEXT,
+                   MAIN_MENU_DESCRIPTION,MAIN_MENU_ERROR_TEXT,NAVIGATION_MENU_TEXT,
+                   NAVIGATION_INTERACTIVE_TEXT,PROFILE_MENU_TEXT,PROFILE_INTERACTIVE_TEXT,
+                   UNKNOWN_COMMAND_TEXT,ERROR_MESSAGE_TEXT,HEROES_MENU_TEXT,
+                   HEROES_INTERACTIVE_TEXT,HERO_CLASS_MENU_TEXT,HERO_CLASS_INTERACTIVE_TEXT,
+                   GUIDES_MENU_TEXT,GUIDES_INTERACTIVE_TEXT,NEW_GUIDES_TEXT,POPULAR_GUIDES_TEXT,
+                   BEGINNER_GUIDES_TEXT,ADVANCED_TECHNIQUES_TEXT,TEAMPLAY_GUIDES_TEXT,
+                   COUNTER_PICKS_MENU_TEXT,COUNTER_PICKS_INTERACTIVE_TEXT,
+                   COUNTER_SEARCH_TEXT,COUNTER_LIST_TEXT,BUILDS_MENU_TEXT,BUILDS_INTERACTIVE_TEXT,
+                   CREATE_BUILD_TEXT,MY_BUILDS_TEXT,POPULAR_BUILDS_TEXT,VOTING_MENU_TEXT,VOTING_INTERACTIVE_TEXT,
+                   CURRENT_VOTES_TEXT,MY_VOTES_TEXT,SUGGEST_TOPIC_TEXT,SUGGESTION_RESPONSE_TEXT,
+                   STATISTICS_MENU_TEXT,STATISTICS_INTERACTIVE_TEXT,ACTIVITY_TEXT,RANKING_TEXT,
+                   GAME_STATS_TEXT,ACHIEVEMENTS_MENU_TEXT,ACHIEVEMENTS_INTERACTIVE_TEXT,
+                   BADGES_TEXT,PROGRESS_TEXT,TOURNAMENT_STATS_TEXT,AWARDS_TEXT,SETTINGS_MENU_TEXT,
+                   SETTINGS_INTERACTIVE_TEXT,LANGUAGE_TEXT,CHANGE_USERNAME_TEXT,UPDATE_ID_TEXT,
+                   NOTIFICATIONS_TEXT,FEEDBACK_MENU_TEXT,FEEDBACK_INTERACTIVE_TEXT,SEND_FEEDBACK_TEXT,
+                   REPORT_BUG_TEXT,FEEDBACK_RECEIVED_TEXT,BUG_REPORT_RECEIVED_TEXT,HELP_MENU_TEXT,
+                   HELP_INTERACTIVE_TEXT,INSTRUCTIONS_TEXT,FAQ_TEXT,HELP_SUPPORT_TEXT,
+                   GENERIC_ERROR_MESSAGE_TEXT,USE_BUTTON_NAVIGATION_TEXT,SEARCH_HERO_RESPONSE_TEXT,
+                   CHANGE_USERNAME_RESPONSE_TEXT,MLS_BUTTON_RESPONSE_TEXT,UNHANDLED_INLINE_BUTTON_TEXT,
+                   MAIN_MENU_BACK_TO_PROFILE_TEXT,TOURNAMENT_CREATE_TEXT,TOURNAMENT_VIEW_TEXT,
+                   META_HERO_LIST_TEXT,META_RECOMMENDATIONS_TEXT,META_UPDATES_TEXT,M6_INFO_TEXT,
+                   M6_STATS_TEXT,M6_NEWS_TEXT)
 import logging
 logging.basicConfig(level=logging.INFO)
 logger=logging.getLogger(__name__)
 router=Router()
+
+# Імпортуємо get_or_create_user
+from services.user_service import get_or_create_user
+from sqlalchemy.ext.asyncio import AsyncSession
+
+
 class MenuStates(StatesGroup):
     INTRO_PAGE_1=State()
     INTRO_PAGE_2=State()
@@ -40,14 +75,26 @@ class MenuStates(StatesGroup):
     META_MENU=State()
     M6_MENU=State()
     GPT_MENU=State()
+
 @router.message(Command("start"))
-async def cmd_start(message:Message,state:FSMContext,bot:Bot):
+async def cmd_start(message:Message,state:FSMContext,bot:Bot, db:AsyncSession):
     user_name=message.from_user.first_name
-    logger.info(f"User {message.from_user.id} invoked /start")
+    telegram_id=message.from_user.id
+    username=message.from_user.username
+
+    logger.info(f"User {telegram_id} invoked /start")
+
+    # Створюємо або отримуємо користувача
+    user = await get_or_create_user(db, telegram_id, username)
+
     await message.delete()
     await state.set_state(MenuStates.INTRO_PAGE_1)
-    interactive_message=await bot.send_message(chat_id=message.chat.id,text=INTRO_PAGE_1_TEXT,parse_mode=ParseMode.HTML,reply_markup=get_intro_page_1_keyboard())
+    interactive_message=await bot.send_message(chat_id=message.chat.id,
+                                               text=INTRO_PAGE_1_TEXT,
+                                               parse_mode=ParseMode.HTML,
+                                               reply_markup=get_intro_page_1_keyboard())
     await state.update_data(interactive_message_id=interactive_message.message_id)
+
 @router.callback_query(F.data=="intro_next_1")
 async def handle_intro_next_1(callback:CallbackQuery,state:FSMContext,bot:Bot):
     state_data=await state.get_data()
