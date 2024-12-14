@@ -1,50 +1,38 @@
-# services/user_service.py
-from sqlalchemy.future import select
-from sqlalchemy.exc import SQLAlchemyError
-from models.user import User
-from models.user_stats import UserStats
-from sqlalchemy.ext.asyncio import AsyncSession
-import logging
+import io
+import matplotlib.pyplot as plt
+from aiogram import Router
+from aiogram.types import Message, InputFile
+from aiogram.filters import Command
 
-logger = logging.getLogger(__name__)
+router = Router()
 
-async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) -> User:
-    # Спробуємо знайти користувача
-    result = await db.execute(select(User).where(User.telegram_id == telegram_id))
-    user = result.scalars().first()
+# Функція для генерації графіка
+def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
+    """
+    Генерує графік зміни рейтингу.
+    rating_history - список рейтингів по часу, наприклад: [100, 200, 250, 300].
+    """
+    plt.figure(figsize=(4, 4))
+    plt.plot(rating_history, marker='o')
+    plt.title("Графік зміни рейтингу")
+    plt.xlabel("Сеанс")
+    plt.ylabel("Рейтинг")
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close()
+    return buf
 
-    if not user:
-        # Користувача не знайдено — створимо нового
-        user = User(telegram_id=telegram_id, username=username)
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
-        logger.info(f"Створено нового користувача з telegram_id={telegram_id}")
-    return user
+# Обробник команди
+@router.message(Command("my_progress"))
+async def show_progress(message: Message):
+    rating_history = [100, 200, 250, 300]  # Зразкові дані
+    chart = generate_rating_chart(rating_history)  # Генеруємо графік
 
-async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: str) -> str:
-    try:
-        # Виклик get_or_create_user щоб завжди мати користувача
-        user = await get_or_create_user(db, telegram_id, username)
+    # Обгортаємо BytesIO в InputFile
+    photo_file = InputFile(chart, filename="chart.png")
+    profile_text = "Ваш прогрес за останні сеанси"
 
-        # Отримання статистики користувача
-        result = await db.execute(select(UserStats).where(UserStats.user_id == user.id))
-        stats = result.scalars().first()
-
-        if not stats:
-            # Якщо статистики нема — можна створити базову статистику
-            stats = UserStats(user_id=user.id, rating=100, achievements_count=0)
-            db.add(stats)
-            await db.commit()
-            await db.refresh(stats)
-
-        profile_text = (
-            f"🔍 **Ваш Профіль:**\n\n"
-            f"• 🏅 Ім'я користувача: @{user.username}\n"
-            f"• 📈 Рейтинг: {stats.rating}\n"
-            f"• 🎯 Досягнення: {stats.achievements_count} досягнень"
-        )
-        return profile_text
-    except SQLAlchemyError as e:
-        logger.error(f"Error fetching user profile for telegram_id={telegram_id}: {e}")
-        return "Виникла помилка при отриманні профілю. Спробуйте пізніше."
+    # Відправляємо графік
+    await message.answer_photo(photo=photo_file, caption=profile_text)
