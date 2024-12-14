@@ -1,53 +1,32 @@
-# bot.py
-import asyncio
+# services/user_service.py
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
+from models.user import User
+from models.user_stats import UserStats
+from sqlalchemy.ext.asyncio import AsyncSession
 import logging
-from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Розгляньте використання RedisStorage для продакшну
-from config import settings
-from handlers.base import setup_handlers
-from database import engine, DatabaseMiddleware, async_session
-from models.base import Base
-import models.user
-import models.user_stats
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-bot = Bot(
-    token=settings.TELEGRAM_BOT_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()
-)
-dp = Dispatcher(storage=MemoryStorage())  # Розгляньте використання RedisStorage для продакшну
-
-async def create_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Таблиці створено успішно.")
-
-async def main():
-    logger.info("Запуск бота...")
+async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) -> User:
     try:
-        await create_tables()
+        stmt = select(User).options(joinedload(User.stats), joinedload(User.badges)).where(User.telegram_id == telegram_id)
+        result = await db.execute(stmt)
+        user = result.scalars().first()
 
-        # Додаємо DatabaseMiddleware
-        dp.message.middleware(DatabaseMiddleware(async_session))
-        dp.callback_query.middleware(DatabaseMiddleware(async_session))
+        if not user:
+            user = User(telegram_id=telegram_id, username=username)
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+            logger.info(f"Створено нового користувача з telegram_id={telegram_id}")
+        else:
+            # Завантажуємо статистику та бейджі разом з користувачем
+            await db.refresh(user, attribute_names=["stats", "badges"])
 
-        setup_handlers(dp)
-        await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"Помилка під час запуску бота: {e}")
-    finally:
-        if bot.session:
-            await bot.session.close()
-        await engine.dispose()  # Закриваємо з'єднання з базою даних
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Бот зупинено!")
+        return user
+    except SQLAlchemyError as e:
+        logger.error(f"Database error in get_or_create_user: {e}")
+        await db.rollback()
+        raise
