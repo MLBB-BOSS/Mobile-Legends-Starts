@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types  # For ReplyKeyboardRemove
 from aiogram.enums import ParseMode
+from handlers.profile import profile_router
 
 from keyboards.menus import (
     MenuButton,
@@ -1093,7 +1094,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     elif user_choice == MenuButton.BACK.value:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_interactive_text = MAI_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
@@ -1971,4 +1972,5 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     await state.set_state(new_state)
 
 def setup_handlers(dp: Router):
+    dp.include_router(profile_router)
     dp.include_router(router)
