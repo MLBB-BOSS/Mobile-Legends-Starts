@@ -1,15 +1,31 @@
 # models/user.py
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger
-from models.base import Base
+from .base import Base
 
 class User(Base):
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(BigInteger, unique=True, nullable=False)  # Changed from user_id to telegram_id
-    username = Column(String(50), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True, index=True)
+    telegram_id = Column(Integer, unique=True, index=True, nullable=False)
+    username = Column(String, nullable=True)
+    level = Column(String, default="Новачок")
+    screenshot_count = Column(Integer, default=0)
+    mission_count = Column(Integer, default=0)
+    quiz_count = Column(Integer, default=0)
 
-    def __repr__(self):
-        return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username})>"
+    # Зв’язок з бейджами
+    badges = relationship("Badge", back_populates="user")
+
+class Badge(Base):
+    __tablename__ = 'badges'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    level = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    user = relationship("User", back_populates="badges")
+    date_awarded = Column(DateTime, default=datetime.utcnow)
