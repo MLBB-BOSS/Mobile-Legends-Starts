@@ -1,6 +1,7 @@
 # services/user_service.py
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 from models.user import User
 from models.user_stats import UserStats
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) -> User:
     try:
-        result = await db.execute(select(User).where(User.telegram_id == telegram_id))
+        stmt = select(User).options(joinedload(User.stats), joinedload(User.badges)).where(User.telegram_id == telegram_id)
+        result = await db.execute(stmt)
         user = result.scalars().first()
 
         if not user:
