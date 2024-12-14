@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
-    parse_mode=ParseMode.HTML,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     session=AiohttpSession()
 )
 dp = Dispatcher(storage=MemoryStorage())  # Розгляньте використання RedisStorage для продакшну
