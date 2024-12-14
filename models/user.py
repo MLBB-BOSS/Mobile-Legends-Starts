@@ -5,17 +5,17 @@ from .base import Base
 
 class User(Base):
     __tablename__ = 'users'
-    
-    id = Column(Integer, primary_key=True, index=True)
-    telegram_id = Column(Integer, unique=True, index=True, nullable=False)
+
+    id = Column(Integer, primary_key=True)
+    telegram_id = Column(Integer, unique=True, nullable=False)
     username = Column(String, nullable=True)
-    level = Column(String, default="Новачок")
+    level = Column(Integer, default=1)
     screenshot_count = Column(Integer, default=0)
     mission_count = Column(Integer, default=0)
     quiz_count = Column(Integer, default=0)
 
-    # Відношення до UserStats (один до одного)
-    stats = relationship("UserStats", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    # Відношення до статистики
+    stats = relationship('UserStats', back_populates='user', uselist=False)
 
-    # Відношення до Badge (один до багатьох)
-    badges = relationship("Badge", back_populates="user", cascade="all, delete-orphan")
+    # Відношення до бейджів
+    badges = relationship('Badge', secondary='user_badges', back_populates='users')
