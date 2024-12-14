@@ -13,17 +13,22 @@ from models.base import Base
 import models.user
 import models.user_stats
 
+# Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     session=AiohttpSession()
 )
-dp = Dispatcher(storage=MemoryStorage())  # Розгляньте використання RedisStorage для продакшну
+
+# Ініціалізація диспетчера з MemoryStorage (замість цього використовуйте RedisStorage для продакшну)
+dp = Dispatcher(storage=MemoryStorage())
 
 async def create_tables():
+    logger.info("Створення таблиць...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Таблиці створено успішно.")
@@ -33,15 +38,17 @@ async def main():
     try:
         await create_tables()
         logger.info("Таблиці створено успішно.")
-
+        
         # Додаємо DatabaseMiddleware
         dp.message.middleware(DatabaseMiddleware(async_session))
         dp.callback_query.middleware(DatabaseMiddleware(async_session))
         logger.info("DatabaseMiddleware додано.")
-
+        
+        # Налаштовуємо обробники
         setup_handlers(dp)
         logger.info("Handlers встановлено.")
-
+        
+        # Запуск Polling
         logger.info("Початок Polling...")
         await dp.start_polling(bot)
         logger.info("Polling завершено.")
@@ -50,8 +57,9 @@ async def main():
     finally:
         if bot.session:
             await bot.session.close()
+            logger.info("Bot session закрита.")
         await engine.dispose()  # Закриваємо з'єднання з базою даних
-        logger.info("Завершення роботи бота.")
+        logger.info("З'єднання з базою даних закрито.")
 
 if __name__ == "__main__":
     try:
