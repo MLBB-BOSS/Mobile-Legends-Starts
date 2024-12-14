@@ -20,6 +20,7 @@ except Exception as e:
     logger.error(f"Failed to create database engine: {e}")
     raise
 
+# async_session – це sessionmaker, виклик async_session() створює нову AsyncSession
 async_session = sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -48,13 +49,16 @@ async def reset_db():
         raise
 
 class DatabaseMiddleware(BaseMiddleware):
-    """Middleware для управління сесіями бази даних"""
+    """Middleware для керування сесіями бази даних"""
     def __init__(self, session_factory):
         super().__init__()
-        self.session_factory = session_factory  # Це тепер asynccontextmanager
+        # session_factory тепер буде async_session (sessionmaker), який при виклику
+        # session_factory() дасть нам AsyncSession
+        self.session_factory = session_factory
 
     async def __call__(self, handler, event, data):
-        # Тепер session_factory повертає контекстний менеджер, який можна використати з async with
+        # Виклик session_factory(): async_session() → AsyncSession
+        # AsyncSession підтримує async with
         async with self.session_factory() as session:
             data['db'] = session
             try:
