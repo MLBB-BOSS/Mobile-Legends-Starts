@@ -249,34 +249,28 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Handler for main menu buttons
 @router.message(MenuStates.MAIN_MENU)
 async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in main menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
 
-    # Determine new text and keyboard based on user choice
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -309,31 +303,25 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
         new_interactive_text = "Меню M6"
         new_state = MenuStates.M6_MENU
     else:
-        # Unknown command
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_main_menu()
         new_interactive_text = "Unknown command"
         new_state = MenuStates.MAIN_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
         reply_markup=new_main_keyboard
     )
-    # Save the new bot message ID
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -344,7 +332,6 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -352,32 +339,26 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Feedback Menu buttons
 @router.message(MenuStates.FEEDBACK_MENU)
 async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Feedback Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -396,7 +377,6 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         new_interactive_text = "Reporting a bug"
         new_state = MenuStates.REPORT_BUG
     elif user_choice == MenuButton.BACK.value:
-        # Return to Profile Menu
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
@@ -406,7 +386,6 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         new_interactive_text = "Unknown command"
         new_state = MenuStates.FEEDBACK_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -414,16 +393,13 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -434,7 +410,6 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -442,32 +417,26 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Navigation Menu buttons
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Navigation Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -518,7 +487,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_main_keyboard = get_m6_menu()
         new_interactive_text = "Меню M6"
         new_state = MenuStates.M6_MENU
-    elif user_choice == MenuButton.GPT.value:  # Перехід до GPT меню
+    elif user_choice == MenuButton.GPT.value:
         new_main_text = "Меню GPT"
         new_main_keyboard = get_gpt_menu()
         new_interactive_text = "Меню GPT"
@@ -529,13 +498,11 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
     else:
-        # Unknown command
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_navigation_menu()
         new_interactive_text = "Unknown command"
         new_state = MenuStates.NAVIGATION_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -543,16 +510,13 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -563,7 +527,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -571,32 +534,26 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for GPT Menu buttons (доданий обробник для GPT меню)
 @router.message(MenuStates.GPT_MENU)
 async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in GPT Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -621,11 +578,9 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
         new_state = MenuStates.NAVIGATION_MENU
     else:
-        # Unknown command
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -633,16 +588,13 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -653,7 +605,6 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -661,32 +612,26 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Heroes Menu buttons
 @router.message(MenuStates.HEROES_MENU)
 async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Heroes Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -741,7 +686,6 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         new_interactive_text = "Unknown command"
         new_state = MenuStates.HEROES_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -749,16 +693,13 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -769,7 +710,6 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -777,32 +717,26 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Guides Menu buttons
 @router.message(MenuStates.GUIDES_MENU)
 async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Guides Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -836,7 +770,6 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -844,16 +777,13 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -864,7 +794,6 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -872,32 +801,26 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Counter Picks Menu buttons
 @router.message(MenuStates.COUNTER_PICKS_MENU)
 async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Counter Picks Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -924,7 +847,6 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -932,16 +854,13 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -952,7 +871,6 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -960,32 +878,26 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Builds Menu buttons
 @router.message(MenuStates.BUILDS_MENU)
 async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Builds Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1013,7 +925,6 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1021,16 +932,13 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1041,7 +949,6 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1049,32 +956,26 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Voting Menu buttons
 @router.message(MenuStates.VOTING_MENU)
 async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Voting Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1104,7 +1005,6 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1112,16 +1012,13 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1132,7 +1029,6 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1140,32 +1036,26 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Profile Menu buttons
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Profile Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1210,7 +1100,6 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         new_interactive_text = "Unknown command"
         new_state = MenuStates.PROFILE_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1218,16 +1107,13 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1238,7 +1124,6 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1246,32 +1131,26 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Statistics Menu buttons
 @router.message(MenuStates.STATISTICS_MENU)
 async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Statistics Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1299,7 +1178,6 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1307,16 +1185,13 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1327,7 +1202,6 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1335,32 +1209,26 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Achievements Menu buttons
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
 async def handle_achievements_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Achievements Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1391,7 +1259,6 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1399,16 +1266,13 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1419,7 +1283,6 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1427,32 +1290,26 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Settings Menu buttons
 @router.message(MenuStates.SETTINGS_MENU)
 async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Settings Menu")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve message IDs from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id or interactive_message_id not found")
-        # Send a new message with keyboard
         main_message = await bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_ERROR_TEXT,
             reply_markup=get_main_menu()
         )
-        # Save the bot message ID
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
@@ -1485,7 +1342,6 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1493,16 +1349,13 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1513,7 +1366,6 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1521,10 +1373,8 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Hero Class Menu buttons
 @router.message(MenuStates.HERO_CLASS_MENU)
 async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1533,7 +1383,6 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     heroes_list = data.get('heroes_list', 'No available heroes.')
     logger.info(f"User {message.from_user.id} selected '{user_choice}' in Hero Class Menu for class {hero_class}")
 
-    # Delete the user's message
     await message.delete()
 
     bot_message_id = data.get('bot_message_id')
@@ -1550,7 +1399,6 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
         new_state = MenuStates.HERO_CLASS_MENU
 
-    # Send the new main message with keyboard
     main_message = await bot.send_message(
         chat_id=message.chat.id,
         text=new_main_text,
@@ -1558,16 +1406,13 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
     )
     new_bot_message_id = main_message.message_id
 
-    # Delete the previous bot message
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
         logger.error(f"Failed to delete bot message: {e}")
 
-    # Update the bot_message_id in state
     await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Edit the interactive message
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
@@ -1578,7 +1423,6 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         )
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        # If editing fails, send a new interactive message
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1586,16 +1430,13 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bo
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Update the user's state
     await state.set_state(new_state)
 
-# Handler for Help Menu buttons
 @router.message(MenuStates.HELP_MENU)
 async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Help Menu")
 
-    # Delete the user's message
     await message.delete()
 
     data = await state.get_data()
@@ -1818,7 +1659,6 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
 
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Handler for Tournaments Menu buttons
 @router.message(MenuStates.TOURNAMENTS_MENU)
 async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1847,7 +1687,6 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
             reply_markup=get_tournaments_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        # Тепер повертаємо в меню Навігації, а не Головне
         await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
@@ -1874,7 +1713,6 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
             reply_markup=get_tournaments_menu()
         )
 
-# Handler for META Menu buttons
 @router.message(MenuStates.META_MENU)
 async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1909,7 +1747,6 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
             reply_markup=get_meta_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        # Повернення до NAVIGATION_MENU
         await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
@@ -1936,7 +1773,6 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
             reply_markup=get_meta_menu()
         )
 
-# Handler for M6 Menu buttons
 @router.message(MenuStates.M6_MENU)
 async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1971,7 +1807,6 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
             reply_markup=get_m6_menu()
         )
     elif user_choice == MenuButton.BACK.value:
-        # Повернення до NAVIGATION_MENU
         await state.set_state(MenuStates.NAVIGATION_MENU)
         await bot.send_message(
             chat_id=message.chat.id,
@@ -1998,20 +1833,16 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
             reply_markup=get_m6_menu()
         )
 
-# Handler for Unknown Commands
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
 
-    # Delete the user's message
     await message.delete()
 
-    # Retrieve data from state
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
-    # Get current state
     current_state = await state.get_state()
 
     if current_state == MenuStates.MAIN_MENU.state:
