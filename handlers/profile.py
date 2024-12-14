@@ -9,7 +9,6 @@ profile_router = Router()
 
 @profile_router.message(Command("profile"))
 async def show_profile(message: types.Message, db: AsyncSession):
-    # Отримуємо user за допомогою функції get_user_by_telegram_id
     user_id = message.from_user.id
     user = await get_user_by_telegram_id(db, user_id)
 
@@ -17,15 +16,15 @@ async def show_profile(message: types.Message, db: AsyncSession):
         await message.answer("Ви ще не зареєстровані. Використовуйте команду /start для реєстрації.")
         return
 
-    # Отримуємо всі бейджі з бази даних
     all_badges = await get_all_badges(db)
     user_badge_ids = {b.id for b in user.badges}
 
     obtained_badges = user.badges
     not_obtained_badges = [b for b in all_badges if b.id not in user_badge_ids]
 
+    # Замінюємо Markdown на HTML
     profile_text = (
-        f"👤 **Ваш Профіль:**\n\n"
+        f"👤 <b>Ваш Профіль:</b>\n\n"
         f"• Ім'я користувача: @{user.username if user.username else 'Не вказано'}\n"
         f"• Рівень: {user.level}\n"
         f"• Скриншотів: {user.screenshot_count}\n"
@@ -33,23 +32,22 @@ async def show_profile(message: types.Message, db: AsyncSession):
         f"• Вікторин: {user.quiz_count}\n\n"
     )
 
-    # Отримані бейджі
     if obtained_badges:
-        profile_text += "🎖 **Отримані Бейджі:**\n"
+        profile_text += "🎖 <b>Отримані Бейджі:</b>\n"
         for b in obtained_badges:
-            profile_text += f"• {b.name} - *{b.description}*\n"
+            desc = (b.description or "").replace('<', '&lt;').replace('>', '&gt;')
+            profile_text += f"• {b.name} - {desc}\n"
     else:
         profile_text += "🎖 Отримані Бейджі: Немає\n"
 
-    # Недоступні бейджі
     if not_obtained_badges:
-        profile_text += "\n🔒 **Недоступні Бейджі:**\n"
+        profile_text += "\n🔒 <b>Недоступні Бейджі:</b>\n"
         for b in not_obtained_badges:
-            profile_text += f"• {b.name} - *{b.description}*\n"
+            desc = (b.description or "").replace('<', '&lt;').replace('>', '&gt;')
+            profile_text += f"• {b.name} - {desc}\n"
     else:
         profile_text += "\n🔓 Всі бейджі отримано! 🎉\n"
 
-    # Кнопки дій
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🔄 Оновити Бейджі", callback_data="update_badges"),
@@ -65,4 +63,5 @@ async def show_profile(message: types.Message, db: AsyncSession):
         ]
     ])
 
-    await message.answer(profile_text, parse_mode="Markdown", reply_markup=inline_keyboard)
+    # Використовуємо parse_mode="HTML"
+    await message.answer(profile_text, parse_mode="HTML", reply_markup=inline_keyboard)
