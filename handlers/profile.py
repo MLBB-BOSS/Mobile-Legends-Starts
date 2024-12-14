@@ -1,6 +1,6 @@
 from aiogram import Router, BaseMiddleware
 from aiogram.filters import Command
-from aiogram.types import Message, InputFile
+from aiogram.types import Message, BufferedInputFile
 from typing import Callable, Dict, Any, Awaitable
 from sqlalchemy.orm import Session
 from io import BytesIO
@@ -34,12 +34,13 @@ async def show_profile(message: Message, db: Session):
 
     # Згенерувати графік рейтингу (повертає BytesIO)
     chart_bytes = generate_rating_chart(rating_history)
-
-    # Повернути вказівник на початок стріму
     chart_bytes.seek(0)
 
-    # Створити InputFile з BytesIO
-    input_file = InputFile(chart_bytes, filename='chart.png')
+    # Створити BufferedInputFile з байтових даних
+    input_file = BufferedInputFile(
+        chart_bytes.read(),
+        filename='chart.png'
+    )
 
     # Надіслати зображення користувачеві
     await message.answer_photo(photo=input_file, caption=profile_text)
