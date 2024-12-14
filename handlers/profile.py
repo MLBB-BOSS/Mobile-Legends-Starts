@@ -1,3 +1,4 @@
+from utils.db import get_db_session
 from aiogram import Router, BaseMiddleware
 from aiogram.filters import Command
 from aiogram.types import Message
