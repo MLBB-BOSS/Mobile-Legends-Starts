@@ -3,7 +3,6 @@ import logging
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-# Завантаження .env файлу
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +16,6 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str | None:
-        """Повертає відформатований URL бази даних, якщо він існує."""
         if not self.AS_BASE:
             logger.warning("AS_BASE is not set!")
             return None
@@ -28,7 +26,6 @@ class Settings(BaseSettings):
         return url
 
     def validate(self):
-        """Перевіряє наявність необхідних налаштувань"""
         if not self.TELEGRAM_BOT_TOKEN:
             raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
         if self.DEBUG:
