@@ -3,6 +3,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from models.user import User
 from models.user_stats import UserStats
+from models.rating_history import RatingHistory  # Переконайтеся, що така модель існує
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
@@ -38,13 +39,33 @@ async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: st
             await db.commit()
             await db.refresh(stats)
 
+        # Отримання бейджів користувача
+        user_with_badges = await get_user_by_telegram_id(db, telegram_id)
+        badges = user_with_badges.badges if user_with_badges and user_with_badges.badges else []
+
+        if badges:
+            badges_text = "\n".join([f"• {badge.icon} {badge.name}" for badge in badges])
+        else:
+            badges_text = "Немає бейджів."
+
         profile_text = (
-            f"🔍 **Ваш Профіль:**\n\n"
+            f"🔍 <b>Ваш Профіль:</b>\n\n"
             f"• 🏅 Ім'я користувача: @{user.username}\n"
             f"• 📈 Рейтинг: {stats.rating}\n"
-            f"• 🎯 Досягнення: {stats.achievements_count} досягнень"
+            f"• 🎯 Досягнення: {stats.achievements_count} досягнень\n\n"
+            f"🏅 <b>Ваші Бейджі:</b>\n{badges_text}"
         )
         return profile_text
     except SQLAlchemyError as e:
         logger.error(f"Error fetching user profile for telegram_id={telegram_id}: {e}")
         return "Виникла помилка при отриманні профілю. Спробуйте пізніше."
+
+async def get_user_rating_history(db: AsyncSession, user_id: int) -> list[int]:
+    try:
+        stmt = select(RatingHistory).where(RatingHistory.user_id == user_id).order_by(RatingHistory.timestamp)
+        result = await db.execute(stmt)
+        history = result.scalars().all()
+        return [record.rating for record in history]
+    except SQLAlchemyError as e:
+        logger.error(f"Error fetching rating history for user_id={user_id}: {e}")
+        return []
