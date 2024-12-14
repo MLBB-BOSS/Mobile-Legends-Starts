@@ -9,6 +9,7 @@ profile_router = Router()
 
 @profile_router.message(Command("profile"))
 async def show_profile(message: types.Message, db: AsyncSession):
+    # Отримуємо user за допомогою функції get_user_by_telegram_id
     user_id = message.from_user.id
     user = await get_user_by_telegram_id(db, user_id)
 
