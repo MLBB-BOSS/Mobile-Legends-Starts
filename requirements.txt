@@ -10,5 +10,5 @@ matplotlib>=3.8.1
 seaborn>=0.13.0
 plotly>=5.17.0
 rich>=13.9.4
-pip install Pillow: 10.1.0
+pip install Pillow==10.1.0
 pip freeze > requirements.txt
