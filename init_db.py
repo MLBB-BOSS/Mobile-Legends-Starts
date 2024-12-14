@@ -1,12 +1,11 @@
 # init_db.py
+
 import asyncio
 import logging
 from utils.db import engine
 from models.base import Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
-import models.rating_history  # Імпортуємо модель RatingHistory
-import models.badge  # Імпортуємо модель Badge
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
