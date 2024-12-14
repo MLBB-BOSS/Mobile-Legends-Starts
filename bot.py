@@ -9,14 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage  # Розгляньте в�
 from config import settings
 from handlers.base import setup_handlers
 from database import engine, DatabaseMiddleware, async_session
-from models.base import Base  # Імпортуємо базу даних
-
-# Імпортуємо всі моделі через models/base.py
-import models.user
-import models.badge
-import models.user_stats
-import models.user_badges
-# Додайте інші моделі за потребою
+from models import Base  # Імпортуємо базу даних та всі моделі через models/__init__.py
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
