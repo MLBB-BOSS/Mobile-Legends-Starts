@@ -23,15 +23,19 @@ class DbSessionMiddleware(BaseMiddleware):
 profile_router = Router()
 profile_router.message.middleware(DbSessionMiddleware())
 
-@profile_router.message(Command("profile"))
+@@profile_router.message(Command("profile"))
 async def show_profile(message: Message, db: AsyncSession):
     """
-    Відображає профіль користувача, включаючи текстовий опис та графік рейтингу.
+    Відображає профіль користувача, включаючи текстовий опис, бейджі та графік рейтингу.
     """
     # Отримуємо текст профілю
     profile_data = await get_user_profile_text(db, message.from_user.id)
     profile_text = profile_data["text"]  # Текстовий профіль
     rating_history = profile_data.get("rating_history", [100, 120, 140, 180, 210, 230])  # Історія рейтингу
+    badges = profile_data.get("badges", [])  # Бейджі користувача
+
+    # Додаємо бейджі в текстовий профіль
+    profile_text += f"\n🏅 Бейджі: {', '.join(badges) if badges else 'Немає'}"
 
     # Генеруємо графік рейтингу
     chart_bytes = generate_rating_chart(rating_history)
