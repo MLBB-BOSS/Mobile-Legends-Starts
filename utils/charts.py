@@ -3,7 +3,6 @@ import io
 import matplotlib.pyplot as plt
 import logging
 
-# Налаштування логування
 logger = logging.getLogger(__name__)
 
 def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
