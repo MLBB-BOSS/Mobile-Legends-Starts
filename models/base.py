@@ -1,13 +1,7 @@
 # models/base.py
+from sqlalchemy.ext.declarative import declarative_base
 
-from .user import User
-from .badge import Badge
-from .user_badges import user_badges
-from .user_stats import UserStats
-# Додайте інші моделі за потребою
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.ext.asyncio import AsyncAttrs
-
+Base = declarative_base()
 class Base(AsyncAttrs, DeclarativeBase):
     """Base class for all models"""
     
