@@ -1,7 +1,6 @@
 # models/user.py
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from datetime import datetime
 from .base import Base
 
 class User(Base):
@@ -15,17 +14,8 @@ class User(Base):
     mission_count = Column(Integer, default=0)
     quiz_count = Column(Integer, default=0)
 
-    # Зв’язок з бейджами
-    badges = relationship("Badge", back_populates="user")
+    # Відношення до UserStats (один до одного)
+    stats = relationship("UserStats", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
-class Badge(Base):
-    __tablename__ = 'badges'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    category = Column(String, nullable=False)
-    level = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    user = relationship("User", back_populates="badges")
-    date_awarded = Column(DateTime, default=datetime.utcnow)
+    # Відношення до Badge (один до багатьох)
+    badges = relationship("Badge", back_populates="user", cascade="all, delete-orphan")
