@@ -1688,11 +1688,12 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         )
     elif user_choice == MenuButton.BACK.value:
         await state.set_state(MenuStates.NAVIGATION_MENU)
-        await bot.send_message(
+        nav_message = await bot.send_message(
             chat_id=message.chat.id,
             text=NAVIGATION_MENU_TEXT,
             reply_markup=get_navigation_menu()
         )
+        await state.update_data(bot_message_id=nav_message.message_id)
         data = await state.get_data()
         interactive_message_id = data.get('interactive_message_id')
         if interactive_message_id:
@@ -1748,11 +1749,12 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         )
     elif user_choice == MenuButton.BACK.value:
         await state.set_state(MenuStates.NAVIGATION_MENU)
-        await bot.send_message(
+        nav_message = await bot.send_message(
             chat_id=message.chat.id,
             text=NAVIGATION_MENU_TEXT,
             reply_markup=get_navigation_menu()
         )
+        await state.update_data(bot_message_id=nav_message.message_id)
         data = await state.get_data()
         interactive_message_id = data.get('interactive_message_id')
         if interactive_message_id:
@@ -1808,11 +1810,12 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
         )
     elif user_choice == MenuButton.BACK.value:
         await state.set_state(MenuStates.NAVIGATION_MENU)
-        await bot.send_message(
+        nav_message = await bot.send_message(
             chat_id=message.chat.id,
             text=NAVIGATION_MENU_TEXT,
             reply_markup=get_navigation_menu()
         )
+        await state.update_data(bot_message_id=nav_message.message_id)
         data = await state.get_data()
         interactive_message_id = data.get('interactive_message_id')
         if interactive_message_id:
