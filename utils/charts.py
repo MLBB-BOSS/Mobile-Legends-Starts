@@ -1,15 +1,12 @@
+from aiogram import Router
+from aiogram.types import Message, InputFile
+from aiogram.filters import Command
 import io
 import matplotlib.pyplot as plt
-from aiogram.types import Message, InputFile
-from aiogram import Router
 
 router = Router()
 
 def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
-    """
-    rating_history - список рейтингів по часу.
-    Для прикладу: [100, 200, 250, 300]
-    """
     plt.figure(figsize=(4,4))
     plt.plot(rating_history, marker='o')
     plt.title("Графік зміни рейтингу")
@@ -19,10 +16,10 @@ def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    plt.close()  # Очищуємо щоб уникнути витоків пам'яті
+    plt.close()
     return buf
 
-@router.message(commands=['my_progress'])
+@router.message(Command("my_progress"))
 async def show_progress(message: Message):
     rating_history = [100, 200, 250, 300]
     chart = generate_rating_chart(rating_history)
