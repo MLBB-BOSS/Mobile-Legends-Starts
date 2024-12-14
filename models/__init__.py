@@ -1,3 +1,5 @@
-from models.badge import Badge
-from models.user_stats import UserStats
-from models.user_badges import User_badges
+# models/__init__.py
+from .base import Base
+from .user import User
+
+__all__ = ['Base', 'User']
