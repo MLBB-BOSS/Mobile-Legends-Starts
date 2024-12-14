@@ -30,6 +30,8 @@ async def show_profile(message: types.Message, db: AsyncSession):
             await db.refresh(stats)
         
         # Отримуємо історію рейтингу (замініть на реальні дані)
+        # Наприклад, ви можете мати окрему таблицю для зберігання історії
+        # Тут ми використовуємо простий приклад
         rating_history = [stats.rating]  # Замініть на реальні дані історії рейтингу
         
         # Переконайтеся, що rating_history не порожній
