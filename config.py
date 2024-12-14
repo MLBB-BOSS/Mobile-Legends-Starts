@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
-    DATABASE_URL: str | None = None
+    AS_BASE: str | None = None
     APP_NAME: str = "Mobile Legends Tournament Bot"
     DEBUG: bool = False
 
