@@ -8,7 +8,6 @@ from config import settings
 # Налаштування логування
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна з використанням db_url
 try:
     engine = create_async_engine(
         settings.db_url,
@@ -22,7 +21,6 @@ except Exception as e:
     logger.error(f"Failed to create database engine: {e}")
     raise
 
-# Фабрика асинхронних сесій
 async_session = sessionmaker(
     bind=engine,
     class_=AsyncSession,
