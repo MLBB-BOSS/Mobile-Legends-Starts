@@ -1039,6 +1039,9 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
 
     await state.set_state(new_state)
 
+@profile_router.message(Command("profile"))
+async def show_profile(message: Message, db):
+
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
