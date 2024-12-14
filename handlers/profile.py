@@ -29,19 +29,19 @@ async def show_profile(message: Message, db: AsyncSession):
     Відображає профіль користувача, включаючи текстовий опис та графік рейтингу.
     """
     # Отримуємо текст профілю
-    profile_text = await get_user_profile_text(db, message.from_user.id)
+    profile_data = await get_user_profile_text(db, message.from_user.id)
+    profile_text = profile_data["text"]  # Текстовий профіль
+    rating_history = profile_data.get("rating_history", [100, 120, 140, 180, 210, 230])  # Історія рейтингу
 
-    # Генеруємо графік рейтингу (фіктивна історія, замінити на реальні дані)
-    stats = await get_user_profile_text(db, message.from_user.id)
-    rating_history = stats.get("rating_history", [100, 120, 140, 180, 210, 230])  # Заглушка
-
+    # Генеруємо графік рейтингу
     chart_bytes = generate_rating_chart(rating_history)
     chart_bytes.seek(0)
 
+    # Створюємо BufferedInputFile з байтових даних
     input_file = BufferedInputFile(
         chart_bytes.read(),
         filename='chart.png'
     )
 
-    # Надсилаємо текстовий профіль та графік
+    # Відправляємо текстовий профіль та графік
     await message.answer_photo(photo=input_file, caption=profile_text)
