@@ -1,22 +1,12 @@
 # utils/db.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from models.user import Badge, User
+from sqlalchemy.orm import sessionmaker
+from database import async_session  # Припустимо, ви імпортуєте sessionmaker з database.py
 
-async def get_all_badges(db: AsyncSession):
+async def get_db_session() -> AsyncSession:
     """
-    Повертає список усіх бейджів, доступних у боті.
-    Це бейджі, які можуть бути присвоєні, але не обов'язково вже присвоєні користувачам.
+    Повертає нову асинхронну сесію для роботи з базою даних.
+    Використовується при кожному зверненні до бази, якщо ви не використовуєте middleware.
     """
-    result = await db.execute(select(Badge))
-    badges = result.scalars().all()
-    return badges
-
-async def get_user_by_telegram_id(db: AsyncSession, telegram_id: int) -> User:
-    """
-    Отримує користувача за telegram_id.
-    Повертає об’єкт User або None, якщо користувача не знайдено.
-    """
-    result = await db.execute(select(User).where(User.telegram_id == telegram_id))
-    user = result.scalars().first()
-    return user
+    async with async_session() as session:
+        yield session
