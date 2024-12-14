@@ -1,92 +1,60 @@
-# handlers/profile.py
-from aiogram import Router, types
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputFile
-from services.user_service import get_or_create_user
-from sqlalchemy.ext.asyncio import AsyncSession
-from utils.charts import generate_rating_chart
-from models.user_stats import UserStats
+# bot.py
+import asyncio
 import logging
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.memory import MemoryStorage  # Розгляньте використання RedisStorage для продакшну
+from config import settings
+from handlers.base import setup_handlers
+from database import engine, DatabaseMiddleware, async_session
+from models.base import Base
+import models.user
+import models.user_stats
 
-profile_router = Router()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@profile_router.message(Command("profile"))
-async def show_profile(message: types.Message, db: AsyncSession):
-    user_id = message.from_user.id
-    username = message.from_user.username or "Не вказано"
+bot = Bot(
+    token=settings.TELEGRAM_BOT_TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    session=AiohttpSession()
+)
+dp = Dispatcher(storage=MemoryStorage())  # Розгляньте використання RedisStorage для продакшну
 
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Таблиці створено успішно.")
+
+async def main():
+    logger.info("Запуск бота...")
     try:
-        # Отримуємо або створюємо користувача
-        user = await get_or_create_user(db, telegram_id=user_id, username=username)
-        
-        # Отримуємо статистику користувача
-        stats = user.stats
-        if not stats:
-            # Створюємо базову статистику, якщо її немає
-            stats = UserStats(user_id=user.id, rating=100, achievements_count=0)
-            db.add(stats)
-            await db.commit()
-            await db.refresh(stats)
-        
-        # Отримуємо історію рейтингу (замініть на реальні дані)
-        # Наприклад, ви можете мати окрему таблицю для зберігання історії
-        # Тут ми використовуємо простий приклад
-        rating_history = [stats.rating]  # Замініть на реальні дані історії рейтингу
-        
-        # Переконайтеся, що rating_history не порожній
-        if not rating_history:
-            rating_history = [stats.rating]  # Впевніться, що є хоча б одне значення
-        
-        # Генеруємо графік рейтингу
-        chart_bytes = generate_rating_chart(rating_history)
-        chart = InputFile(chart_bytes, filename="rating.png")
-        
-        # Створюємо текст профілю
-        profile_text = (
-            f"👤 <b>Ваш Профіль:</b>\n\n"
-            f"• Ім'я користувача: @{user.username}\n"
-            f"• Рівень: {user.level}\n"
-            f"• Скриншотів: {user.screenshot_count}\n"
-            f"• Місій: {user.mission_count}\n"
-            f"• Вікторин: {user.quiz_count}\n\n"
-            f"📈 <b>Рейтинг:</b> {stats.rating}\n"
-            f"🎯 <b>Досягнення:</b> {stats.achievements_count} досягнень\n"
-        )
-        
-        # Додаємо бейджі
-        if user.badges:
-            profile_text += "\n🎖 <b>Отримані Бейджі:</b>\n"
-            for badge in user.badges:
-                desc = (badge.description or "").replace('<', '&lt;').replace('>', '&gt;')
-                profile_text += f"• {badge.name} - {desc}\n"
-        else:
-            profile_text += "\n🎖 Отримані Бейджі: Немає\n"
-        
-        # Створюємо інлайн-клавіатуру
-        inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [
-                InlineKeyboardButton(text="🔄 Оновити Бейджі", callback_data="update_badges"),
-                InlineKeyboardButton(text="🎖 Дошка Нагород", callback_data="show_award_board")
-            ],
-            [
-                InlineKeyboardButton(text="🔄 Оновити ID", callback_data="update_player_id"),
-                InlineKeyboardButton(text="📜 Історія", callback_data="show_activity_history")
-            ],
-            [
-                InlineKeyboardButton(text="💌 Запросити Друзів", callback_data="invite_friends"),
-                InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")
-            ]
-        ])
-        
-        # Надсилаємо зображення з графіком та текстом профілю як підписом
-        await message.answer_photo(
-            photo=chart,
-            caption=profile_text,
-            parse_mode="HTML",
-            reply_markup=inline_keyboard
-        )
-        
+        await create_tables()
+        logger.info("Таблиці створено успішно.")
+
+        # Додаємо DatabaseMiddleware
+        dp.message.middleware(DatabaseMiddleware(async_session))
+        dp.callback_query.middleware(DatabaseMiddleware(async_session))
+        logger.info("DatabaseMiddleware додано.")
+
+        setup_handlers(dp)
+        logger.info("Handlers встановлено.")
+
+        logger.info("Початок Polling...")
+        await dp.start_polling(bot)
+        logger.info("Polling завершено.")
     except Exception as e:
-        logger.error(f"Error in show_profile handler: {e}")
-        await message.answer("Виникла помилка при отриманні профілю. Спробуйте пізніше.")
+        logger.error(f"Помилка під час запуску бота: {e}")
+    finally:
+        if bot.session:
+            await bot.session.close()
+        await engine.dispose()  # Закриваємо з'єднання з базою даних
+        logger.info("Завершення роботи бота.")
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинено!")
