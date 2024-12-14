@@ -7,12 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
-    """
-    Генерує графік зміни рейтингу.
-
-    :param rating_history: Список рейтингів по часу, наприклад: [100, 200, 250, 300]
-    :return: BytesIO об'єкт з зображенням графіка
-    """
     try:
         logger.info("Генерація графіка рейтингу")
         plt.switch_backend('Agg')  # Безвіджетний бекенд для серверних середовищ
