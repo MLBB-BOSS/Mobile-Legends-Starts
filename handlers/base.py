@@ -135,7 +135,6 @@ async def handle_main_menu_buttons(message:Message,state:FSMContext,bot:Bot):
         new_interactive_text="Меню M6"
         new_state=MenuStates.M6_MENU
     else:
-        new_main_text=UNKNOWN_COMMAND_TEXT
         new_main_keyboard=get_main_menu()
         new_interactive_text="Unknown command"
         new_state=MenuStates.MAIN_MENU
