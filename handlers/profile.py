@@ -1,11 +1,12 @@
 from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import Message
 from services.user_service import get_user_profile_text
 from utils.charts import generate_rating_chart
 
 profile_router = Router()
 
-@profile_router.message(commands=["profile"])
+@profile_router.message(Command("profile"))
 async def show_profile(message: Message, db):
     # Отримуємо текст профілю
     profile_text = await get_user_profile_text(db, message.from_user.id)
