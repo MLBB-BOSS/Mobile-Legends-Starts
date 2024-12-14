@@ -25,17 +25,24 @@ async def show_profile(message: types.Message, db: AsyncSession):
 
         # Отримання текстової інформації про профіль, включаючи бейджі
         profile_text = await get_user_profile_text(db, user_id, user.username or "")
+        logger.debug(f"Текст профілю: {profile_text}")
 
         # Отримання історії рейтингу користувача
         rating_history = await get_user_rating_history(db, user_id)
+        logger.debug(f"Історія рейтингу: {rating_history}")
+
         if not rating_history:
             # Якщо історія відсутня, використаємо базові дані
             rating_history = [100, 120, 140, 180, 210, 230]
+            logger.debug("Використано фіктивні дані рейтингу")
 
         # Генерація графіка рейтингу
         chart_bytes = generate_rating_chart(rating_history)
+        logger.debug("Графік рейтингу згенеровано")
+
         chart_bytes.seek(0)
         input_file = BufferedInputFile(chart_bytes.read(), filename='rating_chart.png')
+        logger.debug("Графік рейтингу готовий до відправки")
 
         # Створення inline клавіатури
         inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
