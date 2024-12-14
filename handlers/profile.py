@@ -1,9 +1,8 @@
-# handlers/profile.py
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from utils.db import get_all_badges, get_user_by_telegram_id
 from sqlalchemy.ext.asyncio import AsyncSession
+from utils.db import get_all_badges, get_user_by_telegram_id
 
 profile_router = Router()
 
@@ -22,7 +21,7 @@ async def show_profile(message: types.Message, db: AsyncSession):
     obtained_badges = user.badges
     not_obtained_badges = [b for b in all_badges if b.id not in user_badge_ids]
 
-    # Замінюємо Markdown на HTML
+    # Використовуємо HTML для безпечної розмітки
     profile_text = (
         f"👤 <b>Ваш Профіль:</b>\n\n"
         f"• Ім'я користувача: @{user.username if user.username else 'Не вказано'}\n"
@@ -63,5 +62,12 @@ async def show_profile(message: types.Message, db: AsyncSession):
         ]
     ])
 
-    # Використовуємо parse_mode="HTML"
-    await message.answer(profile_text, parse_mode="HTML", reply_markup=inline_keyboard)
+    # Відправлення фото з графіком та текстом
+    # Припустимо, файл графіка називається "rating_chart.png" і доступний у поточній директорії.
+    with open("rating_chart.png", "rb") as photo:
+        await message.answer_photo(
+            photo=photo,
+            caption=profile_text,
+            parse_mode="HTML",
+            reply_markup=inline_keyboard
+        )
