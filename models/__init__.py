@@ -1,7 +1,5 @@
-# models/__init__.py
-from .base import Base
-from .user import User
-from .badge import Badge
-from .user_badges import user_badges
-from .user_stats import UserStats
-# Додайте інші моделі за потребою
+from models.base import Base
+from models.user import User
+from models.badge import Badge
+from models.user_stats import UserStats
+from models.user_badges import user_badges
