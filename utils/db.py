@@ -7,13 +7,18 @@ from database import async_session
 async def get_db_session() -> AsyncSession:
     """
     Повертає нову асинхронну сесію для роботи з базою даних.
-    Використовується, якщо ви не застосовуєте middleware для сесій.
-    Якщо ви застосовуєте middleware, ця функція може не знадобитися.
+    Оскільки async_session – це sessionmaker, виклик async_session() поверне екземпляр AsyncSession.
+    Це не корутина, тому не треба await при виклику async_session().
+    
+    Якщо в коді використовується await get_db_session(), переконайтеся, що ви усуваєте await.
+    Просто викликайте session = await get_db_session() якщо вам конче потрібен await, але у цьому випадку
+    функція проста і не містить await всередині, тож можна опустити await у місцях де вона викликається.
+    
+    Найкраще: викликати session = await get_db_session() все одно працюватиме, бо функція async,
+    але всередині нема корутин. Для консистентності залишимо async.
     """
-    # Якщо ви хочете повертати контекстний менеджер, це буде async generator,
-    # але зараз просто повернемо екземпляр сесії.
-    # Попередження: Викликати await get_db_session() при кожному використанні може бути не найкраща ідея,
-    # краще використовувати middleware або інший підхід. Це спрощений приклад.
+    # Оскільки async_session - це sessionmaker,
+    # async_session() створює новий AsyncSession.
     return async_session()
 
 async def get_all_badges(db: AsyncSession):
