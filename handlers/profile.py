@@ -10,8 +10,9 @@ profile_router = Router()
 
 @profile_router.message(Command("profile"))
 async def show_profile(message: Message, db: AsyncSession):
-    profile_text = await get_user_profile_text(db, message.from_user.id)
-    rating_history = [100, 120, 140, 180, 210, 230]
+    # Викликаємо функцію, яка створить або отримає профіль
+    profile_text = await get_user_profile_text(db, message.from_user.id, message.from_user.username or "")
+    rating_history = [100, 120, 140, 180, 210, 230]  # Приклад даних для графіка
 
     chart_bytes = generate_rating_chart(rating_history)
     chart_bytes.seek(0)
