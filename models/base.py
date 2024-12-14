@@ -1,6 +1,7 @@
 # models/base.py
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
+from from aiogram.filters import Command
 
 class Base(AsyncAttrs, DeclarativeBase):
     """Base class for all models"""
