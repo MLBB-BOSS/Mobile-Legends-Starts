@@ -3,6 +3,10 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from aiogram import BaseMiddleware
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from config import settings
+
 
 class DatabaseMiddleware(BaseMiddleware):
     def __init__(self, session_factory):
@@ -19,10 +23,6 @@ class DatabaseMiddleware(BaseMiddleware):
                 raise
             finally:
                 await session.close()
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from config import settings
 
 # Створення асинхронного двигуна
 engine = create_async_engine(
