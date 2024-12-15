@@ -1,3 +1,5 @@
+import os
+import sqlite3
 import shutil
 
 # Update project files programmatically
