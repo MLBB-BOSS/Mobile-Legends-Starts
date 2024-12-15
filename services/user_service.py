@@ -1,3 +1,4 @@
+# services/user_service.py
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from models.user import User
@@ -21,11 +22,7 @@ async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) 
         logger.info(f"Створено нового користувача з telegram_id={telegram_id}")
     return user
 
-async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: str) -> dict:
-    """
-    Отримує текст профілю користувача та історію рейтингу.
-    Повертає словник із ключами "text" та "rating_history".
-    """
+async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: str) -> str:
     try:
         # Виклик get_or_create_user щоб завжди мати користувача
         user = await get_or_create_user(db, telegram_id, username)
@@ -41,19 +38,13 @@ async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: st
             await db.commit()
             await db.refresh(stats)
 
-        # Формування тексту профілю
         profile_text = (
             f"🔍 **Ваш Профіль:**\n\n"
             f"• 🏅 Ім'я користувача: @{user.username}\n"
             f"• 📈 Рейтинг: {stats.rating}\n"
             f"• 🎯 Досягнення: {stats.achievements_count} досягнень"
         )
-
-        # Повертаємо профільний текст та історію рейтингу
-        return {
-            "text": profile_text,
-            "rating_history": [stats.rating]  # Тут можна додати більше даних про історію
-        }
+        return profile_text
     except SQLAlchemyError as e:
         logger.error(f"Error fetching user profile for telegram_id={telegram_id}: {e}")
-        return {"text": "⚠️ Виникла помилка при отриманні профілю. Спробуйте пізніше.", "rating_history": []}
+        return "Виникла помилка при отриманні профілю. Спробуйте пізніше."
