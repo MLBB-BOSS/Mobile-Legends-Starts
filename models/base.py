@@ -1,12 +1,7 @@
-# models/base.py
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from sqlalchemy.orm import DeclarativeBase
 
 class Base(AsyncAttrs, DeclarativeBase):
-    """Base class for all models"""
-    
+    """Базовий клас для всіх моделей"""
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__table__.columns}
