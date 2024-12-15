@@ -1,3 +1,16 @@
+# config.py
+
+import logging
+from pydantic_settings import BaseSettings  # Імпорт BaseSettings з pydantic_settings
+from dotenv import load_dotenv
+
+# Завантаження .env файлу
+load_dotenv()
+
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     AS_BASE: str | None = None
@@ -28,3 +41,13 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = True
+
+# Створення екземпляру налаштувань
+settings = Settings()
+
+# Валідація налаштувань
+try:
+    settings.validate()
+except Exception as e:
+    logger.error(f"Configuration error: {e}")
+    raise
