@@ -1,6 +1,18 @@
 # keyboards/inline_menus.py
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+def get_main_menu_keyboard() -> InlineKeyboardMarkup:
+    """
+    Створює головне меню з кнопкою 'Мій профіль'.
+    """
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🪪 Мій Профіль", callback_data="my_profile")],
+        [InlineKeyboardButton(text="🧭 Навігація", callback_data="navigation")]
+    ])
+
+
 
 def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
     """
