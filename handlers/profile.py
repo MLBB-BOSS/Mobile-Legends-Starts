@@ -1,10 +1,9 @@
 from aiogram import Router, types
-from aiogram.dispatcher.filters.command import Command
+from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models.user import User
-from states.profile_states import ProfileStates
 
 profile_router = Router()
 
