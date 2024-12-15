@@ -1,10 +1,9 @@
-# models/badge.py
-from sqlalchemy import Column, Integer, String
-from models.base import Base
+# models/base.py
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
-class Badge(Base):
-    __tablename__ = "badges"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
+class Base(AsyncAttrs, DeclarativeBase):
+    """Base class for all models"""
+    
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__table__.columns}
