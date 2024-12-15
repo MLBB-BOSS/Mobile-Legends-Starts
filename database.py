@@ -1,4 +1,3 @@
-# database.py
 import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -28,6 +27,19 @@ async_session = sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False
 )
+
+# Нова функція get_db
+async def get_db():
+    """Асинхронний генератор сесій бази даних"""
+    async with async_session() as session:
+        try:
+            yield session
+        except Exception as e:
+            logger.error(f"Session error: {e}")
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
 async def init_db():
     """Ініціалізація бази даних"""
