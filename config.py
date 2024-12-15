@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 # Завантаження .env файлу
 load_dotenv()
@@ -24,7 +25,7 @@ class Settings(BaseSettings):
         """Повертає відформатований URL бази даних."""
         if not self.AS_BASE:
             logger.warning("AS_BASE is not set!")
-            raise ValueError("AS_BASE is not встановлений!")
+            raise ValueError("AS_BASE is не встановлений!")
         url = self.AS_BASE
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
@@ -34,7 +35,7 @@ class Settings(BaseSettings):
     def validate(self):
         """Перевіряє наявність необхідних налаштувань"""
         if not self.TELEGRAM_BOT_TOKEN:
-            raise ValueError("TELEGRAM_BOT_TOKEN is not встановлений!")
+            raise ValueError("TELEGRAM_BOT_TOKEN is не встановлений!")
         if self.DEBUG:
             logger.info("Application is running in DEBUG mode")
 
@@ -60,3 +61,6 @@ engine = create_async_engine(settings.db_url, echo=settings.DEBUG)
 async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
 )
+
+# Створення базового класу для моделей
+Base = declarative_base()
