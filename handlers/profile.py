@@ -217,7 +217,7 @@ async def show_profile(message: Message, db: AsyncSession, bot: Bot):
         profile_text = (
             f"<b>🔎 Ваш Профіль:</b>\n\n"
             f"🏅 <b>Ім'я користувача:</b> @{user.username or 'Невідомо'}\n"
-            f"🚀 <b>Рівень:</b> {stats.rating // 100}\n"
+            f"🚀 <b>Рівень:</b> {user.level}\n"
             f"📈 <b>Рейтинг:</b> {stats.rating}\n"
             f"🎯 <b>Досягнення:</b> {stats.achievements_count} досягнень\n"
             f"🎮 <b>Матчі:</b> {stats.total_matches}\n"
