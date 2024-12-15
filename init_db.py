@@ -1,26 +1,14 @@
 import asyncio
-import logging
 from utils.db import engine
 from models.base import Base
-import models.user  # Модель користувача
-import models.badge  # Модель бейджів
-import models.user_stats  # Модель статистики
-
-# Налаштування логування
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from models.user import User
+from models.badge import Badge
+from models.user_stats import UserStats
 
 async def init_db():
-    """Створення всіх таблиць"""
-    logger.info("Initializing the database...")
     async with engine.begin() as conn:
-        # Перевірка та створення таблиць
-        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-    logger.info("Database initialized successfully.")
+        await conn.run_sync(Base.metadata.create_all)
+    print("Таблиці створено успішно.")
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(init_db())
-    except Exception as e:
-        logger.error(f"Error initializing the database: {e}")
-        raise
+    asyncio.run(init_db())
