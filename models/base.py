@@ -2,7 +2,13 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 from models.base import Base
+# models/base.py
 
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+# Define your models here or import them if necessary
 class User(Base):
     __tablename__ = 'users'
     
