@@ -1,7 +1,7 @@
 # config.py
 
 import logging
-from pydantic_settings import BaseSettings  # Імпорт BaseSettings з pydantic_settings
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
 # Завантаження .env файлу
@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     AS_BASE: str | None = None
     APP_NAME: str = "Mobile Legends Tournament Bot"
     DEBUG: bool = False
-    NEW_KEY: str = "default_value"  # Новий ключ
 
     @property
     def db_url(self) -> str | None:
