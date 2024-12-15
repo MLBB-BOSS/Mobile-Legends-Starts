@@ -1,20 +1,11 @@
-# file: handlers/profile.py
-
-from aiogram import Router
-from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
-from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 import matplotlib.pyplot as plt
-import logging
-
-# Створення маршрутизатора
-profile_router = Router()
 
 # Функція для створення кастомного профілю
 async def generate_custom_profile(username: str, rating: int, matches: int, wins: int, losses: int):
-    # Створюємо зображення білого фону
-    img = Image.new("RGB", (800, 1000), "white")
+    # Створення фону
+    img = Image.new("RGB", (800, 1000), "#f8f9fa")  # Світло-сірий фон
     draw = ImageDraw.Draw(img)
 
     # Шрифти
@@ -24,42 +15,42 @@ async def generate_custom_profile(username: str, rating: int, matches: int, wins
     except:
         title_font = content_font = ImageFont.load_default()
 
-    # Додавання заголовку
-    draw.text((50, 30), "🔍 Профіль Гравця", fill="black", font=title_font)
+    # Заголовок
+    draw.text((50, 30), "🔍 Профіль Гравця", fill="#333333", font=title_font)
 
-    # Основна інформація
-    draw.text((50, 150), f"👤 Ім'я користувача: @{username}", fill="blue", font=content_font)
-    draw.text((50, 220), f"🚀 Рейтинг: {rating}", fill="black", font=content_font)
-    draw.text((50, 290), f"🎮 Матчі: {matches}", fill="black", font=content_font)
-    draw.text((50, 360), f"🏆 Перемоги: {wins}", fill="green", font=content_font)
-    draw.text((50, 430), f"❌ Поразки: {losses}", fill="red", font=content_font)
+    # Інформація
+    y_offset = 150
+    spacing = 70
+    draw.text((50, y_offset), f"👤 Ім'я користувача: @{username}", fill="#007BFF", font=content_font)
+    draw.text((50, y_offset + spacing), f"🚀 Рейтинг: {rating}", fill="#212529", font=content_font)
+    draw.text((50, y_offset + 2 * spacing), f"🎮 Матчі: {matches}", fill="#212529", font=content_font)
+    draw.text((50, y_offset + 3 * spacing), f"🏆 Перемоги: {wins}", fill="#28A745", font=content_font)
+    draw.text((50, y_offset + 4 * spacing), f"❌ Поразки: {losses}", fill="#DC3545", font=content_font)
 
     # Генерація графіку
-    fig, ax = plt.subplots(figsize=(4, 2))
-    ax.plot([10, 20, 30, 40, 50], [5, 15, 25, 10, 30], color="blue", linewidth=2, marker="o")
-    ax.set_facecolor("white")
-    ax.grid(True)
+    fig, ax = plt.subplots(figsize=(5, 3), facecolor="#f8f9fa")
+    ax.plot([10, 20, 30, 40, 50], [5, 15, 25, 10, 30], color="#007BFF", linewidth=3, marker="o")
+    ax.set_title("Графік активності", fontsize=10, color="#333333")
+    ax.grid(True, color="#DDDDDD")
     buf = BytesIO()
     plt.savefig(buf, format="PNG", transparent=True)
     plt.close(fig)
-    graph = Image.open(buf).resize((400, 200))
-    img.paste(graph, (350, 500))
 
-    # Збереження зображення у буфер
+    # Вставка графіку у зображення
+    graph = Image.open(buf).resize((500, 300))
+    img.paste(graph, (150, y_offset + 5 * spacing))
+
+    # Збереження у буфер
     output = BytesIO()
     img.save(output, format="PNG")
     output.seek(0)
     return output
 
-# Обробник команди /profile
+# Функція для виклику у боті
 @profile_router.message(Command("profile"))
 async def show_profile(message: Message):
-    try:
-        username = message.from_user.username or "Unknown"
-        profile_image = await generate_custom_profile(username, 100, 20, 15, 5)
+    username = message.from_user.username or "Unknown"
+    profile_image = await generate_custom_profile(username, 100, 20, 15, 5)
 
-        input_file = BufferedInputFile(profile_image.read(), filename="profile.png")
-        await message.answer_photo(photo=input_file, caption="🖼 Ваш профіль")
-    except Exception as e:
-        logging.error(f"Помилка при створенні профілю: {e}")
-        await message.answer("❌ Сталася помилка під час створення профілю.")
+    input_file = BufferedInputFile(profile_image.read(), filename="profile.png")
+    await message.answer_photo(photo=input_file, caption="🖼 Ваш профіль")
