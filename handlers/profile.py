@@ -32,10 +32,14 @@ profile_router.message.middleware(DbSessionMiddleware())
 async def show_profile(message: Message, db: Session):
     try:
         # Отримати текст профілю користувача
-        profile_text = await get_user_profile_text(db, message.from_user.id)
+        profile_text = await get_user_profile_text(
+            db, 
+            message.from_user.id, 
+            message.from_user.username or "Невідомий користувач"
+        )
         logging.info(f"Текст профілю отримано: {profile_text}")
 
-        # Фіктивна історія рейтингу (змінити на реальні дані за потреби)
+        # Фіктивна історія рейтингу
         rating_history = [100, 120, 140, 180, 210, 230]
 
         if not rating_history:
@@ -43,19 +47,8 @@ async def show_profile(message: Message, db: Session):
             return
 
         # Генерувати графік рейтингу
-        try:
-            chart_bytes = generate_rating_chart(rating_history)
-            logging.info("Графік успішно згенерований")
-        except Exception as e:
-            logging.error(f"Помилка при генерації графіка: {e}")
-            await message.answer("Сталася помилка при створенні графіка.")
-            return
-
-        # Перевірити розмір файлу перед відправкою
-        file_size = chart_bytes.getbuffer().nbytes
-        if file_size > 5 * 1024 * 1024:
-            await message.answer("Графік занадто великий для надсилання.")
-            return
+        chart_bytes = generate_rating_chart(rating_history)
+        logging.info("Графік успішно згенерований")
 
         # Створити BufferedInputFile з байтових даних
         input_file = BufferedInputFile(
