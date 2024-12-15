@@ -1,27 +1,21 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from models.base import Base
 from datetime import datetime
+from .base import Base
 
-class User(Base):
-    __tablename__ = 'users'
+class Badge(Base):
+    __tablename__ = 'badges'
 
     id = Column(Integer, primary_key=True, index=True)
-    telegram_id = Column(Integer, unique=True, nullable=False, index=True)
-    username = Column(String, nullable=True)
-    player_id = Column(String, nullable=True)
-    game_id = Column(String, nullable=True)  # Поле для збереження ігрового ID
-    is_verified = Column(Boolean, default=False)
-    screenshot_count = Column(Integer, default=0)
-    mission_count = Column(Integer, default=0)
-    quiz_count = Column(Integer, default=0)
-    tournaments_participated = Column(Integer, default=0)
-    tournaments_top3 = Column(Integer, default=0)
-    active_months = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    level = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    date_awarded = Column(DateTime, default=datetime.utcnow)
 
-    # Відношення до таблиці badges
-    badges = relationship('Badge', secondary='user_badges', back_populates='users')
+    # Відношення до моделі User
+    user = relationship('User', back_populates='badges')
 
     def __repr__(self):
-        return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username}, game_id={self.game_id})>"
+        return f"<Badge(id={self.id}, name={self.name}, category={self.category})>"
