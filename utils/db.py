@@ -1,19 +1,11 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-import os
+from aiogram.dispatcher.middlewares import BaseMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
 
-# URL бази даних
-AS_BASE = os.getenv(
-    "AS_BASE",
-    "postgresql+asyncpg://user:password@host:port/database"
-)
+class DBSessionMiddleware(BaseMiddleware):
+    def __init__(self, db_session: AsyncSession):
+        super().__init__()
+        self.db_session = db_session
 
-# Ініціалізація двигуна
-engine = create_async_engine(AS_BASE, echo=True)
-
-# Фабрика сесій
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
-async def get_db_session() -> AsyncSession:
-    """Функція для отримання сесії бази даних."""
-    return async_session()
+    async def on_pre_process_update(self, update, data):
+        # Передати db в обробники
+        data['db'] = self.db_session
