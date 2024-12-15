@@ -13,6 +13,7 @@ from sqlalchemy.future import select
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import matplotlib.pyplot as plt
 import aiohttp
+import os
 
 from config import settings  # Ваш файл конфігурації
 from models.user import User  # Модель користувача
@@ -70,12 +71,14 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
     draw = ImageDraw.Draw(img)
 
     # Завантаження шрифтів
+    fonts_path = "fonts"
     try:
-        title_font = ImageFont.truetype("fonts/Arial-Bold.ttf", 60)
-        header_font = ImageFont.truetype("fonts/Arial-Bold.ttf", 50)
-        content_font = ImageFont.truetype("fonts/Arial.ttf", 40)
-        small_font = ImageFont.truetype("fonts/Arial.ttf", 30)
+        title_font = ImageFont.truetype(os.path.join(fonts_path, "Arial-Bold.ttf"), 60)
+        header_font = ImageFont.truetype(os.path.join(fonts_path, "Arial-Bold.ttf"), 50)
+        content_font = ImageFont.truetype(os.path.join(fonts_path, "Arial.ttf"), 40)
+        small_font = ImageFont.truetype(os.path.join(fonts_path, "Arial.ttf"), 30)
     except IOError:
+        logger.warning("Не вдалося завантажити кастомні шрифти. Використовуються стандартні.")
         # Використання стандартних шрифтів, якщо arial не знайдено
         title_font = ImageFont.load_default()
         header_font = ImageFont.load_default()
@@ -143,22 +146,31 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
         img.paste(avatar, (width // 2 - 100, 300), mask=avatar)
     else:
         try:
-            default_avatar = Image.open("default_avatar.png").convert("RGBA").resize((200, 200))
-            # Додавання круглого маскування для заглушки
-            mask = Image.new("L", default_avatar.size, 0)
-            draw_mask = ImageDraw.Draw(mask)
-            draw_mask.ellipse((0, 0) + default_avatar.size, fill=255)
-            default_avatar.putalpha(mask)
-            img.paste(default_avatar, (width // 2 - 100, 300), mask=default_avatar)
-        except IOError:
-            logger.warning("Аватарка користувача не знайдена. Використовується заглушка.")
+            default_avatar_path = "default_avatar.png"
+            if os.path.exists(default_avatar_path):
+                default_avatar = Image.open(default_avatar_path).convert("RGBA").resize((200, 200))
+                # Додавання круглого маскування для заглушки
+                mask = Image.new("L", default_avatar.size, 0)
+                draw_mask = ImageDraw.Draw(mask)
+                draw_mask.ellipse((0, 0) + default_avatar.size, fill=255)
+                default_avatar.putalpha(mask)
+                img.paste(default_avatar, (width // 2 - 100, 300), mask=default_avatar)
+            else:
+                logger.warning("Файл default_avatar.png не знайдено.")
+        except IOError as e:
+            logger.error(f"Помилка при завантаженні заглушки аватарки: {e}")
 
     # Рейтингові піктограми
     try:
-        rank_icon = Image.open(f"icons/{rank.lower()}.png").convert("RGBA").resize((100, 100))
-        img.paste(rank_icon, (width - 150, 120), mask=rank_icon)
-    except IOError:
-        logger.warning(f"Піктограма для рангу {rank} не знайдена.")
+        icons_path = "icons"
+        rank_icon_path = os.path.join(icons_path, f"{rank.lower()}.png")
+        if os.path.exists(rank_icon_path):
+            rank_icon = Image.open(rank_icon_path).convert("RGBA").resize((100, 100))
+            img.paste(rank_icon, (width - 150, 120), mask=rank_icon)
+        else:
+            logger.warning(f"Піктограма для рангу {rank} не знайдена за шляхом {rank_icon_path}.")
+    except IOError as e:
+        logger.error(f"Помилка при завантаженні піктограми рангу: {e}")
 
     # Прогрес
     draw.text((50, 1300), "🎯 Ваш прогрес зростає! Продовжуйте в тому ж дусі!", fill="#FFFFFF", font=small_font)
