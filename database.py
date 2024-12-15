@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from aiogram import BaseMiddleware
 from config import settings
+from aiogram.dispatcher.middleware import BaseMiddleware
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
