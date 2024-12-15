@@ -2,8 +2,6 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from models.base import Base
 from datetime import datetime
-from models.badge import Badge  # Імпортуємо модель Badge з badge.py
-
 
 class User(Base):
     __tablename__ = 'users'
