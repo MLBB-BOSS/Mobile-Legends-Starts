@@ -4,13 +4,12 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.session.aiohttp import AiohttpSession  # Виправлено
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
+from aiogram.fsm.storage.memory import MemoryStorage  # Для FSM
 from config import settings
 from handlers.base import setup_handlers
-from utils.db import engine, get_db_session
-from models.base import Base
+from utils.db import engine, AsyncSessionLocal, DatabaseMiddleware, Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
 
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()  # Додано для явного визначення сесії
+    session=AiohttpSession()  # Явне визначення сесії
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
@@ -39,6 +38,12 @@ async def main():
     try:
         # Створення таблиць перед запуском бота
         await create_tables()
+
+        # Додавання DatabaseMiddleware до Dispatcher
+        dp.message.middleware(DatabaseMiddleware(AsyncSessionLocal))
+        dp.callback_query.middleware(DatabaseMiddleware(AsyncSessionLocal))
+        dp.inline_query.middleware(DatabaseMiddleware(AsyncSessionLocal))
+        # Додайте інші типи оновлень за потребою
 
         # Налаштування хендлерів
         setup_handlers(dp)
