@@ -1,45 +1,46 @@
-from aiogram import types
-from aiogram.types import InputFile, InlineKeyboardMarkup, InlineKeyboardButton
-from utils.charts import generate_activity_chart
-from utils.db import get_user_profile  # Функція для отримання даних користувача
-from loader import dp, bot  # Основні інстанси бота
+from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
+from io import BytesIO
 
-async def send_user_profile(chat_id, user_data):
-    """
-    Відправляє профіль користувача з графіком.
-    """
-    chart = generate_activity_chart(user_data)
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("🔄 Оновити", callback_data="refresh_profile"))
+# Функція для створення зображення профілю
+async def generate_custom_profile(username, rating, matches, wins, losses):
+    # Завантаження фону (замініть 'background.jpg' на ваш файл)
+    bg = Image.open("background.jpg").resize((800, 600))  # Змінити розмір фону
+    draw = ImageDraw.Draw(bg)
 
-    await bot.send_photo(
-        chat_id=chat_id,
-        photo=InputFile(chart, filename="profile_chart.png"),
-        caption=(
-            f"🔍 **Ваш Профіль**:\n"
-            f"👤 Ім'я користувача: @{user_data['username']}\n"
-            f"🚀 Рейтинг: {user_data['rating']}\n"
-            f"🎮 Матчі: {user_data['matches']}, Перемоги: {user_data['wins']}, Поразки: {user_data['losses']}"
-        ),
-        reply_markup=markup
-    )
+    # Шрифти
+    try:
+        title_font = ImageFont.truetype("arial.ttf", 40)
+        content_font = ImageFont.truetype("arial.ttf", 30)
+    except:
+        title_font = content_font = ImageFont.load_default()
 
-@dp.callback_query_handler(lambda c: c.data == 'my_profile')
-async def profile_callback(callback_query: types.CallbackQuery):
-    """
-    Обробник для кнопки 'Мій профіль'.
-    """
-    await bot.answer_callback_query(callback_query.id)
-    user_id = callback_query.from_user.id
-    user_data = get_user_profile(user_id)  # Отримуємо дані користувача
-    await send_user_profile(callback_query.message.chat.id, user_data)
+    # Текст поверх фону
+    draw.text((50, 50), "🔍 Ваш Профіль", fill="white", font=title_font)
+    draw.text((50, 150), f"👤 @{username}", fill="cyan", font=content_font)
+    draw.text((50, 200), f"🚀 Рейтинг: {rating}", fill="yellow", font=content_font)
+    draw.text((50, 250), f"🎮 Матчі: {matches}", fill="white", font=content_font)
+    draw.text((50, 300), f"🏆 Перемоги: {wins}", fill="green", font=content_font)
+    draw.text((50, 350), f"❌ Поразки: {losses}", fill="red", font=content_font)
 
-@dp.callback_query_handler(lambda c: c.data == 'refresh_profile')
-async def refresh_profile_callback(callback_query: types.CallbackQuery):
-    """
-    Оновлює дані профілю користувача.
-    """
-    await bot.answer_callback_query(callback_query.id, text="🔄 Оновлення профілю...")
-    user_id = callback_query.from_user.id
-    user_data = get_user_profile(user_id)
-    await send_user_profile(callback_query.message.chat.id, user_data)
+    # Генерація графіка
+    fig, ax = plt.subplots(figsize=(4, 2))
+    ax.plot([10, 20, 15, 25], color="cyan", linewidth=3, marker="o")
+    ax.set_title("Графік активності", color="white")
+    ax.set_facecolor("black")
+    for spine in ax.spines.values():
+        spine.set_edgecolor("white")
+
+    buf = BytesIO()
+    plt.savefig(buf, format="PNG", transparent=True)
+    plt.close(fig)
+    graph = Image.open(buf).resize((400, 200))
+    
+    # Вставлення графіка
+    bg.paste(graph, (350, 400), mask=graph)
+
+    # Збереження у пам'ять
+    output = BytesIO()
+    bg.save(output, format="PNG")
+    output.seek(0)
+    return output
