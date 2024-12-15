@@ -1,5 +1,6 @@
 # models/base.py
 
+ALTER TABLE user_stats ADD COLUMN level INTEGER DEFAULT 1;
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import declarative_base
