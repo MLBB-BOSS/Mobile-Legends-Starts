@@ -1,15 +1,31 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger
-from datetime import datetime
+import asyncio
+import logging
+from utils.db import engine
 from models.base import Base
+import models.user  # Імпортуємо модель User
+import models.user_stats  # Імпортуємо модель UserStats
 
-class User(Base):
-    __tablename__ = "users"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("init_db")
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(BigInteger, unique=True, nullable=False)
-    username = Column(String(50), nullable=True)
-    fullname = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+async def init_db():
+    """Ініціалізація бази даних: створення таблиць."""
+    try:
+        logger.info("Starting database initialization...")
+        async with engine.begin() as conn:
+            # Видаляємо існуючі таблиці (опціонально)
+            # await conn.run_sync(Base.metadata.drop_all)
 
-    def __repr__(self):
-        return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username})>"
+            # Створюємо нові таблиці
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database initialized successfully.")
+    except Exception as e:
+        logger.error(f"Error during database initialization: {e}")
+        raise
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(init_db())
+    except Exception as e:
+        logger.critical(f"Critical error initializing the database: {e}")
+        raise
