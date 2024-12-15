@@ -12,7 +12,7 @@ class User(Base):
     fullname = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Визначення зв’язку з UserStats
+    # Зв’язок з UserStats
     stats = relationship("UserStats", back_populates="user", uselist=False)
 
     def __repr__(self):
