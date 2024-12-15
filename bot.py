@@ -1,36 +1,15 @@
-# bot.py
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession  # Виправлено
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Для FSM
+from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
 from handlers.base import setup_handlers
 from utils.db import engine, AsyncSessionLocal, DatabaseMiddleware, Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from config import settings
-
-# Створення асинхронного двигуна
-engine = create_async_engine(
-    settings.db_url,
-    echo=settings.DEBUG,
-    pool_size=10,
-    max_overflow=20
-)
-
-# Фабрика асинхронних сесій
-AsyncSessionLocal = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -44,11 +23,12 @@ bot = Bot(
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
-dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
+dp = Dispatcher(storage=MemoryStorage())
 
 async def create_tables():
     """Створює таблиці у базі даних, якщо вони ще не існують."""
     async with engine.begin() as conn:
+        # Викликаємо Base.metadata.create_all для створення всіх таблиць
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Tables created successfully.")
 
