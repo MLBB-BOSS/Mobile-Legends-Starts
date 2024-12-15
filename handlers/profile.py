@@ -1,76 +1,52 @@
-from aiogram import Router, BaseMiddleware
-from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
-from typing import Callable, Dict, Any, Awaitable
-from sqlalchemy.ext.asyncio import AsyncSession
-from io import BytesIO
-from utils.db import get_db_session, get_user_badges
-from services.user_service import get_user_profile_text
-from utils.charts import generate_rating_chart
-
-
-class DbSessionMiddleware(BaseMiddleware):
-    async def __call__(
-        self,
-        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
-        event: Message,
-        data: Dict[str, Any]
-    ) -> Any:
-        """
-        Middleware для створення та закриття сесії бази даних.
-        """
-        db_session = await get_db_session()
-        data["db"] = db_session
-        try:
-            return await handler(event, data)
-        finally:
-            await db_session.close()
-
+from aiogram import Router, types, F
+from aiogram.dispatcher.filters.command import Command
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from sqlalchemy.orm import Session
+from database import get_db
+from models.user import User, Badge
+from states.profile_states import ProfileStates
+from aiogram.fsm.context import FSMContext
 
 profile_router = Router()
-profile_router.message.middleware(DbSessionMiddleware())
-
 
 @profile_router.message(Command("profile"))
-async def show_profile(message: Message, db: AsyncSession):
-    """
-    Відображає профіль користувача, включаючи текстовий опис, бейджі та графік рейтингу.
-    """
-    try:
-        # Отримання тексту профілю
-        profile_data = await get_user_profile_text(
-            db, message.from_user.id, message.from_user.username
-        )
+async def show_profile(message: types.Message):
+    db: Session = next(get_db())
+    user = db.query(User).filter(User.telegram_id == message.from_user.id).first()
+    
+    if not user:
+        await message.answer("Ви ще не зареєстровані. Використовуйте /start для початку роботи.")
+        return
+    
+    profile_text = format_user_profile(user)
+    inline_keyboard = get_profile_inline_keyboard()
+    await message.answer(profile_text, reply_markup=inline_keyboard, parse_mode="Markdown")
 
-        # Забезпечення правильного формату поверненого профілю
-        if not isinstance(profile_data, dict) or "text" not in profile_data:
-            raise ValueError("Функція get_user_profile_text повернула некоректні дані.")
+def format_user_profile(user):
+    verification_status = "✅ Верифікований" if user.is_verified else "❌ Неверифікований"
+    profile_text = (
+        f"👤 *Ваш профіль*\n"
+        f"======================\n"
+        f"📛 Ім'я користувача: `{user.username or 'Не вказано'}`\n"
+        f"🎮 ID гравця: `{user.player_id or 'Не вказано'}`\n"
+        f"🎮 Ігровий ID: `{user.game_id or 'Не вказано'}` ({verification_status})\n"
+        f"🌟 Рівень: *{user.level}*\n"
+        f"----------------------\n"
+        f"📸 *Статистика:*\n"
+        f"  • Скріншотів: `{user.screenshot_count}`\n"
+        f"  • Місій виконано: `{user.mission_count}`\n"
+        f"  • Вікторин пройдено: `{user.quiz_count}`\n"
+        f"  • Турнірів: `{user.tournaments_participated}`\n"
+        f"======================\n"
+    )
+    return profile_text
 
-        profile_text = profile_data["text"]
-        rating_history = profile_data.get("rating_history", [])
-
-        # Отримання бейджів користувача
-        badges = await get_user_badges(db, message.from_user.id)
-        badge_names = [badge.name for badge in badges]
-        if badge_names:
-            profile_text += f"\n🏅 Бейджі: {', '.join(badge_names)}"
-        else:
-            profile_text += "\n🏅 Бейджі: Немає"
-
-        # Генерація графіку рейтингу
-        if not rating_history:
-            rating_history = [100]  # Базове значення, якщо історія порожня
-
-        chart_bytes = generate_rating_chart(rating_history)
-        chart_bytes.seek(0)
-
-        # Створення BufferedInputFile з графіком
-        input_file = BufferedInputFile(chart_bytes.read(), filename="chart.png")
-
-        # Надсилання тексту профілю та графіку
-        await message.answer_photo(photo=input_file, caption=profile_text)
-
-    except Exception as e:
-        # Логування помилки та повідомлення користувачу
-        await message.answer("⚠️ Виникла помилка при отриманні вашого профілю. Спробуйте пізніше.")
-        raise e
+def get_profile_inline_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📈 Статистика", callback_data="view_stats")],
+            [InlineKeyboardButton(text="🎖️ Нагороди", callback_data="view_badges")],
+            [InlineKeyboardButton(text="✏️ Змінити Ігровий ID", callback_data="change_game_id")],
+            [InlineKeyboardButton(text="🔙 Назад", callback_data="main_menu")]
+        ]
+    )
