@@ -8,14 +8,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) -> User:
-    """
-    Отримує або створює користувача за telegram_id.
-    """
+    # Спробуємо знайти користувача
     result = await db.execute(select(User).where(User.telegram_id == telegram_id))
     user = result.scalars().first()
 
     if not user:
-        # Створюємо нового користувача
+        # Користувача не знайдено — створимо нового
         user = User(telegram_id=telegram_id, username=username)
         db.add(user)
         await db.commit()
@@ -23,39 +21,39 @@ async def get_or_create_user(db: AsyncSession, telegram_id: int, username: str) 
         logger.info(f"Створено нового користувача з telegram_id={telegram_id}")
     return user
 
-async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: str) -> str:
+async def get_user_profile_text(db: AsyncSession, telegram_id: int, username: str) -> dict:
     """
-    Формує текст профілю користувача.
+    Отримує текст профілю користувача та історію рейтингу.
+    Повертає словник із ключами "text" та "rating_history".
     """
     try:
-        # Отримуємо або створюємо користувача
+        # Виклик get_or_create_user щоб завжди мати користувача
         user = await get_or_create_user(db, telegram_id, username)
 
-        # Отримуємо статистику
+        # Отримання статистики користувача
         result = await db.execute(select(UserStats).where(UserStats.user_id == user.id))
         stats = result.scalars().first()
 
-        # Якщо статистики немає, створюємо базову
         if not stats:
-            stats = UserStats(user_id=user.id, rating=100, achievements_count=0, total_matches=0, total_wins=0, total_losses=0)
+            # Якщо статистики нема — можна створити базову статистику
+            stats = UserStats(user_id=user.id, rating=100, achievements_count=0)
             db.add(stats)
             await db.commit()
             await db.refresh(stats)
 
-        # Формуємо текст профілю
+        # Формування тексту профілю
         profile_text = (
             f"🔍 **Ваш Профіль:**\n\n"
-            f"• 🏅 Ім'я користувача: @{user.username or 'Невідомо'}\n"
-            f"• 🚀 Рейтинг: {stats.rating}\n"
-            f"• 🎯 Досягнення: {stats.achievements_count} досягнень\n"
-            f"• 🎮 Матчі: {stats.total_matches}, Перемоги: {stats.total_wins}, Поразки: {stats.total_losses}\n"
+            f"• 🏅 Ім'я користувача: @{user.username}\n"
+            f"• 📈 Рейтинг: {stats.rating}\n"
+            f"• 🎯 Досягнення: {stats.achievements_count} досягнень"
         )
 
-        # Додаємо інформацію про останнє оновлення, якщо вона є
-        if stats.last_update:
-            profile_text += f"• 🕒 Останнє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
-
-        return profile_text
+        # Повертаємо профільний текст та історію рейтингу
+        return {
+            "text": profile_text,
+            "rating_history": [stats.rating]  # Тут можна додати більше даних про історію
+        }
     except SQLAlchemyError as e:
         logger.error(f"Error fetching user profile for telegram_id={telegram_id}: {e}")
-        return "⚠️ Виникла помилка при отриманні профілю. Спробуйте пізніше."
+        return {"text": "⚠️ Виникла помилка при отриманні профілю. Спробуйте пізніше.", "rating_history": []}
