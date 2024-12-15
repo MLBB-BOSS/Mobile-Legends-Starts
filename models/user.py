@@ -1,9 +1,8 @@
-# models/user.py
-
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from models.base import Base
+from .base import Base
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -20,7 +19,17 @@ class User(Base):
     tournaments_participated = Column(Integer, default=0)
     tournaments_top3 = Column(Integer, default=0)
     active_months = Column(Integer, default=0)
-    level = Column(String, default="Beginner")  # Новий стовпець
-    email = Column(String, nullable=True)  # Додано новий стовпець
-    badges = relationship("Badge", secondary="user_badges", back_populates="users")
+    badges = relationship("Badge", back_populates="user")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Badge(Base):
+    __tablename__ = 'badges'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    level = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates="badges")
+    date_awarded = Column(DateTime, default=datetime.utcnow)
