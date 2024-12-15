@@ -1,21 +1,15 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
-from models.base import Base
+# models/user.py
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger
+from models.base import Base
 
-class Badge(Base):
-    __tablename__ = 'badges'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    category = Column(String, nullable=False)
-    level = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    date_awarded = Column(DateTime, default=datetime.utcnow)
-
-    # Відношення до моделі User
-    users = relationship('User', secondary='user_badges', back_populates='badges')
+class User(Base):
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    telegram_id = Column(BigInteger, unique=True, nullable=False)  # Changed from user_id to telegram_id
+    username = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Badge(id={self.id}, name={self.name}, category={self.category})>"
+        return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username})>"
