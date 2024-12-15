@@ -1,46 +1,60 @@
-from aiogram import Router, BaseMiddleware
-from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
-from typing import Callable, Dict, Any, Awaitable
-from sqlalchemy.orm import Session
-from io import BytesIO
+from aiogram import Router, types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import matplotlib.pyplot as plt
+import io
 
-from utils.db import get_db_session
-from services.user_service import get_user_profile_text
-from utils.charts import generate_rating_chart
+router = Router()
 
-class DbSessionMiddleware(BaseMiddleware):
-    async def __call__(
-        self, 
-        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], 
-        event: Message, 
-        data: Dict[str, Any]
-    ) -> Any:
-        # Отримати асинхронну сесію БД
-        db_session = await get_db_session()  
-        data["db"] = db_session
-        return await handler(event, data)
+# Клавіатура для навігації профілю
+def profile_inline_menu():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton("📊 Загальна Статистика", callback_data="general_stats")],
+        [InlineKeyboardButton("📈 Графік Активності", callback_data="activity_chart")],
+        [InlineKeyboardButton("🔄 Оновити", callback_data="refresh_profile")],
+        [InlineKeyboardButton("⬅️ Назад", callback_data="back_to_main")]
+    ])
 
-profile_router = Router()
-profile_router.message.middleware(DbSessionMiddleware())
+# Обробник для кнопки "Мій Профіль"
+@router.message(lambda message: message.text == "👤 Мій профіль")
+async def show_profile(message: types.Message):
+    await message.delete()
+    await message.answer("🔍 *Ваш Профіль:*\n\nЗавантаження статистики...", 
+                         reply_markup=profile_inline_menu(), parse_mode="Markdown")
 
-@profile_router.message(Command("profile"))
-async def show_profile(message: Message, db: Session):
-    # Отримати текст профілю користувача
-    profile_text = await get_user_profile_text(db, message.from_user.id)
-
-    # Фіктивна історія рейтингу (для прикладу)
-    rating_history = [100, 120, 140, 180, 210, 230]
-
-    # Згенерувати графік рейтингу (повертає BytesIO)
-    chart_bytes = generate_rating_chart(rating_history)
-    chart_bytes.seek(0)
-
-    # Створити BufferedInputFile з байтових даних
-    input_file = BufferedInputFile(
-        chart_bytes.read(),
-        filename='chart.png'
+# Загальна статистика
+@router.callback_query(lambda c: c.data == "general_stats")
+async def show_general_stats(callback: types.CallbackQuery):
+    text = (
+        "📊 *Загальна Статистика:*\n"
+        "- 🧩 Вікторини: 10\n"
+        "- 🎯 Місії: 20\n"
+        "- 🏆 Рейтинг: Топ-25\n"
+        "- 💬 Повідомлень: 250"
     )
+    await callback.message.edit_text(text, reply_markup=profile_inline_menu(), parse_mode="Markdown")
 
-    # Надіслати зображення користувачеві
-    await message.answer_photo(photo=input_file, caption=profile_text)
+# Графік активності
+@router.callback_query(lambda c: c.data == "activity_chart")
+async def send_activity_chart(callback: types.CallbackQuery):
+    x = [1, 2, 3, 4, 5]
+    y = [100, 120, 160, 200, 220]
+
+    plt.plot(x, y, marker="o", color="b")
+    plt.title("Графік активності")
+    plt.xlabel("Сеанс")
+    plt.ylabel("Рейтинг")
+    plt.grid()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close()
+
+    await callback.message.answer_photo(photo=buffer, caption="📈 Ваш графік активності", 
+                                        reply_markup=profile_inline_menu())
+
+# Оновлення профілю
+@router.callback_query(lambda c: c.data == "refresh_profile")
+async def refresh_profile(callback: types.CallbackQuery):
+    await callback.answer("🔄 Оновлення даних...")
+    await show_profile(callback.message)
