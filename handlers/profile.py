@@ -1,37 +1,46 @@
 from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
 from io import BytesIO
-from aiogram.types import BufferedInputFile
 
-async def generate_profile_image(username, rating, matches, wins, losses):
-    # Створення зображення 800x500 з блакитним фоном
-    img = Image.new("RGB", (800, 500), "#E0F7FA")  # Колір фону (блакитний)
-    draw = ImageDraw.Draw(img)
+# Функція для створення зображення профілю
+async def generate_custom_profile(username, rating, matches, wins, losses):
+    # Завантаження фону (замініть 'background.jpg' на ваш файл)
+    bg = Image.open("background.jpg").resize((800, 600))  # Змінити розмір фону
+    draw = ImageDraw.Draw(bg)
 
     # Шрифти
     try:
-        title_font = ImageFont.truetype("arial.ttf", 36)  # Більший заголовок
-        content_font = ImageFont.truetype("arial.ttf", 28)
+        title_font = ImageFont.truetype("arial.ttf", 40)
+        content_font = ImageFont.truetype("arial.ttf", 30)
     except:
         title_font = content_font = ImageFont.load_default()
 
-    # Додавання заголовка
-    draw.text((20, 20), "🔍 Ваш Профіль", fill="black", font=title_font)
+    # Текст поверх фону
+    draw.text((50, 50), "🔍 Ваш Профіль", fill="white", font=title_font)
+    draw.text((50, 150), f"👤 @{username}", fill="cyan", font=content_font)
+    draw.text((50, 200), f"🚀 Рейтинг: {rating}", fill="yellow", font=content_font)
+    draw.text((50, 250), f"🎮 Матчі: {matches}", fill="white", font=content_font)
+    draw.text((50, 300), f"🏆 Перемоги: {wins}", fill="green", font=content_font)
+    draw.text((50, 350), f"❌ Поразки: {losses}", fill="red", font=content_font)
 
-    # Основна інформація з більшим відступом
-    draw.text((20, 100), f"👤 Ім'я користувача: @{username}", fill="blue", font=content_font)
-    draw.text((20, 150), f"🚀 Рейтинг: {rating}", fill="black", font=content_font)
-    draw.text((20, 200), f"🎮 Матчі: {matches}", fill="black", font=content_font)
-    draw.text((20, 250), f"🏆 Перемоги: {wins}", fill="green", font=content_font)
-    draw.text((20, 300), f"❌ Поразки: {losses}", fill="red", font=content_font)
+    # Генерація графіка
+    fig, ax = plt.subplots(figsize=(4, 2))
+    ax.plot([10, 20, 15, 25], color="cyan", linewidth=3, marker="o")
+    ax.set_title("Графік активності", color="white")
+    ax.set_facecolor("black")
+    for spine in ax.spines.values():
+        spine.set_edgecolor("white")
 
-    # Підсумковий текст
-    draw.text((20, 420), "🕒 Останнє оновлення: 2024-12-15 08:11:39", fill="gray", font=content_font)
-
-    # Додавання рамки
-    draw.rectangle([10, 10, 790, 490], outline="black", width=3)
+    buf = BytesIO()
+    plt.savefig(buf, format="PNG", transparent=True)
+    plt.close(fig)
+    graph = Image.open(buf).resize((400, 200))
+    
+    # Вставлення графіка
+    bg.paste(graph, (350, 400), mask=graph)
 
     # Збереження у пам'ять
-    buf = BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-    return buf
+    output = BytesIO()
+    bg.save(output, format="PNG")
+    output.seek(0)
+    return output
