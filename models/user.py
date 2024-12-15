@@ -2,14 +2,15 @@
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
-from models.base import Base
 from sqlalchemy.orm import relationship
+
+from database import Base  # Імпортуйте Base з database.py
 
 class User(Base):
     __tablename__ = 'users'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(BigInteger, unique=True, nullable=False)  # Changed from user_id to telegram_id
+    telegram_id = Column(BigInteger, unique=True, nullable=False)
     username = Column(String(50), nullable=True)
     fullname = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
