@@ -1,7 +1,10 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models.base import Base
+from sqlalchemy.orm import declarative_base
+
+# Базовий клас для моделей
+Base = declarative_base()
 
 # URL бази даних
 DATABASE_URL = os.getenv("AS_BASE", "postgresql+asyncpg://user:password@host:port/dbname")
@@ -13,14 +16,24 @@ if not DATABASE_URL:
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 # Фабрика асинхронних сесій
-async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
 
-# Функція для створення таблиць
-async def create_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# Middleware для роботи з базою даних
+class DatabaseMiddleware:
+    def __init__(self, session_factory):
+        self.session_factory = session_factory
 
-# Функція для отримання сесії
-async def get_db_session():
-    async with async_session() as session:
-        yield session
+    async def __call__(self, handler, event, data):
+        async with self.session_factory() as session:
+            data['db'] = session
+            try:
+                return await handler(event, data)
+            except Exception as e:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()
