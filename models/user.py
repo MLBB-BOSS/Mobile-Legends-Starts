@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 from sqlalchemy.orm import relationship
 
-from database import Base  # Імпортуйте Base з database.py
+from models.base import Base  # Виправлений імпорт
 
 class User(Base):
     __tablename__ = 'users'
