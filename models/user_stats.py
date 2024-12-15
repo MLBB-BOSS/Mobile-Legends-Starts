@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from models.base import Base
+from .base import Base
 
 class UserStats(Base):
     __tablename__ = 'user_stats'
@@ -15,7 +15,7 @@ class UserStats(Base):
     total_losses = Column(Integer, default=0)
     last_update = Column(DateTime, default=datetime.utcnow)
 
-    user = relationship("User", backref="stats")
+    user = relationship("User", back_populates="stats")
     
     def __repr__(self):
         return f"<UserStats(user_id={self.user_id}, rating={self.rating}, achievements_count={self.achievements_count})>"
