@@ -1,44 +1,46 @@
-import os
-import logging
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+from aiogram import Router, BaseMiddleware
+from aiogram.filters import Command
+from aiogram.types import Message, BufferedInputFile
+from typing import Callable, Dict, Any, Awaitable
+from sqlalchemy.orm import Session
+from io import BytesIO
 
-# Завантаження .env файлу
-load_dotenv()
+from utils.db import get_db_session
+from services.user_service import get_user_profile_text
+from utils.charts import generate_rating_chart
 
-# Налаштування логування
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class DbSessionMiddleware(BaseMiddleware):
+    async def __call__(
+        self, 
+        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], 
+        event: Message, 
+        data: Dict[str, Any]
+    ) -> Any:
+        # Отримати асинхронну сесію БД
+        db_session = await get_db_session()  
+        data["db"] = db_session
+        return await handler(event, data)
 
-class Settings(BaseSettings):
-    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")
-    AS_BASE: str = os.getenv("AS_BASE")
-    APP_NAME: str = "Mobile Legends Tournament Bot"
-    DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1")
+profile_router = Router()
+profile_router.message.middleware(DbSessionMiddleware())
 
-    @property
-    def db_url(self) -> str:
-        """Повертає URL бази даних, відформатований для asyncpg."""
-        if not self.AS_BASE:
-            raise ValueError("AS_BASE is not set!")
-        url = self.AS_BASE
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
-        logger.info(f"Database URL formatted: {url}")
-        return url
+@profile_router.message(Command("profile"))
+async def show_profile(message: Message, db: Session):
+    # Отримати текст профілю користувача
+    profile_text = await get_user_profile_text(db, message.from_user.id)
 
-    def validate(self):
-        """Перевіряє обов'язкові змінні середовища."""
-        if not self.TELEGRAM_BOT_TOKEN:
-            raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
-        if not self.AS_BASE:
-            raise ValueError("AS_BASE is not set!")
-        logger.info("Configuration validated successfully.")
+    # Фіктивна історія рейтингу (для прикладу)
+    rating_history = [100, 120, 140, 180, 210, 230]
 
-settings = Settings()
+    # Згенерувати графік рейтингу (повертає BytesIO)
+    chart_bytes = generate_rating_chart(rating_history)
+    chart_bytes.seek(0)
 
-try:
-    settings.validate()
-except Exception as e:
-    logger.error(f"Configuration error: {e}")
-    raise
+    # Створити BufferedInputFile з байтових даних
+    input_file = BufferedInputFile(
+        chart_bytes.read(),
+        filename='chart.png'
+    )
+
+    # Надіслати зображення користувачеві
+    await message.answer_photo(photo=input_file, caption=profile_text)
