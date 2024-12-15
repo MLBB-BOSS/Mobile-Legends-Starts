@@ -1,19 +1,44 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger
-from sqlalchemy.orm import relationship
-from datetime import datetime
-from models.base import Base
+import os
+import logging
+from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
 
-class User(Base):
-    __tablename__ = "users"
+# Завантаження .env файлу
+load_dotenv()
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    telegram_id = Column(BigInteger, unique=True, nullable=False)
-    username = Column(String(50), nullable=True)
-    fullname = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    # Зв’язок з UserStats
-    stats = relationship("UserStats", back_populates="user", uselist=False)
+class Settings(BaseSettings):
+    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")
+    AS_BASE: str = os.getenv("AS_BASE")
+    APP_NAME: str = "Mobile Legends Tournament Bot"
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1")
 
-    def __repr__(self):
-        return f"<User(id={self.id}, telegram_id={self.telegram_id}, username={self.username})>"
+    @property
+    def db_url(self) -> str:
+        """Повертає URL бази даних, відформатований для asyncpg."""
+        if not self.AS_BASE:
+            raise ValueError("AS_BASE is not set!")
+        url = self.AS_BASE
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        logger.info(f"Database URL formatted: {url}")
+        return url
+
+    def validate(self):
+        """Перевіряє обов'язкові змінні середовища."""
+        if not self.TELEGRAM_BOT_TOKEN:
+            raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
+        if not self.AS_BASE:
+            raise ValueError("AS_BASE is not set!")
+        logger.info("Configuration validated successfully.")
+
+settings = Settings()
+
+try:
+    settings.validate()
+except Exception as e:
+    logger.error(f"Configuration error: {e}")
+    raise
