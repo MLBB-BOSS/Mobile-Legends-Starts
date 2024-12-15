@@ -1,14 +1,11 @@
-# models/user.py
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 from sqlalchemy.orm import relationship
-
-from models.base import Base  # Виправлений імпорт
+from models.base import Base
 
 class User(Base):
     __tablename__ = 'users'
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     telegram_id = Column(BigInteger, unique=True, nullable=False)
     username = Column(String(50), nullable=True)
