@@ -1,46 +1,71 @@
 # database.py
-
 import logging
-from typing import Callable, Any
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from aiogram import BaseMiddleware
+from config import settings
 
-from aiogram.dispatcher.middlewares import BaseMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-
-from config import settings  # Ваш файл конфігурації
-
+# Налаштування логування
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бази даних
-DATABASE_URL = settings.DATABASE_URL  # Переконайтесь, що цей URL правильний
+# Створення асинхронного двигуна з використанням db_url
+try:
+    engine = create_async_engine(
+        settings.db_url,
+        echo=settings.DEBUG,
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20
+    )
+    logger.info("Database engine created successfully")
+except Exception as e:
+    logger.error(f"Failed to create database engine: {e}")
+    raise
 
-engine = create_async_engine(DATABASE_URL, echo=True)
-AsyncSessionLocal = async_sessionmaker(
+# Фабрика асинхронних сесій
+async_session = sessionmaker(
     bind=engine,
-    expire_on_commit=False,
-    class_=AsyncSession
+    class_=AsyncSession,
+    expire_on_commit=False
 )
 
-Base = declarative_base()
+async def init_db():
+    """Ініціалізація бази даних"""
+    from models.base import Base
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
+        raise
+
+async def reset_db():
+    """Скидання та створення нової бази даних"""
+    from models.base import Base
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database reset successfully")
+    except Exception as e:
+        logger.error(f"Failed to reset database: {e}")
+        raise
 
 class DatabaseMiddleware(BaseMiddleware):
-    """Middleware для інжекції сесії бази даних у обробники."""
-
-    def __init__(self, session_factory: Callable[[], AsyncSession]):
+    """Middleware для управління сесіями бази даних"""
+    def __init__(self, session_factory):
         super().__init__()
         self.session_factory = session_factory
 
-    async def __call__(
-        self,
-        handler: Callable[[Any], Any],
-        event: Any,
-        data: dict
-    ) -> Any:
+    async def __call__(self, handler, event, data):
         async with self.session_factory() as session:
-            data['db'] = session  # Інжектимо сесію у data
+            data['db'] = session
             try:
                 return await handler(event, data)
             except Exception as e:
-                logger.error(f"Помилка в DatabaseMiddleware: {e}")
+                logger.error(f"Error in database middleware: {e}")
                 await session.rollback()
                 raise
+            finally:
+                await session.close()
