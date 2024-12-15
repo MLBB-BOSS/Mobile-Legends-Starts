@@ -7,6 +7,9 @@ from io import BytesIO
 from utils.db import get_db_session, get_user_badges
 from services.user_service import get_user_profile_text
 from utils.charts import generate_rating_chart
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DbSessionMiddleware(BaseMiddleware):
     async def __call__(
@@ -36,11 +39,18 @@ async def show_profile(message: Message, db: AsyncSession):
     try:
         # Отримуємо текст профілю та історію рейтингу
         profile_data = await get_user_profile_text(db, message.from_user.id, message.from_user.username)
+
+        if not isinstance(profile_data, dict) or "text" not in profile_data:
+            raise ValueError("Invalid profile data format")
+
         profile_text = profile_data["text"]
         rating_history = profile_data.get("rating_history", [100, 120, 140, 180, 210, 230])
 
+        if not rating_history:
+            rating_history = [100]  # Значення за замовчуванням
+
         # Отримуємо бейджі користувача
-        badges = await get_user_badges(db, message.from_user.id)
+        badges = await get_user_badges(db, message.from_user.id) or []
         badge_names = [badge.name for badge in badges]
         profile_text += f"\n🏅 Бейджі: {', '.join(badge_names) if badge_names else 'Немає'}"
 
@@ -57,6 +67,6 @@ async def show_profile(message: Message, db: AsyncSession):
         # Відправляємо текстовий профіль та графік
         await message.answer_photo(photo=input_file, caption=profile_text)
     except Exception as e:
-        # Логування та повідомлення про помилку
+        logger.error(f"Error while generating profile for user {message.from_user.id}: {e}")
         await message.answer("⚠️ Виникла помилка при отриманні вашого профілю. Спробуйте пізніше.")
-        raise e
+        raise
