@@ -46,9 +46,6 @@ async def show_profile(message: Message, db: AsyncSession):
         profile_text = profile_data["text"]
         rating_history = profile_data.get("rating_history", [100, 120, 140, 180, 210, 230])
 
-        if not rating_history:
-            rating_history = [100]  # Значення за замовчуванням
-
         # Отримуємо бейджі користувача
         badges = await get_user_badges(db, message.from_user.id) or []
         badge_names = [badge.name for badge in badges]
