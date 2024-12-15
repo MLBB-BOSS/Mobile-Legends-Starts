@@ -32,23 +32,25 @@ profile_router.message.middleware(DbSessionMiddleware())
 async def show_profile(message: Message, db: Session):
     try:
         # Отримати текст профілю користувача
-        profile_text = await get_user_profile_text(
-            db, 
-            message.from_user.id, 
-            message.from_user.username or "Невідомий користувач"
-        )
-        logging.info(f"Текст профілю отримано: {profile_text}")
+        profile_text = f"""
+<b>🔍 Ваш Профіль:</b>
+
+<b>👤 Ім'я користувача:</b> @{message.from_user.username or "Невідомий користувач"}
+<b>🚀 Рейтинг:</b> <code>100</code>
+
+<b>🎯 Досягнення:</b> 0 досягнень
+<b>🎮 Матчі:</b> <i>0</i>
+    <b>🏆 Перемоги:</b> <u>0</u>
+    <b>❌ Поразки:</b> <u>0</u>
+
+<b>🕒 Останнє оновлення:</b> <code>2024-12-15 08:11:39</code>
+"""
 
         # Фіктивна історія рейтингу
         rating_history = [100, 120, 140, 180, 210, 230]
 
-        if not rating_history:
-            await message.answer("Дані для графіка порожні!")
-            return
-
         # Генерувати графік рейтингу
         chart_bytes = generate_rating_chart(rating_history)
-        logging.info("Графік успішно згенерований")
 
         # Створити BufferedInputFile з байтових даних
         input_file = BufferedInputFile(
@@ -56,8 +58,8 @@ async def show_profile(message: Message, db: Session):
             filename='chart.png'
         )
 
-        # Надіслати зображення користувачеві
-        await message.answer_photo(photo=input_file, caption=profile_text)
+        # Надіслати зображення користувачеві разом з HTML текстом
+        await message.answer_photo(photo=input_file, caption=profile_text, parse_mode="HTML")
 
     except Exception as e:
         logging.error(f"Загальна помилка у обробнику /profile: {e}")
