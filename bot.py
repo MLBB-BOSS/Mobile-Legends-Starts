@@ -13,6 +13,25 @@ from utils.db import engine, AsyncSessionLocal, DatabaseMiddleware, Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
 
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from config import settings
+
+# Створення асинхронного двигуна
+engine = create_async_engine(
+    settings.db_url,
+    echo=settings.DEBUG,
+    pool_size=10,
+    max_overflow=20
+)
+
+# Фабрика асинхронних сесій
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
