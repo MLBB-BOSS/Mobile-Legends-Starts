@@ -10,6 +10,20 @@ from handlers.base import setup_handlers
 from utils.db import engine, AsyncSessionLocal, DatabaseMiddleware, Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
+import asyncio
+from aiogram import Bot, Dispatcher
+from config import settings
+from handlers import router
+
+async def main():
+    bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+    dp = Dispatcher()
+    dp.include_router(router)
+
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
