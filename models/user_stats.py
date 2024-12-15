@@ -3,7 +3,8 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from models.base import Base
+
+from database import Base  # Імпортуйте Base з database.py
 
 class UserStats(Base):
     __tablename__ = 'user_stats'
