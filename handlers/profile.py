@@ -1,19 +1,16 @@
-# file: handlers/profile.py
-
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+import matplotlib.pyplot as plt
+from aiogram.types import Message, BufferedInputFile
 from aiogram import Router
 from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
 import logging
 
-# Створення маршрутизатора (має бути до використання)
 profile_router = Router()
 
 # Функція для створення профілю
-async def generate_full_profile(username, rating, matches, wins, losses):
-    # Створюємо вертикальне полотно 9:16
+async def generate_detailed_profile(username, fullname, level, activity, rating, matches, wins, losses):
+    # Полотно 9:16
     width, height = 1080, 1920
     img = Image.new("RGB", (width, height), "#0F0F0F")  # Чорний фон
     draw = ImageDraw.Draw(img)
@@ -27,20 +24,25 @@ async def generate_full_profile(username, rating, matches, wins, losses):
         title_font = content_font = small_font = ImageFont.load_default()
 
     # Заголовок
-    draw.text((50, 50), "🔍 Профіль Гравця", fill="#FFFFFF", font=title_font)
+    draw.text((50, 30), "🎮 Профіль Гравця", fill="#FFD700", font=title_font)
 
-    # Блок основної інформації (рамка)
-    draw.rectangle([50, 150, width - 50, 450], outline="#007BFF", width=5, fill="#1E1E2E")
-    draw.text((70, 180), f"👤 Ім'я користувача: @{username}", fill="#00CFFF", font=content_font)
-    draw.text((70, 260), f"🚀 Рейтинг: {rating}", fill="#FFD700", font=content_font)
-    draw.text((70, 340), f"🎮 Матчі: {matches}", fill="#FFFFFF", font=content_font)
-    draw.text((500, 340), f"🏆 Перемоги: {wins}", fill="#28A745", font=content_font)
-    draw.text((800, 340), f"❌ Поразки: {losses}", fill="#DC3545", font=content_font)
+    # Блок загальної інформації
+    draw.rectangle([50, 120, width - 50, 400], outline="#007BFF", width=5, fill="#1E1E2E")
+    draw.text((70, 150), f"👤 Нікнейм: @{username}", fill="#00CFFF", font=content_font)
+    draw.text((70, 220), f"📝 Ім'я: {fullname}", fill="#FFFFFF", font=content_font)
+    draw.text((70, 290), f"⭐ Рівень: {level}   🔥 Активність: {activity}%", fill="#FFD700", font=content_font)
 
-    # Генерація графіку
-    fig, ax = plt.subplots(figsize=(6, 3), facecolor="#0F0F0F")
-    ax.plot([1, 2, 3, 4, 5], [10, 15, 8, 20, 30], color="#00CFFF", linewidth=4, marker="o")
-    ax.set_title("Графік активності", fontsize=14, color="white")
+    # Блок статистики
+    draw.rectangle([50, 450, width - 50, 700], outline="#28A745", width=5, fill="#1E1E2E")
+    draw.text((70, 480), f"🚀 Рейтинг: {rating}", fill="#FFD700", font=content_font)
+    draw.text((70, 550), f"🎮 Матчі: {matches}", fill="#FFFFFF", font=content_font)
+    draw.text((500, 550), f"🏆 Перемоги: {wins}", fill="#28A745", font=content_font)
+    draw.text((800, 550), f"❌ Поразки: {losses}", fill="#DC3545", font=content_font)
+
+    # Генерація графіка активності
+    fig, ax = plt.subplots(figsize=(5, 3), facecolor="#0F0F0F")
+    ax.plot([1, 2, 3, 4, 5], [activity, 50, 60, 70, 80], color="#00CFFF", linewidth=4, marker="o")
+    ax.set_title("📈 Графік активності", fontsize=14, color="white")
     ax.tick_params(colors="white")
     ax.grid(color="#333333")
     for spine in ax.spines.values():
@@ -49,9 +51,12 @@ async def generate_full_profile(username, rating, matches, wins, losses):
     plt.savefig(buf, format="PNG", transparent=True)
     plt.close(fig)
 
-    # Вставка графіка на полотно
+    # Вставлення графіка
     graph = Image.open(buf).resize((900, 500))
-    img.paste(graph, (90, 500), mask=graph)
+    img.paste(graph, (90, 750), mask=graph)
+
+    # Підсумок
+    draw.text((50, 1300), "🎯 Ваш прогрес зростає! Продовжуйте в тому ж дусі!", fill="#FFFFFF", font=small_font)
 
     # Збереження у буфер
     output = BytesIO()
@@ -64,10 +69,18 @@ async def generate_full_profile(username, rating, matches, wins, losses):
 async def show_profile(message: Message):
     try:
         username = message.from_user.username or "Unknown"
-        profile_image = await generate_full_profile(username, 100, 20, 50, 5)
+        fullname = "Іван Іванов"
+        level = 15
+        activity = 87
+        rating = 1200
+        matches = 45
+        wins = 30
+        losses = 15
+
+        profile_image = await generate_detailed_profile(username, fullname, level, activity, rating, matches, wins, losses)
 
         input_file = BufferedInputFile(profile_image.read(), filename="profile.png")
-        await message.answer_photo(photo=input_file, caption="🖼 Ваш профіль")
+        await message.answer_photo(photo=input_file, caption="🖼 Детальний профіль")
     except Exception as e:
         logging.error(f"Помилка у створенні профілю: {e}")
         await message.answer("❌ Виникла помилка при створенні профілю.")
