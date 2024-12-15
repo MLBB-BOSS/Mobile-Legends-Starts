@@ -1,38 +1,28 @@
-import io
 import matplotlib.pyplot as plt
-from aiogram import Router
-from aiogram.types import Message, InputFile
-from aiogram.filters import Command
+from io import BytesIO
 
-router = Router()
+def generate_rating_chart(rating_history: list) -> BytesIO:
+    """
+    Генерує графік рейтингу користувача.
 
-# Функція для генерації графіка
-def generate_rating_chart(rating_history: list[int]) -> io.BytesIO:
+    Args:
+        rating_history (list): Список значень рейтингу для графіку.
+
+    Returns:
+        BytesIO: Графік у вигляді байтового потоку.
     """
-    Генерує графік зміни рейтингу.
-    rating_history - список рейтингів по часу, наприклад: [100, 200, 250, 300].
-    """
-    plt.figure(figsize=(4, 4))
-    plt.plot(rating_history, marker='o')
-    plt.title("Графік зміни рейтингу")
-    plt.xlabel("Сеанс")
+    # Налаштування графіку
+    plt.figure(figsize=(8, 4))
+    plt.plot(rating_history, marker='o', linestyle='-', linewidth=2)
+    plt.title("Ріст рейтингу користувача")
+    plt.xlabel("Період")
     plt.ylabel("Рейтинг")
-    
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Збереження у BytesIO
+    chart_io = BytesIO()
+    plt.savefig(chart_io, format='png')
     plt.close()
-    return buf
 
-# Обробник команди
-@router.message(Command("my_progress"))
-async def show_progress(message: Message):
-    rating_history = [100, 200, 250, 300]  # Зразкові дані
-    chart = generate_rating_chart(rating_history)  # Генеруємо графік
-
-    # Обгортаємо BytesIO в InputFile
-    photo_file = InputFile(chart, filename="chart.png")
-    profile_text = "Ваш прогрес за останні сеанси"
-
-    # Відправляємо графік
-    await message.answer_photo(photo=photo_file, caption=profile_text)
+    return chart_io
