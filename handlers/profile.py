@@ -1,67 +1,53 @@
 # handlers/profile.py
+
 from aiogram import Router, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from utils.db import get_all_badges, get_user_by_telegram_id
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from models.user import User
 
 profile_router = Router()
 
 @profile_router.message(Command("profile"))
 async def show_profile(message: types.Message, db: AsyncSession):
-    user_id = message.from_user.id
-    user = await get_user_by_telegram_id(db, user_id)
+    stmt = select(User).where(User.telegram_id == message.from_user.id)
+    result = await db.execute(stmt)
+    user = result.scalars().first()
 
     if not user:
-        await message.answer("Ви ще не зареєстровані. Використовуйте команду /start для реєстрації.")
+        await message.answer("Ви ще не зареєстровані. Використовуйте /start для початку роботи.")
         return
 
-    all_badges = await get_all_badges(db)
-    user_badge_ids = {b.id for b in user.badges}
+    profile_text = format_user_profile(user)
+    inline_keyboard = get_profile_inline_keyboard()
+    await message.answer(profile_text, reply_markup=inline_keyboard, parse_mode="Markdown")
 
-    obtained_badges = user.badges
-    not_obtained_badges = [b for b in all_badges if b.id not in user_badge_ids]
-
-    # Замінюємо Markdown на HTML
+def format_user_profile(user):
+    verification_status = "✅ Верифікований" if user.is_verified else "❌ Неверифікований"
     profile_text = (
-        f"👤 <b>Ваш Профіль:</b>\n\n"
-        f"• Ім'я користувача: @{user.username if user.username else 'Не вказано'}\n"
-        f"• Рівень: {user.level}\n"
-        f"• Скриншотів: {user.screenshot_count}\n"
-        f"• Місій: {user.mission_count}\n"
-        f"• Вікторин: {user.quiz_count}\n\n"
+        f"👤 *Ваш профіль*\n"
+        f"======================\n"
+        f"📛 Ім'я користувача: `{user.username or 'Не вказано'}`\n"
+        f"🎮 ID гравця: `{user.player_id or 'Не вказано'}`\n"
+        f"🎮 Ігровий ID: `{user.game_id or 'Не вказано'}` ({verification_status})\n"
+        f"🌟 Рівень: *{user.level}*\n"
+        f"----------------------\n"
+        f"📸 *Статистика:*\n"
+        f"  • Скріншотів: `{user.screenshot_count}`\n"
+        f"  • Місій виконано: `{user.mission_count}`\n"
+        f"  • Вікторин пройдено: `{user.quiz_count}`\n"
+        f"  • Турнірів: `{user.tournaments_participated}`\n"
+        f"======================\n"
     )
+    return profile_text
 
-    if obtained_badges:
-        profile_text += "🎖 <b>Отримані Бейджі:</b>\n"
-        for b in obtained_badges:
-            desc = (b.description or "").replace('<', '&lt;').replace('>', '&gt;')
-            profile_text += f"• {b.name} - {desc}\n"
-    else:
-        profile_text += "🎖 Отримані Бейджі: Немає\n"
-
-    if not_obtained_badges:
-        profile_text += "\n🔒 <b>Недоступні Бейджі:</b>\n"
-        for b in not_obtained_badges:
-            desc = (b.description or "").replace('<', '&lt;').replace('>', '&gt;')
-            profile_text += f"• {b.name} - {desc}\n"
-    else:
-        profile_text += "\n🔓 Всі бейджі отримано! 🎉\n"
-
-    inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🔄 Оновити Бейджі", callback_data="update_badges"),
-            InlineKeyboardButton(text="🎖 Дошка Нагород", callback_data="show_award_board")
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Оновити ID", callback_data="update_player_id"),
-            InlineKeyboardButton(text="📜 Історія", callback_data="show_activity_history")
-        ],
-        [
-            InlineKeyboardButton(text="💌 Запросити Друзів", callback_data="invite_friends"),
-            InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")
+def get_profile_inline_keyboard():
+    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📈 Статистика", callback_data="view_stats")],
+            [InlineKeyboardButton(text="🎖️ Нагороди", callback_data="view_badges")],
+            [InlineKeyboardButton(text="✏️ Змінити Ігровий ID", callback_data="change_game_id")],
+            [InlineKeyboardButton(text="🔙 Назад", callback_data="main_menu")]
         ]
-    ])
-
-    # Використовуємо parse_mode="HTML"
-    await message.answer(profile_text, parse_mode="HTML", reply_markup=inline_keyboard)
+    )
