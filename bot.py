@@ -4,9 +4,9 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.session.aiohttp import AiohttpSession  # Виправлено
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
+from aiogram.fsm.storage.memory import MemoryStorage  # Для FSM
 from config import settings
 from handlers.base import setup_handlers
 from utils.db import engine, AsyncSessionLocal, DatabaseMiddleware, Base
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()  # Додано для явного визначення сесії
+    session=AiohttpSession()  # Явне визначення сесії
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
