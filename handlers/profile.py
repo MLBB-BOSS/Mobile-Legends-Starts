@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 import aiohttp
 
 from config import settings  # Ваш файл конфігурації
-from database import get_db  # Ваш файл налаштувань бази даних
 from models.user import User  # Модель користувача
 from models.user_stats import UserStats  # Модель статистики користувача
 
@@ -94,11 +93,11 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
     draw.text((70, 290), f"⭐ Рівень: {user.level}   🔥 Активність: {stats.activity}%", fill="#FFD700", font=content_font)
 
     # Додаткова статистика
-    win_rate = (stats.wins / stats.matches) * 100 if stats.matches > 0 else 0
+    win_rate = (stats.total_wins / stats.total_matches) * 100 if stats.total_matches > 0 else 0
     draw.text((70, 360), f"🏅 Рейтинг: {stats.rating}", fill="#FFD700", font=content_font)
-    draw.text((70, 430), f"🎮 Матчі: {stats.matches}", fill="#FFFFFF", font=content_font)
-    draw.text((500, 430), f"🏆 Перемоги: {stats.wins}", fill="#28A745", font=content_font)
-    draw.text((800, 430), f"❌ Поразки: {stats.losses}", fill="#DC3545", font=content_font)
+    draw.text((70, 430), f"🎮 Матчі: {stats.total_matches}", fill="#FFFFFF", font=content_font)
+    draw.text((500, 430), f"🏆 Перемоги: {stats.total_wins}", fill="#28A745", font=content_font)
+    draw.text((800, 430), f"❌ Поразки: {stats.total_losses}", fill="#DC3545", font=content_font)
     draw.text((500, 360), f"📈 Win Rate: {win_rate:.2f}%", fill="#28A745", font=content_font)
 
     # Система Рейтингів
@@ -113,7 +112,13 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
     # Припустимо, що у UserStats є поле activity_history, яке є списком значень
     # Наприклад: "activity_history" = "70,75,80,85,90,95,100"
     if stats.activity_history:
-        activity_data = list(map(float, stats.activity_history.split(',')))
+        try:
+            activity_data = list(map(float, stats.activity_history.split(',')))
+            if len(activity_data) != 7:
+                raise ValueError("activity_history повинно містити 7 значень")
+        except ValueError as ve:
+            logger.error(f"Некоректні дані в activity_history: {ve}")
+            activity_data = [50, 60, 70, 80, 65, 75, 85]
     else:
         activity_data = [50, 60, 70, 80, 65, 75, 85]
     ax.plot(days, activity_data, color="#00CFFF", linewidth=4, marker="o", markersize=10, markerfacecolor="#FFD700")
@@ -160,6 +165,8 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
 
     # Додаткові декоративні елементи (опціонально)
     # Наприклад, додати лінії, іконки або інші графічні елементи для покращення вигляду
+    draw.line([(50, 420), (width - 50, 420)], fill="#007BFF", width=3)
+    draw.line([(50, 730), (width - 50, 730)], fill="#28A745", width=3)
 
     # Збереження у буфер
     output = BytesIO()
@@ -169,7 +176,7 @@ async def generate_detailed_profile(user: User, stats: UserStats, bot: Bot) -> B
 
 # Обробник для команди /profile
 @profile_router.message(Command("profile"))
-async def show_profile(message: Message, session: AsyncSession, bot: Bot):
+async def show_profile(message: Message, db: AsyncSession, bot: Bot):
     try:
         telegram_id = message.from_user.id
         username = message.from_user.username or "Невідомо"
@@ -177,7 +184,7 @@ async def show_profile(message: Message, session: AsyncSession, bot: Bot):
 
         # Отримання користувача з бази даних
         stmt = select(User).where(User.telegram_id == telegram_id)
-        result = await session.execute(stmt)
+        result = await db.execute(stmt)
         user: Optional[User] = result.scalar_one_or_none()
 
         if not user:
@@ -187,20 +194,20 @@ async def show_profile(message: Message, session: AsyncSession, bot: Bot):
                 username=username,
                 fullname=fullname
             )
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
 
         # Отримання або створення статистики користувача
         stmt = select(UserStats).where(UserStats.user_id == user.id)
-        result = await session.execute(stmt)
+        result = await db.execute(stmt)
         stats: Optional[UserStats] = result.scalar_one_or_none()
 
         if not stats:
             stats = UserStats(user_id=user.id)
-            session.add(stats)
-            await session.commit()
-            await session.refresh(stats)
+            db.add(stats)
+            await db.commit()
+            await db.refresh(stats)
 
         # Генерація профілю
         profile_image = await generate_detailed_profile(user, stats, bot)
