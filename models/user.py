@@ -21,5 +21,6 @@ class User(Base):
     tournaments_top3 = Column(Integer, default=0)
     active_months = Column(Integer, default=0)
     level = Column(String, default="Beginner")  # Новий стовпець
+    email = Column(String, nullable=True)  # Додано новий стовпець
     badges = relationship("Badge", secondary="user_badges", back_populates="users")
     created_at = Column(DateTime, default=datetime.utcnow)
