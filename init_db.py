@@ -1,26 +1,20 @@
-# init_db.py
+# utils/db.py
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+from models.user import User, Badge
+from sqlalchemy.ext.asyncio import AsyncSession
 
-import asyncio
-import logging
-from utils.db import engine
-from models.base import Base
-import models.user  # Імпортуємо модель User
-import models.user_stats  # Імпортуємо модель UserStats
+async def get_user_by_telegram_id(db: AsyncSession, telegram_id: int) -> User | None:
+    # Використовуємо selectinload для жадного завантаження бейджів
+    stmt = (
+        select(User)
+        .where(User.telegram_id == telegram_id)
+        .options(selectinload(User.badges))
+    )
+    result = await db.execute(stmt)
+    return result.scalars().first()
 
-# Налаштування логування
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-async def init_db():
-    logger.info("Initializing the database...")
-    async with engine.begin() as conn:
-        # Створення всіх таблиць
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database initialized successfully.")
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(init_db())
-    except Exception as e:
-        logger.error(f"Error initializing the database: {e}")
-        raise
+async def get_all_badges(db: AsyncSession) -> list[Badge]:
+    stmt = select(Badge)
+    result = await db.execute(stmt)
+    return result.scalars().all()
