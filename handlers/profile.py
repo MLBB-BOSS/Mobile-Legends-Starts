@@ -7,9 +7,7 @@ from io import BytesIO
 from utils.db import get_db_session, get_user_badges
 from services.user_service import get_user_profile_text
 from utils.charts import generate_rating_chart
-import logging
 
-logger = logging.getLogger(__name__)
 
 class DbSessionMiddleware(BaseMiddleware):
     async def __call__(
@@ -28,8 +26,10 @@ class DbSessionMiddleware(BaseMiddleware):
         finally:
             await db_session.close()
 
+
 profile_router = Router()
 profile_router.message.middleware(DbSessionMiddleware())
+
 
 @profile_router.message(Command("profile"))
 async def show_profile(message: Message, db: AsyncSession):
@@ -37,33 +37,40 @@ async def show_profile(message: Message, db: AsyncSession):
     Відображає профіль користувача, включаючи текстовий опис, бейджі та графік рейтингу.
     """
     try:
-        # Отримуємо текст профілю та історію рейтингу
-        profile_data = await get_user_profile_text(db, message.from_user.id, message.from_user.username)
+        # Отримання тексту профілю
+        profile_data = await get_user_profile_text(
+            db, message.from_user.id, message.from_user.username
+        )
 
+        # Забезпечення правильного формату поверненого профілю
         if not isinstance(profile_data, dict) or "text" not in profile_data:
-            raise ValueError("Invalid profile data format")
+            raise ValueError("Функція get_user_profile_text повернула некоректні дані.")
 
         profile_text = profile_data["text"]
-        rating_history = profile_data.get("rating_history", [100, 120, 140, 180, 210, 230])
+        rating_history = profile_data.get("rating_history", [])
 
-        # Отримуємо бейджі користувача
-        badges = await get_user_badges(db, message.from_user.id) or []
+        # Отримання бейджів користувача
+        badges = await get_user_badges(db, message.from_user.id)
         badge_names = [badge.name for badge in badges]
-        profile_text += f"\n🏅 Бейджі: {', '.join(badge_names) if badge_names else 'Немає'}"
+        if badge_names:
+            profile_text += f"\n🏅 Бейджі: {', '.join(badge_names)}"
+        else:
+            profile_text += "\n🏅 Бейджі: Немає"
 
-        # Генеруємо графік рейтингу
+        # Генерація графіку рейтингу
+        if not rating_history:
+            rating_history = [100]  # Базове значення, якщо історія порожня
+
         chart_bytes = generate_rating_chart(rating_history)
         chart_bytes.seek(0)
 
-        # Створюємо BufferedInputFile з байтових даних
-        input_file = BufferedInputFile(
-            chart_bytes.read(),
-            filename='chart.png'
-        )
+        # Створення BufferedInputFile з графіком
+        input_file = BufferedInputFile(chart_bytes.read(), filename="chart.png")
 
-        # Відправляємо текстовий профіль та графік
+        # Надсилання тексту профілю та графіку
         await message.answer_photo(photo=input_file, caption=profile_text)
+
     except Exception as e:
-        logger.error(f"Error while generating profile for user {message.from_user.id}: {e}")
+        # Логування помилки та повідомлення користувачу
         await message.answer("⚠️ Виникла помилка при отриманні вашого профілю. Спробуйте пізніше.")
-        raise
+        raise e
