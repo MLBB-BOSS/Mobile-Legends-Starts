@@ -1,4 +1,5 @@
 # base.py
+from database import get_user, create_user
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
