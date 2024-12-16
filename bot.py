@@ -5,10 +5,11 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import BotCommand  # Додано для встановлення команд
 from config import settings
 from handlers.base import setup_handlers
 from handlers.profile import profile_router  # Додано
-from utils.db import engine, get_db_session
+from utils.db import engine
 from models.base import Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
@@ -62,11 +63,25 @@ def generate_rating_chart(rating_history):
     return img_bytes
 
 
+async def set_bot_commands(bot: Bot):
+    """Встановлює команди для бота у навігаційному меню."""
+    commands = [
+        BotCommand(command="start", description="Запустити бота"),
+        BotCommand(command="help", description="Отримати довідку"),
+        BotCommand(command="profile", description="Переглянути ваш профіль"),
+    ]
+    await bot.set_my_commands(commands)
+    logger.info("Bot commands set successfully.")
+
+
 async def main():
     logger.info("Starting bot...")
     try:
         # Створення таблиць перед запуском бота
         await create_tables()
+
+        # Встановлення команд бота у меню
+        await set_bot_commands(bot)
 
         # Налаштування хендлерів
         setup_handlers(dp)
