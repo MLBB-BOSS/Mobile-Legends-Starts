@@ -86,9 +86,6 @@ async def main():
         # Налаштування хендлерів
         setup_handlers(dp)
 
-        # Реєстрація роутера профілю
-        dp.include_router(profile_router)
-
         # Запуск полінгу
         await dp.start_polling(bot)
     except Exception as e:
