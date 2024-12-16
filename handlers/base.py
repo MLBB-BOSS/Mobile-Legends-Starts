@@ -1177,5 +1177,4 @@ async def unknown_command(message:Message,state:FSMContext,bot:Bot):
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 def setup_handlers(dp:Router):
-    dp.include_router(profile_router)
     dp.include_router(router)
