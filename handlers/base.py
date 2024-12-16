@@ -51,7 +51,7 @@ from texts import (
 import logging
 from database import get_user, create_user  # Припускаємо, що у вас є ці функції
 from sqlalchemy.orm import Session
-from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram import BaseMiddleware
 from typing import Any, Callable, Awaitable
 
 # Налаштування логування
