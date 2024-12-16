@@ -58,3 +58,16 @@ async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
         f"\nОстаннє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
     )
     return profile_text
+
+async def update_mlbb_id(session: AsyncSession, telegram_id: int, mlbb_id: str) -> str:
+    """Оновлює MLBB ID для користувача з заданим telegram_id."""
+    result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        return "Користувач не знайдений. Будь ласка, зареєструйтесь за допомогою /start."
+    
+    user.mlbb_id = mlbb_id
+    await session.commit()
+    
+    return f"Ваш MLBB ID успішно оновлено: {mlbb_id}"
