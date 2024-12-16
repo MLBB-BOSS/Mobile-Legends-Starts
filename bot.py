@@ -65,7 +65,6 @@ def generate_rating_chart(rating_history):
 async def set_bot_commands(bot: Bot):
     """Встановлює команди для бота у навігаційному меню."""
     commands = [
-        BotCommand(command="start", description="Запустити бота"),
         BotCommand(command="help", description="Отримати довідку"),
         BotCommand(command="profile", description="Переглянути ваш профіль"),
     ]
@@ -81,7 +80,7 @@ async def main():
         setup_handlers(dp)
 
         # Логування підключених роутерів
-        logger.info(f"Registered routers: {dp.routers}")
+        logger.info("Registered routers successfully.")
 
         await dp.start_polling(bot)
     except Exception as e:
