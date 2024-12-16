@@ -1,29 +1,21 @@
-# config.py
-
 import logging
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-
-# Завантаження .env файлу
-load_dotenv()
+from pydantic import BaseSettings, Field
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
-    TELEGRAM_BOT_TOKEN: str
-    AS_BASE: str | None = None
-    APP_NAME: str = "Mobile Legends Tournament Bot"
-    DEBUG: bool = False
+    TELEGRAM_BOT_TOKEN: str = Field(..., env="TELEGRAM_BOT_TOKEN")
+    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # Стандартне підключення
+    AS_BASE: str = Field(..., env="AS_BASE")  # Асинхронне підключення
+    APP_NAME: str = Field("Mobile Legends: Starts (MLS)", env="APP_NAME")
+    DEBUG: bool = Field(False, env="DEBUG")
 
     @property
-    def db_url(self) -> str | None:
-        """Повертає відформатований URL бази даних, якщо він існує."""
-        if not self.AS_BASE:
-            logger.warning("AS_BASE is not set!")
-            return None
-        url = self.AS_BASE
+    def db_url(self) -> str:
+        """Повертає URL для асинхронного підключення."""
+        url = self.AS_BASE or self.DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         logger.info("Database URL formatted successfully")
@@ -33,12 +25,12 @@ class Settings(BaseSettings):
         """Перевіряє наявність необхідних налаштувань"""
         if not self.TELEGRAM_BOT_TOKEN:
             raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
+        if not (self.AS_BASE or self.DATABASE_URL):
+            raise ValueError("No database URL is set!")
         if self.DEBUG:
-            logger.info("Application is running in DEBUG mode")
+            logger.info(f"{self.APP_NAME} is running in DEBUG mode")
 
     class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
         case_sensitive = True
 
 # Створення екземпляру налаштувань
