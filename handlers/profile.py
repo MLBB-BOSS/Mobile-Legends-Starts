@@ -18,9 +18,12 @@ class DbSessionMiddleware(BaseMiddleware):
         event: Message, 
         data: Dict[str, Any]
     ) -> Any:
-        db_session = await get_db_session()  
+        db_session = await get_db_session()
         data["db"] = db_session
-        return await handler(event, data)
+        try:
+            return await handler(event, data)
+        finally:
+            await db_session.close()
 
 
 # Створюємо роутер для профілю
@@ -31,23 +34,20 @@ profile_router.message.middleware(DbSessionMiddleware())
 # Обробник для команди /profile
 @profile_router.message(Command("profile"))
 async def show_profile(message: Message, db: Session):
-    # Отримуємо текст профілю користувача
     profile_text = await get_user_profile_text(db, message.from_user.id)
 
-    # Фіктивна історія рейтингу (тестові дані для графіку)
-    rating_history = [100, 120, 140, 180, 210, 230]
+    if not profile_text or not profile_text.strip():
+        profile_text = "🔎 <b>Профіль не знайдено або ще не заповнено.</b>\nСкористайтесь іншими командами для його налаштування."
 
-    # Генеруємо графік рейтингу у вигляді BytesIO
+    rating_history = [100, 120, 140, 180, 210, 230]
     chart_bytes = generate_rating_chart(rating_history)
     chart_bytes.seek(0)
 
-    # Створюємо BufferedInputFile для Telegram
     input_file = BufferedInputFile(
         chart_bytes.read(),
         filename='rating_chart.png'
     )
 
-    # Відправляємо графік користувачу разом із текстом профілю
     await message.answer_photo(photo=input_file, caption=profile_text)
 
 
@@ -55,9 +55,9 @@ async def show_profile(message: Message, db: Session):
 @profile_router.message(Command("add_mlbb"))
 async def add_mlbb_id(message: Message, db: Session):
     args = message.get_args()
-    if not args:
-        await message.answer("Будь ласка, введіть ваш MLBB ID: /add_mlbb <ваш_id>")
+    if not args or not args.strip().isdigit():
+        await message.answer("🚨 <b>Некоректний ввід!</b>\nБудь ласка, введіть ваш MLBB ID у форматі:\n<code>/add_mlbb 123456789</code>")
         return
     
-    response = await update_mlbb_id(db, message.from_user.id, args)
+    response = await update_mlbb_id(db, message.from_user.id, args.strip())
     await message.answer(response)
