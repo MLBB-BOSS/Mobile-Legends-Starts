@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 from io import BytesIO
 
-def generate_rating_chart_plotly(rating_history):
+def generate_rating_chart(rating_history):
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         y=rating_history,
