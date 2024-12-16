@@ -5,14 +5,13 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import BotCommand  # Додано для встановлення команд
+from aiogram.types import BotCommand
 from config import settings
 from handlers.base import setup_handlers
-from handlers.profile import profile_router  # Додано
 from utils.db import engine
 from models.base import Base
-import models.user  # Імпортуємо модель User
-import models.user_stats  # Імпортуємо модель UserStats
+import models.user
+import models.user_stats
 import plotly.graph_objects as go
 from io import BytesIO
 
@@ -27,7 +26,7 @@ bot = Bot(
     session=AiohttpSession()
 )
 
-# Ініціалізація диспетчера з підтримкою FSM
+# Ініціалізація диспетчера
 dp = Dispatcher(storage=MemoryStorage())
 
 
@@ -71,25 +70,19 @@ async def set_bot_commands(bot: Bot):
         BotCommand(command="profile", description="Переглянути ваш профіль"),
     ]
     await bot.set_my_commands(commands)
-    logger.info("Bot commands set successfully.")
+    logger.info("Bot commands set successfully: %s", commands)
 
 
 async def main():
     logger.info("Starting bot...")
     try:
-        # Створення таблиць перед запуском бота
         await create_tables()
-
-        # Встановлення команд бота у меню
         await set_bot_commands(bot)
-
-        # Налаштування хендлерів
         setup_handlers(dp)
 
-        # Реєстрація роутера профілю
-        dp.include_router(profile_router)
+        # Логування підключених роутерів
+        logger.info(f"Registered routers: {dp.routers}")
 
-        # Запуск полінгу
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
