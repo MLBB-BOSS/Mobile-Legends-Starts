@@ -4,10 +4,12 @@ from models.user import User
 from models.user_stats import UserStats
 from datetime import datetime
 
+
 async def get_user(session: AsyncSession, telegram_id: int) -> User | None:
     """Повертає користувача з БД за його telegram_id або None, якщо такого немає."""
     result = await session.execute(select(User).where(User.telegram_id == telegram_id))
     return result.scalar_one_or_none()
+
 
 async def create_user(session: AsyncSession, telegram_id: int, username: str = None) -> User:
     """Створює нового користувача з заданим telegram_id та опціональним username."""
@@ -15,6 +17,7 @@ async def create_user(session: AsyncSession, telegram_id: int, username: str = N
     session.add(user)
     await session.flush()
     return user
+
 
 async def get_or_create_user_stats(session: AsyncSession, user: User) -> UserStats:
     """Отримує статистику користувача або створює новий запис, якщо його немає."""
@@ -25,6 +28,7 @@ async def get_or_create_user_stats(session: AsyncSession, user: User) -> UserSta
         session.add(stats)
         await session.flush()
     return stats
+
 
 async def update_user_stats(session: AsyncSession, telegram_id: int, rating: int = None, achievements: int = None) -> None:
     """Оновлює статистику користувача за telegram_id. Створює користувача та статистику, якщо їх не існує."""
@@ -39,11 +43,14 @@ async def update_user_stats(session: AsyncSession, telegram_id: int, rating: int
     stats.last_update = datetime.utcnow()
     await session.commit()
 
+
 async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
-    """Формує текстовий профіль користувача за його telegram_id."""
+    """Формує текстовий профіль користувача за його telegram_id. Якщо користувач відсутній, створює його."""
     user = await get_user(session, telegram_id)
     if not user:
-        return "Користувач не знайдений."
+        # Якщо користувач не знайдений, створюємо його
+        user = await create_user(session, telegram_id, "Новий користувач")
+        await session.commit()  # Зберігаємо нового користувача в БД
 
     stats = await get_or_create_user_stats(session, user)
     level = stats.rating // 100  # Кожні 100 рейтингу - новий рівень
@@ -58,6 +65,7 @@ async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
         f"\nОстаннє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
     )
     return profile_text
+
 
 async def update_mlbb_id(session: AsyncSession, telegram_id: int, mlbb_id: str) -> str:
     """Оновлює MLBB ID для користувача з заданим telegram_id."""
