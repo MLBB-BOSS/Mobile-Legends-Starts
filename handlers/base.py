@@ -49,7 +49,7 @@ from texts import (
     META_UPDATES_TEXT, M6_INFO_TEXT, M6_STATS_TEXT, M6_NEWS_TEXT
 )
 import logging
-from database import get_user, create_user, get_db_session  # Передбачається, що ці функції є у database.py
+from database import get_user, create_user, async_session  # Заміна get_db_session на async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import BaseMiddleware
 from typing import Any, Callable, Awaitable
@@ -92,7 +92,7 @@ class MenuStates(StatesGroup):
 # Middleware для додавання асинхронної сесії бази даних до обробників
 class DatabaseMiddleware(BaseMiddleware):
     async def __call__(self, handler: Callable[[Any], Awaitable[Any]], event: Any, data: dict) -> Any:
-        async with get_db_session() as session:  # Отримання асинхронної сесії
+        async with async_session() as session:  # Використання async_session
             data['db'] = session
             try:
                 return await handler(event, data)
@@ -1539,10 +1539,6 @@ async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
         logger.error(f"Не вдалося відправити відповідь на звіт про помилку користувачу {message.from_user.id}: {e}")
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробники інших меню (Наприклад, Feedback, Settings, тощо)
-# Ви можете продовжити додавати обробники для інших меню аналогічним чином,
-# використовуючи AsyncSession та обробку помилок.
-
 # Обробник невідомих команд
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
@@ -1676,7 +1672,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
                 )
                 await state.update_data(interactive_message_id=interactive_message.message_id)
             except Exception as ex:
-                logger.error(f"Не вдалося відправити резервне інтерактивне повідомлення для користувача {message.from_user.id}: {ex}")
+                logger.error(f"Не вдалося відправити інтерактивне повідомлення для користувача {message.from_user.id}: {ex}")
     else:
         try:
             interactive_message = await bot.send_message(
