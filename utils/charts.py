@@ -19,8 +19,7 @@ def generate_rating_chart(rating_history):
         template='plotly_dark'
     )
 
-    # Збереження у BytesIO
     img_bytes = BytesIO()
-    fig.write_image(img_bytes, format='png')
+    fig.write_image(img_bytes, format='png', engine='kaleido')
     img_bytes.seek(0)
     return img_bytes
