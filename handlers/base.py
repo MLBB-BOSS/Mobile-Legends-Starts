@@ -54,6 +54,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import BaseMiddleware
 from typing import Any, Callable, Awaitable
 
+from utils.message_formatter import safe_edit_message_text  # Доданий імпорт
+
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -167,11 +169,9 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
         await callback.answer()
         return
     try:
-        await bot.edit_message_text(
-            chat_id=callback.message.chat.id,
-            message_id=interactive_message_id,
-            text=INTRO_PAGE_2_TEXT,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=callback.message,
+            new_text=INTRO_PAGE_2_TEXT,
             reply_markup=get_intro_page_2_keyboard()
         )
     except Exception as e:
@@ -200,11 +200,9 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
         await callback.answer()
         return
     try:
-        await bot.edit_message_text(
-            chat_id=callback.message.chat.id,
-            message_id=interactive_message_id,
-            text=INTRO_PAGE_3_TEXT,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=callback.message,
+            new_text=INTRO_PAGE_3_TEXT,
             reply_markup=get_intro_page_3_keyboard()
         )
     except Exception as e:
@@ -237,11 +235,9 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     interactive_message_id = state_data.get('interactive_message_id')
     if interactive_message_id:
         try:
-            await bot.edit_message_text(
-                chat_id=callback.message.chat.id,
-                message_id=interactive_message_id,
-                text=MAIN_MENU_DESCRIPTION,
-                parse_mode=ParseMode.HTML,
+            await safe_edit_message_text(
+                message=callback.message,
+                new_text=MAIN_MENU_DESCRIPTION,
                 reply_markup=get_generic_inline_keyboard()
             )
         except Exception as e:
@@ -339,11 +335,9 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=new_interactive_keyboard
         )
     except Exception as e:
@@ -360,7 +354,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, bot: Bot
     await state.set_state(new_state)
 
 @router.message(MenuStates.FEEDBACK_MENU)
-async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot, db: AsyncSession):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Feedback Menu")
     await message.delete()
@@ -419,11 +413,9 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot:
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -538,11 +530,9 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=new_interactive_keyboard
         )
     except Exception as e:
@@ -618,12 +608,10 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
-            reply_markup=get_generic_inline_keyboard()
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
+            reply_markup=new_interactive_keyboard
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення для користувача {message.from_user.id}: {e}")
@@ -676,11 +664,9 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -762,11 +748,9 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -841,11 +825,9 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -921,11 +903,9 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1003,11 +983,9 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1116,11 +1094,9 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: 
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1196,11 +1172,9 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bo
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1279,11 +1253,9 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1364,11 +1336,9 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot:
     await state.update_data(bot_message_id=new_bot_message_id)
     # Редагування інтерактивного повідомлення
     try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+        await safe_edit_message_text(
+            message=message,
+            new_text=new_interactive_text,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
@@ -1402,11 +1372,9 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
             new_interactive_text = MAIN_MENU_DESCRIPTION
             new_interactive_keyboard = get_generic_inline_keyboard()
             try:
-                await bot.edit_message_text(
-                    chat_id=callback.message.chat.id,
-                    message_id=interactive_message_id,
-                    text=new_interactive_text,
-                    parse_mode=ParseMode.HTML,
+                await safe_edit_message_text(
+                    message=callback.message,
+                    new_text=new_interactive_text,
                     reply_markup=new_interactive_keyboard
                 )
             except Exception as e:
@@ -1655,11 +1623,9 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     # Редагування інтерактивного повідомлення
     if interactive_message_id:
         try:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=interactive_message_id,
-                text=new_interactive_text,
-                parse_mode=ParseMode.HTML,
+            await safe_edit_message_text(
+                message=message,
+                new_text=new_interactive_text,
                 reply_markup=get_generic_inline_keyboard()
             )
         except Exception as e:
