@@ -1,5 +1,6 @@
 import logging
-from pydantic import BaseSettings, Field
+from pydantic_settings import BaseSettings  # Новий імпорт для Pydantic 2.x
+from pydantic import Field
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -32,12 +33,11 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
+        env_file = ".env"  # Додано підтримку .env файлу
 
 # Створення екземпляру налаштувань
-settings = Settings()
-
-# Валідація налаштувань
 try:
+    settings = Settings()
     settings.validate()
 except Exception as e:
     logger.error(f"Configuration error: {e}")
