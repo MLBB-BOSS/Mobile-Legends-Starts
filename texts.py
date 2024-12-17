@@ -1,4 +1,4 @@
-# utils/texts.py
+# /texts.py
 
 WELCOME_NEW_USER_TEXT = """🌟<b>Ласкаво просимо до Mobile Legends Starts!</b>🌟
 
