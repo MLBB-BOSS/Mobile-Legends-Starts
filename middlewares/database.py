@@ -1,4 +1,4 @@
-# middlewares.py
+#middlewares/database.py
 
 from aiogram.middlewares.base import BaseMiddleware
 from aiogram.types import TelegramObject
