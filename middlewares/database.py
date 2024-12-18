@@ -1,6 +1,6 @@
 # middlewares.py
 
-from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram.middlewares.base import BaseMiddleware
 from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
