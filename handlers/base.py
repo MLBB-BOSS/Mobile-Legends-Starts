@@ -203,7 +203,8 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Обробник кнопки "🪪 Мій Профіль"
+# 🔴 **Оновлена Функція `handle_my_profile` 🔴**
+
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -227,7 +228,41 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
             f"• 📅 Останнє оновлення: {profile_data['last_update'].strftime('%d.%m.%Y %H:%M')}\n\n"
             f"Оберіть опцію, щоб редагувати свій профіль чи переглянути статистику."
         )
-        await message.answer(profile_message, parse_mode="HTML", reply_markup=get_profile_menu())
+
+        # Отримання interactive_message_id зі стану FSM
+        data = await state.get_data()
+        interactive_message_id = data.get("interactive_message_id")
+
+        if interactive_message_id:
+            try:
+                # Редагування існуючого повідомлення
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=profile_message,
+                    parse_mode="HTML",
+                    reply_markup=get_profile_menu()
+                )
+            except Exception as e:
+                # Якщо редагування не вдається, надіслати нове повідомлення
+                logger.error(f"Failed to edit interactive message: {e}")
+                new_message = await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=profile_message,
+                    parse_mode="HTML",
+                    reply_markup=get_profile_menu()
+                )
+                await state.update_data(interactive_message_id=new_message.message_id)
+        else:
+            # Якщо interactive_message_id ще не збережено, надсилається нове повідомлення
+            new_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=profile_message,
+                parse_mode="HTML",
+                reply_markup=get_profile_menu()
+            )
+            await state.update_data(interactive_message_id=new_message.message_id)
+
         await state.set_state(MenuStates.PROFILE_MENU)
     else:
         await message.answer("❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику.")
@@ -477,6 +512,8 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
+
+# Інші обробники залишаються без змін
 
 # Обробник меню "GPT Menu"
 @router.message(MenuStates.GPT_MENU)
