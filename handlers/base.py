@@ -2,7 +2,7 @@
 
 import logging
 from aiogram import Router, F, Bot
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -21,7 +21,8 @@ from keyboards.menus import (
     get_heroes_menu, get_hero_class_menu, get_guides_menu,
     get_counter_picks_menu, get_builds_menu, get_voting_menu, get_statistics_menu,
     get_achievements_menu, get_settings_menu, get_feedback_menu, get_help_menu,
-    get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class
+    get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class,
+    menu_button_to_class  # Додано припущення, що ця змінна визначена тут
 )
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
@@ -58,7 +59,7 @@ from texts import (
     UNHANDLED_INLINE_BUTTON_TEXT, MAIN_MENU_BACK_TO_PROFILE_TEXT,
     TOURNAMENT_CREATE_TEXT, TOURNAMENT_VIEW_TEXT, META_HERO_LIST_TEXT,
     META_RECOMMENDATIONS_TEXT, META_UPDATES_TEXT, M6_INFO_TEXT, M6_STATS_TEXT,
-    M6_NEWS_TEXT
+    M6_NEWS_TEXT, GPT_MENU_TEXT  # Додано припущення, що GPT_MENU_TEXT визначено
 )
 from utils.helpers import (
     generate_profile_message,
@@ -258,8 +259,6 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
 
 # 🔴 **Оновлена Функція `handle_my_profile` 🔴**
 
-from keyboards.inline_menus import get_profile_submenu_inline_keyboard
-
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -321,6 +320,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -399,7 +399,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
@@ -421,6 +421,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -466,8 +467,13 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
         new_main_keyboard = get_m6_menu()  # ReplyKeyboardMarkup
         new_interactive_text = "M6 Menu"
         new_state = MenuStates.M6_MENU
+    elif user_choice == MenuButton.GPT.value:
+        new_main_text = GPT_MENU_TEXT
+        new_main_keyboard = get_gpt_menu()  # ReplyKeyboardMarkup
+        new_interactive_text = "GPT Menu"
+        new_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
+        new_main_text = get_main_menu_text(message.from_user.first_name)
         new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
@@ -505,7 +511,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
@@ -527,6 +533,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -569,7 +576,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = MenuStates.HELP_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
+        new_main_text = get_main_menu_text(message.from_user.first_name)
         new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
@@ -606,7 +613,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
@@ -628,6 +635,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -683,7 +691,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
         await state.update_data(interactive_message_id=interactive_message.message_id)
@@ -705,6 +713,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -786,6 +795,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -808,10 +818,10 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
         new_interactive_text = "Notification Settings"
         new_state = MenuStates.SETTINGS_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = PROFILE_MENU_TEXT
-        new_main_keyboard = get_profile_menu()  # ReplyKeyboardMarkup
-        new_interactive_text = PROFILE_INTERACTIVE_TEXT
-        new_state = MenuStates.PROFILE_MENU
+        new_main_text = get_main_menu_text(message.from_user.first_name)
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
@@ -938,6 +948,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -952,10 +963,10 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
         new_interactive_text = "Reporting a bug"
         new_state = MenuStates.REPORT_BUG
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = PROFILE_MENU_TEXT
-        new_main_keyboard = get_profile_menu()  # ReplyKeyboardMarkup
-        new_interactive_text = PROFILE_INTERACTIVE_TEXT
-        new_state = MenuStates.PROFILE_MENU
+        new_main_text = get_main_menu_text(message.from_user.first_name)
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
@@ -1011,6 +1022,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, db: Asyn
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1029,10 +1041,10 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, db: Asyn
         new_interactive_text = "Support"
         new_state = MenuStates.HELP_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = PROFILE_MENU_TEXT
-        new_main_keyboard = get_profile_menu()  # ReplyKeyboardMarkup
-        new_interactive_text = PROFILE_INTERACTIVE_TEXT
-        new_state = MenuStates.PROFILE_MENU
+        new_main_text = get_main_menu_text(message.from_user.first_name)
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
@@ -1073,7 +1085,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, db: Asyn
 
     await state.set_state(new_state)
 
-# Обробник меню "Navigation Menu" - Герої
+# Обробник меню "Heroes Menu"
 @router.message(MenuStates.HEROES_MENU)
 async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1088,6 +1100,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1187,6 +1200,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1272,6 +1286,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1345,6 +1360,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1422,6 +1438,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1499,6 +1516,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, d
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1572,6 +1590,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: Asyn
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1590,10 +1609,10 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: Asyn
         new_interactive_text = "META Updates"
         new_state = MenuStates.META_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = NAVIGATION_MENU_TEXT
-        new_main_keyboard = get_navigation_submenu_inline_keyboard()  # ReplyKeyboardMarkup
-        new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
-        new_state = MenuStates.NAVIGATION_MENU
+        new_main_text = get_main_menu_text(message.from_user.first_name)
+        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
@@ -1649,6 +1668,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncS
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1726,6 +1746,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
         return
+
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
@@ -1744,7 +1765,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
         new_interactive_text = "GPT Hero Statistics"
         new_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
+        new_main_text = get_main_menu_text(message.from_user.first_name)
         new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
@@ -1752,83 +1773,6 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Unknown command"
         new_state = MenuStates.GPT_MENU
-
-    # Надсилання нового повідомлення
-    main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-    new_bot_message_id = main_message.message_id
-
-    # Видалення старого повідомлення
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-    except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
-
-    # Оновлення bot_message_id
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Спроба редагувати interactive_message_id
-    try:
-        await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
-            reply_markup=get_generic_inline_keyboard()
-        )
-    except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
-        # Надсилання нового інтерактивного повідомлення та оновлення interactive_message_id
-        interactive_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=new_interactive_text,
-            parse_mode="HTML",
-            reply_markup=get_generic_inline_keyboard()
-        )
-        await state.update_data(interactive_message_id=interactive_message.message_id)
-
-    await state.set_state(new_state)
-
-# Обробник меню "Meta Menu"
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected {user_choice} in META Menu")
-    await message.delete()
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
-        main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-        await state.update_data(bot_message_id=main_message.message_id)
-        await state.set_state(MenuStates.MAIN_MENU)
-        return
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_state = None
-
-    if user_choice == MenuButton.META_HERO_LIST.value:
-        new_main_text = META_HERO_LIST_TEXT
-        new_interactive_text = "META Hero List"
-        new_state = MenuStates.META_MENU
-    elif user_choice == MenuButton.META_RECOMMENDATIONS.value:
-        new_main_text = META_RECOMMENDATIONS_TEXT
-        new_interactive_text = "META Recommendations"
-        new_state = MenuStates.META_MENU
-    elif user_choice == MenuButton.META_UPDATES.value:
-        new_main_text = META_UPDATES_TEXT
-        new_interactive_text = "META Updates"
-        new_state = MenuStates.META_MENU
-    elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()  # ReplyKeyboardMarkup для основного меню
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
-    else:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.META_MENU
 
     # Надсилання нового повідомлення
     main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
@@ -1918,7 +1862,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: 
     await callback.answer()
 
 # Обробник невідомих команд
-@router.message()
+@router.message(F.text)
 async def unknown_command(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
     await message.delete()
@@ -1948,8 +1892,9 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         new_state = MenuStates.HEROES_MENU
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
-        heroes_list = data.get('heroes_list', 'No available heroes.')
+        state_data = await state.get_data()
+        hero_class = state_data.get('hero_class', 'Tank')
+        heroes_list = state_data.get('heroes_list', 'No available heroes.')
         new_main_keyboard = get_hero_class_menu(hero_class)
         new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes:\n{heroes_list}"
         new_state = MenuStates.HERO_CLASS_MENU
@@ -2045,13 +1990,9 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Інші обробники меню повинні бути додані аналогічним чином
-# Наприклад, для меню "Heroes Class Menu"
-
+# Обробник меню "Hero Class Menu"
 @router.message(MenuStates.HERO_CLASS_MENU)
 async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    hero_class = state_data.get('hero_class', 'Tank')
-    heroes_list = state_data.get('heroes_list', 'No available heroes.')
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Hero Class Menu")
     await message.delete()
@@ -2115,18 +2056,12 @@ async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, db
 
     await state.set_state(new_state)
 
-# Обробник меню "Meta Hero List", "Meta Recommendations", "Meta Updates" може бути подібним
-# Наприклад:
-
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    # Цей обробник вже був створений раніше
-    pass  # Він уже реалізований вище
-
-# Обробник меню "GPT Menu" також вже реалізований
-
 # Інтеграція обробників з Dispatcher
 def setup_handlers(dp: Router):
     dp.include_router(router)
     # Якщо у вас є інші роутери, включіть їх тут, наприклад:
     # dp.include_router(profile_router)
+
+# Допоміжна функція для генерації тексту основного меню з ім'ям користувача
+def get_main_menu_text(user_first_name: str) -> str:
+    return MAIN_MENU_TEXT.format(user_first_name=user_first_name)
