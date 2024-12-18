@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from models.base import Base
+from sqlalchemy import select
 import logging
 
 from config import settings
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Створення асинхронного двигуна
 engine = create_async_engine(
-    settings.AS_BASE,  # Використовуємо AS_BASE для асинхронного з'єднання
+    settings.AS_BASE,  # Використовуємо AS_BASE замість DB_ASYNC_URL
     echo=settings.DEBUG,
     pool_pre_ping=True,
     pool_size=10,
@@ -27,6 +28,7 @@ async def init_db():
     """Ініціалізація бази даних."""
     try:
         async with engine.begin() as conn:
+            logger.info("Initializing database...")
             await conn.run_sync(Base.metadata.create_all)
         logger.info("Database initialized successfully.")
     except Exception as e:
@@ -38,7 +40,6 @@ async def get_user_profile(session: AsyncSession, user_id: int):
     Отримання профілю користувача з бази даних.
     """
     try:
-        from sqlalchemy import select
         from models.user import User
         from models.user_stats import UserStats
 
