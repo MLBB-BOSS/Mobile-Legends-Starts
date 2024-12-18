@@ -1,5 +1,3 @@
-# config.py
-
 import logging
 from pydantic_settings import BaseSettings
 
@@ -16,18 +14,14 @@ class Settings(BaseSettings):
 
     @property
     def db_sync_url(self) -> str:
-        """
-        Повертає URL для синхронного підключення (SQLAlchemy).
-        """
+        """Повертає URL для синхронного підключення (SQLAlchemy)."""
         url = self.DATABASE_URL
         logger.info("Sync Database URL retrieved successfully")
         return url
 
     @property
     def db_async_url(self) -> str:
-        """
-        Повертає URL для асинхронного підключення (SQLAlchemy + asyncpg).
-        """
+        """Повертає URL для асинхронного підключення (SQLAlchemy + asyncpg)."""
         url = self.AS_BASE
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
