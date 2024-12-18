@@ -1,25 +1,22 @@
-from aiogram import BaseMiddleware
+# middlewares/database.py
+
+from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.db import async_session
 import logging
 
 logger = logging.getLogger(__name__)
 
 class DatabaseMiddleware(BaseMiddleware):
-    async def __call__(self, handler, event, data):
-        logger.info("Initializing database session")
-        async with async_session() as session:
+    def __init__(self, session_factory):
+        super().__init__()
+        self.session_factory = session_factory
+
+    async def __call__(self, handler, event: TelegramObject, data: dict):
+        async with self.session_factory() as session:
             data['db'] = session
             try:
-                response = await handler(event, data)
-                await session.commit()  # Комміт змін, якщо все успішно
-                logger.info("Session committed successfully")
-                return response
+                return await handler(event, data)
             except Exception as e:
-                logger.error(f"Database error occurred: {e}")
-                await session.rollback()  # Відкат змін у разі помилки
-                logger.info("Rolled back session due to error")
+                logger.error(f"Database Middleware Error: {e}")
                 raise
-            finally:
-                await session.close()
-                logger.info("Database session closed")
