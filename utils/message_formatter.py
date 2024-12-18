@@ -1,31 +1,39 @@
 import logging
+from aiogram.types import Message, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 logger = logging.getLogger(__name__)
 
-async def safe_edit_message_text(message, new_text, reply_markup=None):
+async def safe_edit_message_text(message: Message, new_text: str, reply_markup=None):
     """
-    Безпечно редагує повідомлення, уникаючи дублювання вмісту.
-    Якщо новий текст і клавіатура не відрізняються від поточних, редагування не виконується.
-    У разі помилки намагається надіслати нове повідомлення замість редагування.
+    Безпечно редагує повідомлення для InlineKeyboardMarkup або відправляє нове зі звичайною клавіатурою.
     """
     try:
-        # Перевірка на ідентичність вмісту
-        if message.text == new_text and message.reply_markup == reply_markup:
-            logger.info(f"Message {message.message_id} edit skipped: content and markup are identical.")
-            return
-        
-        # Спроба редагування повідомлення
-        await message.edit_text(new_text, reply_markup=reply_markup)
-        logger.info(f"Message {message.message_id} edited successfully in chat {message.chat.id}.")
-    
+        # Редагування InlineKeyboardMarkup
+        if isinstance(reply_markup, InlineKeyboardMarkup):
+            if message.text == new_text and message.reply_markup == reply_markup:
+                logger.info("Message edit skipped: content and markup are identical.")
+                return
+
+            await message.edit_text(new_text, reply_markup=reply_markup)
+            logger.info(f"Message {message.message_id} edited successfully with InlineKeyboardMarkup.")
+        else:
+            # Обробка звичайного повідомлення з ReplyKeyboardMarkup
+            logger.info("Processing new message with ReplyKeyboardMarkup.")
+            
+            # Відправка нового повідомлення
+            new_message = await message.answer(new_text, reply_markup=reply_markup)
+            logger.info(f"New message {new_message.message_id} sent successfully.")
+
+            # Видалення попереднього повідомлення
+            try:
+                await message.delete()
+                logger.info(f"Previous message {message.message_id} deleted successfully.")
+            except Exception as e:
+                logger.warning(f"Failed to delete previous message {message.message_id}: {e}")
+
     except Exception as e:
-        # Логування помилки редагування
-        logger.error(f"Failed to edit message {message.message_id} in chat {message.chat.id}: {e}")
-        
-        try:
-            # Альтернативний варіант – надіслати нове повідомлення
-            await message.answer(new_text, reply_markup=reply_markup)
-            logger.info(f"Sent fallback message in chat {message.chat.id} for message {message.message_id}.")
-        except Exception as fallback_error:
-            # Логування помилки під час fallback
-            logger.error(f"Failed to send fallback message in chat {message.chat.id}: {fallback_error}")
+        logger.error(f"Error during message edit or resend: {e}")
+        if isinstance(reply_markup, InlineKeyboardMarkup):
+            await message.answer("Сталася помилка при оновленні меню.")
+        else:
+            await message.answer("Сталася помилка при відправленні нового повідомлення.")
