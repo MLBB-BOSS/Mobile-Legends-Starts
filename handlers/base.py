@@ -3628,4 +3628,4 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
 # Функція для реєстрації всіх обробників
 def setup_handlers(dp: Router):
     dp.include_router(router)
-    dp.include_router(profile_router) об
+    dp.include_router(profile_router)
