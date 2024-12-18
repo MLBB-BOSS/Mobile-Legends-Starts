@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types
 from aiogram.enums import ParseMode
-from aiogram.exceptions import BadRequest  # Для обробки специфічних виключень
+from aiogram.exceptions import TelegramBadRequest  # Оновлено для обробки специфічних виключень
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -112,7 +112,7 @@ async def edit_interactive_message(chat_id: int, message_id: int, text: str, rep
             parse_mode=ParseMode.HTML,
             reply_markup=reply_markup
         )
-    except BadRequest as e:
+    except TelegramBadRequest as e:  # Оновлено
         if "message is not modified" in str(e):
             logger.info("Message is not modified. Skipping edit.")
         else:
@@ -526,106 +526,6 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
 # NAVIGATION_MENU, HEROES_MENU, GUIDES_MENU, COUNTER_PICKS_MENU, BUILDS_MENU,
 # VOTING_MENU, PROFILE_MENU, STATISTICS_MENU, ACHIEVEMENTS_MENU, SETTINGS_MENU,
 # TOURNAMENTS_MENU, META_MENU, M6_MENU, GPT_MENU
-
-# Нижче наведено приклад для NAVIGATION_MENU
-
-@router.message(MenuStates.NAVIGATION_MENU)
-async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    logger.info(f"User {message.from_user.id} selected {user_choice} in Navigation Menu")
-    await message.delete()
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
-        main_message_id = await send_new_message(
-            chat_id=message.chat.id,
-            text=MAIN_MENU_ERROR_TEXT,
-            reply_markup=get_main_menu(),
-            state=state,
-            key="bot_message_id",
-            bot=bot
-        )
-        await state.set_state(MenuStates.MAIN_MENU)
-        return
-
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_state = None
-
-    if user_choice == MenuButton.HEROES.value:
-        new_main_text = HEROES_MENU_TEXT
-        new_main_keyboard = get_heroes_menu()
-        new_interactive_text = HEROES_INTERACTIVE_TEXT
-        new_state = MenuStates.HEROES_MENU
-    elif user_choice == MenuButton.GUIDES.value:
-        new_main_text = GUIDES_MENU_TEXT
-        new_main_keyboard = get_guides_menu()
-        new_interactive_text = GUIDES_INTERACTIVE_TEXT
-        new_state = MenuStates.GUIDES_MENU
-    elif user_choice == MenuButton.COUNTER_PICKS.value:
-        new_main_text = COUNTER_PICKS_MENU_TEXT
-        new_main_keyboard = get_counter_picks_menu()
-        new_interactive_text = COUNTER_PICKS_INTERACTIVE_TEXT
-        new_state = MenuStates.COUNTER_PICKS_MENU
-    elif user_choice == MenuButton.BUILDS.value:
-        new_main_text = BUILDS_MENU_TEXT
-        new_main_keyboard = get_builds_menu()
-        new_interactive_text = BUILDS_INTERACTIVE_TEXT
-        new_state = MenuStates.BUILDS_MENU
-    elif user_choice == MenuButton.VOTING.value:
-        new_main_text = VOTING_MENU_TEXT
-        new_main_keyboard = get_voting_menu()
-        new_interactive_text = VOTING_INTERACTIVE_TEXT
-        new_state = MenuStates.VOTING_MENU
-    elif user_choice == MenuButton.TOURNAMENTS.value:
-        new_main_text = "Меню Турніри"
-        new_main_keyboard = get_tournaments_menu()
-        new_interactive_text = "Меню Турніри"
-        new_state = MenuStates.TOURNAMENTS_MENU
-    elif user_choice == MenuButton.META.value:
-        new_main_text = "Меню META"
-        new_main_keyboard = get_meta_menu()
-        new_interactive_text = "Меню META"
-        new_state = MenuStates.META_MENU
-    elif user_choice == MenuButton.M6.value:
-        new_main_text = "Меню M6"
-        new_main_keyboard = get_m6_menu()
-        new_interactive_text = "Меню M6"
-        new_state = MenuStates.M6_MENU
-    elif user_choice == MenuButton.GPT.value:
-        new_main_text = "Меню GPT"
-        new_main_keyboard = get_gpt_menu()
-        new_interactive_text = "Меню GPT"
-        new_state = MenuStates.GPT_MENU
-    elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
-    else:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.NAVIGATION_MENU
-
-    # Виклик уніфікованої функції для обробки переходу
-    await handle_menu_transition(
-        user_choice=user_choice,
-        current_state="Navigation Menu",
-        state=state,
-        db=db,
-        bot=bot,
-        message=message,
-        get_new_menu=lambda: get_navigation_menu(),
-        new_state=new_state,
-        new_interactive_text=new_interactive_text
-    )
-
-# Аналогічно слідує для інших меню...
 
 # Обробник зміни імені користувача
 @router.message(MenuStates.CHANGE_USERNAME)
