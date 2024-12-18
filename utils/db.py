@@ -1,16 +1,34 @@
 # utils/db.py
-import os
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
 
-# Змінна середовища або хардкоджений URL — краще зберігати у змінних середовища
-AS_BASE = os.getenv("AS_BASE", "postgresql+asyncpg://udoepvnsfd1v4p:p06d554a757b594fc448b0fe17f59b24af6e1ed553f9cd262a36d4e56fd87a37f@c9tiftt16dc3eo.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com:5432/d76pc5iknkd84")
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from models.user import User
+from models.user_stats import UserStats
+import logging
 
-if not AS_BASE:
-    raise ValueError("AS_BASE is not set or invalid")
+logger = logging.getLogger(__name__)
 
-engine = create_async_engine(AS_BASE, echo=False)
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
-async def get_db_session() -> AsyncSession:
-    return async_session()
+async def get_user_profile(session: AsyncSession, user_id: int):
+    """
+    Отримання профілю користувача з бази даних.
+    """
+    try:
+        result = await session.execute(
+            select(User, UserStats).where(User.telegram_id == user_id).join(UserStats)
+        )
+        user, stats = result.first()
+        if user and stats:
+            return {
+                "username": user.username,
+                "level": stats.level,
+                "rating": stats.rating,
+                "achievements_count": stats.achievements_count,
+                "total_matches": stats.total_matches,
+                "total_wins": stats.total_wins,
+                "total_losses": stats.total_losses,
+                "last_update": stats.last_update,
+            }
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching user profile for user_id {user_id}: {e}")
+        return None
