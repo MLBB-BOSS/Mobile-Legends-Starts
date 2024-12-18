@@ -1,5 +1,3 @@
-# utils/db.py
-
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from models.base import Base
@@ -11,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Створення асинхронного двигуна
 engine = create_async_engine(
-    settings.DB_ASYNC_URL,
+    settings.AS_BASE,  # Використовуємо AS_BASE для асинхронного з'єднання
     echo=settings.DEBUG,
     pool_pre_ping=True,
     pool_size=10,
@@ -40,8 +38,14 @@ async def get_user_profile(session: AsyncSession, user_id: int):
     Отримання профілю користувача з бази даних.
     """
     try:
+        from sqlalchemy import select
+        from models.user import User
+        from models.user_stats import UserStats
+
         result = await session.execute(
-            select(models.user.User, models.user_stats.UserStats).where(models.user.User.telegram_id == user_id).join(models.user_stats.UserStats)
+            select(User, UserStats)
+            .where(User.telegram_id == user_id)
+            .join(UserStats)
         )
         user, stats = result.first()
         if user and stats:
