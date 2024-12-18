@@ -964,8 +964,8 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id або not interactive_message_id:
-        logger.error("bot_message_id або interactive_message_id не знайдені")
+    ifif not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id or interactive_message_id не знайдені")
         try:
             main_message = await bot.send_message(
                 chat_id=message.chat.id,
