@@ -1,6 +1,4 @@
-#middlewares/database.py
-
-from aiogram.middlewares.base import BaseMiddleware
+from aiogram.filters.base import BaseMiddleware  # Оновлений імпорт
 from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
