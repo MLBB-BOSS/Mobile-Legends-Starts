@@ -1,10 +1,9 @@
+# database.py
 import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select
 from aiogram import BaseMiddleware
 from config import settings
-from models.user import User
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
@@ -52,19 +51,6 @@ async def reset_db():
     except Exception as e:
         logger.error(f"Failed to reset database: {e}")
         raise
-
-# Функції для роботи з користувачами
-async def get_user(session: AsyncSession, telegram_id: int) -> User | None:
-    """Отримує користувача за Telegram ID."""
-    result = await session.execute(select(User).where(User.telegram_id == telegram_id))
-    return result.scalar_one_or_none()
-
-async def create_user(session: AsyncSession, telegram_id: int, username: str = None) -> User:
-    """Створює нового користувача."""
-    user = User(telegram_id=telegram_id, username=username)
-    session.add(user)
-    await session.flush()
-    return user
 
 class DatabaseMiddleware(BaseMiddleware):
     """Middleware для управління сесіями бази даних"""
