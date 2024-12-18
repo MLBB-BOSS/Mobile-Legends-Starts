@@ -9,10 +9,12 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage  # Додано для FSM
 from config import settings
 from handlers.base import setup_handlers
-from utils.db import engine, get_db_session
+from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user  # Імпортуємо модель User
 import models.user_stats  # Імпортуємо модель UserStats
+
+from middlewares.database import DatabaseMiddleware  # Імпорт Middleware
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +30,10 @@ bot = Bot(
 # Ініціалізація диспетчера з підтримкою FSM
 dp = Dispatcher(storage=MemoryStorage())  # Додано storage для FSM
 
+# Додавання Middleware
+dp.message.middleware(DatabaseMiddleware(async_session))
+dp.callback_query.middleware(DatabaseMiddleware(async_session))
+
 async def create_tables():
     """Створює таблиці у базі даних, якщо вони ще не існують."""
     async with engine.begin() as conn:
@@ -37,6 +43,9 @@ async def create_tables():
 async def main():
     logger.info("Starting bot...")
     try:
+        # Ініціалізація бази даних
+        await init_db()
+
         # Створення таблиць перед запуском бота
         await create_tables()
 
