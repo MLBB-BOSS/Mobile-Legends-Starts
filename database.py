@@ -3,23 +3,30 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from aiogram import BaseMiddleware
+
 from config import settings
+from models.base import Base  # Переконайтеся, що ви маєте базовий клас для моделей
 
 # Налаштування логування
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
-# Створення асинхронного двигуна з використанням db_url
+# Створення асинхронного двигуна з використанням AS_BASE
 try:
     engine = create_async_engine(
-        settings.db_url,
+        settings.db_async_url,
         echo=settings.DEBUG,
         pool_pre_ping=True,
         pool_size=10,
         max_overflow=20
     )
-    logger.info("Database engine created successfully")
+    logger.info("Async database engine created successfully")
 except Exception as e:
-    logger.error(f"Failed to create database engine: {e}")
+    logger.error(f"Failed to create async database engine: {e}")
     raise
 
 # Фабрика асинхронних сесій
@@ -31,7 +38,6 @@ async_session = sessionmaker(
 
 async def init_db():
     """Ініціалізація бази даних"""
-    from models.base import Base
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -42,7 +48,6 @@ async def init_db():
 
 async def reset_db():
     """Скидання та створення нової бази даних"""
-    from models.base import Base
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
