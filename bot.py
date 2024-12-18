@@ -1,5 +1,3 @@
-# bot.py
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -14,7 +12,8 @@ from models.base import Base
 import models.user
 import models.user_stats
 
-from middlewares.database import DatabaseMiddleware  # Імпорт Middleware
+# Імпорт Middleware
+from middlewares.database import DatabaseMiddleware  
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
