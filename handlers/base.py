@@ -1,6 +1,6 @@
 import logging
 from aiogram import Router, F, Bot, Dispatcher
-from aiogram.filters import Command
+from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -12,13 +12,14 @@ from sqlalchemy.future import select
 from utils.db import get_user_profile  # Імпорт функції для отримання профілю
 import models.user
 import models.user_stats
+import models.hero  # Припустимо, є модель для героїв
 
 from keyboards.menus import (
     MenuButton, get_main_menu, get_profile_menu, get_navigation_menu,
     get_heroes_menu, get_hero_class_menu, get_guides_menu,
     get_counter_picks_menu, get_builds_menu, get_voting_menu, get_statistics_menu,
     get_achievements_menu, get_settings_menu, get_feedback_menu, get_help_menu,
-    get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class
+    get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu
 )
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
@@ -91,15 +92,23 @@ class MenuStates(StatesGroup):
 
 # Визначення словника для класів героїв
 menu_button_to_class = {
-    "Танк": "Танк",
-    "Маг": "Маг",
-    "Марксмен": "Марксмен",
-    "Асасин": "Асасин",
-    "Підтримка": "Підтримка",
-    "Файтер": "Файтер"
+    "🛡️ Танк": "Танк",
+    "🧙‍♂️ Маг": "Маг",
+    "🏹 Стрілець": "Марксмен",
+    "⚔️ Асасін": "Асасін",
+    "❤️ Підтримка": "Підтримка",
+    "🗡️ Боєць": "Файтер"
 }
 
 # Допоміжні функції
+
+async def get_heroes_by_class(db: AsyncSession, hero_class: str) -> list:
+    """
+    Отримує список героїв для заданого класу.
+    """
+    result = await db.execute(select(models.hero.Hero).where(models.hero.Hero.class_ == hero_class))
+    heroes = result.scalars().all()
+    return [hero.name for hero in heroes]
 
 async def send_or_update_interactive_message(
     bot: Bot,
@@ -235,22 +244,35 @@ async def handle_menu(
         # Завантаження профілю користувача
         profile_data = await get_user_profile(db, chat_id)
         if profile_data:
-            profile_message = (
+            # Детальна статистика у інтерактивному повідомленні
+            detailed_profile_message = (
                 f"🔍 <b>Ваш Профіль:</b>\n\n"
                 f"• 🏅 Ім'я користувача: {profile_data['username']}\n"
                 f"• 🧬 Рівень: {profile_data['level']}\n"
                 f"• 📈 Рейтинг: {profile_data['rating']}\n"
                 f"• 🎯 Досягнення: {profile_data['achievements_count']} досягнень\n"
+                f"• 📸 Скріншоти: {profile_data['screenshots_count']}\n"
+                f"• 🎯 Місії: {profile_data['missions_count']}\n"
+                f"• 🧩 Вікторини: {profile_data['quizzes_count']}\n"
+                f"• 🏆 Загальні матчі: {profile_data['total_matches']}\n"
+                f"• 🥇 Виграші: {profile_data['total_wins']}\n"
+                f"• 🥈 Поразки: {profile_data['total_losses']}\n"
                 f"• 🌟 Турнірні Участі: {profile_data['tournament_participations']}\n"
+                f"• 🏅 Бейджів: {profile_data['badges_count']}\n"
+                f"• 📅 Останнє оновлення: {profile_data['last_update'].strftime('%d.%m.%Y %H:%M')}\n\n"
+                f"Оберіть опцію, щоб редагувати свій профіль чи переглянути статистику."
             )
-            new_main_text = profile_message
+            # Коротке резюме у звичайному повідомленні
+            short_summary = f"Ваш рівень: {profile_data['level']}\nРейтинг: {profile_data['rating']}"
+            new_main_text = short_summary
             new_main_keyboard = get_profile_menu()
+            new_interactive_text = detailed_profile_message
+            new_state = MenuStates.PROFILE_MENU
         else:
             new_main_text = "❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику."
             new_main_keyboard = get_main_menu()
-
-        new_interactive_text = "Меню Профіль"
-        new_state = MenuStates.PROFILE_MENU
+            new_interactive_text = "Меню Профіль"
+            new_state = MenuStates.PROFILE_MENU
     elif user_choice == MenuButton.TOURNAMENTS.value:
         new_main_text = TOURNAMENT_CREATE_TEXT
         new_main_keyboard = get_tournaments_menu()
@@ -289,7 +311,7 @@ async def handle_menu(
     # Видалення старого звичайного повідомлення
     await safe_delete_message(bot, chat_id, bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Відправка або оновлення інтерактивного повідомлення
     await check_and_edit_message(
         bot=bot,
         chat_id=chat_id,
@@ -327,7 +349,7 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         else:
             logger.info(f"Existing user: {user_id}")
 
-    # Очищення старих даних та встановлення нового стану
+    # Встановлення стану на INTRO_PAGE_1
     await transition_state(state, MenuStates.INTRO_PAGE_1)
 
     try:
@@ -444,7 +466,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         parse_mode=ParseMode.HTML
     )
 
-    # Встановлення стану без очищення даних
+    # Встановлення стану на MAIN_MENU
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
@@ -468,6 +490,95 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
         interactive_text=MAIN_MENU_DESCRIPTION,
         new_state=MenuStates.MAIN_MENU
     )
+
+# Обробчик кнопки "🪪 Мій Профіль"
+@router.message(Text(equals="🪪 Мій Профіль"))
+async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_id = message.from_user.id
+    profile_data = await get_user_profile(db, user_id)  # Отримання профілю з БД
+
+    await safe_delete_message(bot, message.chat.id, message.message_id)
+
+    if profile_data:
+        # Детальна статистика у інтерактивному повідомленні
+        detailed_profile_message = (
+            f"🔍 <b>Ваш Профіль:</b>\n\n"
+            f"• 🏅 Ім'я користувача: {profile_data['username']}\n"
+            f"• 🧬 Рівень: {profile_data['level']}\n"
+            f"• 📈 Рейтинг: {profile_data['rating']}\n"
+            f"• 🎯 Досягнення: {profile_data['achievements_count']} досягнень\n"
+            f"• 📸 Скріншоти: {profile_data['screenshots_count']}\n"
+            f"• 🎯 Місії: {profile_data['missions_count']}\n"
+            f"• 🧩 Вікторини: {profile_data['quizzes_count']}\n"
+            f"• 🏆 Загальні матчі: {profile_data['total_matches']}\n"
+            f"• 🥇 Виграші: {profile_data['total_wins']}\n"
+            f"• 🥈 Поразки: {profile_data['total_losses']}\n"
+            f"• 🌟 Турнірні Участі: {profile_data['tournament_participations']}\n"
+            f"• 🏅 Бейджів: {profile_data['badges_count']}\n"
+            f"• 📅 Останнє оновлення: {profile_data['last_update'].strftime('%d.%m.%Y %H:%M')}\n\n"
+            f"Оберіть опцію, щоб редагувати свій профіль чи переглянути статистику."
+        )
+        # Коротке резюме у звичайному повідомленні
+        short_summary = f"Ваш рівень: {profile_data['level']}\nРейтинг: {profile_data['rating']}"
+        new_main_text = short_summary
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = detailed_profile_message
+        new_state = MenuStates.PROFILE_MENU
+    else:
+        new_main_text = "❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику."
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = "Меню Профіль"
+        new_state = MenuStates.PROFILE_MENU
+
+    # Отримання IDs повідомлень з стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        try:
+            main_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=MAIN_MENU_ERROR_TEXT,
+                reply_markup=get_main_menu()
+            )
+            await state.update_data(bot_message_id=main_message.message_id)
+            await state.set_state(MenuStates.MAIN_MENU)
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        return
+
+    # Відправка нового звичайного повідомлення
+    try:
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_main_text,
+            reply_markup=new_main_keyboard
+        )
+        new_bot_message_id = main_message.message_id
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
+        return
+
+    # Видалення старого звичайного повідомлення
+    await safe_delete_message(bot, message.chat.id, bot_message_id)
+
+    # Редагування інтерактивного повідомлення
+    await check_and_edit_message(
+        bot=bot,
+        chat_id=message.chat.id,
+        message_id=interactive_message_id,
+        new_text=new_interactive_text,
+        new_keyboard=get_generic_inline_keyboard(),
+        state=state
+    )
+
+    # Оновлення стану з новими ідентифікаторами повідомлень
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
 
 # Обробчик меню "Feedback Menu"
 @router.message(MenuStates.FEEDBACK_MENU)
@@ -525,7 +636,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
     # Видалення старого звичайного повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагування інтерактивного повідомлення
     await check_and_edit_message(
         bot=bot,
         chat_id=message.chat.id,
@@ -636,7 +747,7 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
 
 # Обробчик меню "Navigation Menu"
 @router.message(MenuStates.NAVIGATION_MENU)
-async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
     logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Навігація")
 
@@ -740,7 +851,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
 
 # Обробчик меню "Heroes Menu"
 @router.message(MenuStates.HEROES_MENU)
-async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
     logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Персонажі")
 
@@ -771,22 +882,17 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     new_interactive_text = ""
     new_state = None
 
-    hero_classes = [
-        MenuButton.TANK.value,
-        MenuButton.MAGE.value,
-        MenuButton.MARKSMAN.value,
-        MenuButton.ASSASSIN.value,
-        MenuButton.SUPPORT.value,
-        MenuButton.FIGHTER.value
-    ]
+    hero_classes = list(menu_button_to_class.keys())
 
     if user_choice in hero_classes:
-        hero_class = menu_button_to_class.get(user_choice, 'Танк')  # Визначте словник `menu_button_to_class`
+        hero_class = menu_button_to_class.get(user_choice, 'Танк')
+        # Отримуємо список героїв для обраного класу
+        heroes_list = await get_heroes_by_class(db, hero_class)
         new_main_text = HERO_CLASS_MENU_TEXT.format(hero_class=hero_class)
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class)
+        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class, heroes_list=", ".join(heroes_list))
         new_state = MenuStates.HERO_CLASS_MENU
-        await state.update_data(hero_class=hero_class)
+        await state.update_data(hero_class=hero_class, heroes_list=heroes_list)
     elif user_choice == MenuButton.SEARCH_HERO.value:
         new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")  # Placeholder, handled separately
         new_main_keyboard = ReplyKeyboardRemove()
@@ -899,7 +1005,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
 
 # Обробчик для прийому пошуку героя
 @router.message(MenuStates.SEARCH_HERO)
-async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
+async def handle_search_hero(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     hero_name = message.text.strip()
     logger.info(f"Користувач {message.from_user.id} шукає героя: {hero_name}")
 
@@ -911,20 +1017,30 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     # Поки що відправимо повідомлення про отримання запиту
 
     if hero_name:
-        response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
+        # Припустимо, ми маємо функцію для пошуку героя
+        hero_info = await search_hero(db, hero_name)
+        if hero_info:
+            response_text = f"🔍 <b>Інформація про героя:</b>\n\n" \
+                            f"• 🏅 Ім'я: {hero_info['name']}\n" \
+                            f"• 🛡️ Клас: {hero_info['class']}\n" \
+                            f"• 📈 Рейтинг: {hero_info['rating']}\n" \
+                            f"• Опис: {hero_info['description']}\n"
+        else:
+            response_text = f"❌ Герой з ім'ям '{hero_name}' не знайдено."
     else:
-        response_text = "Будь ласка, введіть ім'я героя для пошуку."
+        response_text = "❌ Будь ласка, введіть ім'я героя для пошуку."
 
     try:
         await bot.send_message(
             chat_id=message.chat.id,
             text=response_text,
+            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
         logger.error(f"Не вдалося надіслати повідомлення про пошук героя: {e}")
 
-    # Повертаємо користувача до попереднього меню
+    # Повертаємо користувача до меню Персонажі
     await state.set_state(MenuStates.HEROES_MENU)
 
 # Обробчик для прийому теми пропозиції
@@ -937,13 +1053,15 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     await message.delete()
 
     # Тут додайте логіку обробки пропозиції теми
-    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Наприклад, збереження в базі даних або надсилання адміністратору
     # Поки що відправимо повідомлення про отримання запиту
 
     if topic:
+        # Припустимо, ми маємо функцію для збереження пропозиції теми
+        await save_suggestion(topic, message.from_user.id)
         response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
     else:
-        response_text = "Будь ласка, введіть тему для пропозиції."
+        response_text = "❌ Будь ласка, введіть тему для пропозиції."
 
     try:
         await bot.send_message(
@@ -957,7 +1075,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     # Повертаємо користувача до меню Зворотний Зв'язок
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробчик для невідомих повідомлень
+# Обробчик невідомих повідомлень
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
@@ -992,8 +1110,9 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         hero_class = data.get('hero_class', 'Танк')
+        heroes_list = data.get('heroes_list', [])
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Меню класу {hero_class}"
+        new_interactive_text = f"Меню класу {hero_class}\nСписок героїв: {', '.join(heroes_list)}"
         new_state = MenuStates.HERO_CLASS_MENU
     elif current_state == MenuStates.GUIDES_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
@@ -1107,3 +1226,14 @@ def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
     # Якщо у вас є інші роутери, включіть їх тут, наприклад:
     # dp.include_router(profile_router)
+
+# Основна функція запуску бота
+async def main():
+    bot = Bot(token='YOUR_BOT_TOKEN')  # Замініть на ваш токен
+    dp = Dispatcher()
+    setup_handlers(dp)
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
