@@ -7,7 +7,6 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
 from handlers.base import setup_handlers
-from handlers.profile import profile_router
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
