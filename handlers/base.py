@@ -111,3 +111,10 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
 async def handle_unknown_command(message: Message, bot: Bot):
     logger.warning(f"Unknown command received: {message.text}")
     await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT)
+
+# Функція для налаштування хендлерів
+def setup_handlers(dp: Router):
+    """
+    Реєструє всі хендлери у переданому диспетчері (Router).
+    """
+    dp.include_router(router)
