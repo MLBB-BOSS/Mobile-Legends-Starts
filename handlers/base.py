@@ -181,8 +181,13 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_interactive_text = "Main Menu"
         new_state = MenuStates.MAIN_MENU
 
-    main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=get_generic_inline_keyboard())
-    new_main_message_id = main_message.message_id
+    try:
+        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=get_generic_inline_keyboard())
+        new_main_message_id = main_message.message_id
+    except Exception as e:
+        logger.error(f"Failed to send new main message: {e}")
+        return
+
     if interactive_message_id:
         try:
             await bot.edit_message_text(
@@ -195,13 +200,34 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             logger.info("Successfully edited interactive message to unknown command message")
         except Exception as e:
             logger.error(f"Failed to edit interactive message: {e}")
-            interactive_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
-            )
-            await state.update_data(interactive_message_id=interactive_message.message_id)
+            try:
+                interactive_message = await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=new_interactive_text,
+                    reply_markup=get_generic_inline_keyboard()
+                )
+                await state.update_data(interactive_message_id=interactive_message.message_id)
+                logger.info("Sent new interactive message for unknown command")
+            except Exception as e2:
+                logger.error(f"Failed to send interactive message for unknown command: {e2}")
     else:
-        interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
-        await state.update_data(interactive_message_id=interactive_message.message_id)
-    await state.set_state(new_state)
+        try:
+            interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
+            await state.update_data(interactive_message_id=interactive_message.message_id)
+            logger.info("Sent interactive message for unknown command")
+        except Exception as e:
+            logger.error(f"Failed to send interactive message for unknown command: {e}")
+
+    # Оновлення стану
+    try:
+        await state.set_state(new_state)
+    except Exception as e:
+        logger.error(f"Failed to set new state: {e}")
+
+# Функція для налаштування обробників з Dispatcher
+def setup_handlers(dp: Router):
+    dp.include_router(router)
+    # Якщо у вас є інші роутери, включіть їх тут
+    # Наприклад:
+    # dp.include_router(navigation_router)
+    # dp.include_router(profile_router)
