@@ -1,9 +1,14 @@
 import logging
-from aiogram import Router, F, Bot, Dispatcher
-from aiogram.filters import Command, Text  # Виправлений імпорт
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ParseMode  # Виправлений імпорт
+import asyncio
+import os
+from aiogram import Bot, Dispatcher, Router
+from aiogram.filters import Command, Text
+from aiogram.types import (
+    Message, CallbackQuery, ReplyKeyboardRemove, ParseMode
+)
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -58,6 +63,7 @@ from texts import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Ініціалізація роутера
 router = Router()
 
 # Визначення станів меню
@@ -1205,12 +1211,33 @@ def setup_handlers(dp: Dispatcher):
     # dp.include_router(profile_router)
 
 # Основна функція запуску бота
-async def main():
-    bot = Bot(token='YOUR_BOT_TOKEN')  # Замініть на ваш токен
-    dp = Dispatcher()
+async def main_bot():
+    # Отримання токена бота з змінних середовища
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
+    if not BOT_TOKEN:
+        logger.error("BOT_TOKEN is не встановлено в змінних середовища.")
+        exit(1)
+
+    # Ініціалізація бота
+    bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+
+    # Ініціалізація диспетчера з пам'яттю для FSM
+    dp = Dispatcher(storage=MemoryStorage())
+
+    # Налаштування обробників
     setup_handlers(dp)
-    await dp.start_polling(bot)
+
+    try:
+        # Запуск бота
+        logger.info("Запуск бота...")
+        await dp.start_polling(bot)
+    finally:
+        # Закриття сесії бота при завершенні
+        await bot.session.close()
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    # Завантаження змінних середовища з .env файлу
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    asyncio.run(main_bot())
