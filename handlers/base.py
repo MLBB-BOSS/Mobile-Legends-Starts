@@ -7,6 +7,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.enums import ParseMode
+from aiogram.exceptions import BadRequest  # Додано імпорт BadRequest
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -100,7 +101,7 @@ async def update_interactive_message(bot: Bot, chat_id: int, message_id: int, te
             parse_mode=ParseMode.HTML,
             reply_markup=reply_markup
         )
-    except aiogram.exceptions.BadRequest as e:
+    except BadRequest as e:  # Використовуйте BadRequest замість aiogram.exceptions.BadRequest
         if "message is not modified" in str(e):
             logger.warning("Спроба відредагувати повідомлення без змін. Ігноруємо.")
         else:
@@ -1920,7 +1921,7 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
 
 # Інші обробники меню можуть бути додані аналогічно...
 
-# Функція для налаштування роутерів
+# Інтеграція обробників з Dispatcher
 def setup_handlers(dp: Router):
     dp.include_router(router)
     # Якщо у вас є інші роутери, включіть їх тут, наприклад:
