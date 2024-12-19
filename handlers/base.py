@@ -1,7 +1,6 @@
 import logging
 from aiogram import Router, F, Bot, Dispatcher
-from aiogram.filters import Command
-from aiogram.filters.text import Text  # Виправлений імпорт
+from aiogram.filters import Command, Text  # Виправлений імпорт
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ParseMode  # Виправлений імпорт
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
