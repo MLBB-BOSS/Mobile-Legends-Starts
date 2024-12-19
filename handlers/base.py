@@ -110,8 +110,35 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     logger.info(f"Handling intro_start for user {callback.from_user.id}")
     user_first_name = callback.from_user.first_name
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+    state_data = await state.get_data()
+    interactive_message_id = state_data.get('interactive_message_id')
+
+    # Редагування існуючого інлайн повідомлення
     try:
-        # Відправка звичайного повідомлення з меню за допомогою Reply Keyboard
+        await bot.edit_message_text(
+            chat_id=callback.message.chat.id,
+            message_id=interactive_message_id,
+            text=MAIN_MENU_DESCRIPTION,
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_generic_inline_keyboard()  # Можливо, нова клавіатура для головного меню
+        )
+        logger.info("Successfully edited interactive message to MAIN_MENU_DESCRIPTION")
+    except Exception as e:
+        logger.error(f"Failed to edit interactive message: {e}")
+        # Якщо редагування не вдалося, відправте нове інлайн повідомлення
+        try:
+            interactive_message = await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=MAIN_MENU_DESCRIPTION,
+                reply_markup=get_generic_inline_keyboard()
+            )
+            await state.update_data(interactive_message_id=interactive_message.message_id)
+            logger.info("Sent MAIN_MENU_DESCRIPTION as new interactive message")
+        except Exception as e2:
+            logger.error(f"Failed to send MAIN_MENU_DESCRIPTION: {e2}")
+
+    # Відправка звичайного повідомлення з меню за допомогою Reply Keyboard
+    try:
         main_menu_message = await bot.send_message(
             chat_id=callback.message.chat.id,
             text=main_menu_text_formatted,
@@ -121,19 +148,22 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         logger.info("Sent MAIN_MENU_TEXT")
     except Exception as e:
         logger.error(f"Failed to send main menu: {e}")
-    
-    # Не редагувати інтерактивне повідомлення MLS
-    # Якщо потрібно видалити MLS повідомлення, зробіть це окремо
-    # Наприклад:
-    # if interactive_message_id:
-    #     try:
-    #         await bot.delete_message(chat_id=callback.message.chat.id, message_id=interactive_message_id)
-    #         logger.info("Deleted interactive MLS message")
-    #     except Exception as e:
-    #         logger.error(f"Failed to delete interactive MLS message: {e}")
 
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer("Вітаємо у головному меню!")
+
+# Специфічні обробники для кнопок головного меню
+@router.message(F.text == "🧭 Навігація")
+async def handle_navigation(message: Message, state: FSMContext, bot: Bot):
+    logger.info(f"Handling navigation for user {message.from_user.id}")
+    # Ваш код для обробки навігації
+    await message.answer("Ви обрали Навігацію. Тут буде ваш код.")
+
+@router.message(F.text == "🪪 Мій профіль")
+async def handle_my_profile(message: Message, state: FSMContext, bot: Bot):
+    logger.info(f"Handling my profile for user {message.from_user.id}")
+    # Ваш код для обробки профілю
+    await message.answer("Ви обрали Мій профіль. Тут буде ваш код.")
 
 # Обробчик невідомих команд
 @router.message()
@@ -149,7 +179,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
     if current_state == MenuStates.MAIN_MENU.state:
         new_main_text = "Невідома команда. Будь ласка, використовуйте кнопки меню."
-        new_interactive_text = "Main Menu"
+        # Уникаємо редагування інтерактивного повідомлення у стані MAIN_MENU
         new_state = MenuStates.MAIN_MENU
     elif current_state == MenuStates.INTRO_PAGE_1.state:
         new_main_text = "Будь ласка, використовуйте кнопки інтро."
@@ -169,18 +199,19 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         new_state = MenuStates.MAIN_MENU
 
     try:
-        # Відправка нового повідомлення з Reply Keyboard
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=new_main_text,
-            reply_markup=get_main_menu()  # Використання ReplyKeyboardMarkup
-        )
-        new_main_message_id = main_message.message_id
+        # Відправка нового повідомлення з Reply Keyboard лише у стані, де це потрібно
+        if current_state != MenuStates.MAIN_MENU.state:
+            main_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=new_main_text,
+                reply_markup=get_main_menu()  # Використання ReplyKeyboardMarkup
+            )
+            new_main_message_id = main_message.message_id
     except Exception as e:
         logger.error(f"Failed to send new main message: {e}")
         return
 
-    if interactive_message_id:
+    if current_state != MenuStates.MAIN_MENU.state and interactive_message_id:
         try:
             await bot.edit_message_text(
                 chat_id=message.chat.id,
@@ -203,16 +234,8 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             except Exception as e2:
                 logger.error(f"Failed to send interactive message for unknown command: {e2}")
     else:
-        try:
-            interactive_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=new_interactive_text,
-                reply_markup=get_generic_inline_keyboard()
-            )
-            await state.update_data(interactive_message_id=interactive_message.message_id)
-            logger.info("Sent interactive message for unknown command")
-        except Exception as e:
-            logger.error(f"Failed to send interactive message for unknown command: {e}")
+        # У стані MAIN_MENU не редагуємо інтерактивне повідомлення
+        pass
 
     # Оновлення стану
     try:
