@@ -12,6 +12,7 @@ from sqlalchemy.future import select
 from utils.db import get_user_profile  # Імпорт функції для отримання профілю
 import models.user
 import models.user_stats
+# import models.tournament  # Якщо у вас є модель турніру
 
 from keyboards.menus import (
     MenuButton, get_main_menu, get_profile_menu, get_navigation_menu,
@@ -85,6 +86,8 @@ class MenuStates(StatesGroup):
     RECEIVE_FEEDBACK = State()
     REPORT_BUG = State()
     TOURNAMENTS_MENU = State()
+    TOURNAMENT_CREATE = State()       # Новий стан для створення турніру
+    TOURNAMENT_VIEW = State()         # Новий стан для перегляду турнірів
     META_MENU = State()
     M6_MENU = State()
     GPT_MENU = State()
@@ -380,7 +383,7 @@ async def handle_menu(
         await handle_my_profile(message=None, state=state, db=db, bot=bot)  # Передаємо message=None, оскільки обробник повинен бути адаптований
         return
     elif user_choice == MenuButton.TOURNAMENTS.value:
-        new_main_text = TOURNAMENT_CREATE_TEXT  # Приклад тексту
+        new_main_text = TOURNAMENTS_MENU_TEXT  # Приклад тексту
         new_main_keyboard = get_tournaments_menu()
         new_interactive_text = "Меню Турніри"
         new_state = MenuStates.TOURNAMENTS_MENU
@@ -414,7 +417,7 @@ async def handle_menu(
         return
 
     # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, chat_id, bot_message_id)
+    await safe_delete_message(bot, chat_id=chat_id, message_id=bot_message_id)
 
     # Редагування інлайн-повідомлення
     await check_and_edit_message(
@@ -572,9 +575,9 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
         chat_id=message.chat.id,
         current_state=current_state,
         main_menu_error=MAIN_MENU_ERROR_TEXT,
-        main_menu_keyboard_func=get_main_menu,
-        main_menu_text=MAIN_MENU_TEXT,
-        interactive_text=MAIN_MENU_DESCRIPTION,
+        main_menu_keyboard_func=get_feedback_menu,
+        main_menu_text=FEEDBACK_MENU_TEXT,
+        interactive_text=FEEDBACK_INTERACTIVE_TEXT,
         new_state=MenuStates.FEEDBACK_MENU
     )
 
@@ -618,7 +621,7 @@ async def handle_change_username(message: Message, state: FSMContext, db: AsyncS
 @router.message(MenuStates.RECEIVE_FEEDBACK)
 async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
-    Обробник отримання зворотного зв'язку від користувача.
+    Обробчик отримання зворотного зв'язку від користувача.
     """
     feedback = message.text.strip()
     user_id = message.from_user.id
@@ -626,20 +629,28 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     if feedback:
-        # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
-        # Наприклад, збереження у таблиці Feedback
-        # from models.feedback import Feedback
-        # new_feedback = Feedback(user_id=user_id, feedback=feedback)
-        # db.add(new_feedback)
-        # await db.commit()
+        try:
+            # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
+            # Приклад:
+            # from models.feedback import Feedback
+            # new_feedback = Feedback(user_id=user_id, feedback=feedback)
+            # db.add(new_feedback)
+            # await db.commit()
 
-        response_text = FEEDBACK_RECEIVED_TEXT
-        logger.info(f"Feedback received from user {user_id}")
+            response_text = FEEDBACK_RECEIVED_TEXT
+            logger.info(f"Feedback received from user {user_id}")
+        except Exception as e:
+            logger.error(f"Не вдалося зберегти зворотний зв'язок: {e}")
+            response_text = "❌ Виникла помилка при збереженні вашого відгуку."
     else:
         response_text = "❌ Будь ласка, надайте ваш зворотний зв'язок."
 
     try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=response_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
     except Exception as e:
         logger.error(f"Не вдалося надіслати повідомлення про отримання зворотного зв'язку: {e}")
 
@@ -649,7 +660,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
 @router.message(MenuStates.REPORT_BUG)
 async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
-    Обробник звіту про помилку від користувача.
+    Обробчик звіту про помилку від користувача.
     """
     bug_report = message.text.strip()
     user_id = message.from_user.id
@@ -657,20 +668,28 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     if bug_report:
-        # Збереження звіту про помилку у базі даних або надсилання адміністратору
-        # Наприклад, збереження у таблиці BugReports
-        # from models.bug_report import BugReport
-        # new_bug = BugReport(user_id=user_id, report=bug_report)
-        # db.add(new_bug)
-        # await db.commit()
+        try:
+            # Збереження звіту про помилку у базі даних або надсилання адміністратору
+            # Приклад:
+            # from models.bug_report import BugReport
+            # new_bug = BugReport(user_id=user_id, report=bug_report)
+            # db.add(new_bug)
+            # await db.commit()
 
-        response_text = BUG_REPORT_RECEIVED_TEXT
-        logger.info(f"Bug report received from user {user_id}")
+            response_text = BUG_REPORT_RECEIVED_TEXT
+            logger.info(f"Bug report received from user {user_id}")
+        except Exception as e:
+            logger.error(f"Не вдалося зберегти звіт про помилку: {e}")
+            response_text = "❌ Виникла помилка при збереженні вашого звіту про помилку."
     else:
         response_text = "❌ Будь ласка, опишіть помилку, яку ви зустріли."
 
     try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=response_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
     except Exception as e:
         logger.error(f"Не вдалося надіслати повідомлення про отримання звіту про помилку: {e}")
 
@@ -678,15 +697,15 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
 
 # Обробник меню "Tournaments Menu"
 @router.message(MenuStates.TOURNAMENTS_MENU)
-async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробник кнопок меню "Турніри".
     """
     user_choice = message.text
-    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Турніри")
+    logger.info(f"Користувач {message.from_user.id} обрав '{user_choice}' в меню Турніри")
 
     # Видаляємо повідомлення користувача
-    await message.delete()
+    await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Отримуємо дані стану
     data = await state.get_data()
@@ -718,9 +737,11 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
     if user_choice == MenuButton.TOURNAMENT_CREATE.value:
         new_main_text = TOURNAMENT_CREATE_TEXT
         new_interactive_text = "Створення турніру"
+        new_state = MenuStates.TOURNAMENT_CREATE
     elif user_choice == MenuButton.TOURNAMENT_VIEW.value:
         new_main_text = TOURNAMENT_VIEW_TEXT
         new_interactive_text = "Перегляд турнірів"
+        new_state = MenuStates.TOURNAMENT_VIEW
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
@@ -731,7 +752,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.TOURNAMENTS_MENU
 
-    # Відправляємо нове повідомлення з клавіатурою
+    # Відправка нового звичайного повідомлення
     try:
         main_message = await bot.send_message(
             chat_id=message.chat.id,
@@ -743,8 +764,8 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
         return
 
-    # Видаляємо старе звичайне повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    # Видалення старого звичайного повідомлення
+    await safe_delete_message(bot, chat_id=message.chat.id, message_id=bot_message_id)
 
     # Редагування інлайн-повідомлення
     await check_and_edit_message(
@@ -825,7 +846,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
 
     await callback.answer()
 
-# Обробник для прийому пошуку героя
+# Обробчик для прийому пошуку героя
 @router.message(MenuStates.SEARCH_HERO)
 async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     """
@@ -835,7 +856,7 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"Користувач {message.from_user.id} шукає героя: {hero_name}")
 
     # Видаляємо повідомлення користувача
-    await message.delete()
+    await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут додайте логіку пошуку героя
     # Наприклад, перевірка чи існує герой, відправка інформації тощо
@@ -858,7 +879,7 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     # Повертаємо користувача до попереднього меню
     await state.set_state(MenuStates.HEROES_MENU)
 
-# Обробник для прийому теми пропозиції
+# Обробчик для прийому теми пропозиції
 @router.message(MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     """
@@ -868,7 +889,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"Користувач {message.from_user.id} пропонує тему: {topic}")
 
     # Видаляємо повідомлення користувача
-    await message.delete()
+    await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут додайте логіку обробки пропозиції теми
     # Наприклад, збереження в базі даних або відправка адміністратору
@@ -900,7 +921,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
 
     # Видаляємо повідомлення користувача
-    await message.delete()
+    await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Отримуємо IDs повідомлень з стану
     data = await state.get_data()
@@ -1048,7 +1069,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     await state.set_state(new_state)
 
 # Функція для налаштування обробників
-def setup_handlers(dp: Router):
-    dp.include_router(router)
-    # Якщо у вас є інші роутери, включіть їх тут, наприклад:
-    # dp.include_router(profile_router)
+def setup_handlers(router: Router):
+    # Включення основного роутера
+    # router може включати додаткові роутери, якщо вони є
+    pass  # Якщо у вас є інші роутери, включіть їх тут
