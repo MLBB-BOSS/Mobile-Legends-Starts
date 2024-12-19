@@ -696,229 +696,299 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
 # Обробчик меню "Tournaments Menu"
-@router.message(MenuStates.TOURNAMENTS_MENU)
-async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
-
-    # Логіка обробки вибору
-    if not user_choice:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
-        return
-
-    if user_choice == MenuButton.CREATE_TOURNAMENT.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=TOURNAMENT_CREATE_TEXT, reply_markup=get_tournaments_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про створення турніру: {e}")
-    elif user_choice == MenuButton.VIEW_TOURNAMENTS.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=TOURNAMENT_VIEW_TEXT, reply_markup=get_tournaments_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про перегляд турнірів: {e}")
-    elif user_choice == MenuButton.BACK.value:
-        try:
-            nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-            await state.update_data(bot_message_id=nav_message.message_id)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення Navigation Menu: {e}")
-
-        # Оновлення інтерактивного повідомлення
-        state_data = await state.get_data()
-        interactive_message_id = state_data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-                await state.update_data(last_text=NAVIGATION_INTERACTIVE_TEXT, last_keyboard=get_generic_inline_keyboard())
-            except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-                await send_or_update_interactive_message(
-                    bot=bot,
-                    chat_id=message.chat.id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    keyboard=get_generic_inline_keyboard(),
-                    message_id=interactive_message_id,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
-        await state.set_state(MenuStates.NAVIGATION_MENU)
+    if user_choice == MenuButton.NAVIGATION.value:
+        new_main_text = NAVIGATION_MENU_TEXT
+        new_main_keyboard = get_navigation_menu()
+        new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
+        new_state = MenuStates.NAVIGATION_MENU
+    elif user_choice == MenuButton.PROFILE.value:
+        new_main_text = PROFILE_MENU_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = MenuStates.PROFILE_MENU
     else:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
+        # Невідома команда
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = "Невідома команда"
+        new_state = MenuStates.MAIN_MENU
 
-# Обробчик меню "META Menu"
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    # Зберігаємо новий bot_message_id
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення (Повідомлення 2)
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=new_interactive_keyboard
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник натискання звичайних кнопок у меню Зворотний Зв'язок
+@router.message(MenuStates.FEEDBACK_MENU)
+async def handle_feedback_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Зворотний Зв'язок")
 
-    # Логіка обробки вибору
-    if not user_choice:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
-        return
+    # Видаляємо повідомлення користувача
+    await message.delete()
 
-    if user_choice == MenuButton.META_HERO_LIST.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=META_HERO_LIST_TEXT, reply_markup=get_meta_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати META Hero List: {e}")
-    elif user_choice == MenuButton.META_RECOMMENDATIONS.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=META_RECOMMENDATIONS_TEXT, reply_markup=get_meta_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати META Recommendations: {e}")
-    elif user_choice == MenuButton.META_UPDATES.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=META_UPDATES_TEXT, reply_markup=get_meta_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати META Updates: {e}")
-    elif user_choice == MenuButton.BACK.value:
-        try:
-            nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-            await state.update_data(bot_message_id=nav_message.message_id)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення Navigation Menu: {e}")
-
-        # Оновлення інтерактивного повідомлення
-        state_data = await state.get_data()
-        interactive_message_id = state_data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-                await state.update_data(last_text=NAVIGATION_INTERACTIVE_TEXT, last_keyboard=get_generic_inline_keyboard())
-            except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-                await send_or_update_interactive_message(
-                    bot=bot,
-                    chat_id=message.chat.id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    keyboard=get_generic_inline_keyboard(),
-                    message_id=interactive_message_id,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-    else:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
-
-# Обробчик меню "M6 Menu"
-@router.message(MenuStates.M6_MENU)
-async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
-
-    # Логіка обробки вибору
-    if not user_choice:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
-        return
-
-    if user_choice == MenuButton.M6_INFO.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=M6_INFO_TEXT, reply_markup=get_m6_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати M6 Info: {e}")
-    elif user_choice == MenuButton.M6_STATS.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=M6_STATS_TEXT, reply_markup=get_m6_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати M6 Stats: {e}")
-    elif user_choice == MenuButton.M6_NEWS.value:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=M6_NEWS_TEXT, reply_markup=get_m6_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати M6 News: {e}")
-    elif user_choice == MenuButton.BACK.value:
-        try:
-            nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-            await state.update_data(bot_message_id=nav_message.message_id)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення Navigation Menu: {e}")
-
-        # Оновлення інтерактивного повідомлення
-        state_data = await state.get_data()
-        interactive_message_id = state_data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-                await state.update_data(last_text=NAVIGATION_INTERACTIVE_TEXT, last_keyboard=get_generic_inline_keyboard())
-            except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-                await send_or_update_interactive_message(
-                    bot=bot,
-                    chat_id=message.chat.id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    keyboard=get_generic_inline_keyboard(),
-                    message_id=interactive_message_id,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-    else:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про невідому команду: {e}")
-
-# Обробчик меню "Heroes Menu"
-@router.message(MenuStates.HEROES_MENU)
-async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
-
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
+    new_main_text = ""
+    new_main_keyboard = get_feedback_menu()
+    new_interactive_text = ""
+    new_state = MenuStates.FEEDBACK_MENU
+
+    if user_choice == MenuButton.SEND_FEEDBACK.value:
+        new_main_text = SEND_FEEDBACK_TEXT
+        new_interactive_text = "Надсилання відгуку"
+        new_state = MenuStates.RECEIVE_FEEDBACK
+    elif user_choice == MenuButton.REPORT_BUG.value:
+        new_main_text = REPORT_BUG_TEXT
+        new_interactive_text = "Повідомлення про помилку"
+        new_state = MenuStates.REPORT_BUG
+    elif user_choice == MenuButton.BACK.value:
+        # Повертаємось до меню Профіль
+        new_main_text = PROFILE_MENU_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = MenuStates.PROFILE_MENU
+    else:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_interactive_text = "Невідома команда"
+        new_state = MenuStates.FEEDBACK_MENU
+
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення (Повідомлення 2)
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=get_generic_inline_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник натискання звичайних кнопок у меню Навігація
+@router.message(MenuStates.NAVIGATION_MENU)
+async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Навігація")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = None
     new_interactive_text = ""
-    new_state = MenuStates.HEROES_MENU
+    new_interactive_keyboard = get_generic_inline_keyboard()
+    new_state = None
+
+    if user_choice == MenuButton.HEROES.value:
+        new_main_text = HEROES_MENU_TEXT
+        new_main_keyboard = get_heroes_menu()
+        new_interactive_text = HEROES_INTERACTIVE_TEXT
+        new_state = MenuStates.HEROES_MENU
+    elif user_choice == MenuButton.GUIDES.value:
+        new_main_text = GUIDES_MENU_TEXT
+        new_main_keyboard = get_guides_menu()
+        new_interactive_text = GUIDES_INTERACTIVE_TEXT
+        new_state = MenuStates.GUIDES_MENU
+    elif user_choice == MenuButton.COUNTER_PICKS.value:
+        new_main_text = COUNTER_PICKS_MENU_TEXT
+        new_main_keyboard = get_counter_picks_menu()
+        new_interactive_text = COUNTER_PICKS_INTERACTIVE_TEXT
+        new_state = MenuStates.COUNTER_PICKS_MENU
+    elif user_choice == MenuButton.BUILDS.value:
+        new_main_text = BUILDS_MENU_TEXT
+        new_main_keyboard = get_builds_menu()
+        new_interactive_text = BUILDS_INTERACTIVE_TEXT
+        new_state = MenuStates.BUILDS_MENU
+    elif user_choice == MenuButton.VOTING.value:
+        new_main_text = VOTING_MENU_TEXT
+        new_main_keyboard = get_voting_menu()
+        new_interactive_text = VOTING_INTERACTIVE_TEXT
+        new_state = MenuStates.VOTING_MENU
+    elif user_choice == MenuButton.BACK.value:
+        # Повертаємось до головного меню
+        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
+    else:
+        # Невідома команда
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_navigation_menu()
+        new_interactive_text = "Невідома команда"
+        new_state = MenuStates.NAVIGATION_MENU
+
+    # Відправляємо нове повідомлення з клавіатурою (Повідомлення 1)
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    # Зберігаємо новий bot_message_id
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо попереднє повідомлення з клавіатурою (Після відправки нового)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    # Оновлюємо bot_message_id в стані
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення (Повідомлення 2)
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=new_interactive_keyboard
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове повідомлення
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник натискання звичайних кнопок у меню Персонажі
+@router.message(MenuStates.HEROES_MENU)
+async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Персонажі")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначаємо новий текст та клавіатуру
+    new_main_text = ""
+    new_main_keyboard = None
+    new_interactive_text = ""
+    new_state = None
+
     hero_classes = [
         MenuButton.TANK.value,
         MenuButton.MAGE.value,
@@ -929,23 +999,21 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
     ]
 
     if user_choice in hero_classes:
-        hero_class = MenuButton(user_choice).name  # Перетворення значення кнопки на ім'я
-        heroes_list = heroes_by_class.get(hero_class, [])
-        heroes_formatted = ", ".join(heroes_list) if heroes_list else "No available heroes."
+        hero_class = menu_button_to_class.get(user_choice)
         new_main_text = HERO_CLASS_MENU_TEXT.format(hero_class=hero_class)
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class, heroes_list=heroes_formatted)
+        new_interactive_text = HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=hero_class)
         new_state = MenuStates.HERO_CLASS_MENU
-        await state.update_data(hero_class=hero_class, heroes_list=heroes_formatted)
+        await state.update_data(hero_class=hero_class)
     elif user_choice == MenuButton.SEARCH_HERO.value:
-        new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")
-        new_main_keyboard = ReplyKeyboardRemove()
-        new_interactive_text = "Search Hero"
+        new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")  # Placeholder, handled separately
+        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_interactive_text = "Пошук героя"
         new_state = MenuStates.SEARCH_HERO
     elif user_choice == MenuButton.COMPARISON.value:
-        new_main_text = "⚔️ Функціонал порівняння героїв знаходиться в розробці."
+        new_main_text = "Функція порівняння героїв ще в розробці."
         new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Compare Heroes"
+        new_interactive_text = "Порівняння героїв"
         new_state = MenuStates.HEROES_MENU
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
@@ -954,73 +1022,169 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
-        heroes_list = data.get('heroes_list', 'No available heroes.')
-        new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = "Unknown command"
+        new_main_keyboard = get_hero_class_menu(data.get('hero_class', 'Танк'))
+        new_interactive_text = "Невідома команда"
         new_state = MenuStates.HEROES_MENU
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
+            parse_mode="HTML",
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Counter Picks Menu"
-@router.message(MenuStates.COUNTER_PICKS_MENU)
-async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+# Обробник натискання звичайних кнопок у меню Гайди
+@router.message(MenuStates.GUIDES_MENU)
+async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Гайди")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
+    new_main_text = ""
+    new_main_keyboard = get_guides_menu()
+    new_interactive_text = ""
+    new_state = MenuStates.GUIDES_MENU
+
+    if user_choice == MenuButton.NEW_GUIDES.value:
+        new_main_text = NEW_GUIDES_TEXT
+        new_interactive_text = "Нові гайди"
+    elif user_choice == MenuButton.POPULAR_GUIDES.value:
+        new_main_text = POPULAR_GUIDES_TEXT
+        new_interactive_text = "Популярні гайди"
+    elif user_choice == MenuButton.BEGINNER_GUIDES.value:
+        new_main_text = BEGINNER_GUIDES_TEXT
+        new_interactive_text = "Гайди для початківців"
+    elif user_choice == MenuButton.ADVANCED_TECHNIQUES.value:
+        new_main_text = ADVANCED_TECHNIQUES_TEXT
+        new_interactive_text = "Просунуті техніки"
+    elif user_choice == MenuButton.TEAMPLAY_GUIDES.value:
+        new_main_text = TEAMPLAY_GUIDES_TEXT
+        new_interactive_text = "Командна гра"
+    elif user_choice == MenuButton.BACK.value:
+        new_main_text = NAVIGATION_MENU_TEXT
+        new_main_keyboard = get_navigation_menu()
+        new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
+        new_state = MenuStates.NAVIGATION_MENU
+    else:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_interactive_text = "Невідома команда"
+
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=get_generic_inline_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник натискання звичайних кнопок у меню Контр-піки
+@router.message(MenuStates.COUNTER_PICKS_MENU)
+async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Контр-піки")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_counter_picks_menu()
     new_interactive_text = ""
@@ -1028,12 +1192,12 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
 
     if user_choice == MenuButton.COUNTER_SEARCH.value:
         new_main_text = COUNTER_SEARCH_TEXT
-        new_main_keyboard = ReplyKeyboardRemove()
-        new_interactive_text = "Counter Pick Search"
+        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_interactive_text = "Пошук контр-піку"
         new_state = MenuStates.SEARCH_HERO
     elif user_choice == MenuButton.COUNTER_LIST.value:
         new_main_text = COUNTER_LIST_TEXT
-        new_interactive_text = "Counter Pick List"
+        new_interactive_text = "Список контр-піків"
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
@@ -1041,70 +1205,72 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.COUNTER_PICKS_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Builds Menu"
+# Обробник натискання звичайних кнопок у меню Білди
 @router.message(MenuStates.BUILDS_MENU)
-async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Білди")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_builds_menu()
     new_interactive_text = ""
@@ -1112,13 +1278,13 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
 
     if user_choice == MenuButton.CREATE_BUILD.value:
         new_main_text = CREATE_BUILD_TEXT
-        new_interactive_text = "Creating a build"
+        new_interactive_text = "Створення білду"
     elif user_choice == MenuButton.MY_BUILDS.value:
         new_main_text = MY_BUILDS_TEXT
-        new_interactive_text = "My builds"
+        new_interactive_text = "Мої білди"
     elif user_choice == MenuButton.POPULAR_BUILDS.value:
         new_main_text = POPULAR_BUILDS_TEXT
-        new_interactive_text = "Popular builds"
+        new_interactive_text = "Популярні білди"
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
@@ -1126,70 +1292,72 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.BUILDS_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Voting Menu"
+# Обробник натискання звичайних кнопок у меню Голосування
 @router.message(MenuStates.VOTING_MENU)
-async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Голосування")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_voting_menu()
     new_interactive_text = ""
@@ -1197,14 +1365,14 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
 
     if user_choice == MenuButton.CURRENT_VOTES.value:
         new_main_text = CURRENT_VOTES_TEXT
-        new_interactive_text = "Current polls"
+        new_interactive_text = "Поточні опитування"
     elif user_choice == MenuButton.MY_VOTES.value:
         new_main_text = MY_VOTES_TEXT
-        new_interactive_text = "My votes"
+        new_interactive_text = "Мої голосування"
     elif user_choice == MenuButton.SUGGEST_TOPIC.value:
         new_main_text = SUGGEST_TOPIC_TEXT
-        new_main_keyboard = ReplyKeyboardRemove()
-        new_interactive_text = "Suggest a topic"
+        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_interactive_text = "Пропозиція теми"
         new_state = MenuStates.SEARCH_TOPIC
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
@@ -1213,70 +1381,72 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
         new_state = MenuStates.NAVIGATION_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.VOTING_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Profile Menu"
+# Обробник натискання звичайних кнопок у меню Профіль
 @router.message(MenuStates.PROFILE_MENU)
-async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_profile_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Профіль")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_profile_menu()
     new_interactive_text = ""
@@ -1307,77 +1477,80 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         new_main_keyboard = get_help_menu()
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = MenuStates.HELP_MENU
-    elif user_choice == MenuButton.BACK.value:
+    elif user_choice == MenuButton.BACK_TO_MAIN_MENU.value:
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.PROFILE_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Statistics Menu"
+# Обробник натискання звичайних кнопок у підрозділі "Статистика"
 @router.message(MenuStates.STATISTICS_MENU)
-async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_statistics_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Статистика")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_statistics_menu()
     new_interactive_text = ""
@@ -1385,84 +1558,86 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
 
     if user_choice == MenuButton.ACTIVITY.value:
         new_main_text = ACTIVITY_TEXT
-        new_interactive_text = "General Activity"
+        new_interactive_text = "Загальна активність"
     elif user_choice == MenuButton.RANKING.value:
         new_main_text = RANKING_TEXT
-        new_interactive_text = "Ranking"
+        new_interactive_text = "Рейтинг"
     elif user_choice == MenuButton.GAME_STATS.value:
         new_main_text = GAME_STATS_TEXT
-        new_interactive_text = "Game Statistics"
-    elif user_choice == MenuButton.BACK.value:
+        new_interactive_text = "Ігрова статистика"
+    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
         new_state = MenuStates.PROFILE_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.STATISTICS_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Achievements Menu"
+# Обробник натискання звичайних кнопок у підрозділі "Досягнення"
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
-async def handle_achievements_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_achievements_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Досягнення")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_achievements_menu()
     new_interactive_text = ""
@@ -1470,87 +1645,89 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
 
     if user_choice == MenuButton.BADGES.value:
         new_main_text = BADGES_TEXT
-        new_interactive_text = "My Badges"
+        new_interactive_text = "Мої бейджі"
     elif user_choice == MenuButton.PROGRESS.value:
         new_main_text = PROGRESS_TEXT
-        new_interactive_text = "Progress"
+        new_interactive_text = "Прогрес"
     elif user_choice == MenuButton.TOURNAMENT_STATS.value:
         new_main_text = TOURNAMENT_STATS_TEXT
-        new_interactive_text = "Tournament Statistics"
+        new_interactive_text = "Турнірна статистика"
     elif user_choice == MenuButton.AWARDS.value:
         new_main_text = AWARDS_TEXT
-        new_interactive_text = "Received Awards"
-    elif user_choice == MenuButton.BACK.value:
+        new_interactive_text = "Отримані нагороди"
+    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
         new_main_text = PROFILE_MENU_TEXT
         new_main_keyboard = get_profile_menu()
         new_interactive_text = PROFILE_INTERACTIVE_TEXT
         new_state = MenuStates.PROFILE_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.ACHIEVEMENTS_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик меню "Settings Menu"
+# Обробник натискання звичайних кнопок у меню Налаштування
 @router.message(MenuStates.SETTINGS_MENU)
-async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_settings_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
-    current_state = await state.get_state()
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Налаштування")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
-            await state.update_data(bot_message_id=main_message.message_id)
-            await state.set_state(MenuStates.MAIN_MENU)
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
 
+    # Визначаємо новий текст та клавіатуру
     new_main_text = ""
     new_main_keyboard = get_settings_menu()
     new_interactive_text = ""
@@ -1558,249 +1735,488 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
 
     if user_choice == MenuButton.LANGUAGE.value:
         new_main_text = LANGUAGE_TEXT
-        new_interactive_text = "Interface Language"
+        new_interactive_text = "Мова інтерфейсу"
     elif user_choice == MenuButton.CHANGE_USERNAME.value:
         new_main_text = CHANGE_USERNAME_TEXT
-        new_main_keyboard = ReplyKeyboardRemove()
-        new_interactive_text = "Change Username"
+        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_interactive_text = "Зміна Username"
         new_state = MenuStates.CHANGE_USERNAME
     elif user_choice == MenuButton.UPDATE_ID.value:
         new_main_text = UPDATE_ID_TEXT
-        new_interactive_text = "Update Player ID"
+        new_interactive_text = "Оновити ID гравця"
     elif user_choice == MenuButton.NOTIFICATIONS.value:
         new_main_text = NOTIFICATIONS_TEXT
-        new_interactive_text = "Notifications"
-    elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
+        new_interactive_text = "Сповіщення"
+    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+        new_main_text = PROFILE_MENU_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = MenuStates.PROFILE_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
-        new_state = MenuStates.SETTINGS_MENU
+        new_interactive_text = "Невідома команда"
 
-    # Відправка нового звичайного повідомлення
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
     try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
-    # Редагування інлайн-повідомлення
+    # Редагуємо інтерактивне повідомлення
     try:
         await bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
+        # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
+            reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Обробчик Inline кнопок
+# Доданий обробник для меню класу героя
+@router.message(MenuStates.HERO_CLASS_MENU)
+async def handle_hero_class_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    # Отримуємо дані стану перед логуванням
+    data = await state.get_data()
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню класу {data.get('hero_class', 'Невідомий')}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if user_choice == MenuButton.BACK.value:
+        # Повернення до меню вибору класу персонажа
+        new_main_text = HEROES_MENU_TEXT
+        new_main_keyboard = get_heroes_menu()
+        new_interactive_text = HEROES_INTERACTIVE_TEXT
+        new_state = MenuStates.HEROES_MENU
+    else:
+        # Інші опції можна додати за потребою
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        hero_class = data.get('hero_class', 'Танк')
+        new_main_keyboard = get_hero_class_menu(hero_class)
+        new_interactive_text = f"Меню класу {hero_class}"
+        new_state = MenuStates.HERO_CLASS_MENU
+
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=get_generic_inline_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник натискання звичайних кнопок у меню Допомога
+@router.message(MenuStates.HELP_MENU)
+async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot):
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав {user_choice} в меню Допомога")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо дані стану
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        # Надсилаємо нове повідомлення з клавіатурою
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        # Зберігаємо ID повідомлення бота
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначаємо новий текст та клавіатуру
+    new_main_text = ""
+    new_main_keyboard = get_help_menu()
+    new_interactive_text = ""
+    new_state = MenuStates.HELP_MENU
+
+    if user_choice == MenuButton.INSTRUCTIONS.value:
+        new_main_text = INSTRUCTIONS_TEXT
+        new_interactive_text = "Інструкції"
+    elif user_choice == MenuButton.FAQ.value:
+        new_main_text = FAQ_TEXT
+        new_interactive_text = "FAQ"
+    elif user_choice == MenuButton.HELP_SUPPORT.value:
+        new_main_text = HELP_SUPPORT_TEXT
+        new_interactive_text = "Підтримка"
+    elif user_choice == MenuButton.BACK_TO_PROFILE.value:
+        new_main_text = PROFILE_MENU_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = MenuStates.PROFILE_MENU
+    else:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_interactive_text = "Невідома команда"
+
+    # Відправляємо нове повідомлення з клавіатурою
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
+
+    # Видаляємо старе повідомлення
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+
+    await state.update_data(bot_message_id=new_bot_message_id)
+
+    # Редагуємо інтерактивне повідомлення
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode="HTML",
+            reply_markup=get_generic_inline_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+
+    # Оновлюємо стан користувача
+    await state.set_state(new_state)
+
+# Обробник для інлайн-кнопок
 @router.callback_query()
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
+async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data
-    logger.info(f"User {callback.from_user.id} pressed inline button: {data}")
+    logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
+
+    # Отримуємо interactive_message_id з стану
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
-    if interactive_message_id:
-        if data == "mls_button":
-            try:
-                await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
-            except Exception as e:
-                logger.error(f"Не вдалося відповісти на callback: {e}")
-        elif data == "menu_back":
-            user_first_name = callback.from_user.first_name
-            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
-            try:
-                main_menu_message = await bot.send_message(
-                    chat_id=callback.message.chat.id,
-                    text=main_menu_text_formatted,
-                    reply_markup=get_main_menu()
-                )
-                await state.update_data(bot_message_id=main_menu_message.message_id)
-            except Exception as e:
-                logger.error(f"Не вдалося надіслати головне меню: {e}")
 
+    if interactive_message_id:
+        # Обробляємо інлайн-кнопки
+        if data == "mls_button":
+            await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
+        elif data == "menu_back":
+            # Повернення до головного меню
+            await state.set_state(MenuStates.MAIN_MENU)
+            new_interactive_text = MAIN_MENU_DESCRIPTION
+            new_interactive_keyboard = get_generic_inline_keyboard()
+
+            # Редагуємо інтерактивне повідомлення
             try:
                 await bot.edit_message_text(
                     chat_id=callback.message.chat.id,
                     message_id=interactive_message_id,
-                    text=MAIN_MENU_DESCRIPTION,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
+                    text=new_interactive_text,
+                    reply_markup=new_interactive_keyboard
                 )
-                await state.update_data(last_text=MAIN_MENU_DESCRIPTION, last_keyboard=get_generic_inline_keyboard())
             except Exception as e:
                 logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-                # Спроба відправити нове інтерактивне повідомлення
-                interactive_message_id = await send_or_update_interactive_message(
-                    bot=bot,
-                    chat_id=callback.message.chat.id,
-                    text=MAIN_MENU_DESCRIPTION,
-                    keyboard=get_generic_inline_keyboard(),
-                    message_id=interactive_message_id,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
 
+            # Відправляємо головне меню
+            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=callback.from_user.first_name)
+            main_message = await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=main_menu_text_formatted,
+                reply_markup=get_main_menu()
+            )
+            # Оновлюємо bot_message_id
+            await state.update_data(bot_message_id=main_message.message_id)
+
+            # Видаляємо попереднє повідомлення з клавіатурою
             old_bot_message_id = state_data.get('bot_message_id')
             if old_bot_message_id:
-                await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
+                try:
+                    await bot.delete_message(chat_id=callback.message.chat.id, message_id=old_bot_message_id)
+                except Exception as e:
+                    logger.error(f"Не вдалося видалити повідомлення бота: {e}")
         else:
-            try:
-                await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
-            except Exception as e:
-                logger.error(f"Не вдалося відповісти на callback: {e}")
+            # Додайте обробку інших інлайн-кнопок за потребою
+            await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
     else:
         logger.error("interactive_message_id не знайдено")
-        try:
-            await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
-        except Exception as e:
-            logger.error(f"Не вдалося відповісти на callback: {e}")
+        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
+
     await callback.answer()
 
-# Обробчик пошуку героя
+# Обробник для прийому пошуку героя
 @router.message(MenuStates.SEARCH_HERO)
 async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     hero_name = message.text.strip()
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} is searching for hero: {hero_name}")
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} шукає героя: {hero_name}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Тут додайте логіку пошуку героя
+    # Наприклад, перевірка чи існує герой, відправка інформації тощо
+    # Поки що відправимо повідомлення про отримання запиту
 
     if hero_name:
         response_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name=hero_name)
     else:
-        response_text = "❌ Будь ласка, введіть назву героя, якого ви хочете знайти."
+        response_text = "Будь ласка, введіть ім'я героя для пошуку."
 
-    try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
-    except Exception as e:
-        logger.error(f"Не вдалося надіслати результат пошуку героя: {e}")
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard()
+    )
 
+    # Повертаємо користувача до попереднього меню
     await state.set_state(MenuStates.HEROES_MENU)
 
-# Обробчик пропозиції теми
+# Обробник для прийому теми пропозиції
 @router.message(MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     topic = message.text.strip()
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} is suggesting a topic: {topic}")
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    logger.info(f"Користувач {message.from_user.id} пропонує тему: {topic}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Тут додайте логіку обробки пропозиції теми
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання запиту
 
     if topic:
         response_text = SUGGESTION_RESPONSE_TEXT.format(topic=topic)
     else:
-        response_text = "❌ Будь ласка, введіть тему, яку ви хочете запропонувати."
+        response_text = "Будь ласка, введіть тему для пропозиції."
 
-    try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
-    except Exception as e:
-        logger.error(f"Не вдалося надіслати відповідь на пропозицію теми: {e}")
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard()
+    )
 
+    # Повертаємо користувача до меню Зворотний Зв'язок
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробчик невідомих команд
-@router.message()
-async def unknown_command(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+# Обробник для зміни Username
+@router.message(MenuStates.CHANGE_USERNAME)
+async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
+    new_username = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} змінює Username на: {new_username}")
 
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Тут додайте логіку зміни Username
+    # Наприклад, перевірка унікальності, оновлення в базі даних тощо
+    # Поки що відправимо повідомлення про отримання запиту
+
+    if new_username:
+        response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
+    else:
+        response_text = "Будь ласка, введіть новий Username."
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+    # Повертаємо користувача до меню Налаштування
+    await state.set_state(MenuStates.SETTINGS_MENU)
+
+# Обробник для прийому відгуку
+@router.message(MenuStates.RECEIVE_FEEDBACK)
+async def handle_receive_feedback(message: Message, state: FSMContext, bot: Bot):
+    feedback = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} надіслав відгук: {feedback}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Тут додайте логіку зберігання відгуку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання відгуку
+
+    if feedback:
+        response_text = FEEDBACK_RECEIVED_TEXT
+    else:
+        response_text = "Будь ласка, залиште свій відгук."
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+    # Повертаємо користувача до меню Зворотний Зв'язок
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробник для звіту про помилку
+@router.message(MenuStates.REPORT_BUG)
+async def handle_report_bug(message: Message, state: FSMContext, bot: Bot):
+    bug_report = message.text.strip()
+    logger.info(f"Користувач {message.from_user.id} повідомив про помилку: {bug_report}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Тут додайте логіку обробки звіту про помилку
+    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Поки що відправимо повідомлення про отримання звіту
+
+    if bug_report:
+        response_text = BUG_REPORT_RECEIVED_TEXT
+    else:
+        response_text = "Будь ласка, опишіть помилку, яку ви знайшли."
+
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text=response_text,
+        reply_markup=get_generic_inline_keyboard()
+    )
+
+    # Повертаємо користувача до меню Зворотний Зв'язок
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробник для невідомих повідомлень
+@router.message()
+async def unknown_command(message: Message, state: FSMContext, bot: Bot):
+    logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
+
+    # Видаляємо повідомлення користувача
+    await message.delete()
+
+    # Отримуємо IDs повідомлень з стану
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    current_state = await state.get_state()
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_state = None
 
-    # Визначення поточного стану та відповідних дій
+    # Визначаємо поточний стан
+    current_state = await state.get_state()
+
+    # Визначаємо новий текст та клавіатуру залежно від стану
     if current_state == MenuStates.MAIN_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_main_menu()
-        new_interactive_text = "Main Menu"
+        new_interactive_text = "Головне меню"
         new_state = MenuStates.MAIN_MENU
     elif current_state == MenuStates.NAVIGATION_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Navigation Screen"
+        new_interactive_text = "Навігаційний екран"
         new_state = MenuStates.NAVIGATION_MENU
     elif current_state == MenuStates.HEROES_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Heroes Menu"
+        new_interactive_text = "Меню Персонажі"
         new_state = MenuStates.HEROES_MENU
     elif current_state == MenuStates.HERO_CLASS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
-        heroes_list = data.get('heroes_list', 'No available heroes.')
+        hero_class = data.get('hero_class', 'Танк')
         new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
+        new_interactive_text = f"Меню класу {hero_class}"
         new_state = MenuStates.HERO_CLASS_MENU
     elif current_state == MenuStates.GUIDES_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_guides_menu()
-        new_interactive_text = "Guides Menu"
+        new_interactive_text = "Меню Гайди"
         new_state = MenuStates.GUIDES_MENU
     elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_counter_picks_menu()
-        new_interactive_text = "Counter Picks Menu"
+        new_interactive_text = "Меню Контр-піки"
         new_state = MenuStates.COUNTER_PICKS_MENU
     elif current_state == MenuStates.BUILDS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_builds_menu()
-        new_interactive_text = "Builds Menu"
+        new_interactive_text = "Меню Білди"
         new_state = MenuStates.BUILDS_MENU
     elif current_state == MenuStates.VOTING_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_voting_menu()
-        new_interactive_text = "Voting Menu"
+        new_interactive_text = "Меню Голосування"
         new_state = MenuStates.VOTING_MENU
     elif current_state == MenuStates.PROFILE_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_profile_menu()
-        new_interactive_text = "Profile Menu"
+        new_interactive_text = "Меню Профіль"
         new_state = MenuStates.PROFILE_MENU
     elif current_state == MenuStates.STATISTICS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_statistics_menu()
-        new_interactive_text = "Statistics Menu"
+        new_interactive_text = "Меню Статистика"
         new_state = MenuStates.STATISTICS_MENU
     elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_achievements_menu()
-        new_interactive_text = "Achievements Menu"
+        new_interactive_text = "Меню Досягнення"
         new_state = MenuStates.ACHIEVEMENTS_MENU
     elif current_state == MenuStates.SETTINGS_MENU.state:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_settings_menu()
-        new_interactive_text = "Settings Menu"
+        new_interactive_text = "Меню Налаштування"
         new_state = MenuStates.SETTINGS_MENU
     elif current_state in [
         MenuStates.SEARCH_HERO.state,
@@ -1809,10 +2225,12 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         MenuStates.RECEIVE_FEEDBACK.state,
         MenuStates.REPORT_BUG.state
     ]:
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=USE_BUTTON_NAVIGATION_TEXT, reply_markup=get_generic_inline_keyboard())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про використання кнопок навігації: {e}")
+        # Якщо користувач перебуває в процесі введення, надсилаємо підказку
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=USE_BUTTON_NAVIGATION_TEXT,
+            reply_markup=get_generic_inline_keyboard()
+        )
         await state.set_state(current_state)
         return
     else:
@@ -1821,49 +2239,53 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
 
-    # Відправка нового звичайного повідомлення
-    try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
-    except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+    # Відправляємо нове повідомлення
+    main_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=new_main_text,
+        reply_markup=new_main_keyboard
+    )
+    new_bot_message_id = main_message.message_id
 
-    # Видалення старого звичайного повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+    # Видаляємо старе повідомлення
+    if bot_message_id:
+        try:
+            await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+        except Exception as e:
+            logger.error(f"Не вдалося видалити повідомлення бота: {e}")
 
-    # Редагування інлайн-повідомлення
-    try:
-        await bot.edit_message_text(
+    # Редагуємо інтерактивне повідомлення
+    if interactive_message_id:
+        try:
+            await bot.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=interactive_message_id,
+                text=new_interactive_text,
+                parse_mode="HTML",
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e:
+            logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+            interactive_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=new_interactive_text,
+                reply_markup=get_generic_inline_keyboard()
+            )
+            await state.update_data(interactive_message_id=interactive_message.message_id)
+    else:
+        interactive_message = await bot.send_message(
             chat_id=message.chat.id,
-            message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
-        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
-    except Exception as e:
-        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        # Спроба відправити нове інтерактивне повідомлення
-        interactive_message_id = await send_or_update_interactive_message(
-            bot=bot,
-            chat_id=message.chat.id,
-            text=new_interactive_text,
-            keyboard=get_generic_inline_keyboard(),
-            message_id=interactive_message_id,
-            state=state,
-            parse_mode=ParseMode.HTML
-        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
+    # Оновлюємо стан користувача
     await state.set_state(new_state)
 
-# Інші обробники меню можуть бути додані аналогічно...
-
-# Інтеграція обробників з Dispatcher
+# Функція для налаштування обробників
+def setup_handlers(dp):
+    dp.include_router(router)
 def setup_handlers(dp: Router):
     dp.include_router(router)
     # Якщо у вас є інші роутери, включіть їх тут, наприклад:
