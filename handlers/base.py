@@ -1,11 +1,10 @@
 import logging
 from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.fsm.filters import Text
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.filters.text import Text  # Виправлений імпорт
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, ParseMode  # Виправлений імпорт
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.enums import ParseMode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
