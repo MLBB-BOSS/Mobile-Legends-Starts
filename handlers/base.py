@@ -230,41 +230,63 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
 
         # Отримання даних стану
         data = await state.get_data()
-        bot_message_id = data.get('bot_message_id')  # ID звичайного повідомлення
+        old_bot_message_id = data.get('bot_message_id')  # ID попереднього звичайного повідомлення
         interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
 
-        # Видалення старого звичайного повідомлення
-        if bot_message_id:
+        # Редагування існуючого інлайн-повідомлення з даними профілю
+        if interactive_message_id:
             try:
-                await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=profile_message,
+                    parse_mode="HTML",
+                    reply_markup=get_generic_inline_keyboard()  # Використовуйте відповідну інлайн клавіатуру
+                )
+            except Exception as e:
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+                # Якщо редагування не вдалося, можна надіслати нове інлайн-повідомлення
+                try:
+                    interactive_message = await bot.send_message(
+                        chat_id=message.chat.id,
+                        text=profile_message,
+                        parse_mode="HTML",
+                        reply_markup=get_generic_inline_keyboard()
+                    )
+                    # Оновлення state з новим ID інлайн-повідомлення
+                    await state.update_data(interactive_message_id=interactive_message.message_id)
+                except Exception as e2:
+                    logger.error(f"Не вдалося створити нове інтерактивне повідомлення: {e2}")
+        else:
+            # Якщо інлайн-повідомлення не існує, створіть нове
+            try:
+                interactive_message = await bot.send_message(
+                    chat_id=message.chat.id,
+                    text=profile_message,
+                    parse_mode="HTML",
+                    reply_markup=get_generic_inline_keyboard()
+                )
+                interactive_message_id = interactive_message.message_id
+                await state.update_data(interactive_message_id=interactive_message_id)
+            except Exception as e:
+                logger.error(f"Не вдалося створити нове інтерактивне повідомлення: {e}")
+
+        # Надсилання нового звичайного повідомлення з текстом «🪪 Мій Профіль»
+        my_profile_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text="🪪 Мій Профіль\nОберіть опцію для перегляду:",
+            reply_markup=get_generic_inline_keyboard()  # Використовуйте відповідну клавіатуру
+        )
+
+        # Видалення старого звичайного повідомлення
+        if old_bot_message_id:
+            try:
+                await bot.delete_message(chat_id=message.chat.id, message_id=old_bot_message_id)
             except Exception as e:
                 logger.error(f"Не вдалося видалити старе повідомлення: {e}")
 
-        # Видалення старого інлайн-повідомлення, якщо існує
-        if interactive_message_id:
-            try:
-                await bot.delete_message(chat_id=message.chat.id, message_id=interactive_message_id)
-            except Exception as e:
-                logger.error(f"Не вдалося видалити старе інлайн-повідомлення: {e}")
-
-        # Відправка нового звичайного повідомлення з профілем
-        new_profile_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=profile_message,
-            parse_mode="HTML",
-            reply_markup=get_profile_menu()
-        )
-
         # Оновлення стану з новими ідентифікаторами повідомлень
-        await state.update_data(bot_message_id=new_profile_message.message_id)
-        # Якщо потрібне інлайн-повідомлення, можна його створити тут і зберегти ID
-        # Наприклад:
-        # interactive_message = await bot.send_message(
-        #     chat_id=message.chat.id,
-        #     text="Інтерактивне повідомлення",
-        #     reply_markup=get_generic_inline_keyboard()
-        # )
-        # await state.update_data(interactive_message_id=interactive_message.message_id)
+        await state.update_data(bot_message_id=my_profile_message.message_id)
 
         # Встановлення стану до PROFILE_MENU
         await state.set_state(MenuStates.PROFILE_MENU)
@@ -868,7 +890,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Voting Menu"
+# Обробчик меню "Voting Menu"
 @router.message(MenuStates.VOTING_MENU)
 async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -933,7 +955,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Profile Menu"
+# Обробчик меню "Profile Menu"
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1013,7 +1035,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Statistics Menu"
+# Обробчик меню "Statistics Menu"
 @router.message(MenuStates.STATISTICS_MENU)
 async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1076,7 +1098,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Achievements Menu"
+# Обробчик меню "Achievements Menu"
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
 async def handle_achievements_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1142,7 +1164,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Settings Menu"
+# Обробчик меню "Settings Menu"
 @router.message(MenuStates.SETTINGS_MENU)
 async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1210,7 +1232,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник зміни імені користувача
+# Обробчик зміни імені користувача
 @router.message(MenuStates.CHANGE_USERNAME)
 async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     new_username = message.text.strip()
@@ -1237,7 +1259,7 @@ async def handle_change_username(message: Message, state: FSMContext, db: AsyncS
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.SETTINGS_MENU)
 
-# Обробник отримання зворотного зв'язку
+# Обробчик отримання зворотного зв'язку
 @router.message(MenuStates.RECEIVE_FEEDBACK)
 async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     feedback = message.text.strip()
@@ -1259,7 +1281,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробник повідомлення про помилку
+# Обробчик повідомлення про помилку
 @router.message(MenuStates.REPORT_BUG)
 async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     bug_report = message.text.strip()
@@ -1281,7 +1303,7 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробник меню "Tournaments Menu"
+# Обробчик меню "Tournaments Menu"
 @router.message(MenuStates.TOURNAMENTS_MENU)
 async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1314,7 +1336,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, d
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
 
-# Обробник меню "META Menu"
+# Обробчик меню "META Menu"
 @router.message(MenuStates.META_MENU)
 async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1349,7 +1371,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: Asyn
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
 
-# Обробник меню "M6 Menu"
+# Обробчик меню "M6 Menu"
 @router.message(MenuStates.M6_MENU)
 async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1384,7 +1406,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncS
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
 
-# Обробник Inline кнопок
+# Обробчик Inline кнопок
 @router.callback_query()
 async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
     data = callback.data
@@ -1428,7 +1450,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: 
         await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
     await callback.answer()
 
-# Обробник пошуку героя
+# Обробчик пошуку героя
 @router.message(MenuStates.SEARCH_HERO)
 async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     hero_name = message.text.strip()
@@ -1442,7 +1464,7 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.HEROES_MENU)
 
-# Обробник пропозиції теми
+# Обробчик пропозиції теми
 @router.message(MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     topic = message.text.strip()
@@ -1456,7 +1478,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробник невідомих команд
+# Обробчик невідомих команд
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
