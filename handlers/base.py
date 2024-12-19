@@ -3,7 +3,7 @@
 import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import types
@@ -203,7 +203,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Оновлений обробник кнопки "🪪 Мій Профіль"
+# Обробник кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -275,7 +275,7 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
         my_profile_message = await bot.send_message(
             chat_id=message.chat.id,
             text="🪪 Мій Профіль\nОберіть опцію для перегляду:",
-            reply_markup=get_generic_inline_keyboard()  # Використовуйте відповідну клавіатуру
+            reply_markup=get_profile_menu()  # Використовуйте відповідну звичайну клавіатуру
         )
 
         # Видалення старого звичайного повідомлення
@@ -347,8 +347,9 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
         new_interactive_text = "Меню GPT"
         new_state = MenuStates.GPT_MENU
     else:
+        new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = get_main_menu()
-        new_interactive_text = UNKNOWN_COMMAND_TEXT
+        new_interactive_text = "Unknown command"
         new_state = MenuStates.MAIN_MENU
 
     main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
@@ -439,7 +440,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Navigation Menu"
+# Обробчик меню "Navigation Menu"
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -650,7 +651,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
         await state.update_data(hero_class=hero_class, heroes_list=heroes_formatted)
     elif user_choice == MenuButton.SEARCH_HERO.value:
         new_main_text = SEARCH_HERO_RESPONSE_TEXT.format(hero_name="")
-        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_main_keyboard = ReplyKeyboardRemove()
         new_interactive_text = "Search Hero"
         new_state = MenuStates.SEARCH_HERO
     elif user_choice == MenuButton.COMPARISON.value:
@@ -765,7 +766,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
 
-# Обробник меню "Counter Picks Menu"
+# Обробчик меню "Counter Picks Menu"
 @router.message(MenuStates.COUNTER_PICKS_MENU)
 async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -787,7 +788,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
 
     if user_choice == MenuButton.COUNTER_SEARCH.value:
         new_main_text = COUNTER_SEARCH_TEXT
-        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_main_keyboard = ReplyKeyboardRemove()
         new_interactive_text = "Counter Pick Search"
         new_state = MenuStates.SEARCH_HERO
     elif user_choice == MenuButton.COUNTER_LIST.value:
@@ -918,7 +919,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
         new_interactive_text = "My votes"
     elif user_choice == MenuButton.SUGGEST_TOPIC.value:
         new_main_text = SUGGEST_TOPIC_TEXT
-        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_main_keyboard = ReplyKeyboardRemove()
         new_interactive_text = "Suggest a topic"
         new_state = MenuStates.SEARCH_TOPIC
     elif user_choice == MenuButton.BACK.value:
@@ -1189,7 +1190,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
         new_interactive_text = "Interface Language"
     elif user_choice == MenuButton.CHANGE_USERNAME.value:
         new_main_text = CHANGE_USERNAME_TEXT
-        new_main_keyboard = types.ReplyKeyboardRemove()
+        new_main_keyboard = ReplyKeyboardRemove()
         new_interactive_text = "Change Username"
         new_state = MenuStates.CHANGE_USERNAME
     elif user_choice == MenuButton.UPDATE_ID.value:
