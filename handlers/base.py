@@ -3,10 +3,9 @@
 import logging
 from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram import types
 from aiogram.enums import ParseMode
 from aiogram.exceptions import BadRequest
 
@@ -261,61 +260,6 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Централізований обробник для меню
-async def handle_menu_selection(
-    message: Message,
-    state: FSMContext,
-    db: AsyncSession,
-    bot: Bot,
-    menu_state: MenuStates,
-    menu_texts: dict,
-    menu_keyboards: dict,
-    interactive_texts: dict,
-    next_state: MenuStates | None = None
-):
-    user_choice = message.text
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in {menu_state.state}")
-
-    # Видалення повідомлення користувача
-    await message.delete()
-
-    # Отримання IDs повідомлень з стану
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id або interactive_message_id не знайдено")
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=MAIN_MENU_ERROR_TEXT,
-            reply_markup=get_main_menu()
-        )
-        await state.update_data(bot_message_id=main_message.message_id)
-        await state.set_state(MenuStates.MAIN_MENU)
-        return
-
-    # Визначення нових текстів та клавіатур
-    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
-    new_main_keyboard = menu_keyboards.get(user_choice, menu_keyboards.get('default'))
-    new_interactive_text = interactive_texts.get(user_choice, "Невідома команда")
-    new_state = next_state if next_state else menu_state
-
-    # Виклик централізованої функції для оновлення повідомлень
-    await update_messages(
-        bot=bot,
-        chat_id=message.chat.id,
-        new_main_text=new_main_text,
-        new_main_keyboard=new_main_keyboard,
-        new_interactive_text=new_interactive_text,
-        interactive_message_id=interactive_message_id,
-        state=state
-    )
-
-    # Встановлення нового стану
-    await state.set_state(new_state)
-
 # Обробник кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
@@ -340,450 +284,135 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
             f"• 📅 Останнє оновлення: {profile_data['last_update'].strftime('%d.%m.%Y %H:%M')}\n\n"
             f"Оберіть опцію, щоб редагувати свій профіль чи переглянути статистику."
         )
-
-        # Отримання даних стану
-        data = await state.get_data()
-        bot_message_id = data.get('bot_message_id')  # ID звичайного повідомлення
-        interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
-
-        # Видалення старого звичайного повідомлення
-        if bot_message_id:
-            try:
-                await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-            except Exception as e:
-                logger.error(f"Failed to delete old regular message: {e}")
-
-        # Відправка нового звичайного повідомлення з меню профілю
-        profile_menu_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text="🔰 Оберіть опцію для профілю:",
-            reply_markup=get_profile_menu()
-        )
-        new_bot_message_id = profile_menu_message.message_id
-
-        # Оновлення даних стану з новим bot_message_id
-        await state.update_data(bot_message_id=new_bot_message_id)
-
-        # Редагування інлайн-повідомлення з інформацією про профіль
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=profile_message,
-                    parse_mode="HTML",
-                    reply_markup=get_generic_inline_keyboard()
-                )
-            except BadRequest as e:
-                if "message is not modified" not in str(e):
-                    logger.error(f"Failed to edit inline message with profile info: {e}")
-                    # Відправка нового інлайн-повідомлення, якщо редагування не вдалося
-                    new_interactive_message = await bot.send_message(
-                        chat_id=message.chat.id,
-                        text=profile_message,
-                        parse_mode="HTML",
-                        reply_markup=get_generic_inline_keyboard()
-                    )
-                    await state.update_data(interactive_message_id=new_interactive_message.message_id)
-        else:
-            # Відправка нового інлайн-повідомлення, якщо його не існує
-            new_interactive_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=profile_message,
-                parse_mode="HTML",
-                reply_markup=get_generic_inline_keyboard()
-            )
-            await state.update_data(interactive_message_id=new_interactive_message.message_id)
-
-        # Встановлення нового стану
+        await message.answer(profile_message, parse_mode="HTML", reply_markup=get_profile_menu())
         await state.set_state(MenuStates.PROFILE_MENU)
     else:
-        # Обробка випадку, коли дані профілю не знайдено
-        data = await state.get_data()
-        bot_message_id = data.get('bot_message_id')
-        if bot_message_id:
-            try:
-                await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
-            except Exception as e:
-                logger.error(f"Failed to delete regular message: {e}")
+        await message.answer("❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику.")
 
-        # Відправка повідомлення з помилкою
-        error_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text="❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику.",
-            reply_markup=get_generic_inline_keyboard()
-        )
-        await state.update_data(bot_message_id=error_message.message_id)
+# Централізований обробник для меню (опціонально)
+# Можна використовувати централізований обробник для спрощення коду.
+# Проте у даному випадку всі обробники вже включені окремо.
 
-        # Встановлення стану на MAIN_MENU
-        await state.set_state(MenuStates.MAIN_MENU)
-
-# Обробник меню "Main Menu"
-@router.message(MenuStates.MAIN_MENU)
-async def handle_main_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
+# Обробчик невідомих команд
+@router.message()
+async def unknown_command(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in Main Menu")
+    logger.warning(f"Unknown message from {user_id}: {message.text}")
     await message.delete()
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id або interactive_message_id не знайдено")
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=MAIN_MENU_ERROR_TEXT,
-            reply_markup=get_main_menu()
-        )
-        await state.update_data(bot_message_id=main_message.message_id)
-        await state.set_state(MenuStates.MAIN_MENU)
+    current_state = await state.get_state()
+    new_main_text = ""
+    new_main_keyboard = None
+    new_interactive_text = ""
+    new_state = None
+
+    if current_state == MenuStates.MAIN_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = "Main Menu"
+        new_state = MenuStates.MAIN_MENU
+    elif current_state == MenuStates.NAVIGATION_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_navigation_menu()
+        new_interactive_text = "Navigation Screen"
+        new_state = MenuStates.NAVIGATION_MENU
+    elif current_state == MenuStates.HEROES_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_heroes_menu()
+        new_interactive_text = "Heroes Menu"
+        new_state = MenuStates.HEROES_MENU
+    elif current_state == MenuStates.HERO_CLASS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        hero_class = data.get('hero_class', 'Танк')
+        heroes_list = data.get('heroes_list', 'No available heroes.')
+        new_main_keyboard = get_hero_class_menu(hero_class)
+        new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
+        new_state = MenuStates.HERO_CLASS_MENU
+    elif current_state == MenuStates.GUIDES_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_guides_menu()
+        new_interactive_text = "Guides Menu"
+        new_state = MenuStates.GUIDES_MENU
+    elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_counter_picks_menu()
+        new_interactive_text = "Counter Picks Menu"
+        new_state = MenuStates.COUNTER_PICKS_MENU
+    elif current_state == MenuStates.BUILDS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_builds_menu()
+        new_interactive_text = "Builds Menu"
+        new_state = MenuStates.BUILDS_MENU
+    elif current_state == MenuStates.VOTING_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_voting_menu()
+        new_interactive_text = "Voting Menu"
+        new_state = MenuStates.VOTING_MENU
+    elif current_state == MenuStates.PROFILE_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = "Profile Menu"
+        new_state = MenuStates.PROFILE_MENU
+    elif current_state == MenuStates.STATISTICS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_statistics_menu()
+        new_interactive_text = "Statistics Menu"
+        new_state = MenuStates.STATISTICS_MENU
+    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_achievements_menu()
+        new_interactive_text = "Achievements Menu"
+        new_state = MenuStates.ACHIEVEMENTS_MENU
+    elif current_state == MenuStates.SETTINGS_MENU.state:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_main_keyboard = get_settings_menu()
+        new_interactive_text = "Settings Menu"
+        new_state = MenuStates.SETTINGS_MENU
+    elif current_state in [
+        MenuStates.SEARCH_HERO.state,
+        MenuStates.SEARCH_TOPIC.state,
+        MenuStates.CHANGE_USERNAME.state,
+        MenuStates.RECEIVE_FEEDBACK.state,
+        MenuStates.REPORT_BUG.state
+    ]:
+        # Якщо користувач перебуває в процесі введення, надсилаємо підказку
+        await bot.send_message(chat_id=message.chat.id, text=USE_BUTTON_NAVIGATION_TEXT, reply_markup=get_generic_inline_keyboard())
+        await state.set_state(current_state)
         return
+    else:
+        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
+        new_main_keyboard = get_main_menu()
+        new_interactive_text = MAIN_MENU_DESCRIPTION
+        new_state = MenuStates.MAIN_MENU
 
-    # Визначення текстів та клавіатур для вибраних опцій
-    menu_texts = {
-        MenuButton.NAVIGATION.value: NAVIGATION_MENU_TEXT,
-        MenuButton.PROFILE.value: PROFILE_MENU_TEXT,
-        MenuButton.TOURNAMENTS.value: "Меню Турніри",
-        MenuButton.META.value: "Меню META",
-        MenuButton.M6.value: "Меню M6",
-        MenuButton.GPT.value: "Меню GPT",
-        'default': UNKNOWN_COMMAND_TEXT
-    }
-
-    menu_keyboards = {
-        MenuButton.NAVIGATION.value: get_navigation_menu(),
-        MenuButton.PROFILE.value: get_profile_menu(),
-        MenuButton.TOURNAMENTS.value: get_tournaments_menu(),
-        MenuButton.META.value: get_meta_menu(),
-        MenuButton.M6.value: get_m6_menu(),
-        MenuButton.GPT.value: get_gpt_menu(),
-        'default': get_main_menu()
-    }
-
-    interactive_texts = {
-        MenuButton.NAVIGATION.value: NAVIGATION_INTERACTIVE_TEXT,
-        MenuButton.PROFILE.value: PROFILE_INTERACTIVE_TEXT,
-        MenuButton.TOURNAMENTS.value: "Меню Турніри",
-        MenuButton.META.value: "Меню META",
-        MenuButton.M6.value: "Меню M6",
-        MenuButton.GPT.value: "Меню GPT",
-        'default': "Невідома команда"
-    }
-
-    next_states = {
-        MenuButton.NAVIGATION.value: MenuStates.NAVIGATION_MENU,
-        MenuButton.PROFILE.value: MenuStates.PROFILE_MENU,
-        MenuButton.TOURNAMENTS.value: MenuStates.TOURNAMENTS_MENU,
-        MenuButton.META.value: MenuStates.META_MENU,
-        MenuButton.M6.value: MenuStates.M6_MENU,
-        MenuButton.GPT.value: MenuStates.GPT_MENU,
-        'default': MenuStates.MAIN_MENU
-    }
-
-    new_state = next_states.get(user_choice, MenuStates.MAIN_MENU)
-    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
-    new_main_keyboard = menu_keyboards.get(user_choice, get_main_menu())
-    new_interactive_text = interactive_texts.get(user_choice, "Невідома команда")
-
-    # Визначення наступного стану
-    await update_messages(
-        bot=bot,
-        chat_id=message.chat.id,
-        new_main_text=new_main_text,
-        new_main_keyboard=new_main_keyboard,
-        new_interactive_text=new_interactive_text,
-        interactive_message_id=interactive_message_id,
-        state=state
-    )
-
-    # Встановлення нового стану
-    await state.set_state(new_state)
-
-# Обробчик меню "Settings Menu"
-@router.message(MenuStates.SETTINGS_MENU)
-async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in Settings Menu")
-    await message.delete()
-    data = await state.get_data()
-    bot_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id або interactive_message_id не знайдено")
-        main_message = await bot.send_message(
-            chat_id=message.chat.id,
-            text=MAIN_MENU_ERROR_TEXT,
-            reply_markup=get_main_menu()
-        )
-        await state.update_data(bot_message_id=main_message.message_id)
-        await state.set_state(MenuStates.MAIN_MENU)
-        return
-
-    # Визначення текстів та клавіатур для вибраних опцій
-    menu_texts = {
-        MenuButton.LANGUAGE.value: LANGUAGE_TEXT,
-        MenuButton.CHANGE_USERNAME.value: CHANGE_USERNAME_TEXT,
-        MenuButton.UPDATE_ID.value: UPDATE_ID_TEXT,
-        MenuButton.NOTIFICATIONS.value: NOTIFICATIONS_TEXT,
-        MenuButton.BACK.value: PROFILE_MENU_TEXT,
-        'default': UNKNOWN_COMMAND_TEXT
-    }
-
-    menu_keyboards = {
-        MenuButton.LANGUAGE.value: get_settings_menu(),  # Припустимо, що мова не змінюється тут
-        MenuButton.CHANGE_USERNAME.value: types.ReplyKeyboardRemove(),
-        MenuButton.UPDATE_ID.value: get_settings_menu(),
-        MenuButton.NOTIFICATIONS.value: get_settings_menu(),
-        MenuButton.BACK.value: get_profile_menu(),
-        'default': get_settings_menu()
-    }
-
-    interactive_texts = {
-        MenuButton.LANGUAGE.value: "Мова інтерфейсу",
-        MenuButton.CHANGE_USERNAME.value: "Зміна Username",
-        MenuButton.UPDATE_ID.value: "Оновити ID гравця",
-        MenuButton.NOTIFICATIONS.value: "Сповіщення",
-        MenuButton.BACK.value: PROFILE_INTERACTIVE_TEXT,
-        'default': "Невідома команда"
-    }
-
-    next_states = {
-        MenuButton.LANGUAGE.value: MenuStates.SETTINGS_MENU,  # Припустимо, що це не змінює стан
-        MenuButton.CHANGE_USERNAME.value: MenuStates.CHANGE_USERNAME,
-        MenuButton.UPDATE_ID.value: MenuStates.SETTINGS_MENU,  # Припустимо, що це не змінює стан
-        MenuButton.NOTIFICATIONS.value: MenuStates.SETTINGS_MENU,  # Припустимо, що це не змінює стан
-        MenuButton.BACK.value: MenuStates.PROFILE_MENU,
-        'default': MenuStates.SETTINGS_MENU
-    }
-
-    new_state = next_states.get(user_choice, MenuStates.SETTINGS_MENU)
-    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
-    new_main_keyboard = menu_keyboards.get(user_choice, get_settings_menu())
-    new_interactive_text = interactive_texts.get(user_choice, "Невідома команда")
-
-    # Визначення наступного стану
-    await update_messages(
-        bot=bot,
-        chat_id=message.chat.id,
-        new_main_text=new_main_text,
-        new_main_keyboard=new_main_keyboard,
-        new_interactive_text=new_interactive_text,
-        interactive_message_id=interactive_message_id,
-        state=state
-    )
-
-    # Встановлення нового стану
-    await state.set_state(new_state)
-
-# Обробчик зміни Username
-@router.message(MenuStates.CHANGE_USERNAME)
-async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    new_username = message.text.strip()
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} is changing username to: {new_username}")
-    await message.delete()
-    if new_username:
+    main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
+    new_bot_message_id = main_message.message_id
+    if bot_message_id:
         try:
-            # Оновлення імені користувача у базі даних
-            result = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
-            user = result.scalars().first()
-            if user:
-                user.username = new_username
-                await db.commit()
-                response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-                logger.info(f"User {user_id} changed username to: {new_username}")
-            else:
-                response_text = "❌ Користувача не знайдено. Зареєструйтесь, щоб змінити ім'я."
+            await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
         except Exception as e:
-            logger.error(f"Error updating username for user_id {user_id}: {e}")
-            response_text = "❌ Виникла помилка при зміні імені користувача."
+            logger.error(f"Failed to delete bot message: {e}")
+    if interactive_message_id:
+        try:
+            await bot.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=interactive_message_id,
+                text=new_interactive_text,
+                parse_mode=ParseMode.HTML,
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e:
+            logger.error(f"Failed to edit interactive message: {e}")
+            interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
+            await state.update_data(interactive_message_id=interactive_message.message_id)
     else:
-        response_text = "❌ Будь ласка, введіть нове ім'я користувача."
-    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
-    await state.set_state(MenuStates.SETTINGS_MENU)
+        interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+    await state.set_state(new_state)
 
-# Обробчик отримання зворотного зв'язку
-@router.message(MenuStates.RECEIVE_FEEDBACK)
-async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    feedback = message.text.strip()
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} sent feedback: {feedback}")
-    await message.delete()
-    if feedback:
-        # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
-        # Наприклад, збереження у таблиці Feedback
-        # from models.feedback import Feedback
-        # new_feedback = Feedback(user_id=user_id, feedback=feedback)
-        # db.add(new_feedback)
-        # await db.commit()
-        
-        response_text = FEEDBACK_RECEIVED_TEXT
-        logger.info(f"Feedback received from user {user_id}")
-    else:
-        response_text = "❌ Будь ласка, надайте ваш зворотний зв'язок."
-    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Обробчик повідомлення про помилку
-@router.message(MenuStates.REPORT_BUG)
-async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    bug_report = message.text.strip()
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} reported a bug: {bug_report}")
-    await message.delete()
-    if bug_report:
-        # Збереження звіту про помилку у базі даних або надсилання адміністратору
-        # Наприклад, збереження у таблиці BugReports
-        # from models.bug_report import BugReport
-        # new_bug = BugReport(user_id=user_id, report=bug_report)
-        # db.add(new_bug)
-        # await db.commit()
-        
-        response_text = BUG_REPORT_RECEIVED_TEXT
-        logger.info(f"Bug report received from user {user_id}")
-    else:
-        response_text = "❌ Будь ласка, опишіть помилку, яку ви зустріли."
-    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
-    await state.set_state(MenuStates.FEEDBACK_MENU)
-
-# Обробчик меню "Tournaments Menu"
-@router.message(MenuStates.TOURNAMENTS_MENU)
-async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in Tournaments Menu")
-    await message.delete()
-    if not user_choice:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
-        return
-
-    if user_choice == MenuButton.CREATE_TOURNAMENT.value:
-        await bot.send_message(chat_id=message.chat.id, text=TOURNAMENT_CREATE_TEXT, reply_markup=get_tournaments_menu())
-    elif user_choice == MenuButton.VIEW_TOURNAMENTS.value:
-        await bot.send_message(chat_id=message.chat.id, text=TOURNAMENT_VIEW_TEXT, reply_markup=get_tournaments_menu())
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-        await state.update_data(bot_message_id=nav_message.message_id)
-        data = await state.get_data()
-        interactive_message_id = data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-            except BadRequest as e:
-                if "message is not modified" not in str(e):
-                    logger.error(f"Failed to edit interactive message: {e}")
-                    # Відправка нового інтерактивного повідомлення
-                    interactive_message = await bot.send_message(
-                        chat_id=message.chat.id,
-                        text=NAVIGATION_INTERACTIVE_TEXT,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=get_generic_inline_keyboard()
-                    )
-                    await state.update_data(interactive_message_id=interactive_message.message_id)
-    else:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
-
-# Обробчик меню "META Menu"
-@router.message(MenuStates.META_MENU)
-async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in META Menu")
-    await message.delete()
-    if not user_choice:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
-        return
-
-    if user_choice == MenuButton.META_HERO_LIST.value:
-        await bot.send_message(chat_id=message.chat.id, text=META_HERO_LIST_TEXT, reply_markup=get_meta_menu())
-    elif user_choice == MenuButton.META_RECOMMENDATIONS.value:
-        await bot.send_message(chat_id=message.chat.id, text=META_RECOMMENDATIONS_TEXT, reply_markup=get_meta_menu())
-    elif user_choice == MenuButton.META_UPDATES.value:
-        await bot.send_message(chat_id=message.chat.id, text=META_UPDATES_TEXT, reply_markup=get_meta_menu())
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-        await state.update_data(bot_message_id=nav_message.message_id)
-        data = await state.get_data()
-        interactive_message_id = data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-            except BadRequest as e:
-                if "message is not modified" not in str(e):
-                    logger.error(f"Failed to edit interactive message: {e}")
-                    # Відправка нового інтерактивного повідомлення
-                    interactive_message = await bot.send_message(
-                        chat_id=message.chat.id,
-                        text=NAVIGATION_INTERACTIVE_TEXT,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=get_generic_inline_keyboard()
-                    )
-                    await state.update_data(interactive_message_id=interactive_message.message_id)
-    else:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
-
-# Обробчик меню "M6 Menu"
-@router.message(MenuStates.M6_MENU)
-async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_choice = message.text
-    user_id = message.from_user.id
-    logger.info(f"User {user_id} selected '{user_choice}' in M6 Menu")
-    await message.delete()
-    if not user_choice:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
-        return
-
-    if user_choice == MenuButton.M6_INFO.value:
-        await bot.send_message(chat_id=message.chat.id, text=M6_INFO_TEXT, reply_markup=get_m6_menu())
-    elif user_choice == MenuButton.M6_STATS.value:
-        await bot.send_message(chat_id=message.chat.id, text=M6_STATS_TEXT, reply_markup=get_m6_menu())
-    elif user_choice == MenuButton.M6_NEWS.value:
-        await bot.send_message(chat_id=message.chat.id, text=M6_NEWS_TEXT, reply_markup=get_m6_menu())
-    elif user_choice == MenuButton.BACK.value:
-        await state.set_state(MenuStates.NAVIGATION_MENU)
-        nav_message = await bot.send_message(chat_id=message.chat.id, text=NAVIGATION_MENU_TEXT, reply_markup=get_navigation_menu())
-        await state.update_data(bot_message_id=nav_message.message_id)
-        data = await state.get_data()
-        interactive_message_id = data.get('interactive_message_id')
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=NAVIGATION_INTERACTIVE_TEXT,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-            except BadRequest as e:
-                if "message is not modified" not in str(e):
-                    logger.error(f"Failed to edit interactive message: {e}")
-                    # Відправка нового інтерактивного повідомлення
-                    interactive_message = await bot.send_message(
-                        chat_id=message.chat.id,
-                        text=NAVIGATION_INTERACTIVE_TEXT,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=get_generic_inline_keyboard()
-                    )
-                    await state.update_data(interactive_message_id=interactive_message.message_id)
-    else:
-        await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
-
-# Обробчик Inline кнопок
+# Обробник Inline кнопок
 @router.callback_query()
 async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
     data = callback.data
@@ -866,100 +495,143 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробчик невідомих команд
-@router.message()
-async def unknown_command(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+# Обробчик зміни імені користувача
+@router.message(MenuStates.CHANGE_USERNAME)
+async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    new_username = message.text.strip()
     user_id = message.from_user.id
-    logger.warning(f"Unknown message from {user_id}: {message.text}")
+    logger.info(f"User {user_id} is changing username to: {new_username}")
+    await message.delete()
+    if new_username:
+        try:
+            # Оновлення імені користувача у базі даних
+            result = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
+            user = result.scalars().first()
+            if user:
+                user.username = new_username
+                await db.commit()
+                response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
+                logger.info(f"User {user_id} changed username to: {new_username}")
+            else:
+                response_text = "❌ Користувача не знайдено. Зареєструйтесь, щоб змінити ім'я."
+        except Exception as e:
+            logger.error(f"Error updating username for user_id {user_id}: {e}")
+            response_text = "❌ Виникла помилка при зміні імені користувача."
+    else:
+        response_text = "❌ Будь ласка, введіть нове ім'я користувача."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.SETTINGS_MENU)
+
+# Обробчик отримання зворотного зв'язку
+@router.message(MenuStates.RECEIVE_FEEDBACK)
+async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    feedback = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} sent feedback: {feedback}")
+    await message.delete()
+    if feedback:
+        # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
+        # Наприклад, збереження у таблиці Feedback
+        # from models.feedback import Feedback
+        # new_feedback = Feedback(user_id=user_id, feedback=feedback)
+        # db.add(new_feedback)
+        # await db.commit()
+        
+        response_text = FEEDBACK_RECEIVED_TEXT
+        logger.info(f"Feedback received from user {user_id}")
+    else:
+        response_text = "❌ Будь ласка, надайте ваш зворотний зв'язок."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробчик повідомлення про помилку
+@router.message(MenuStates.REPORT_BUG)
+async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    bug_report = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} reported a bug: {bug_report}")
+    await message.delete()
+    if bug_report:
+        # Збереження звіту про помилку у базі даних або надсилання адміністратору
+        # Наприклад, збереження у таблиці BugReports
+        # from models.bug_report import BugReport
+        # new_bug = BugReport(user_id=user_id, report=bug_report)
+        # db.add(new_bug)
+        # await db.commit()
+        
+        response_text = BUG_REPORT_RECEIVED_TEXT
+        logger.info(f"Bug report received from user {user_id}")
+    else:
+        response_text = "❌ Будь ласка, опишіть помилку, яку ви зустріли."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробчик меню "Main Menu"
+@router.message(MenuStates.MAIN_MENU)
+async def handle_main_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in Main Menu")
     await message.delete()
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    current_state = await state.get_state()
-    new_main_text = ""
-    new_main_keyboard = None
-    new_interactive_text = ""
-    new_state = None
-
-    # Визначаємо нові тексти та клавіатури залежно від поточного стану
-    if current_state == MenuStates.MAIN_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = "Main Menu"
-        new_state = MenuStates.MAIN_MENU
-    elif current_state == MenuStates.NAVIGATION_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_navigation_menu()
-        new_interactive_text = "Navigation Screen"
-        new_state = MenuStates.NAVIGATION_MENU
-    elif current_state == MenuStates.HEROES_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Heroes Menu"
-        new_state = MenuStates.HEROES_MENU
-    elif current_state == MenuStates.HERO_CLASS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        hero_class = data.get('hero_class', 'Tank')
-        heroes_list = data.get('heroes_list', 'No available heroes.')
-        new_main_keyboard = get_hero_class_menu(hero_class)
-        new_interactive_text = f"Hero Class Menu for {hero_class}. Heroes: {heroes_list}"
-        new_state = MenuStates.HERO_CLASS_MENU
-    elif current_state == MenuStates.GUIDES_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_guides_menu()
-        new_interactive_text = "Guides Menu"
-        new_state = MenuStates.GUIDES_MENU
-    elif current_state == MenuStates.COUNTER_PICKS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_counter_picks_menu()
-        new_interactive_text = "Counter Picks Menu"
-        new_state = MenuStates.COUNTER_PICKS_MENU
-    elif current_state == MenuStates.BUILDS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_builds_menu()
-        new_interactive_text = "Builds Menu"
-        new_state = MenuStates.BUILDS_MENU
-    elif current_state == MenuStates.VOTING_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_voting_menu()
-        new_interactive_text = "Voting Menu"
-        new_state = MenuStates.VOTING_MENU
-    elif current_state == MenuStates.PROFILE_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_profile_menu()
-        new_interactive_text = "Profile Menu"
-        new_state = MenuStates.PROFILE_MENU
-    elif current_state == MenuStates.STATISTICS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_statistics_menu()
-        new_interactive_text = "Statistics Menu"
-        new_state = MenuStates.STATISTICS_MENU
-    elif current_state == MenuStates.ACHIEVEMENTS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_achievements_menu()
-        new_interactive_text = "Achievements Menu"
-        new_state = MenuStates.ACHIEVEMENTS_MENU
-    elif current_state == MenuStates.SETTINGS_MENU.state:
-        new_main_text = UNKNOWN_COMMAND_TEXT
-        new_main_keyboard = get_settings_menu()
-        new_interactive_text = "Settings Menu"
-        new_state = MenuStates.SETTINGS_MENU
-    elif current_state in [
-        MenuStates.SEARCH_HERO.state,
-        MenuStates.SEARCH_TOPIC.state,
-        MenuStates.CHANGE_USERNAME.state,
-        MenuStates.RECEIVE_FEEDBACK.state,
-        MenuStates.REPORT_BUG.state
-    ]:
-        # Якщо користувач перебуває в процесі введення, надсилаємо підказку
-        await bot.send_message(chat_id=message.chat.id, text=USE_BUTTON_NAVIGATION_TEXT, reply_markup=get_generic_inline_keyboard())
-        await state.set_state(current_state)
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
         return
-    else:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.NAVIGATION.value: NAVIGATION_MENU_TEXT,
+        MenuButton.PROFILE.value: PROFILE_MENU_TEXT,
+        MenuButton.TOURNAMENTS.value: "Меню Турніри",
+        MenuButton.META.value: "Меню META",
+        MenuButton.M6.value: "Меню M6",
+        MenuButton.GPT.value: "Меню GPT",
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.NAVIGATION.value: get_navigation_menu(),
+        MenuButton.PROFILE.value: get_profile_menu(),
+        MenuButton.TOURNAMENTS.value: get_tournaments_menu(),
+        MenuButton.META.value: get_meta_menu(),
+        MenuButton.M6.value: get_m6_menu(),
+        MenuButton.GPT.value: get_gpt_menu(),
+        'default': get_main_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.NAVIGATION.value: NAVIGATION_INTERACTIVE_TEXT,
+        MenuButton.PROFILE.value: PROFILE_INTERACTIVE_TEXT,
+        MenuButton.TOURNAMENTS.value: "Меню Турніри",
+        MenuButton.META.value: "Меню META",
+        MenuButton.M6.value: "Меню M6",
+        MenuButton.GPT.value: "Меню GPT",
+        'default': "Невідома команда"
+    }
+
+    next_states = {
+        MenuButton.NAVIGATION.value: MenuStates.NAVIGATION_MENU,
+        MenuButton.PROFILE.value: MenuStates.PROFILE_MENU,
+        MenuButton.TOURNAMENTS.value: MenuStates.TOURNAMENTS_MENU,
+        MenuButton.META.value: MenuStates.META_MENU,
+        MenuButton.M6.value: MenuStates.M6_MENU,
+        MenuButton.GPT.value: MenuStates.GPT_MENU,
+        'default': MenuStates.MAIN_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.MAIN_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_main_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Невідома команда")
 
     # Виклик централізованої функції для оновлення повідомлень
     await update_messages(
@@ -974,6 +646,545 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
 
     # Встановлення нового стану
     await state.set_state(new_state)
+
+# Обробчик меню "Navigation Menu"
+@router.message(MenuStates.NAVIGATION_MENU)
+async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in Navigation Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.HEROES.value: HEROES_MENU_TEXT,
+        MenuButton.GUIDES.value: GUIDES_MENU_TEXT,
+        MenuButton.COUNTER_PICKS.value: COUNTER_PICKS_MENU_TEXT,
+        MenuButton.BUILDS.value: BUILDS_MENU_TEXT,
+        MenuButton.VOTING.value: VOTING_MENU_TEXT,
+        MenuButton.TOURNAMENTS.value: "Меню Турніри",
+        MenuButton.META.value: "Меню META",
+        MenuButton.M6.value: "Меню M6",
+        MenuButton.GPT.value: "Меню GPT",
+        MenuButton.BACK.value: MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name),
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.HEROES.value: get_heroes_menu(),
+        MenuButton.GUIDES.value: get_guides_menu(),
+        MenuButton.COUNTER_PICKS.value: get_counter_picks_menu(),
+        MenuButton.BUILDS.value: get_builds_menu(),
+        MenuButton.VOTING.value: get_voting_menu(),
+        MenuButton.TOURNAMENTS.value: get_tournaments_menu(),
+        MenuButton.META.value: get_meta_menu(),
+        MenuButton.M6.value: get_m6_menu(),
+        MenuButton.GPT.value: get_gpt_menu(),
+        MenuButton.BACK.value: get_main_menu(),
+        'default': get_navigation_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.HEROES.value: HEROES_INTERACTIVE_TEXT,
+        MenuButton.GUIDES.value: GUIDES_INTERACTIVE_TEXT,
+        MenuButton.COUNTER_PICKS.value: COUNTER_PICKS_INTERACTIVE_TEXT,
+        MenuButton.BUILDS.value: BUILDS_INTERACTIVE_TEXT,
+        MenuButton.VOTING.value: VOTING_INTERACTIVE_TEXT,
+        MenuButton.TOURNAMENTS.value: "Меню Турніри",
+        MenuButton.META.value: "Меню META",
+        MenuButton.M6.value: "Меню M6",
+        MenuButton.GPT.value: "Меню GPT",
+        MenuButton.BACK.value: MAIN_MENU_DESCRIPTION,
+        'default': "Невідома команда"
+    }
+
+    next_states = {
+        MenuButton.HEROES.value: MenuStates.HEROES_MENU,
+        MenuButton.GUIDES.value: MenuStates.GUIDES_MENU,
+        MenuButton.COUNTER_PICKS.value: MenuStates.COUNTER_PICKS_MENU,
+        MenuButton.BUILDS.value: MenuStates.BUILDS_MENU,
+        MenuButton.VOTING.value: MenuStates.VOTING_MENU,
+        MenuButton.TOURNAMENTS.value: MenuStates.TOURNAMENTS_MENU,
+        MenuButton.META.value: MenuStates.META_MENU,
+        MenuButton.M6.value: MenuStates.M6_MENU,
+        MenuButton.GPT.value: MenuStates.GPT_MENU,
+        MenuButton.BACK.value: MenuStates.MAIN_MENU,
+        'default': MenuStates.NAVIGATION_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.NAVIGATION_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_navigation_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Невідома команда")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "Feedback Menu"
+@router.message(MenuStates.FEEDBACK_MENU)
+async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in Feedback Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.SEND_FEEDBACK.value: SEND_FEEDBACK_TEXT,
+        MenuButton.REPORT_BUG.value: REPORT_BUG_TEXT,
+        MenuButton.BACK.value: PROFILE_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.SEND_FEEDBACK.value: types.ReplyKeyboardRemove(),
+        MenuButton.REPORT_BUG.value: types.ReplyKeyboardRemove(),
+        MenuButton.BACK.value: get_profile_menu(),
+        'default': get_feedback_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.SEND_FEEDBACK.value: "Sending feedback",
+        MenuButton.REPORT_BUG.value: "Reporting a bug",
+        MenuButton.BACK.value: PROFILE_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        MenuButton.SEND_FEEDBACK.value: MenuStates.RECEIVE_FEEDBACK,
+        MenuButton.REPORT_BUG.value: MenuStates.REPORT_BUG,
+        MenuButton.BACK.value: MenuStates.PROFILE_MENU,
+        'default': MenuStates.FEEDBACK_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.FEEDBACK_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_feedback_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "Tournaments Menu"
+@router.message(MenuStates.TOURNAMENTS_MENU)
+async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in Tournaments Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.CREATE_TOURNAMENT.value: TOURNAMENT_CREATE_TEXT,
+        MenuButton.VIEW_TOURNAMENTS.value: TOURNAMENT_VIEW_TEXT,
+        MenuButton.BACK.value: NAVIGATION_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.CREATE_TOURNAMENT.value: get_tournaments_menu(),
+        MenuButton.VIEW_TOURNAMENTS.value: get_tournaments_menu(),
+        MenuButton.BACK.value: get_navigation_menu(),
+        'default': get_tournaments_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.CREATE_TOURNAMENT.value: "Creating a tournament",
+        MenuButton.VIEW_TOURNAMENTS.value: "Viewing tournaments",
+        MenuButton.BACK.value: NAVIGATION_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        MenuButton.CREATE_TOURNAMENT.value: MenuStates.TOURNAMENTS_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.VIEW_TOURNAMENTS.value: MenuStates.TOURNAMENTS_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.BACK.value: MenuStates.NAVIGATION_MENU,
+        'default': MenuStates.TOURNAMENTS_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.TOURNAMENTS_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_tournaments_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "META Menu"
+@router.message(MenuStates.META_MENU)
+async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in META Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.META_HERO_LIST.value: META_HERO_LIST_TEXT,
+        MenuButton.META_RECOMMENDATIONS.value: META_RECOMMENDATIONS_TEXT,
+        MenuButton.META_UPDATES.value: META_UPDATES_TEXT,
+        MenuButton.BACK.value: NAVIGATION_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.META_HERO_LIST.value: get_meta_menu(),
+        MenuButton.META_RECOMMENDATIONS.value: get_meta_menu(),
+        MenuButton.META_UPDATES.value: get_meta_menu(),
+        MenuButton.BACK.value: get_navigation_menu(),
+        'default': get_meta_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.META_HERO_LIST.value: "META Hero List",
+        MenuButton.META_RECOMMENDATIONS.value: "META Recommendations",
+        MenuButton.META_UPDATES.value: "META Updates",
+        MenuButton.BACK.value: NAVIGATION_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        MenuButton.META_HERO_LIST.value: MenuStates.META_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.META_RECOMMENDATIONS.value: MenuStates.META_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.META_UPDATES.value: MenuStates.META_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.BACK.value: MenuStates.NAVIGATION_MENU,
+        'default': MenuStates.META_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.META_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_meta_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "M6 Menu"
+@router.message(MenuStates.M6_MENU)
+async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in M6 Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.M6_INFO.value: M6_INFO_TEXT,
+        MenuButton.M6_STATS.value: M6_STATS_TEXT,
+        MenuButton.M6_NEWS.value: M6_NEWS_TEXT,
+        MenuButton.BACK.value: NAVIGATION_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.M6_INFO.value: get_m6_menu(),
+        MenuButton.M6_STATS.value: get_m6_menu(),
+        MenuButton.M6_NEWS.value: get_m6_menu(),
+        MenuButton.BACK.value: get_navigation_menu(),
+        'default': get_m6_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.M6_INFO.value: "M6 Info",
+        MenuButton.M6_STATS.value: "M6 Stats",
+        MenuButton.M6_NEWS.value: "M6 News",
+        MenuButton.BACK.value: NAVIGATION_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        MenuButton.M6_INFO.value: MenuStates.M6_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.M6_STATS.value: MenuStates.M6_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.M6_NEWS.value: MenuStates.M6_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.BACK.value: MenuStates.NAVIGATION_MENU,
+        'default': MenuStates.M6_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.M6_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_m6_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "GPT Menu"
+@router.message(MenuStates.GPT_MENU)
+async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in GPT Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        MenuButton.GPT_DATA_GENERATION.value: "Функціонал Генерації Даних GPT буде доступний пізніше.",
+        MenuButton.GPT_HINTS.value: "Функціонал Порад GPT буде доступний пізніше.",
+        MenuButton.GPT_HERO_STATS.value: "Функціонал Статистики Героїв GPT буде доступний пізніше.",
+        MenuButton.BACK.value: NAVIGATION_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.GPT_DATA_GENERATION.value: get_gpt_menu(),
+        MenuButton.GPT_HINTS.value: get_gpt_menu(),
+        MenuButton.GPT_HERO_STATS.value: get_gpt_menu(),
+        MenuButton.BACK.value: get_navigation_menu(),
+        'default': get_gpt_menu()
+    }
+
+    interactive_texts = {
+        MenuButton.GPT_DATA_GENERATION.value: "GPT: Генерація Даних",
+        MenuButton.GPT_HINTS.value: "GPT: Поради",
+        MenuButton.GPT_HERO_STATS.value: "GPT: Статистика Героїв",
+        MenuButton.BACK.value: NAVIGATION_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        MenuButton.GPT_DATA_GENERATION.value: MenuStates.GPT_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.GPT_HINTS.value: MenuStates.GPT_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.GPT_HERO_STATS.value: MenuStates.GPT_MENU,  # Можна змінити стан, якщо потрібно
+        MenuButton.BACK.value: MenuStates.NAVIGATION_MENU,
+        'default': MenuStates.GPT_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.GPT_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_gpt_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Обробчик меню "Heroes Menu"
+@router.message(MenuStates.HEROES_MENU)
+async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} selected '{user_choice}' in Heroes Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id or not interactive_message_id:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_ERROR_TEXT,
+            reply_markup=get_main_menu()
+        )
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+
+    # Визначення текстів та клавіатур для вибраних опцій
+    menu_texts = {
+        **heroes_by_class,
+        MenuButton.SEARCH_HERO.value: SEARCH_HERO_RESPONSE_TEXT,
+        MenuButton.COMPARISON.value: "Hero comparison feature is under development.",
+        MenuButton.BACK.value: NAVIGATION_MENU_TEXT,
+        'default': UNKNOWN_COMMAND_TEXT
+    }
+
+    menu_keyboards = {
+        MenuButton.TANK.value: get_hero_class_menu("Танк"),
+        MenuButton.MAGE.value: get_hero_class_menu("Маг"),
+        MenuButton.MARKSMAN.value: get_hero_class_menu("Стрілець"),
+        MenuButton.ASSASSIN.value: get_hero_class_menu("Асасін"),
+        MenuButton.FIGHTER.value: get_hero_class_menu("Боєць"),
+        MenuButton.SUPPORT.value: get_hero_class_menu("Підтримка"),
+        MenuButton.SEARCH_HERO.value: types.ReplyKeyboardRemove(),
+        MenuButton.COMPARISON.value: get_heroes_menu(),
+        MenuButton.BACK.value: get_navigation_menu(),
+        'default': get_heroes_menu()
+    }
+
+    interactive_texts = {
+        **{cls: HERO_CLASS_INTERACTIVE_TEXT.format(hero_class=cls, heroes_list=", ".join(heroes_by_class.get(cls, [])))
+           for cls in heroes_by_class},
+        MenuButton.SEARCH_HERO.value: "Search Hero",
+        MenuButton.COMPARISON.value: "Compare Heroes",
+        MenuButton.BACK.value: NAVIGATION_INTERACTIVE_TEXT,
+        'default': "Unknown command"
+    }
+
+    next_states = {
+        **{cls: MenuStates.HERO_CLASS_MENU for cls in heroes_by_class},
+        MenuButton.SEARCH_HERO.value: MenuStates.SEARCH_HERO,
+        MenuButton.COMPARISON.value: MenuStates.HEROES_MENU,
+        MenuButton.BACK.value: MenuStates.NAVIGATION_MENU,
+        'default': MenuStates.HEROES_MENU
+    }
+
+    new_state = next_states.get(user_choice, MenuStates.HEROES_MENU)
+    new_main_text = menu_texts.get(user_choice, UNKNOWN_COMMAND_TEXT)
+    new_main_keyboard = menu_keyboards.get(user_choice, get_heroes_menu())
+    new_interactive_text = interactive_texts.get(user_choice, "Unknown command")
+
+    # Якщо обрано клас героя, зберігаємо вибір у стані
+    if user_choice in heroes_by_class:
+        await state.update_data(hero_class=user_choice, heroes_list=", ".join(heroes_by_class.get(user_choice, [])))
+
+    # Виклик централізованої функції для оновлення повідомлень
+    await update_messages(
+        bot=bot,
+        chat_id=message.chat.id,
+        new_main_text=new_main_text,
+        new_main_keyboard=new_main_keyboard,
+        new_interactive_text=new_interactive_text,
+        interactive_message_id=interactive_message_id,
+        state=state
+    )
+
+    # Встановлення нового стану
+    await state.set_state(new_state)
+
+# Інші обробники меню можна додати аналогічним чином, використовуючи централізовану функцію `update_messages`
 
 # Інтеграція обробників з Dispatcher
 def setup_handlers(dp: Dispatcher):
