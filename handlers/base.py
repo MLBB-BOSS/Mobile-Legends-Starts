@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.enums import ParseMode
-from aiogram.exceptions.bad_request import BadRequest  # Правильний шлях імпорту
+from aiogram.exceptions import BadRequest  # Правильний шлях імпорту
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
