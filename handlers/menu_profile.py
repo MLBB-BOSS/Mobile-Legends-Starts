@@ -4,7 +4,7 @@ import logging
 from aiogram import Router, F, Bot
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.enums import ParseMode
+from aiogram.enums import ParseMode  # Виправлений імпорт
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -219,7 +219,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
         # new_feedback = Feedback(user_id=user_id, feedback=feedback)
         # db.add(new_feedback)
         # await db.commit()
-        
+
         response_text = FEEDBACK_RECEIVED_TEXT
         logger.info(f"Feedback received from user {user_id}")
     else:
@@ -241,7 +241,7 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
         # new_bug = BugReport(user_id=user_id, report=bug_report)
         # db.add(new_bug)
         # await db.commit()
-        
+
         response_text = BUG_REPORT_RECEIVED_TEXT
         logger.info(f"Bug report received from user {user_id}")
     else:
