@@ -3,9 +3,10 @@
 import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, ParseMode
+from aiogram.types import Message, CallbackQuery  # Залиште ці імпорти
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.enums import ParseMode  # Виправлений імпорт
 
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
