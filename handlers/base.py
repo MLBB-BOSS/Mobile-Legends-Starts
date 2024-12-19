@@ -203,7 +203,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
-# Обробник кнопки "🪪 Мій Профіль"
+# Оновлений обробник кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -216,16 +216,62 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
             f"• 🧬 Рівень: {profile_data['level']}\n"
             f"• 📈 Рейтинг: {profile_data['rating']}\n"
             f"• 🎯 Досягнення: {profile_data['achievements_count']} досягнень\n"
+            f"• 📸 Скріншоти: {profile_data['screenshots_count']}\n"
+            f"• 🎯 Місії: {profile_data['missions_count']}\n"
+            f"• 🧩 Вікторини: {profile_data['quizzes_count']}\n"
             f"• 🏆 Загальні матчі: {profile_data['total_matches']}\n"
             f"• 🥇 Виграші: {profile_data['total_wins']}\n"
             f"• 🥈 Поразки: {profile_data['total_losses']}\n"
+            f"• 🌟 Турнірні Участі: {profile_data['tournament_participations']}\n"
+            f"• 🏅 Бейджів: {profile_data['badges_count']}\n"
             f"• 📅 Останнє оновлення: {profile_data['last_update'].strftime('%d.%m.%Y %H:%M')}\n\n"
             f"Оберіть опцію, щоб редагувати свій профіль чи переглянути статистику."
         )
-        await message.answer(profile_message, parse_mode="HTML", reply_markup=get_profile_menu())
+
+        # Отримання даних стану
+        data = await state.get_data()
+        bot_message_id = data.get('bot_message_id')  # ID звичайного повідомлення
+        interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
+
+        # Видалення старого звичайного повідомлення
+        if bot_message_id:
+            try:
+                await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+            except Exception as e:
+                logger.error(f"Не вдалося видалити старе повідомлення: {e}")
+
+        # Видалення старого інлайн-повідомлення, якщо існує
+        if interactive_message_id:
+            try:
+                await bot.delete_message(chat_id=message.chat.id, message_id=interactive_message_id)
+            except Exception as e:
+                logger.error(f"Не вдалося видалити старе інлайн-повідомлення: {e}")
+
+        # Відправка нового звичайного повідомлення з профілем
+        new_profile_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=profile_message,
+            parse_mode="HTML",
+            reply_markup=get_profile_menu()
+        )
+
+        # Оновлення стану з новими ідентифікаторами повідомлень
+        await state.update_data(bot_message_id=new_profile_message.message_id)
+        # Якщо потрібне інлайн-повідомлення, можна його створити тут і зберегти ID
+        # Наприклад:
+        # interactive_message = await bot.send_message(
+        #     chat_id=message.chat.id,
+        #     text="Інтерактивне повідомлення",
+        #     reply_markup=get_generic_inline_keyboard()
+        # )
+        # await state.update_data(interactive_message_id=interactive_message.message_id)
+
+        # Встановлення стану до PROFILE_MENU
         await state.set_state(MenuStates.PROFILE_MENU)
     else:
-        await message.answer("❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику.")
+        # Обробка випадку, коли дані профілю не знайдено
+        error_message = "❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику."
+        await message.answer(error_message, reply_markup=get_generic_inline_keyboard())
 
 # Обробник меню "Main Menu"
 @router.message(MenuStates.MAIN_MENU)
@@ -237,7 +283,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -288,7 +334,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -299,7 +345,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
             reply_markup=new_interactive_keyboard
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -318,7 +364,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -351,7 +397,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -362,7 +408,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -381,7 +427,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -453,7 +499,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -464,7 +510,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, db
             reply_markup=new_interactive_keyboard
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -483,7 +529,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -516,7 +562,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -527,7 +573,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, db: Async
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -546,7 +592,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -601,7 +647,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -612,7 +658,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, db: As
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -631,7 +677,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -670,7 +716,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -681,7 +727,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -700,7 +746,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -732,7 +778,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -743,7 +789,7 @@ async def handle_counter_picks_menu_buttons(message: Message, state: FSMContext,
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -762,7 +808,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -795,7 +841,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -806,7 +852,7 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, db: As
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -825,7 +871,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -860,7 +906,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -871,7 +917,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, db: As
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -890,7 +936,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
     if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -940,7 +986,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -951,7 +997,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -969,8 +1015,8 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+    if not bot_message_id або interactive_message_id не знайдено:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -1003,7 +1049,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -1014,7 +1060,7 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1032,8 +1078,8 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+    if not bot_message_id або interactive_message_id не знайдено:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -1069,7 +1115,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -1080,7 +1126,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1098,8 +1144,8 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
-    if not bot_message_id or not interactive_message_id:
-        logger.error("bot_message_id or interactive_message_id not found")
+    if not bot_message_id або interactive_message_id не знайдено:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
         main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
         await state.update_data(bot_message_id=main_message.message_id)
         await state.set_state(MenuStates.MAIN_MENU)
@@ -1137,7 +1183,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
     try:
         await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
     except Exception as e:
-        logger.error(f"Failed to delete bot message: {e}")
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     await state.update_data(bot_message_id=new_bot_message_id)
     try:
         await bot.edit_message_text(
@@ -1148,7 +1194,7 @@ async def handle_settings_menu_buttons(message: Message, state: FSMContext, db: 
             reply_markup=get_generic_inline_keyboard()
         )
     except Exception as e:
-        logger.error(f"Failed to edit interactive message: {e}")
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         interactive_message = await bot.send_message(
             chat_id=message.chat.id,
             text=new_interactive_text,
@@ -1194,7 +1240,6 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
     if feedback:
         # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
         # Наприклад, збереження у таблиці Feedback
-        # Припустимо, що є модель Feedback
         # from models.feedback import Feedback
         # new_feedback = Feedback(user_id=user_id, feedback=feedback)
         # db.add(new_feedback)
@@ -1258,7 +1303,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, d
                     reply_markup=get_generic_inline_keyboard()
                 )
             except Exception as e:
-                logger.error(f"Failed to edit interactive message: {e}")
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_tournaments_menu())
 
@@ -1293,7 +1338,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, db: Asyn
                     reply_markup=get_generic_inline_keyboard()
                 )
             except Exception as e:
-                logger.error(f"Failed to edit interactive message: {e}")
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_meta_menu())
 
@@ -1328,7 +1373,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, db: AsyncS
                     reply_markup=get_generic_inline_keyboard()
                 )
             except Exception as e:
-                logger.error(f"Failed to edit interactive message: {e}")
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
     else:
         await bot.send_message(chat_id=message.chat.id, text=UNKNOWN_COMMAND_TEXT, reply_markup=get_m6_menu())
 
@@ -1355,7 +1400,7 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: 
                     reply_markup=new_interactive_keyboard
                 )
             except Exception as e:
-                logger.error(f"Failed to edit interactive message: {e}")
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
             main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=callback.from_user.first_name)
             main_menu_message = await bot.send_message(
                 chat_id=callback.message.chat.id,
@@ -1368,11 +1413,11 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: 
                 try:
                     await bot.delete_message(chat_id=callback.message.chat.id, message_id=old_bot_message_id)
                 except Exception as e:
-                    logger.error(f"Failed to delete old bot message: {e}")
+                    logger.error(f"Не вдалося видалити старе повідомлення бота: {e}")
         else:
             await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
     else:
-        logger.error("interactive_message_id not found")
+        logger.error("interactive_message_id не знайдено")
         await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
     await callback.answer()
 
@@ -1502,7 +1547,7 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         try:
             await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
         except Exception as e:
-            logger.error(f"Failed to delete bot message: {e}")
+            logger.error(f"Не вдалося видалити повідомлення бота: {e}")
     if interactive_message_id:
         try:
             await bot.edit_message_text(
@@ -1513,13 +1558,81 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
                 reply_markup=get_generic_inline_keyboard()
             )
         except Exception as e:
-            logger.error(f"Failed to edit interactive message: {e}")
+            logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
             interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
             await state.update_data(interactive_message_id=interactive_message.message_id)
     else:
         interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
         await state.update_data(interactive_message_id=interactive_message.message_id)
     await state.set_state(new_state)
+
+# Інші обробники меню залишаються без змін...
+# Обробник меню "Help Menu" (як приклад)
+@router.message(MenuStates.HELP_MENU)
+async def handle_help_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_choice = message.text
+    logger.info(f"User {message.from_user.id} selected {user_choice} in Help Menu")
+    await message.delete()
+    data = await state.get_data()
+    bot_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
+    if not bot_message_id або interactive_message_id не знайдено:
+        logger.error("bot_message_id або interactive_message_id не знайдено")
+        main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
+        await state.update_data(bot_message_id=main_message.message_id)
+        await state.set_state(MenuStates.MAIN_MENU)
+        return
+    new_main_text = ""
+    new_main_keyboard = get_help_menu()
+    new_interactive_text = ""
+    new_state = MenuStates.HELP_MENU
+
+    if user_choice == MenuButton.INSTRUCTIONS.value:
+        new_main_text = INSTRUCTIONS_TEXT
+        new_interactive_text = "Instructions"
+    elif user_choice == MenuButton.FAQ.value:
+        new_main_text = FAQ_TEXT
+        new_interactive_text = "Frequently Asked Questions"
+    elif user_choice == MenuButton.HELP_SUPPORT.value:
+        new_main_text = HELP_SUPPORT_TEXT
+        new_interactive_text = "Help Support"
+    elif user_choice == MenuButton.BACK.value:
+        new_main_text = PROFILE_MENU_TEXT
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = MenuStates.PROFILE_MENU
+    else:
+        new_main_text = UNKNOWN_COMMAND_TEXT
+        new_interactive_text = "Unknown command"
+
+    main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
+    new_bot_message_id = main_message.message_id
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=bot_message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося видалити повідомлення бота: {e}")
+    await state.update_data(bot_message_id=new_bot_message_id)
+    try:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=new_interactive_text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_generic_inline_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=new_interactive_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.update_data(interactive_message_id=interactive_message.message_id)
+    await state.set_state(new_state)
+
+# Інші обробники (наприклад, GPT, META, M6) залишаються без змін і можуть бути додані аналогічно
+
+# Обробник невідомих команд та інших станів також включені вище
 
 # Інтеграція обробників з Dispatcher
 def setup_handlers(dp: Router):
