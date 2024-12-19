@@ -1,13 +1,13 @@
 # handlers/menu_profile.py
 
 import logging
-from aiogram import Router
-from aiogram import F
+from aiogram import Router, F
 from aiogram.filters import Text
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.enums import ParseMode
+from aiogram import Bot
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -23,8 +23,7 @@ from keyboards.menus import (
     get_achievements_menu,
     get_settings_menu,
     get_feedback_menu,
-    get_help_menu,
-    get_main_menu
+    get_help_menu
 )
 from keyboards.inline_menus import get_generic_inline_keyboard
 from texts import (
@@ -35,18 +34,16 @@ from texts import (
     FEEDBACK_MENU_TEXT, FEEDBACK_INTERACTIVE_TEXT,
     HELP_MENU_TEXT, HELP_INTERACTIVE_TEXT,
     UNKNOWN_COMMAND_TEXT, GENERIC_ERROR_MESSAGE_TEXT,
-    MAIN_MENU_TEXT, MAIN_MENU_DESCRIPTION,
     CHANGE_USERNAME_RESPONSE_TEXT,
     FEEDBACK_RECEIVED_TEXT,
     BUG_REPORT_RECEIVED_TEXT
 )
 
 # Ініціалізація логування
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Ініціалізація роутера для профілю
-profile_router = Router()
+menu_profile_router = Router()
 
 # Визначення станів для профілю
 class ProfileStates(StatesGroup):
@@ -61,7 +58,7 @@ class ProfileStates(StatesGroup):
     REPORT_BUG = State()
 
 # Обробник кнопки "🪪 Мій Профіль"
-@profile_router.message(Text(equals="🪪 Мій Профіль", ignore_case=True))
+@menu_profile_router.message(Text(equals="🪪 Мій Профіль", ignore_case=True))
 async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
     profile_data = await get_user_profile(db, user_id)  # Отримання профілю з БД
@@ -163,10 +160,10 @@ async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSessio
             await bot.send_message(chat_id=message.chat.id, text=error_message, reply_markup=get_generic_inline_keyboard())
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
-        await state.set_state(MenuStates.MAIN_MENU)
+        await state.set_state(ProfileStates.MAIN_MENU)
 
 # Обробник кнопок у профільному меню
-@profile_router.message(ProfileStates.PROFILE_MENU)
+@menu_profile_router.message(ProfileStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
     logger.info(f"User {message.from_user.id} selected {user_choice} in Profile Menu")
@@ -220,13 +217,13 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         new_interactive_text = HELP_INTERACTIVE_TEXT
         new_state = ProfileStates.HELP_MENU
     elif user_choice == MenuButton.BACK.value:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name)
-        new_main_keyboard = get_main_menu()
-        new_interactive_text = MAIN_MENU_DESCRIPTION
-        new_state = MenuStates.MAIN_MENU
+        new_main_text = "🪪 Мій Профіль\nОберіть опцію для перегляду:"
+        new_main_keyboard = get_profile_menu()
+        new_interactive_text = PROFILE_INTERACTIVE_TEXT
+        new_state = ProfileStates.PROFILE_MENU
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
-        new_interactive_text = "Unknown command"
+        new_interactive_text = "Невідома команда"
         new_state = ProfileStates.PROFILE_MENU
 
     try:
@@ -271,7 +268,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     await state.set_state(new_state)
 
 # Обробчик зміни імені користувача
-@profile_router.message(ProfileStates.CHANGE_USERNAME)
+@menu_profile_router.message(ProfileStates.CHANGE_USERNAME)
 async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     new_username = message.text.strip()
     user_id = message.from_user.id
@@ -307,7 +304,7 @@ async def handle_change_username(message: Message, state: FSMContext, db: AsyncS
     await state.set_state(ProfileStates.SETTINGS_MENU)
 
 # Обробчик отримання зворотного зв'язку
-@profile_router.message(ProfileStates.RECEIVE_FEEDBACK)
+@menu_profile_router.message(ProfileStates.RECEIVE_FEEDBACK)
 async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     feedback = message.text.strip()
     user_id = message.from_user.id
@@ -338,7 +335,7 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
     await state.set_state(ProfileStates.FEEDBACK_MENU)
 
 # Обробчик повідомлення про помилку
-@profile_router.message(ProfileStates.REPORT_BUG)
+@menu_profile_router.message(ProfileStates.REPORT_BUG)
 async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     bug_report = message.text.strip()
     user_id = message.from_user.id
