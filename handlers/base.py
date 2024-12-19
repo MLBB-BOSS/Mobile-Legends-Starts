@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.enums import ParseMode
-from aiogram.exceptions import BadRequest  # Додано імпорт BadRequest
+from aiogram.exceptions.bad_request import BadRequest  # Правильний шлях імпорту
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -101,19 +101,22 @@ async def update_interactive_message(bot: Bot, chat_id: int, message_id: int, te
             parse_mode=ParseMode.HTML,
             reply_markup=reply_markup
         )
-    except BadRequest as e:  # Використовуйте BadRequest замість aiogram.exceptions.BadRequest
+    except BadRequest as e:
         if "message is not modified" in str(e):
             logger.warning("Спроба відредагувати повідомлення без змін. Ігноруємо.")
         else:
             logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
             if reply_markup:
                 # Якщо редагування не вдалося, спробуємо оновити тільки текст
-                await bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    text=text,
-                    parse_mode=ParseMode.HTML
-                )
+                try:
+                    await bot.edit_message_text(
+                        chat_id=chat_id,
+                        message_id=message_id,
+                        text=text,
+                        parse_mode=ParseMode.HTML
+                    )
+                except Exception as e2:
+                    logger.error(f"Не вдалося оновити тільки текст: {e2}")
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
@@ -154,11 +157,14 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         await state.update_data(interactive_message_id=interactive_message.message_id)
     except Exception as e:
         logger.error(f"Не вдалося надіслати вступну сторінку 1: {e}")
-        await bot.send_message(
-            chat_id=message.chat.id,
-            text=GENERIC_ERROR_MESSAGE_TEXT,
-            reply_markup=get_generic_inline_keyboard()
-        )
+        try:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e2:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку: {e2}")
 
 # Обробники вступних сторінок
 @router.callback_query(F.data == "intro_next_1")
@@ -176,11 +182,14 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
         await state.set_state(MenuStates.INTRO_PAGE_2)
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        await bot.send_message(
-            chat_id=callback.message.chat.id,
-            text=GENERIC_ERROR_MESSAGE_TEXT,
-            reply_markup=get_generic_inline_keyboard()
-        )
+        try:
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e2:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку: {e2}")
     await callback.answer()
 
 @router.callback_query(F.data == "intro_next_2")
@@ -198,11 +207,14 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
         await state.set_state(MenuStates.INTRO_PAGE_3)
     except Exception as e:
         logger.error(f"Failed to edit interactive message: {e}")
-        await bot.send_message(
-            chat_id=callback.message.chat.id,
-            text=GENERIC_ERROR_MESSAGE_TEXT,
-            reply_markup=get_generic_inline_keyboard()
-        )
+        try:
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+        except Exception as e2:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку: {e2}")
     await callback.answer()
 
 @router.callback_query(F.data == "intro_start")
@@ -1677,7 +1689,8 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, db: 
                 logger.error(f"Не вдалося відповісти на callback: {e}")
         elif data == "menu_back":
             try:
-                main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=callback.from_user.first_name)
+                user_first_name = callback.from_user.first_name
+                main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
                 main_menu_message = await bot.send_message(
                     chat_id=callback.message.chat.id,
                     text=main_menu_text_formatted,
@@ -1898,11 +1911,7 @@ async def unknown_command(message: Message, state: FSMContext, db: AsyncSession,
         except Exception as e:
             logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
             try:
-                interactive_message = await bot.send_message(
-                    chat_id=message.chat.id,
-                    text=new_interactive_text,
-                    reply_markup=get_generic_inline_keyboard()
-                )
+                interactive_message = await bot.send_message(chat_id=message.chat.id, text=new_interactive_text, reply_markup=get_generic_inline_keyboard())
                 await state.update_data(interactive_message_id=interactive_message.message_id)
             except Exception as e2:
                 logger.error(f"Не вдалося створити нове інтерактивне повідомлення: {e2}")
