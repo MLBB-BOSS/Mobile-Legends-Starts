@@ -89,6 +89,16 @@ class MenuStates(StatesGroup):
     M6_MENU = State()
     GPT_MENU = State()
 
+# Визначення словника для класів героїв
+menu_button_to_class = {
+    "Танк": "Танк",
+    "Маг": "Маг",
+    "Марксмен": "Марксмен",
+    "Асасин": "Асасин",
+    "Підтримка": "Підтримка",
+    "Файтер": "Файтер"
+}
+
 # Допоміжні функції
 
 async def send_or_update_interactive_message(
@@ -181,9 +191,8 @@ async def check_and_edit_message(
 
 async def transition_state(state: FSMContext, new_state: State):
     """
-    Очищення старих даних та встановлення нового стану.
+    Встановлення нового стану без очищення даних стану.
     """
-    await state.clear()
     await state.set_state(new_state)
 
 # Уніфікована функція для обробки меню
@@ -331,7 +340,8 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         await state.update_data(
             interactive_message_id=interactive_message.message_id,
             last_text=INTRO_PAGE_1_TEXT,
-            last_keyboard=get_intro_page_1_keyboard()
+            last_keyboard=get_intro_page_1_keyboard(),
+            state_menu=MenuStates.INTRO_PAGE_1.state  # Додано для відстеження поточного меню
         )
     except Exception as e:
         logger.error(f"Не вдалося надіслати вступну сторінку 1: {e}")
@@ -434,7 +444,8 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         parse_mode=ParseMode.HTML
     )
 
-    await transition_state(state, MenuStates.MAIN_MENU)
+    # Встановлення стану без очищення даних
+    await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
 # Уніфікований обробник для головного меню
@@ -585,7 +596,11 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
         response_text = "❌ Будь ласка, залиште свій відгук."
 
     try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=response_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
     except Exception as e:
         logger.error(f"Не вдалося надіслати повідомлення про отримання зворотного зв'язку: {e}")
 
@@ -610,7 +625,7 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
         response_text = BUG_REPORT_RECEIVED_TEXT
         logger.info(f"Bug report received from user {user_id}")
     else:
-        response_text = "❌ Будь ласка, опишіть помилку, яку ви зустріли."
+        response_text = "❌ Будь ласка, опишіть помилку, яку ви знайшли."
 
     try:
         await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
@@ -619,7 +634,7 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
 
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробник меню "Navigation Menu"
+# Обробчик меню "Navigation Menu"
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -723,7 +738,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     # Встановлення нового стану
     await state.set_state(new_state)
 
-# Обробник меню "Heroes Menu"
+# Обробчик меню "Heroes Menu"
 @router.message(MenuStates.HEROES_MENU)
 async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -823,8 +838,6 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 
     # Встановлення нового стану
     await state.set_state(new_state)
-
-# Обробник меню "Feedback Menu" вже реалізований вище
 
 # Обробчик для інлайн-кнопок
 @router.callback_query()
@@ -944,7 +957,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     # Повертаємо користувача до меню Зворотний Зв'язок
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробник для невідомих повідомлень
+# Обробчик для невідомих повідомлень
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
