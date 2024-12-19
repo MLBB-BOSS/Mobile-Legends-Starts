@@ -178,8 +178,76 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
 
     await state.set_state(new_state)
 
-# Інші обробники (зміна імені користувача, зворотний зв'язок, звіти про помилки) залишаються без змін
-# Вони вже включені у ваш `menu_profile.py`
+# Обробчик зміни імені користувача
+@profile_router.message(MenuStates.CHANGE_USERNAME)
+async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    new_username = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} is changing username to: {new_username}")
+    await message.delete()
+    if new_username:
+        try:
+            # Оновлення імені користувача у базі даних
+            result = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
+            user = result.scalars().first()
+            if user:
+                user.username = new_username
+                await db.commit()
+                response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
+                logger.info(f"User {user_id} changed username to: {new_username}")
+            else:
+                response_text = "❌ Користувача не знайдено. Зареєструйтесь, щоб змінити ім'я."
+        except Exception as e:
+            logger.error(f"Error updating username for user_id {user_id}: {e}")
+            response_text = "❌ Виникла помилка при зміні імені користувача."
+    else:
+        response_text = "❌ Будь ласка, введіть нове ім'я користувача."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.SETTINGS_MENU)
+
+# Обробчик отримання зворотного зв'язку
+@profile_router.message(MenuStates.RECEIVE_FEEDBACK)
+async def handle_receive_feedback(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    feedback = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} sent feedback: {feedback}")
+    await message.delete()
+    if feedback:
+        # Збереження зворотного зв'язку у базі даних або надсилання адміністратору
+        # Приклад збереження у таблиці Feedback
+        # from models.feedback import Feedback
+        # new_feedback = Feedback(user_id=user_id, feedback=feedback)
+        # db.add(new_feedback)
+        # await db.commit()
+        
+        response_text = FEEDBACK_RECEIVED_TEXT
+        logger.info(f"Feedback received from user {user_id}")
+    else:
+        response_text = "❌ Будь ласка, надайте ваш зворотний зв'язок."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.FEEDBACK_MENU)
+
+# Обробчик повідомлення про помилку
+@profile_router.message(MenuStates.REPORT_BUG)
+async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    bug_report = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} reported a bug: {bug_report}")
+    await message.delete()
+    if bug_report:
+        # Збереження звіту про помилку у базі даних або надсилання адміністратору
+        # Приклад збереження у таблиці BugReports
+        # from models.bug_report import BugReport
+        # new_bug = BugReport(user_id=user_id, report=bug_report)
+        # db.add(new_bug)
+        # await db.commit()
+        
+        response_text = BUG_REPORT_RECEIVED_TEXT
+        logger.info(f"Bug report received from user {user_id}")
+    else:
+        response_text = "❌ Будь ласка, опишіть помилку, яку ви зустріли."
+    await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    await state.set_state(MenuStates.FEEDBACK_MENU)
 
 # Функція для налаштування обробників з Dispatcher
 def setup_handlers(dp: Router):
