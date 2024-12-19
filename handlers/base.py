@@ -3,10 +3,9 @@
 import logging
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.enums import ParseMode
 
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
@@ -20,6 +19,8 @@ from texts import (
     MAIN_MENU_DESCRIPTION, GENERIC_ERROR_MESSAGE_TEXT
 )
 
+from handlers.menu_profile import setup_handlers as setup_profile_handlers  # Імпорт функції налаштування профільних обробників
+
 # Ініціалізація логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,6 +32,8 @@ class MenuStates(StatesGroup):
     INTRO_PAGE_2 = State()
     INTRO_PAGE_3 = State()
     MAIN_MENU = State()
+    PROFILE_MENU = State()
+    # Додайте інші стани за потребою
 
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, bot: Bot):
@@ -113,14 +116,14 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
 
-    # Редагування існуючого інлайн повідомлення
+    # Редагування існуючого інлайн повідомлення MLS до MAIN_MENU_DESCRIPTION
     try:
         await bot.edit_message_text(
             chat_id=callback.message.chat.id,
             message_id=interactive_message_id,
             text=MAIN_MENU_DESCRIPTION,
             parse_mode=ParseMode.HTML,
-            reply_markup=get_generic_inline_keyboard()  # Можливо, нова клавіатура для головного меню
+            reply_markup=get_generic_inline_keyboard()
         )
         logger.info("Successfully edited interactive message to MAIN_MENU_DESCRIPTION")
     except Exception as e:
@@ -159,93 +162,6 @@ async def handle_navigation(message: Message, state: FSMContext, bot: Bot):
     # Ваш код для обробки навігації
     await message.answer("Ви обрали Навігацію. Тут буде ваш код.")
 
-@router.message(F.text == "🪪 Мій профіль")
-async def handle_my_profile(message: Message, state: FSMContext, bot: Bot):
-    logger.info(f"Handling my profile for user {message.from_user.id}")
-    # Ваш код для обробки профілю
-    await message.answer("Ви обрали Мій профіль. Тут буде ваш код.")
-
-# Обробчик невідомих команд
-@router.message()
-async def unknown_command(message: Message, state: FSMContext, bot: Bot):
-    logger.warning(f"Unknown message from {message.from_user.id}: {message.text}")
-    await message.delete()
-    data = await state.get_data()
-    interactive_message_id = data.get('interactive_message_id')
-    current_state = await state.get_state()
-    new_main_text = ""
-    new_interactive_text = ""
-    new_state = None
-
-    if current_state == MenuStates.MAIN_MENU.state:
-        new_main_text = "Невідома команда. Будь ласка, використовуйте кнопки меню."
-        # Уникаємо редагування інтерактивного повідомлення у стані MAIN_MENU
-        new_state = MenuStates.MAIN_MENU
-    elif current_state == MenuStates.INTRO_PAGE_1.state:
-        new_main_text = "Будь ласка, використовуйте кнопки інтро."
-        new_interactive_text = "Intro Page 1"
-        new_state = MenuStates.INTRO_PAGE_1
-    elif current_state == MenuStates.INTRO_PAGE_2.state:
-        new_main_text = "Будь ласка, використовуйте кнопки інтро."
-        new_interactive_text = "Intro Page 2"
-        new_state = MenuStates.INTRO_PAGE_2
-    elif current_state == MenuStates.INTRO_PAGE_3.state:
-        new_main_text = "Будь ласка, використовуйте кнопки інтро."
-        new_interactive_text = "Intro Page 3"
-        new_state = MenuStates.INTRO_PAGE_3
-    else:
-        new_main_text = "Невідома команда. Будь ласка, використовуйте кнопки меню."
-        new_interactive_text = "Main Menu"
-        new_state = MenuStates.MAIN_MENU
-
-    try:
-        # Відправка нового повідомлення з Reply Keyboard лише у стані, де це потрібно
-        if current_state != MenuStates.MAIN_MENU.state:
-            main_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=new_main_text,
-                reply_markup=get_main_menu()  # Використання ReplyKeyboardMarkup
-            )
-            new_main_message_id = main_message.message_id
-    except Exception as e:
-        logger.error(f"Failed to send new main message: {e}")
-        return
-
-    if current_state != MenuStates.MAIN_MENU.state and interactive_message_id:
-        try:
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=interactive_message_id,
-                text=new_interactive_text,
-                parse_mode=ParseMode.HTML,
-                reply_markup=get_generic_inline_keyboard()
-            )
-            logger.info("Successfully edited interactive message to unknown command message")
-        except Exception as e:
-            logger.error(f"Failed to edit interactive message: {e}")
-            try:
-                interactive_message = await bot.send_message(
-                    chat_id=message.chat.id,
-                    text=new_interactive_text,
-                    reply_markup=get_generic_inline_keyboard()
-                )
-                await state.update_data(interactive_message_id=interactive_message.message_id)
-                logger.info("Sent new interactive message for unknown command")
-            except Exception as e2:
-                logger.error(f"Failed to send interactive message for unknown command: {e2}")
-    else:
-        # У стані MAIN_MENU не редагуємо інтерактивне повідомлення
-        pass
-
-    # Оновлення стану
-    try:
-        await state.set_state(new_state)
-    except Exception as e:
-        logger.error(f"Failed to set new state: {e}")
-
-# Функція для налаштування обробників з Dispatcher
+# Інтеграція профільного роутера
 def setup_handlers(dp: Router):
-    dp.include_router(router)
-    # Якщо у вас є інші роутери, включіть їх тут
-    # dp.include_router(navigation_router)
-    # dp.include_router(profile_router)
+    dp.include_router(profile_router)
