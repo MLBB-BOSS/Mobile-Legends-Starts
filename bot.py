@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession(timeout=60)  # Додав таймаут для стабільності
+    session=AiohttpSession()
 )
 
 # Ініціалізація диспетчера з підтримкою FSM
@@ -40,32 +40,45 @@ async def create_tables():
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Tables created successfully.")
 
+async def register_handlers():
+    """Реєстрація всіх хендлерів."""
+    try:
+        setup_handlers(dp)
+        setup_missing_handlers(dp)
+        logger.info("Handlers registered successfully.")
+    except Exception as handler_error:
+        logger.error(f"Handler setup error: {handler_error}")
+        raise
+
+async def shutdown():
+    """Закриває ресурси перед завершенням роботи."""
+    if bot.session:
+        await bot.session.close()
+    if engine:
+        await engine.dispose()
+    logger.info("Resources closed successfully.")
+
 async def main():
     logger.info("Starting bot...")
     try:
         # Ініціалізація бази даних
+        logger.info("Initializing database...")
         await init_db()
 
         # Створення таблиць перед запуском бота
         await create_tables()
 
-        # Налаштування основних хендлерів
-        setup_handlers(dp)
-
-        # Додавання нових хендлерів із missing_handlers.py
-        setup_missing_handlers(dp)
+        # Налаштування хендлерів
+        await register_handlers()
 
         # Запуск полінгу
         logger.info("Starting polling...")
         await dp.start_polling(bot)
+
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
     finally:
-        if bot.session:
-            await bot.session.close()
-        if engine:
-            await engine.dispose()
-        logger.info("Resources closed successfully.")
+        await shutdown()
 
 if __name__ == "__main__":
     try:
