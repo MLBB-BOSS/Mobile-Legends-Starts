@@ -20,9 +20,9 @@ class MenuButton(Enum):
     M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
-    GPT = "👾 GPT"
     BUST = "🚀 Буст"
-    TEAMS = "🧑‍🤝‍🧑 Команди"  # Додано нову кнопку Команди
+    TEAMS = "👥 Команди"  # Додано нову кнопку Команди
+    TRADING = "💰 Торгівля"  # Додано нову кнопку Торгівля
     BACK = "🔙 Назад"
 
     # Додані константи для Турнірів та M6
@@ -45,7 +45,7 @@ class MenuButton(Enum):
     VOTING = "🗳️ Голосування"  # Перемістили до Персонажі
 
     # Розділ Контр-піки
-    COUNTER_SEARCH = "🔎 Пошук"
+    COUNTER_SEARCH = "🔎 Пошук Контр-піка"
     COUNTER_LIST = "📝 Список Персонажів"
     COUNTER_PICKS = "♻️ Контр-пік"
 
@@ -53,7 +53,7 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "🔥 МЕТА"  # Додано
+    META = "⭐ МЕТА"  # Змінено емоджі для узгодженості
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -78,6 +78,7 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Зворотний Зв'язок"
     HELP = "❓ Допомога"
+    GPT = "👾 GPT"  # Перемістили до Профілю
 
     # Підрозділ Статистика
     ACTIVITY = "📊 Загальна Активність"
@@ -105,14 +106,14 @@ class MenuButton(Enum):
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
 
+    # Новий розділ Команди
+    CREATE_TEAM = "➕ Створити Команду"    # Додано
+    VIEW_TEAMS = "👀 Переглянути Команди" # Додано
+
     # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
-
-    # Новий розділ Команди
-    CREATE_TEAM = "➕ Створити Команду"    # Додано
-    VIEW_TEAMS = "👀 Переглянути Команди" # Додано
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -216,7 +217,7 @@ def get_navigation_menu():
             MenuButton.BUST,
             MenuButton.M6,
             MenuButton.TEAMS,    # Додано нову кнопку Команди
-            MenuButton.GPT,
+            MenuButton.TRADING,   # Додано нову кнопку Торгівля
             MenuButton.BACK
         ],
         placeholder="Виберіть розділ у навігації",
@@ -245,6 +246,26 @@ def get_heroes_menu():
             MenuButton.BACK
         ],
         placeholder="GPT-4: Персонажі",
+        row_width=3
+    )
+
+def get_profile_menu():
+    """
+    Створює меню Профілю.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.GPT,         # Перемістили GPT сюди
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть дію з профілем",
         row_width=3
     )
 
@@ -329,25 +350,6 @@ def get_voting_menu():
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію голосування",
-        row_width=3
-    )
-
-def get_profile_menu():
-    """
-    Створює меню Профілю.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.STATISTICS,
-            MenuButton.ACHIEVEMENTS,
-            MenuButton.SETTINGS,
-            MenuButton.FEEDBACK,
-            MenuButton.HELP,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть дію з профілем",
         row_width=3
     )
 
@@ -517,6 +519,22 @@ def get_teams_menu():
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію Команди",
+        row_width=2
+    )
+
+def get_trading_menu():
+    """
+    Створює меню Торгівлі.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.CREATE_TEAM,  # Можливо, потрібно створити окремі кнопки для Торгівлі
+            MenuButton.VIEW_TEAMS,   # Змінити ці кнопки відповідно до функцій Торгівлі
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію Торгівлі",
         row_width=2
     )
 
