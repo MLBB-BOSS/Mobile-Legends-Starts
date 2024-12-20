@@ -198,9 +198,108 @@ async def transition_state(state: FSMContext, new_state: State):
     await state.clear()
     await state.set_state(new_state)
 
-# Обробники
+# Рефакторинг: створення окремої функції для обробки профілю
+async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    user_id = message.from_user.id
+    profile_data = await get_user_profile(db, user_id)  # Отримання профілю з БД
 
-# Обробник команди /start з реєстрацією користувача
+    await safe_delete_message(bot, message.chat.id, message.message_id)
+
+    if profile_data:
+        # Підготовка даних для форматування
+        profile_info = {
+            "username": profile_data.get('username', 'N/A'),
+            "level": profile_data.get('level', 'N/A'),
+            "rating": profile_data.get('rating', 'N/A'),
+            "achievements_count": profile_data.get('achievements_count', 'N/A'),
+            "screenshots_count": profile_data.get('screenshots_count', 'N/A'),
+            "missions_count": profile_data.get('missions_count', 'N/A'),
+            "quizzes_count": profile_data.get('quizzes_count', 'N/A'),
+            "total_matches": profile_data.get('total_matches', 'N/A'),
+            "total_wins": profile_data.get('total_wins', 'N/A'),
+            "total_losses": profile_data.get('total_losses', 'N/A'),
+            "tournament_participations": profile_data.get('tournament_participations', 'N/A'),
+            "badges_count": profile_data.get('badges_count', 'N/A'),
+            "last_update": profile_data.get('last_update').strftime('%d.%m.%Y %H:%M') if profile_data.get('last_update') else 'N/A'
+        }
+
+        # Форматування тексту профілю з використанням утиліти
+        try:
+            formatted_profile_text = format_profile_text(PROFILE_INTERACTIVE_TEXT, profile_info)
+        except ValueError as e:
+            logger.error(f"Помилка форматування профілю: {e}")
+            formatted_profile_text = GENERIC_ERROR_MESSAGE_TEXT
+
+        data = await state.get_data()
+        old_bot_message_id = data.get('bot_message_id')  # ID попереднього звичайного повідомлення
+        interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
+
+        # Редагування існуючого інлайн-повідомлення з даними профілю
+        if interactive_message_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    text=formatted_profile_text,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=get_generic_inline_keyboard()  # Використовуйте відповідну інлайн клавіатуру
+                )
+                await state.update_data(last_text=formatted_profile_text, last_keyboard=get_generic_inline_keyboard())
+            except Exception as e:
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+                interactive_message_id = await send_or_update_interactive_message(
+                    bot=bot,
+                    chat_id=message.chat.id,
+                    text=formatted_profile_text,
+                    keyboard=get_generic_inline_keyboard(),
+                    message_id=None,
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
+        else:
+            # Якщо інлайн-повідомлення не існує, створіть нове
+            interactive_message_id = await send_or_update_interactive_message(
+                bot=bot,
+                chat_id=message.chat.id,
+                text=formatted_profile_text,
+                keyboard=get_generic_inline_keyboard(),
+                message_id=None,
+                state=state,
+                parse_mode=ParseMode.HTML
+            )
+
+        # Надсилання нового звичайного повідомлення з текстом «🪪 Мій Профіль»
+        try:
+            my_profile_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text="🪪 Мій Профіль\nОберіть опцію для перегляду:",
+                reply_markup=get_profile_menu()  # Використовуйте відповідну звичайну клавіатуру
+            )
+            new_bot_message_id = my_profile_message.message_id
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення профілю: {e}")
+            new_bot_message_id = None
+
+        # Видалення старого звичайного повідомлення
+        if old_bot_message_id:
+            await safe_delete_message(bot, message.chat.id, old_bot_message_id)
+
+        # Оновлення стану з новими ідентифікаторами повідомлень
+        if new_bot_message_id:
+            await state.update_data(bot_message_id=new_bot_message_id)
+
+        # Встановлення стану до PROFILE_MENU
+        await state.set_state(MenuStates.PROFILE_MENU)
+    else:
+        # Обробка випадку, коли дані профілю не знайдено
+        error_message = "❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику."
+        try:
+            await bot.send_message(chat_id=message.chat.id, text=error_message, reply_markup=get_generic_inline_keyboard())
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
+        await state.set_state(MenuStates.MAIN_MENU)
+
+# Обробчик команди /start з реєстрацією користувача
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -346,109 +445,13 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
 
 # Обробчик кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
-async def handle_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    user_id = message.from_user.id
-    profile_data = await get_user_profile(db, user_id)  # Отримання профілю з БД
-
-    await safe_delete_message(bot, message.chat.id, message.message_id)
-
-    if profile_data:
-        # Підготовка даних для форматування
-        profile_info = {
-            "username": profile_data.get('username', 'N/A'),
-            "level": profile_data.get('level', 'N/A'),
-            "rating": profile_data.get('rating', 'N/A'),
-            "achievements_count": profile_data.get('achievements_count', 'N/A'),
-            "screenshots_count": profile_data.get('screenshots_count', 'N/A'),
-            "missions_count": profile_data.get('missions_count', 'N/A'),
-            "quizzes_count": profile_data.get('quizzes_count', 'N/A'),
-            "total_matches": profile_data.get('total_matches', 'N/A'),
-            "total_wins": profile_data.get('total_wins', 'N/A'),
-            "total_losses": profile_data.get('total_losses', 'N/A'),
-            "tournament_participations": profile_data.get('tournament_participations', 'N/A'),
-            "badges_count": profile_data.get('badges_count', 'N/A'),
-            "last_update": profile_data.get('last_update').strftime('%d.%m.%Y %H:%M') if profile_data.get('last_update') else 'N/A'
-        }
-
-        # Форматування тексту профілю з використанням утиліти
-        try:
-            formatted_profile_text = format_profile_text(PROFILE_INTERACTIVE_TEXT, profile_info)
-        except ValueError as e:
-            logger.error(f"Помилка форматування профілю: {e}")
-            formatted_profile_text = GENERIC_ERROR_MESSAGE_TEXT
-
-        data = await state.get_data()
-        old_bot_message_id = data.get('bot_message_id')  # ID попереднього звичайного повідомлення
-        interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
-
-        # Редагування існуючого інлайн-повідомлення з даними профілю
-        if interactive_message_id:
-            try:
-                await bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=interactive_message_id,
-                    text=formatted_profile_text,
-                    parse_mode=ParseMode.HTML,
-                    reply_markup=get_generic_inline_keyboard()  # Використовуйте відповідну інлайн клавіатуру
-                )
-                await state.update_data(last_text=formatted_profile_text, last_keyboard=get_generic_inline_keyboard())
-            except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-                interactive_message_id = await send_or_update_interactive_message(
-                    bot=bot,
-                    chat_id=message.chat.id,
-                    text=formatted_profile_text,
-                    keyboard=get_generic_inline_keyboard(),
-                    message_id=None,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
-        else:
-            # Якщо інлайн-повідомлення не існує, створіть нове
-            interactive_message_id = await send_or_update_interactive_message(
-                bot=bot,
-                chat_id=message.chat.id,
-                text=formatted_profile_text,
-                keyboard=get_generic_inline_keyboard(),
-                message_id=None,
-                state=state,
-                parse_mode=ParseMode.HTML
-            )
-
-        # Надсилання нового звичайного повідомлення з текстом «🪪 Мій Профіль»
-        try:
-            my_profile_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text="🪪 Мій Профіль\nОберіть опцію для перегляду:",
-                reply_markup=get_profile_menu()  # Використовуйте відповідну звичайну клавіатуру
-            )
-            new_bot_message_id = my_profile_message.message_id
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення профілю: {e}")
-            new_bot_message_id = None
-
-        # Видалення старого звичайного повідомлення
-        if old_bot_message_id:
-            await safe_delete_message(bot, message.chat.id, old_bot_message_id)
-
-        # Оновлення стану з новими ідентифікаторами повідомлень
-        if new_bot_message_id:
-            await state.update_data(bot_message_id=new_bot_message_id)
-
-        # Встановлення стану до PROFILE_MENU
-        await state.set_state(MenuStates.PROFILE_MENU)
-    else:
-        # Обробка випадку, коли дані профілю не знайдено
-        error_message = "❌ Дані профілю не знайдено. Зареєструйтесь, щоб переглянути статистику."
-        try:
-            await bot.send_message(chat_id=message.chat.id, text=error_message, reply_markup=get_generic_inline_keyboard())
-        except Exception as e:
-            logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
-        await state.set_state(MenuStates.MAIN_MENU)
+async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    await process_my_profile(message, state, db, bot)
 
 # Уніфікована функція для обробки меню
 async def handle_menu(
     user_choice: str,
+    message: Message,
     state: FSMContext,
     db: AsyncSession,
     bot: Bot,
@@ -488,13 +491,8 @@ async def handle_menu(
         new_interactive_text = NAVIGATION_INTERACTIVE_TEXT
         updated_state = MenuStates.NAVIGATION_MENU
     elif user_choice == MenuButton.PROFILE.value:
-        # Виклик обробника профілю без повторної видалення повідомлення
-        await handle_my_profile(message=Message(
-            message_id=message.message_id, 
-            chat=message.chat, 
-            from_user=message.from_user, 
-            text=message.text
-        ), state=state, db=db, bot=bot)
+        # Виклик функції обробки профілю
+        await process_my_profile(message=message, state=state, db=db, bot=bot)
         return
     elif user_choice == MenuButton.TOURNAMENTS.value:
         new_main_text = "🏆 Меню Турніри"
@@ -518,7 +516,7 @@ async def handle_menu(
         updated_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повернення до головного меню
-        user_first_name = "Користувач"  # Замість цього використовуйте відповідний спосіб отримання імені
+        user_first_name = message.from_user.first_name or "Користувач"
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
@@ -556,7 +554,7 @@ async def handle_menu(
     # Встановлення нового стану
     await state.set_state(updated_state)
 
-# Обробник меню "Main Menu"
+# Обробчик меню "Main Menu"
 @router.message(MenuStates.MAIN_MENU)
 async def handle_main_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -566,6 +564,7 @@ async def handle_main_menu_buttons(message: Message, state: FSMContext, db: Asyn
 
     await handle_menu(
         user_choice=user_choice,
+        message=message,  # Передача об'єкта message
         state=state,
         db=db,
         bot=bot,
@@ -1097,7 +1096,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         new_state = MenuStates.VOTING_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повертаємось до головного меню
-        user_first_name = "Користувач"  # Замість цього використовуйте відповідний спосіб отримання імені
+        user_first_name = message.from_user.first_name or "Користувач"
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
@@ -1229,9 +1228,10 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
             chat_id=message.chat.id,
             message_id=interactive_message_id,
             text=new_interactive_text,
-            parse_mode="HTML",
+            parse_mode=ParseMode.HTML,
             reply_markup=get_generic_inline_keyboard()
         )
+        await state.update_data(last_text=new_interactive_text, last_keyboard=get_generic_inline_keyboard())
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
         # Якщо не вдалося редагувати, відправляємо нове інтерактивне повідомлення
@@ -1638,7 +1638,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
         new_state = MenuStates.HELP_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повертаємось до головного меню
-        user_first_name = "Користувач"  # Замість цього використовуйте відповідний спосіб отримання імені
+        user_first_name = message.from_user.first_name or "Користувач"
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
@@ -1708,11 +1708,12 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
                     text=new_interactive_text,
                     reply_markup=new_interactive_keyboard
                 )
+                await state.update_data(last_text=new_interactive_text, last_keyboard=new_interactive_keyboard)
             except Exception as e:
                 logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
             # Відправляємо головне меню
-            user_first_name = callback.from_user.first_name
+            user_first_name = callback.from_user.first_name or "Користувач"
             main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
             try:
                 main_message = await bot.send_message(
