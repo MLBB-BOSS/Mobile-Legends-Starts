@@ -113,7 +113,7 @@ class MenuButton(Enum):
     SHOP = "📦 Магазин"
     SUPPORT_CENTER = "🆘 Підтримка"
     EVENTS_CALENDAR = "📅 Календар Подій"
-    NOTIFICATIONS_SETTINGS = "🔔 Сповіщення"
+    NOTIFICATIONS_SETTINGS = "🔔 Налаштуй сповіщення"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
