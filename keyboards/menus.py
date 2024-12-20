@@ -22,7 +22,7 @@ class MenuButton(Enum):
     VOTING = "📋 Голосування"
     GPT = "👾 GPT"
     BUST = "🚀 Буст"
-    BACK = "🔙 Назад"  # Залишаємо одне визначення BACK
+    BACK = "🔙 Назад"
 
     # Додані константи для Турнірів та M6
     CREATE_TOURNAMENT = "➕ Створити Турнір"
@@ -52,6 +52,7 @@ class MenuButton(Enum):
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
     COUNTER_LIST = "📝 Список Персонажів"
+    COUNTER_PICKS = "🔄 Контр-піки"  # Додано
 
     # Розділ Білди
     CREATE_BUILD = "🏗️ Створити Білд"
@@ -100,6 +101,7 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "🌟 Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
+    META = "📊 META"  # Додано
 
     # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
@@ -200,7 +202,7 @@ def get_heroes_menu():
             MenuButton.SUPPORT,
             MenuButton.COMPARISON,
             MenuButton.SEARCH_HERO,
-            MenuButton.COUNTER_SEARCH,  # Змінив COUNTER_PICKS на COUNTER_SEARCH
+            MenuButton.COUNTER_PICKS,  # Використовується новий MenuButton.COUNTER_PICKS
             MenuButton.META,
             MenuButton.BACK
         ],
@@ -210,11 +212,9 @@ def get_heroes_menu():
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = [MenuButton.BACK]  # Використовуємо одне визначення BACK
-    # Якщо потрібно, можна додати кнопки героїв як MenuButton або строки
-    hero_buttons = [hero for hero in heroes]
+    buttons = heroes + [MenuButton.BACK]
     return create_menu(
-        buttons=hero_buttons + [MenuButton.BACK],
+        buttons=buttons,
         placeholder=f"GPT-4: {hero_class}",
         row_width=3
     )
