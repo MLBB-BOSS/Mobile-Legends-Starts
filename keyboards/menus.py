@@ -21,7 +21,7 @@ class MenuButton(Enum):
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
     BUST = "🚀 Буст"
-    TEAMS = "👥 Команди"  # Додано нову кнопку Команди
+    TEAMS = "🧑‍🤝‍🧑 Команди"  # Додано нову кнопку Команди
     TRADING = "💰 Торгівля"  # Додано нову кнопку Торгівля
     BACK = "🔙 Назад"
 
@@ -214,9 +214,9 @@ def get_navigation_menu():
             MenuButton.BUILDS,
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
-            MenuButton.BUST,
+            MenuButton.TEAMS,
             MenuButton.M6,
-            MenuButton.TEAMS,    # Додано нову кнопку Команди
+            MenuButton.BUST,
             MenuButton.TRADING,   # Додано нову кнопку Торгівля
             MenuButton.BACK
         ],
