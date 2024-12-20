@@ -17,14 +17,14 @@ class MenuButton(Enum):
     # Розділ Навігація
     TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
-    META = "📊 META"
+    META = "🔮 META"  # Змінив іконку для узгодженості
     M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
     COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📋 Голосування"
 
-    # Додані константи для Турнірів та M6
+    # Додаткові кнопки для Турнірів та M6
     CREATE_TOURNAMENT = "➕ Створити Турнір"
     VIEW_TOURNAMENTS = "🔍 Переглянути Турніри"
 
@@ -71,33 +71,33 @@ class MenuButton(Enum):
     HELP = "❓ Допомога"
     BACK = "🔙 Назад"
 
-    # Підрозділ Статистика
+    # Підрозділи Статистика
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
 
-    # Підрозділ Досягнення
+    # Підрозділи Досягнення
     BADGES = "🎖️ Мої Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Отримані Нагороди"
 
-    # Підрозділ Налаштування
+    # Підрозділи Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "ℹ️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотний зв'язок
+    # Підрозділи Зворотного Зв'язку
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
-    # Підрозділ Допомога
+    # Підрозділи Допомоги
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
 
-    # Підрозділ META
+    # Підрозділи META
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "🌟 Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
@@ -114,7 +114,7 @@ menu_button_to_class = {
     MenuButton.MARKSMAN.value: "Стрілець",
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
-    MenuButton.FIGHTER.value: "Боєць",
+    MenuButton.FIGHTER.value: "Боєць"
 }
 
 # Списки героїв по класах (заповнити відповідно до потреб)
@@ -167,7 +167,8 @@ def get_main_menu():
     return create_menu(
         buttons=[
             MenuButton.NAVIGATION,
-            MenuButton.PROFILE
+            MenuButton.PROFILE,
+            MenuButton.GPT
         ],
         placeholder="Оберіть одну з основних опцій",
         row_width=2
@@ -184,7 +185,6 @@ def get_navigation_menu():
             MenuButton.M6,
             MenuButton.META,
             MenuButton.VOTING,
-            MenuButton.GPT,
             MenuButton.BACK
         ],
         placeholder="Виберіть розділ у навігації",
@@ -204,16 +204,16 @@ def get_heroes_menu():
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Персонажі",
+        placeholder="Персонажі",
         row_width=3
     )
 
 def get_hero_class_menu(hero_class):
     heroes = heroes_by_class.get(hero_class, [])
-    buttons = heroes + [MenuButton.BACK]
+    buttons = heroes + [MenuButton.BACK.value]
     return create_menu(
         buttons=buttons,
-        placeholder=f"GPT-4: {hero_class}",
+        placeholder=f"{hero_class}",
         row_width=3
     )
 
@@ -227,7 +227,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Гайди",
+        placeholder="Гайди",
         row_width=3
     )
 
@@ -238,7 +238,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Контр-пік",
+        placeholder="Контр-піки",
         row_width=3
     )
 
@@ -250,7 +250,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Білд",
+        placeholder="Білди",
         row_width=3
     )
 
@@ -262,7 +262,7 @@ def get_voting_menu():
             MenuButton.SUGGEST_TOPIC,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію голосування",
+        placeholder="Голосування",
         row_width=3
     )
 
@@ -276,7 +276,7 @@ def get_profile_menu():
             MenuButton.HELP,
             MenuButton.BACK
         ],
-        placeholder="Оберіть дію з профілем",
+        placeholder="Профіль",
         row_width=3
     )
 
@@ -288,7 +288,7 @@ def get_statistics_menu():
             MenuButton.GAME_STATS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть тип статистики",
+        placeholder="Статистика",
         row_width=3
     )
 
@@ -301,7 +301,7 @@ def get_achievements_menu():
             MenuButton.AWARDS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть категорію досягнень",
+        placeholder="Досягнення",
         row_width=3
     )
 
@@ -314,7 +314,7 @@ def get_settings_menu():
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
-        placeholder="Налаштуйте свій профіль",
+        placeholder="Налаштування",
         row_width=3
     )
 
@@ -325,7 +325,7 @@ def get_feedback_menu():
             MenuButton.REPORT_BUG,
             MenuButton.BACK
         ],
-        placeholder="Виберіть тип зворотного зв'язку",
+        placeholder="Зворотний Зв'язок",
         row_width=3
     )
 
@@ -337,7 +337,7 @@ def get_help_menu():
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK
         ],
-        placeholder="Оберіть розділ допомоги",
+        placeholder="Допомога",
         row_width=3
     )
 
@@ -348,7 +348,7 @@ def get_tournaments_menu():
             MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть дію з турнірами",
+        placeholder="Турніри",
         row_width=3
     )
 
@@ -360,7 +360,7 @@ def get_meta_menu():
             MenuButton.META_UPDATES,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію META",
+        placeholder="META",
         row_width=3
     )
 
@@ -372,7 +372,7 @@ def get_m6_menu():
             MenuButton.M6_NEWS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть інформацію про M6",
+        placeholder="M6",
         row_width=3
     )
 
@@ -384,11 +384,6 @@ def get_gpt_menu():
             MenuButton.GPT_HERO_STATS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію GPT",
+        placeholder="GPT",
         row_width=2
-    )
-
-def get_generic_inline_keyboard():
-    # Цю функцію можна реалізувати для інлайн-кнопок, якщо потрібно.
-    # Поки що залишимо заглушку.
-    pass
+            )
