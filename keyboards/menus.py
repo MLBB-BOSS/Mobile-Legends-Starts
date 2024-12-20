@@ -213,9 +213,9 @@ def get_navigation_menu():
             MenuButton.BUILDS,
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
+            MenuButton.TEAMS,
             MenuButton.BUST,
             MenuButton.M6,
-            MenuButton.TEAMS,    # Додано нову кнопку Команди
             MenuButton.GPT,
             MenuButton.BACK
         ],
