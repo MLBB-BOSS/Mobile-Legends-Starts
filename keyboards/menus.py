@@ -79,6 +79,7 @@ class MenuButton(Enum):
     SETTINGS = "⚙️ Налаштування"
     FEEDBACK = "💌 Зворотний Зв'язок"
     HELP = "❓ Допомога"
+    MY_TEAM = "🧍 Моя команда"
     GPT = "👾 GPT"  # Перемістили до Профілю
 
     # Підрозділ Статистика
@@ -259,6 +260,7 @@ def get_profile_menu():
     return create_menu(
         buttons=[
             MenuButton.STATISTICS,
+            MenuButton.MY_TEAM,
             MenuButton.ACHIEVEMENTS,
             MenuButton.SETTINGS,
             MenuButton.FEEDBACK,
