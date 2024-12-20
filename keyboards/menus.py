@@ -40,9 +40,9 @@ class MenuButton(Enum):
     ASSASSIN = "⚔️ Асасін"
     SUPPORT = "❤️ Підтримка"
     FIGHTER = "🗡️ Боєць"
-    COMPARISON = "⚖️ Порівняння"
-    SEARCH_HERO = "🔎 Пошук персонажа"
-    VOTING = "🗳️ Голосування"  # Перемістили до Персонажі
+    COMPARISON = "⚖️ Порівняй"
+    SEARCH_HERO = "🔎 Пошук"
+    VOTING = "🗳️ Голосуй"  # Перемістили до Персонажі
 
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
@@ -53,11 +53,11 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "⭐ МЕТА"  # Змінено емоджі для узгодженості
+    META = "🔥 МЕТА"  # Змінено емоджі для узгодженості
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
-    M6 = "🔥 M6"
+    M6 = "🏆 M6"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Стратегії Гри"
@@ -239,8 +239,8 @@ def get_heroes_menu():
             MenuButton.ASSASSIN,
             MenuButton.FIGHTER,
             MenuButton.SUPPORT,
-            MenuButton.COUNTER_PICKS,
             MenuButton.META,
+            MenuButton.COUNTER_PICKS,
             MenuButton.COMPARISON,
             MenuButton.VOTING,      # Перемістили VOTING сюди
             MenuButton.SEARCH_HERO,
