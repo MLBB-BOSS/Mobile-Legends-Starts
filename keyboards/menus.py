@@ -1,6 +1,6 @@
 # keyboards/menus.py
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from enum import Enum, unique
 import logging
 
@@ -603,3 +603,10 @@ def get_generic_inline_keyboard():
     # Цю функцію можна реалізувати для інлайн-кнопок, якщо потрібно.
     # Поки що залишимо заглушку.
     pass
+
+def get_hero_class_menu() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton(text="Warrior", callback_data="class_warrior"))
+    keyboard.add(InlineKeyboardButton(text="Mage", callback_data="class_mage"))
+    keyboard.add(InlineKeyboardButton(text="Rogue", callback_data="class_rogue"))
+    return keyboard
