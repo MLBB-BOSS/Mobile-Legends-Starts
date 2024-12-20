@@ -40,8 +40,8 @@ class MenuButton(Enum):
     ASSASSIN = "⚔️ Асасін"
     SUPPORT = "❤️ Підтримка"
     FIGHTER = "🗡️ Боєць"
-    COMPARISON = "⚖️ Порівняйте"
-    SEARCH_HERO = "🔎 Пошук"
+    COMPARISON = "⚖️ Порівняння"
+    SEARCH_HERO = "🔎 Пошук персонажа"
     VOTING = "🗳️ Голосування"  # Перемістили до Персонажі
 
     # Розділ Контр-піки
@@ -213,9 +213,9 @@ def get_navigation_menu():
             MenuButton.BUILDS,
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
-            MenuButton.TEAMS,
-            MenuButton.M6,
             MenuButton.BUST,
+            MenuButton.M6,
+            MenuButton.TEAMS,    # Додано нову кнопку Команди
             MenuButton.GPT,
             MenuButton.BACK
         ],
@@ -237,8 +237,8 @@ def get_heroes_menu():
             MenuButton.ASSASSIN,
             MenuButton.FIGHTER,
             MenuButton.SUPPORT,
-            MenuButton.META,
             MenuButton.COUNTER_PICKS,
+            MenuButton.META,
             MenuButton.COMPARISON,
             MenuButton.VOTING,      # Перемістили VOTING сюди
             MenuButton.SEARCH_HERO,
