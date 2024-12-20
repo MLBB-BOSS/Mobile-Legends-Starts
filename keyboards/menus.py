@@ -1,5 +1,3 @@
-# keyboards/menus.py
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from enum import Enum, unique
 import logging
@@ -19,10 +17,10 @@ class MenuButton(Enum):
     M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
-    VOTING = "📋 Голосування"  # Переміщено до Персонажі
     GPT = "👾 GPT"
     BUST = "🚀 Буст"
     BACK = "🔙 Назад"
+    TEAMS = "👥 Команди"  # Додано нову кнопку Команди
 
     # Додані константи для Турнірів та M6
     CREATE_TOURNAMENT = "➕ Створити Турнір"
@@ -48,7 +46,7 @@ class MenuButton(Enum):
     META_RECOMMENDATIONS = "🌟 Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
     META = "📊 META"  # Додано
-    VOTING = "📋 Голосування"  # Переміщено до Персонажі
+    VOTING = "📋 Голосування"  # Перемістили до Персонажі
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -117,10 +115,8 @@ class MenuButton(Enum):
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
     # Новий розділ Команди
-    TEAMS = "👥 Команди"  # Додано
-    CREATE_TEAM = "➕ Створити Команду"  # Додано
-    VIEW_TEAMS = "👀 Переглянути Команди"  # Додано
-
+    CREATE_TEAM = "➕ Створити Команду"    # Додано
+    VIEW_TEAMS = "👀 Переглянути Команди" # Додано
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
@@ -401,6 +397,17 @@ def get_gpt_menu():
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію GPT",
+        row_width=2
+    )
+
+def get_teams_menu():
+    return create_menu(
+        buttons=[
+            MenuButton.CREATE_TEAM,
+            MenuButton.VIEW_TEAMS,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію Команди",
         row_width=2
     )
 
