@@ -47,13 +47,13 @@ class MenuButton(Enum):
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
     COUNTER_LIST = "📝 Список Персонажів"
-    COUNTER_PICKS = "🔄 Контр-піки"
+    COUNTER_PICKS = "🔀 Контр-пік"
 
     # Розділ META
     META_HERO_LIST = "🔍 Список Героїв META"
-    META_RECOMMENDATIONS = "🌟 Рекомендації META"
+    META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "📊 META"  # Додано
+    META = "⭐ МЕТА"  # Додано
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -213,9 +213,9 @@ def get_navigation_menu():
             MenuButton.BUILDS,
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
+            MenuButton.BUST,
             MenuButton.M6,
             MenuButton.TEAMS,    # Додано нову кнопку Команди
-            MenuButton.BUST,
             MenuButton.GPT,
             MenuButton.BACK
         ],
@@ -238,10 +238,10 @@ def get_heroes_menu():
             MenuButton.FIGHTER,
             MenuButton.SUPPORT,
             MenuButton.COMPARISON,
-            MenuButton.SEARCH_HERO,
             MenuButton.COUNTER_PICKS,
             MenuButton.META,
             MenuButton.VOTING,      # Перемістили VOTING сюди
+            MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
         placeholder="GPT-4: Персонажі",
