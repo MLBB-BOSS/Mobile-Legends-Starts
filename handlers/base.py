@@ -1,9 +1,9 @@
 # handlers/base.py
 
 import logging
+from handlers.missing_handlers import setup_missing_handlers
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from handlers.missing_handlers import setup_missing_handlers
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
