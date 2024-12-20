@@ -7,6 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
 from handlers.base import setup_handlers
+from handlers.missing_handlers import setup_missing_handlers  # Імпорт нового файлу
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
@@ -48,8 +49,11 @@ async def main():
         # Створення таблиць перед запуском бота
         await create_tables()
 
-        # Налаштування хендлерів
+        # Налаштування основних хендлерів
         setup_handlers(dp)
+
+        # Додавання нових хендлерів із missing_handlers.py
+        setup_missing_handlers(dp)
 
         # Запуск полінгу
         await dp.start_polling(bot)
