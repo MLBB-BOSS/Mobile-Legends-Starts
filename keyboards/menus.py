@@ -17,7 +17,7 @@ class MenuButton(Enum):
     # Розділ Навігація
     TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
-    M6 = "🔥 M6"
+    CHALLENGES = "🧩 Челендж"
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
     BUST = "🚀 Буст"
@@ -57,6 +57,7 @@ class MenuButton(Enum):
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
+    M6 = "🔥 M6"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
     BEGINNER_GUIDES = "📘 Для Початківців"
     ADVANCED_TECHNIQUES = "🧙 Стратегії Гри"
@@ -215,7 +216,7 @@ def get_navigation_menu():
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
             MenuButton.TEAMS,
-            MenuButton.M6,
+            MenuButton.CHALLENGES,
             MenuButton.BUST,
             MenuButton.TRADING,   # Додано нову кнопку Торгівля
             MenuButton.BACK
@@ -293,6 +294,7 @@ def get_guides_menu():
     return create_menu(
         buttons=[
             MenuButton.NEW_GUIDES,
+            MenuButton.M6,
             MenuButton.POPULAR_GUIDES,
             MenuButton.BEGINNER_GUIDES,
             MenuButton.ADVANCED_TECHNIQUES,
