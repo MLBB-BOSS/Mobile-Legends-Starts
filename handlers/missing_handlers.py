@@ -6,7 +6,10 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 
-from handlers.base import MenuStates, increment_step, safe_delete_message, check_and_edit_message
+# Імпортуємо MenuStates та increment_step зі states.py
+from states import MenuStates, increment_step
+
+from handlers.base import safe_delete_message, check_and_edit_message
 from keyboards.menus import (
     MenuButton,
     get_generic_inline_keyboard,
@@ -29,14 +32,16 @@ from texts import (
     ADVANCED_TECHNIQUES_TEXT, TEAMPLAY_GUIDES_TEXT,
     LANGUAGE_SELECTION_TEXT, UPDATE_ID_SUCCESS_TEXT, NOTIFICATIONS_SETTINGS_TEXT,
     INSTRUCTIONS_TEXT, FAQ_TEXT, HELP_SUPPORT_TEXT,
-    MY_TEAM_TEXT,
-    TRADE_ITEM_TEXT, VIEW_TRADES_TEXT
+    MY_TEAM_TEXT
 )
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = Router()
+
+# ... увесь інший код missing_handlers.py без визначення MenuStates та increment_step ...
+
 
 # Обробник для кнопки "Челенджі"
 @router.message(F.text == MenuButton.CHALLENGES.value)
