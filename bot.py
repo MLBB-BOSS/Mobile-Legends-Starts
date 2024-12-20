@@ -1,3 +1,13 @@
+from handlers.base import setup_handlers
+from handlers.missing_handlers import setup_missing_handlers
+
+# Додатковий імпорт
+from some_new_module import some_new_function
+
+# Налаштовуємо обробники
+setup_handlers(dp)
+setup_missing_handlers(dp)
+
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -6,7 +16,6 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
-from handlers.base import setup_handlers
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
