@@ -1,7 +1,6 @@
 # handlers/base.py
 
 import logging
-from handlers.missing_handlers import setup_missing_handlers
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
@@ -12,8 +11,9 @@ from aiogram.enums import ParseMode
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from utils.db import get_user_profile  # Імпорт функції для отримання профілю
-from utils.text_formatter import format_profile_text  # Імпорт утиліти для форматування тексту
+from handlers.missing_handlers import setup_missing_handlers
+from utils.db import get_user_profile
+from utils.text_formatter import format_profile_text
 import models.user
 import models.user_stats
 
@@ -103,6 +103,14 @@ menu_button_to_class = {
 }
 
 # Допоміжні функції
+
+async def increment_step(state: FSMContext):
+    data = await state.get_data()
+    step_count = data.get("step_count", 0) + 1
+    if step_count >= 3:
+        await state.clear()
+        step_count = 0
+    await state.update_data(step_count=step_count)
 
 async def send_or_update_interactive_message(
     bot: Bot,
@@ -352,9 +360,9 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
+    await increment_step(state)
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
-
     new_text = INTRO_PAGE_2_TEXT
     new_keyboard = get_intro_page_2_keyboard()
     new_state = MenuStates.INTRO_PAGE_2
@@ -379,9 +387,9 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
+    await increment_step(state)
     state_data = await state.get_data()
     interactive_message_id = state_data.get('interactive_message_id')
-
     new_text = INTRO_PAGE_3_TEXT
     new_keyboard = get_intro_page_3_keyboard()
     new_state = MenuStates.INTRO_PAGE_3
@@ -410,7 +418,8 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
-    user_first_name = callback.from_user.first_name
+    await increment_step(state)
+    user_first_name = callback.from_user.first_name or "Користувач"
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
 
     # Відправка головного меню
@@ -440,13 +449,13 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         parse_mode=ParseMode.HTML
     )
 
-    # Встановлення нового стану
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
 
 # Обробчик кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    await increment_step(state)
     await process_my_profile(message, state, db, bot)
 
 # Уніфікована функція для обробки меню
@@ -465,6 +474,7 @@ async def handle_menu(
 ):
     logger.info(f"User selected '{user_choice}' in menu")
 
+    await increment_step(state)
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
@@ -549,7 +559,7 @@ async def handle_menu(
         state=state
     )
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
+    # Оновлення стану користувача
     await state.update_data(bot_message_id=new_bot_message_id)
 
     # Встановлення нового стану
@@ -644,7 +654,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
         state=state
     )
 
-    # Оновлення стану з новими ідентифікаторами повідомлень
+    # Оновлення стану користувача
     await state.update_data(bot_message_id=new_bot_message_id)
 
     # Встановлення нового стану
@@ -1139,7 +1149,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     # Встановлення нового стану
     await state.set_state(new_state)
 
-# Обробчик натискання звичайних кнопок у меню Персонажі
+# Обробчик натискання звичайних кнопок у підрозділі "Персонажі"
 @router.message(MenuStates.HEROES_MENU)
 async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1379,7 +1389,6 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
-        new_state = MenuStates.ACHIEVEMENTS_MENU
 
     # Відправка нового повідомлення з клавіатурою
     try:
