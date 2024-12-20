@@ -19,7 +19,7 @@ class MenuButton(Enum):
     M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
-    VOTING = "📋 Голосування"
+    VOTING = "📋 Голосування"  # Переміщено до Персонажі
     GPT = "👾 GPT"
     BUST = "🚀 Буст"
     BACK = "🔙 Назад"
@@ -41,6 +41,14 @@ class MenuButton(Enum):
     FIGHTER = "🗡️ Боєць"
     COMPARISON = "⚖️ Порівняння"
     SEARCH_HERO = "🔎 Пошук"
+    COUNTER_SEARCH = "🔎 Пошук Контр-піка"
+    COUNTER_LIST = "📝 Список Персонажів"
+    COUNTER_PICKS = "🔄 Контр-піки"  # Додано
+    META_HERO_LIST = "🔍 Список Героїв META"
+    META_RECOMMENDATIONS = "🌟 Рекомендації META"
+    META_UPDATES = "📈 Оновлення META"
+    META = "📊 META"  # Додано
+    VOTING = "📋 Голосування"  # Переміщено до Персонажі
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -52,7 +60,7 @@ class MenuButton(Enum):
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
     COUNTER_LIST = "📝 Список Персонажів"
-    COUNTER_PICKS = "🔄 Контр-піки"  # Додано
+    COUNTER_PICKS = "🔄 Контр-піки"
 
     # Розділ Білди
     CREATE_BUILD = "🏗️ Створити Білд"
@@ -101,12 +109,17 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "🌟 Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "📊 META"  # Додано
+    META = "📊 META"
 
     # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
+
+    # Новий розділ Команди
+    TEAMS = "👥 Команди"  # Додано
+    CREATE_TEAM = "➕ Створити Команду"  # Додано
+    VIEW_TEAMS = "👀 Переглянути Команди"  # Додано
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -182,7 +195,7 @@ def get_navigation_menu():
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
             MenuButton.M6,
-            MenuButton.VOTING,
+            MenuButton.TEAMS,  # Додано нову кнопку Команди
             MenuButton.BUST,
             MenuButton.GPT,
             MenuButton.BACK
@@ -202,8 +215,9 @@ def get_heroes_menu():
             MenuButton.SUPPORT,
             MenuButton.COMPARISON,
             MenuButton.SEARCH_HERO,
-            MenuButton.COUNTER_PICKS,  # Використовується новий MenuButton.COUNTER_PICKS
+            MenuButton.COUNTER_PICKS,
             MenuButton.META,
+            MenuButton.VOTING,  # Перемістили VOTING сюди
             MenuButton.BACK
         ],
         placeholder="GPT-4: Персонажі",
