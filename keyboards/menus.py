@@ -53,7 +53,7 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "⭐ МЕТА"  # Додано
+    META = "🔝 МЕТА"  # Додано
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -237,10 +237,10 @@ def get_heroes_menu():
             MenuButton.ASSASSIN,
             MenuButton.FIGHTER,
             MenuButton.SUPPORT,
-            MenuButton.COMPARISON,
-            MenuButton.COUNTER_PICKS,
             MenuButton.META,
+            MenuButton.COMPARISON,
             MenuButton.VOTING,      # Перемістили VOTING сюди
+            MenuButton.COUNTER_PICKS,
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
