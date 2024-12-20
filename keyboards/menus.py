@@ -16,14 +16,13 @@ class MenuButton(Enum):
     # Розділ Навігація
     TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
-    META = "📊 META"
     M6 = "🔥 M6"
     GUIDES = "📚 Гайди"
-    COUNTER_PICKS = "⚖️ Контр-піки"
     BUILDS = "🛡️ Білди"
     VOTING = "📋 Голосування"
     GPT = "👾 GPT"
-
+    BUST = "🚀 Буст"
+    
     # Додані константи для Турнірів та M6
     CREATE_TOURNAMENT = "➕ Створити Турнір"
     VIEW_TOURNAMENTS = "🔍 Переглянути Турніри"
@@ -178,12 +177,11 @@ def get_navigation_menu():
         buttons=[
             MenuButton.HEROES,
             MenuButton.BUILDS,
-            MenuButton.COUNTER_PICKS,
             MenuButton.GUIDES,
             MenuButton.TOURNAMENTS,
             MenuButton.M6,
-            MenuButton.META,
             MenuButton.VOTING,
+            MenuButton.BUST,
             MenuButton.GPT,
             MenuButton.BACK
         ],
@@ -202,6 +200,8 @@ def get_heroes_menu():
             MenuButton.SUPPORT,
             MenuButton.COMPARISON,
             MenuButton.SEARCH_HERO,
+            MenuButton.COUNTER_PICKS,
+            MenuButton.META,
             MenuButton.BACK
         ],
         placeholder="GPT-4: Персонажі",
