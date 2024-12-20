@@ -11,7 +11,6 @@ from aiogram.enums import ParseMode
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from handlers.missing_handlers import setup_missing_handlers
 from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
