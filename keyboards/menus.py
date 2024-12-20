@@ -66,7 +66,9 @@ class MenuButton(Enum):
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
 
     # Розділ Профіль
-    MY_TEAM = "🧑‍🤝‍🧑 Моя команда"  # Додано Моя команда
+    VIEW_PROFILE = "👤 Переглянути Профіль"
+    EDIT_PROFILE = "✏️ Редагувати Профіль"
+    MY_TEAM = "🧑‍🤝‍🧑 Моя команда"
     STATISTICS = "📈 Статистика"
     ACHIEVEMENTS = "🏆 Досягнення"
     SETTINGS = "⚙️ Налаштування"
@@ -90,6 +92,7 @@ class MenuButton(Enum):
     CHANGE_USERNAME = "ℹ️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
+    NOTIFICATIONS_SETTINGS_BUTTON = "⚙️ Налаштування Сповіщень"
 
     # Підрозділ Зворотний зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
@@ -101,8 +104,8 @@ class MenuButton(Enum):
     HELP_SUPPORT = "📞 Підтримка"
 
     # Новий розділ Команди
-    CREATE_TEAM = "➕ Створити Команду"    # Додано
-    VIEW_TEAMS = "👀 Переглянути Команди" # Додано
+    CREATE_TEAM = "➕ Створити Команду"
+    VIEW_TEAMS = "👀 Переглянути Команди"
 
     # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
@@ -114,6 +117,12 @@ class MenuButton(Enum):
     SUPPORT_CENTER = "🆘 Підтримка"
     EVENTS_CALENDAR = "📅 Календар Подій"
     NOTIFICATIONS_SETTINGS = "🔔 Налаштуй сповіщення"
+
+    # Додані кнопки для Торгівлі та Турнірів
+    CREATE_TRADE = "➕ Створити Торгівлю"
+    VIEW_TRADES = "👀 Переглянути Торгівлі"
+    CREATE_TOURNAMENT = "🏆 Створити Турнір"
+    VIEW_TOURNAMENTS = "👀 Переглянути Турніри"
 
 # Відповідність кнопок класам героїв
 menu_button_to_class = {
@@ -248,7 +257,9 @@ def get_profile_menu():
     """
     return create_menu(
         buttons=[
-            MenuButton.MY_TEAM,  # Додано Моя команда
+            MenuButton.VIEW_PROFILE,   # Додано Переглянути Профіль
+            MenuButton.EDIT_PROFILE,   # Додано Редагувати Профіль
+            MenuButton.MY_TEAM,        # Моя команда
             MenuButton.STATISTICS,
             MenuButton.ACHIEVEMENTS,
             MenuButton.SETTINGS,
@@ -281,8 +292,27 @@ def get_heroes_menu():
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Персонажі",
+        placeholder="Персонажі",
         row_width=3
+    )
+
+def get_hero_class_menu():
+    """
+    Створює меню вибору класу героя.
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.FIGHTER,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть клас героя",
+        row_width=2
     )
 
 def get_trading_menu():
@@ -322,7 +352,9 @@ def get_challenges_menu():
     """
     return create_menu(
         buttons=[
-            # Додайте відповідні кнопки для челенджів тут
+            "🎯 Зіграти на певного героя",
+            "🔪 Вбити 20 ворогів в одному матчі",
+            "🔥 Виконати спеціальну задачу",
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію Челенджів",
@@ -336,9 +368,9 @@ def get_shop_menu():
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_BUILD,  # Приклад: Створення продукту
-            MenuButton.MY_BUILDS,     # Приклад: Мої покупки
-            MenuButton.POPULAR_BUILDS, # Приклад: Популярні товари
+            MenuButton.CREATE_BUILD,       # Приклад: Створення продукту
+            MenuButton.MY_BUILDS,          # Приклад: Мої покупки
+            MenuButton.POPULAR_BUILDS,     # Приклад: Популярні товари
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію Магазину",
@@ -376,6 +408,39 @@ def get_events_calendar_menu():
         row_width=2
     )
 
+def get_settings_menu():
+    """
+    Створює меню Налаштувань.
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS_SETTINGS_BUTTON,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть налаштування",
+        row_width=2
+    )
+
+def get_notifications_settings_menu():
+    """
+    Створює меню Налаштування Сповіщень.
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            "🔔 Вмикнути всі сповіщення",
+            "🔕 Вимкнути всі сповіщення",
+            "⚙️ Налаштувати окремі сповіщення",
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію сповіщень",
+        row_width=2
+    )
+
 def get_generic_inline_keyboard():
     """
     Створює інлайн-клавіатуру (заглушка).
@@ -397,12 +462,15 @@ def get_all_menus():
         "guides": get_guides_menu(),
         "profile": get_profile_menu(),
         "heroes": get_heroes_menu(),
+        "hero_class": get_hero_class_menu(),  # Додано, якщо потрібна
         "trading": get_trading_menu(),
         "my_team": get_my_team_menu(),
         "challenges": get_challenges_menu(),
         "shop": get_shop_menu(),
         "support_center": get_support_center_menu(),
         "events_calendar": get_events_calendar_menu(),
+        "settings": get_settings_menu(),
+        "notifications_settings": get_notifications_settings_menu(),
     }
 
 # При необхідності додайте інші функції для інших меню
