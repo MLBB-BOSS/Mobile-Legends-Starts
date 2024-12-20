@@ -21,8 +21,8 @@ class MenuButton(Enum):
     GUIDES = "📚 Гайди"
     BUILDS = "🛡️ Білди"
     BUST = "🚀 Буст"
-    TEAMS = "🧑‍🤝‍🧑 Команди"  # Додано нову кнопку Команди
-    TRADING = "💰 Торгівля"  # Додано нову кнопку Торгівля
+    TEAMS = "🧑‍🤝‍🧑 Команди"
+    TRADING = "💰 Торгівля"
     BACK = "🔙 Назад"
 
     # Додані константи для Турнірів та M6
@@ -42,7 +42,7 @@ class MenuButton(Enum):
     FIGHTER = "🗡️ Боєць"
     COMPARISON = "⚖️ Порівняй"
     SEARCH_HERO = "🔎 Пошук"
-    VOTING = "🗳️ Голосуй"  # Перемістили до Персонажі
+    VOTING = "🗳️ Голосуй"
 
     # Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
@@ -53,7 +53,7 @@ class MenuButton(Enum):
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
-    META = "🔥 МЕТА"  # Змінено емоджі для узгодженості
+    META = "🔥 МЕТА"
 
     # Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
@@ -80,7 +80,7 @@ class MenuButton(Enum):
     FEEDBACK = "💌 Зворотний Зв'язок"
     HELP = "❓ Допомога"
     MY_TEAM = "🧍 Моя команда"
-    GPT = "👾 GPT"  # Перемістили до Профілю
+    GPT = "👾 GPT"
 
     # Підрозділ Статистика
     ACTIVITY = "📊 Загальна Активність"
@@ -109,8 +109,13 @@ class MenuButton(Enum):
     HELP_SUPPORT = "📞 Підтримка"
 
     # Новий розділ Команди
-    CREATE_TEAM = "➕ Створити Команду"    # Додано
-    VIEW_TEAMS = "👀 Переглянути Команди" # Додано
+    CREATE_TEAM = "➕ Створити Команду"
+    VIEW_TEAMS = "👀 Переглянути Команди"
+
+    # Нові константи для Торгівлі
+    CREATE_TRADE = "➕ Створити Торгівлю"
+    VIEW_TRADES = "👀 Переглянути Торгівлі"
+    MANAGE_TRADES = "🔧 Управління Торгівлями"
 
     # GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
@@ -219,7 +224,7 @@ def get_navigation_menu():
             MenuButton.TEAMS,
             MenuButton.CHALLENGES,
             MenuButton.BUST,
-            MenuButton.TRADING,   # Додано нову кнопку Торгівля
+            MenuButton.TRADING,
             MenuButton.BACK
         ],
         placeholder="Виберіть розділ у навігації",
@@ -243,11 +248,11 @@ def get_heroes_menu():
             MenuButton.META,
             MenuButton.COUNTER_PICKS,
             MenuButton.COMPARISON,
-            MenuButton.VOTING,      # Перемістили VOTING сюди
+            MenuButton.VOTING,
             MenuButton.SEARCH_HERO,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Персонажі",
+        placeholder="Виберіть клас персонажа",
         row_width=3
     )
 
@@ -265,26 +270,72 @@ def get_profile_menu():
             MenuButton.SETTINGS,
             MenuButton.FEEDBACK,
             MenuButton.HELP,
-            MenuButton.GPT,         # Перемістили GPT сюди
+            MenuButton.GPT,
             MenuButton.BACK
         ],
         placeholder="Оберіть дію з профілем",
         row_width=3
     )
 
-def get_hero_class_menu(hero_class):
+def get_language_menu():
     """
-    Створює меню класу героя.
+    Клавіатура для вибору мови.
 
-    :param hero_class: Назва класу героя
     :return: ReplyKeyboardMarkup об'єкт
     """
-    heroes = heroes_by_class.get(hero_class, [])
-    buttons = heroes + [MenuButton.BACK]
     return create_menu(
-        buttons=buttons,
-        placeholder=f"GPT-4: {hero_class}",
-        row_width=3
+        buttons=[
+            "🇺🇦 Українська",
+            "🇬🇧 English",
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть мову інтерфейсу",
+        row_width=1
+    )
+
+def get_challenges_menu():
+    """
+    Клавіатура для розділу Челенджів.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.CHALLENGES,
+            MenuButton.BACK
+        ],
+        placeholder="Виберіть опцію челенджів",
+        row_width=2
+    )
+
+def get_bust_menu():
+    """
+    Клавіатура для розділу Буст.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.BUST,
+            MenuButton.BACK
+        ],
+        placeholder="Виберіть опцію бустів",
+        row_width=2
+    )
+
+def get_my_team_menu():
+    """
+    Клавіатура для розділу Моєї Команди.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.MY_TEAM,
+            MenuButton.BACK
+        ],
+        placeholder="Виберіть опцію Моєї Команди",
+        row_width=2
     )
 
 def get_guides_menu():
@@ -303,7 +354,7 @@ def get_guides_menu():
             MenuButton.TEAMPLAY_GUIDES,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Гайди",
+        placeholder="Оберіть розділ гайдів",
         row_width=3
     )
 
@@ -319,7 +370,7 @@ def get_counter_picks_menu():
             MenuButton.COUNTER_LIST,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Контр-пік",
+        placeholder="Оберіть опцію Контр-піків",
         row_width=3
     )
 
@@ -336,7 +387,7 @@ def get_builds_menu():
             MenuButton.POPULAR_BUILDS,
             MenuButton.BACK
         ],
-        placeholder="GPT-4: Білд",
+        placeholder="Оберіть опцію Білдів",
         row_width=3
     )
 
@@ -534,8 +585,9 @@ def get_trading_menu():
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_TEAM,  # Можливо, потрібно створити окремі кнопки для Торгівлі
-            MenuButton.VIEW_TEAMS,   # Змінити ці кнопки відповідно до функцій Торгівлі
+            MenuButton.CREATE_TRADE,
+            MenuButton.VIEW_TRADES,
+            MenuButton.MANAGE_TRADES,
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію Торгівлі",
