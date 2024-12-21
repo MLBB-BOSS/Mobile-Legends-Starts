@@ -1,13 +1,3 @@
-from handlers.base import setup_handlers
-from handlers.missing_handlers import setup_missing_handlers
-
-# Додатковий імпорт
-from some_new_module import some_new_function
-
-# Налаштовуємо обробники
-setup_handlers(dp)
-setup_missing_handlers(dp)
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -15,6 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
+
 from config import settings
 from utils.db import engine, async_session, init_db
 from models.base import Base
@@ -22,7 +13,14 @@ import models.user
 import models.user_stats
 
 # Імпорт Middleware
-from middlewares.database import DatabaseMiddleware  
+from middlewares.database import DatabaseMiddleware
+
+# Імпорт хендлерів
+from handlers.base import setup_handlers
+from handlers.missing_handlers import setup_missing_handlers
+
+# Додатковий імпорт (якщо потрібен)
+# from some_new_module import some_new_function
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +49,7 @@ async def create_tables():
 async def register_handlers():
     """Реєстрація всіх хендлерів."""
     try:
+        # Реєстрація хендлерів
         setup_handlers(dp)
         setup_missing_handlers(dp)
         logger.info("Handlers registered successfully.")
