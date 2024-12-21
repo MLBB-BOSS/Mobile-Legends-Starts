@@ -9,7 +9,7 @@ from aiogram.enums import ParseMode
 # Імпортуємо MenuStates та increment_step зі states.py
 from states import MenuStates, increment_step
 
-from handlers.base import safe_delete_message, check_and_edit_message
+from utils.message_utils import safe_delete_message, check_and_edit_message
 from keyboards.menus import (
     MenuButton,
     get_generic_inline_keyboard,
