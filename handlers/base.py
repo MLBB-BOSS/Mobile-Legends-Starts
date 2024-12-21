@@ -286,15 +286,23 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
+
+    # Видаляємо повідомлення з командою /start
+    await safe_delete_message(bot, message.chat.id, message.message_id)  # <--- Додано видалення повідомлення з командою
+
     async with db.begin():
-        user_result = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
+        user_result = await db.execute(
+            select(models.user.User).where(models.user.User.telegram_id == user_id)
+        )
         user = user_result.scalars().first()
+
         if not user:
-            # Створення нового користувача
-            new_user = models.user.User(telegram_id=user_id, username=message.from_user.username)
+            new_user = models.user.User(
+                telegram_id=user_id,
+                username=message.from_user.username
+            )
             db.add(new_user)
-            await db.flush()  # Отримання ID перед commit
-            # Створення статистики користувача
+            await db.flush()
             new_stats = models.user_stats.UserStats(user_id=new_user.id)
             db.add(new_stats)
             await db.commit()
@@ -396,7 +404,26 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     user_first_name = callback.from_user.first_name or "Користувач"
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
 
-    # Відправка головного меню
+    # Редагуємо існуюче інтерактивне повідомлення
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
+    new_interactive_text = MAIN_MENU_DESCRIPTION
+    new_interactive_keyboard = get_generic_inline_keyboard()
+
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=callback.message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=new_interactive_keyboard,
+            state=state,
+            parse_mode=ParseMode.HTML
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+
+    # Надсилаємо нове звичайне повідомлення з головним меню
     try:
         main_menu_message = await bot.send_message(
             chat_id=callback.message.chat.id,
@@ -407,21 +434,10 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     except Exception as e:
         logger.error(f"Не вдалося надіслати головне меню: {e}")
 
-    # Оновлення або відправка інтерактивного повідомлення
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
-    new_interactive_text = MAIN_MENU_DESCRIPTION
-    new_interactive_keyboard = get_generic_inline_keyboard()
-
-    interactive_message_id = await send_or_update_interactive_message(
-        bot=bot,
-        chat_id=callback.message.chat.id,
-        text=new_interactive_text,
-        keyboard=new_interactive_keyboard,
-        message_id=interactive_message_id,
-        state=state,
-        parse_mode=ParseMode.HTML
-    )
+    # Видаляємо попереднє повідомлення з клавіатурою (якщо необхідно)
+    old_bot_message_id = data.get('bot_message_id')
+    if old_bot_message_id:
+        await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
 
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
