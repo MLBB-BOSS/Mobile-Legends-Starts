@@ -1,5 +1,3 @@
-# escape_texts.py
-
 import re
 
 # Словник замін
@@ -63,34 +61,24 @@ replacements = {
 def escape_special_characters(text):
     return ''.join(replacements.get(char, char) for char in text)
 
-def process_texts_file(input_file, output_file):
-    try:
-        with open(input_file, 'r', encoding='utf-8') as file:
-            content = file.read()
-        
-        # Функція для екранування всередині потрійних лапок
-        def replace_in_triple_quotes(match):
-            original = match.group(0)
-            # Витягуємо текст між потрійними лапками
-            inner_text = match.group(1)
-            # Екрануємо спеціальні символи
-            escaped_text = escape_special_characters(inner_text)
-            return f'"""{escaped_text}"""'
-        
-        # Замінюємо текст у потрійних лапках
-        escaped_content = re.sub(r'"""(.*?)"""', replace_in_triple_quotes, content, flags=re.DOTALL)
-        
-        with open(output_file, 'w', encoding='utf-8') as file:
-            file.write(escaped_content)
-        
-        print(f"Файл {input_file} успішно екрановано та збережено як {output_file}!")
-    
-    except FileNotFoundError:
-        print(f"Файл {input_file} не знайдено. Перевірте шлях до файлу.")
-    except Exception as e:
-        print(f"Виникла помилка: {e}")
+# Зчитування файлу texts.py
+with open('texts.py', 'r', encoding='utf-8') as file:
+    content = file.read()
 
-if __name__ == "__main__":
-    input_filename = 'texts.py'
-    output_filename = 'texts_escaped.py'
-    process_texts_file(input_filename, output_filename)
+# Функція для екранування всередині потрійних лапок
+def replace_in_triple_quotes(match):
+    original = match.group(0)
+    # Витягуємо текст між потрійними лапками
+    inner_text = match.group(1)
+    # Екрануємо спеціальні символи
+    escaped_text = escape_special_characters(inner_text)
+    return f'"""{escaped_text}"""'
+
+# Замінюємо текст у потрійних лапках
+escaped_content = re.sub(r'"""(.*?)"""', replace_in_triple_quotes, content, flags=re.DOTALL)
+
+# Записуємо екранований контент назад у файл або інший файл
+with open('texts_escaped.py', 'w', encoding='utf-8') as file:
+    file.write(escaped_content)
+
+print("Файл texts.py успішно екрановано та збережено як texts_escaped.py!")
