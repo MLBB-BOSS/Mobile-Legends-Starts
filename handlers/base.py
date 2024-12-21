@@ -13,7 +13,7 @@ from sqlalchemy.future import select
 # Імпортуємо MenuStates та increment_step з states.py
 from states import MenuStates, increment_step
 
-from handlers.missing_handlers import setup_missing_handlers
+from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
