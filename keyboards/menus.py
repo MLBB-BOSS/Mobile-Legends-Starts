@@ -122,7 +122,6 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
-# Відповідність кнопок класам героїв
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
@@ -132,7 +131,7 @@ menu_button_to_class = {
     MenuButton.FIGHTER.value: "Боєць",
 }
 
-# Списки героїв по класах (заповнити відповідно до потреб)
+# Списки героїв по класах
 heroes_by_class = {
     "Боєць": [
         "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
@@ -142,25 +141,30 @@ heroes_by_class = {
         "Badang", "Guinevere"
     ],
     "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolia", "Gatotkaca", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia", "Masha",
-        "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda", "Carmilla", "Gloo", "Chip"
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolita", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia",
+        "Masha", "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda",
+        "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin", "Lancelot", "Helcurt",
-        "Lesley", "Selena", "Mathilda", "Paquito", "Yin", "Arlott", "Harley", "Suyou"
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin",
+        "Lancelot", "Helcurt", "Lesley", "Selena", "Mathilda", "Paquito",
+        "Yin", "Arlott", "Harley", "Suyou"
     ],
     "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia", "Hanabi", "Claude",
-        "Kimmy", "Granger", "Wanwan", "Miya", "Bruno", "Clint", "Layla", "Yi Sun-shin", "Moskov",
-        "Roger", "Karrie", "Irithel", "Lesley"
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia",
+        "Hanabi", "Claude", "Kimmy", "Granger", "Wanwan", "Miya", "Bruno",
+        "Clint", "Layla", "Yi Sun-shin", "Moskov", "Roger", "Karrie",
+        "Irithel", "Lesley"
     ],
     "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier", "Novaria", "Zhuxin", "Harley",
-        "Yve", "Aurora", "Faramis", "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier",
+        "Novaria", "Zhuxin", "Harley", "Yve", "Aurora", "Faramis",
+        "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis", "Mathilda", "Florin", "Johnson"
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis",
+        "Mathilda", "Florin", "Johnson"
     ],
 }
 
@@ -601,12 +605,25 @@ def get_generic_inline_keyboard():
     :return: None
     """
     # Цю функцію можна реалізувати для інлайн-кнопок, якщо потрібно.
-    # Поки що залишимо заглушку.
-    pass
+    # Поки що залишимо заглушку або реалізуємо базову інлайн-клавіатуру.
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="Повернутися до меню", callback_data="menu_back")
+            ]
+        ]
+    )
 
-def get_hero_class_menu() -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton(text="Warrior", callback_data="class_warrior"))
-    keyboard.add(InlineKeyboardButton(text="Mage", callback_data="class_mage"))
-    keyboard.add(InlineKeyboardButton(text="Rogue", callback_data="class_rogue"))
+def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
+
+    :param hero_class: Назва класу героя
+    :return: InlineKeyboardMarkup об'єкт
+    """
+    heroes = heroes_by_class.get(hero_class, [])
+    keyboard = InlineKeyboardMarkup(row_width=3)
+    for hero in heroes:
+        keyboard.insert(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
+    keyboard.add(InlineKeyboardButton(text="Повернутися", callback_data="menu_back"))
     return keyboard
