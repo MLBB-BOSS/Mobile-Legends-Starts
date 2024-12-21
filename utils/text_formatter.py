@@ -1,14 +1,17 @@
 # utils/text_formatter.py
 
-def format_profile_text(template: str, data: dict) -> str:
+import logging
+
+logger = logging.getLogger(__name__)
+
+def format_profile_text(template: str, profile_info: dict) -> str:
     """
-    Форматує текст профілю, замінюючи плейсхолдери на реальні дані користувача.
-    :param template: Шаблонний текст з плейсхолдерами.
-    :param data: Словник з даними користувача.
-    :return: Відформатований текст.
+    Formats the profile text using the provided template and profile information.
     """
     try:
-        return template.format(**data)
+        formatted_text = template.format(**profile_info)
+        logger.info("Formatted profile text successfully")
+        return formatted_text
     except KeyError as e:
-        missing_key = e.args[0]
-        raise ValueError(f"Відсутній ключ для форматування тексту профілю: {missing_key}") from e
+        logger.error(f"Missing key in profile_info: {e}")
+        raise ValueError(f"Missing key in profile_info: {e}")
