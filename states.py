@@ -28,7 +28,7 @@ class MenuStates(StatesGroup):
     M6_MENU = State()
     GPT_MENU = State()
 
-    # Додаткові стани з missing_handlers.py
+    # Додаткові стани
     CHALLENGES_MENU = State()
     BUST_MENU = State()
     TEAMS_MENU = State()
@@ -37,7 +37,6 @@ class MenuStates(StatesGroup):
     HELP_SUBMENU = State()
     MY_TEAM_MENU = State()
     SELECT_LANGUAGE = State()
-
 
 async def increment_step(state):
     data = await state.get_data()
