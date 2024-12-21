@@ -1,8 +1,6 @@
-# handlers/base.py
-
 import logging
 from aiogram import Router, F, Bot
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
@@ -75,23 +73,6 @@ menu_button_to_class = {
     MenuButton.FIGHTER.value: "Боєць"
 }
 
-# Допоміжні функції
-
-async def increment_step(state: FSMContext):
-    data = await state.get_data()
-    step_count = data.get("step_count", 0) + 1
-    if step_count >= 3:
-        await state.clear()
-        step_count = 0
-    await state.update_data(step_count=step_count)
-
-async def transition_state(state: FSMContext, new_state: State):
-    """
-    Очищення старих даних та встановлення нового стану.
-    """
-    await state.clear()
-    await state.set_state(new_state)
-
 # Рефакторинг: створення окремої функції для обробки профілю
 async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -153,15 +134,18 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
                 )
         else:
             # Якщо інлайн-повідомлення не існує, створіть нове
-            interactive_message_id = await send_or_update_interactive_message(
-                bot=bot,
-                chat_id=message.chat.id,
-                text=formatted_profile_text,
-                keyboard=get_generic_inline_keyboard(),
-                message_id=None,
-                state=state,
-                parse_mode=ParseMode.HTML
-            )
+            try:
+                interactive_message_id = await send_or_update_interactive_message(
+                    bot=bot,
+                    chat_id=message.chat.id,
+                    text=formatted_profile_text,
+                    keyboard=get_generic_inline_keyboard(),
+                    message_id=None,
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
+            except Exception as e:
+                logger.error(f"Не вдалося надіслати інтерактивне повідомлення: {e}")
 
         # Надсилання нового звичайного повідомлення з текстом «🪪 Мій Профіль»
         try:
@@ -239,9 +223,8 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
 # Обробники вступних сторінок
 @router.callback_query(F.data == "intro_next_1", F.state == MenuStates.INTRO_PAGE_1)
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await increment_step(state)
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
+    logger.info(f"Користувач {callback.from_user.id} натиснув 'intro_next_1'")
+
     new_text = INTRO_PAGE_2_TEXT
     new_keyboard = get_intro_page_2_keyboard()
     new_state = MenuStates.INTRO_PAGE_2
@@ -249,20 +232,20 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     await check_and_edit_message(
         bot=bot,
         chat_id=callback.message.chat.id,
-        message_id=interactive_message_id,
+        message_id=callback.message.message_id,  # Використовуйте актуальний message_id
         new_text=new_text,
         new_keyboard=new_keyboard,
         state=state,
         parse_mode=ParseMode.HTML
     )
     await state.set_state(new_state)
+    logger.info(f"Стан користувача після оновлення: {new_state}")
     await callback.answer()
 
 @router.callback_query(F.data == "intro_next_2", F.state == MenuStates.INTRO_PAGE_2)
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await increment_step(state)
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
+    logger.info(f"Користувач {callback.from_user.id} натиснув 'intro_next_2'")
+
     new_text = INTRO_PAGE_3_TEXT
     new_keyboard = get_intro_page_3_keyboard()
     new_state = MenuStates.INTRO_PAGE_3
@@ -270,13 +253,14 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     await check_and_edit_message(
         bot=bot,
         chat_id=callback.message.chat.id,
-        message_id=interactive_message_id,
+        message_id=callback.message.message_id,  # Використовуйте актуальний message_id
         new_text=new_text,
         new_keyboard=new_keyboard,
         state=state,
         parse_mode=ParseMode.HTML
     )
     await state.set_state(new_state)
+    logger.info(f"Стан користувача після оновлення: {new_state}")
     await callback.answer()
 
 @router.callback_query(F.data == "intro_start", F.state.in_([
@@ -285,7 +269,8 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     MenuStates.INTRO_PAGE_3
 ]))
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot, db: AsyncSession):
-    await increment_step(state)
+    logger.info(f"Користувач {callback.from_user.id} натиснув 'intro_start'")
+
     user_first_name = callback.from_user.first_name or "Користувач"
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
 
@@ -321,6 +306,8 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
 # Обробчик кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль", F.state == MenuStates.MAIN_MENU)
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    logger.info(f"Користувач {message.from_user.id} натиснув '🪪 Мій Профіль'")
+
     await increment_step(state)
     await process_my_profile(message, state, db, bot)
 
@@ -544,6 +531,8 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
 # Обробчик зміни імені користувача
 @router.message(F.text == "Змінити Ім'я Користувача", F.state == MenuStates.SETTINGS_MENU)
 async def handle_change_username(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    logger.info(f"Користувач {message.from_user.id} натиснув 'Змінити Ім'я Користувача'")
+
     await message.reply("Введіть нове ім'я користувача:")
     await state.set_state(MenuStates.CHANGE_USERNAME)
 
@@ -1490,7 +1479,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     # Встановлюємо новий стан
     await state.set_state(new_state)
 
-# Обробчик натискання звичайних кнопок у меню Профіль
+# Обробчик меню "Profile Menu"
 @router.message(F.text.in_([
     "📈 Статистика",
     "🏅 Досягнення",
@@ -1596,8 +1585,11 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     await state.set_state(new_state)
 
 # Обробчик для інлайн-кнопок
-@router.callback_query()
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
+@router.callback_query(F.data.in_([
+    "mls_button",
+    "menu_back"
+]))
+async def handle_specific_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
     data = callback.data
     logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
 
@@ -1688,7 +1680,8 @@ async def handle_search_hero(message: Message, state: FSMContext, bot: Bot):
 @router.message(F.state == MenuStates.SEARCH_TOPIC)
 async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     topic = message.text.strip()
-    logger.info(f"Користувач {message.from_user.id} пропонує тему: {topic}")
+    user_id = message.from_user.id
+    logger.info(f"Користувач {user_id} пропонує тему: {topic}")
 
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
@@ -1904,72 +1897,3 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
-
-# Обробчик для інлайн-кнопок
-@router.callback_query(F.data.in_([
-    "mls_button",
-    "menu_back"
-]))
-async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    data = callback.data
-    logger.info(f"Користувач {callback.from_user.id} натиснув інлайн-кнопку: {data}")
-
-    # Отримуємо interactive_message_id з стану
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
-
-    if interactive_message_id:
-        # Обробляємо інлайн-кнопки
-        if data == "mls_button":
-            await bot.answer_callback_query(callback.id, text=MLS_BUTTON_RESPONSE_TEXT)
-        elif data == "menu_back":
-            # Повернення до головного меню
-            new_interactive_text = MAIN_MENU_DESCRIPTION
-            new_interactive_keyboard = get_generic_inline_keyboard()
-
-            # Редагуємо інтерактивне повідомлення
-            try:
-                await check_and_edit_message(
-                    bot=bot,
-                    chat_id=callback.message.chat.id,
-                    message_id=interactive_message_id,
-                    new_text=new_interactive_text,
-                    new_keyboard=new_interactive_keyboard,
-                    state=state,
-                    parse_mode=ParseMode.HTML
-                )
-            except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-
-            # Відправляємо головне меню
-            user_first_name = callback.from_user.first_name or "Користувач"
-            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
-            try:
-                main_message = await bot.send_message(
-                    chat_id=callback.message.chat.id,
-                    text=main_menu_text_formatted,
-                    reply_markup=get_main_menu()
-                )
-                # Оновлюємо bot_message_id
-                await state.update_data(bot_message_id=main_message.message_id)
-            except Exception as e:
-                logger.error(f"Не вдалося надіслати головне меню: {e}")
-
-            # Видаляємо попереднє повідомлення з клавіатурою
-            old_bot_message_id = state_data.get('bot_message_id')
-            if old_bot_message_id:
-                await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
-        else:
-            # Додайте обробку інших інлайн-кнопок за потребою
-            await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
-    else:
-        logger.error("interactive_message_id не знайдено")
-        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT)
-
-    await callback.answer()
-
-# Функція для налаштування хендлерів
-def setup_handlers(dp: Router):
-    dp.include_router(router)
-    # Якщо у вас є інші роутери, включіть їх тут, наприклад:
-    # dp.include_router(profile_router)
