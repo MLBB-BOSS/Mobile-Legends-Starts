@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from handlers.progress import router as progress_router
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -27,6 +28,8 @@ bot = Bot(
 
 dp = Dispatcher(storage=MemoryStorage())
 
+# Реєструємо
+dp.include_router(progress_router)
 dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
