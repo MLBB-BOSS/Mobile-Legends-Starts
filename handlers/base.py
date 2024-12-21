@@ -1,7 +1,7 @@
 # handlers/base.py
 
 import logging
-from aiogram import Router, F, Bot
+from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
@@ -11,8 +11,8 @@ from aiogram.fsm.state import StatesGroup, State
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-# Імпортуємо MenuStates та increment_step з states.py
-from states import MenuStates, increment_step
+# Імпортуємо тільки MenuStates з states.py
+from states import MenuStates
 
 from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.db import get_user_profile
@@ -58,7 +58,7 @@ from texts import (
     UNHANDLED_INLINE_BUTTON_TEXT, MAIN_MENU_BACK_TO_PROFILE_TEXT,
     TOURNAMENT_CREATE_TEXT, TOURNAMENT_VIEW_TEXT, META_HERO_LIST_TEXT,
     META_RECOMMENDATIONS_TEXT, META_UPDATES_TEXT, M6_INFO_TEXT, M6_STATS_TEXT,
-    M6_NEWS_TEXT
+    M6_NEWS_TEXT, GPT_MENU_TEXT, TOURNAMENTS_MENU_TEXT, META_MENU_TEXT
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -1509,7 +1509,7 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
     # Встановлюємо новий стан
     await state.set_state(new_state)
 
-# Обробчик натискання звичайних кнопок у меню Профіль
+# Обробчик меню "Profile Menu"
 @router.message(MenuStates.PROFILE_MENU)
 async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1871,7 +1871,7 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     await state.set_state(new_state)
 
 # Функція для налаштування обробників
-def setup_handlers(dp: Router):
+def setup_handlers(dp: Dispatcher):
     dp.include_router(router)
     # Якщо у вас є інші роутери, включіть їх тут, наприклад:
     # dp.include_router(profile_router)
