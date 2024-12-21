@@ -196,7 +196,6 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
 
     Нижче наведено повний інтегрований та оптимізований код `handlers/base.py`, враховуючи усі виправлення та рекомендації.
 
-    ```python
     # handlers/base.py
 
     import logging
