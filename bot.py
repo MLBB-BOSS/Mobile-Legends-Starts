@@ -17,6 +17,20 @@ import models.user_stats
 from middlewares.database import DatabaseMiddleware
 from handlers import setup_handlers  # Імпортуємо з handlers/__init__.py
 
+from rich.logging import RichHandler
+from rich.console import Console
+import logging
+
+console = Console()
+
+logging.basicConfig(
+    level="INFO",
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(console=console)],
+)
+
+logger = logging.getLogger("rich")
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
