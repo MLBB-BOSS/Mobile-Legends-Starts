@@ -12,44 +12,31 @@ from models.base import Base
 import models.user
 import models.user_stats
 
-# Імпорт Middleware
 from middlewares.database import DatabaseMiddleware
-
-# Імпорт хендлерів
 from handlers.base import setup_handlers
 from handlers.missing_handlers import setup_missing_handlers
 
-# Додатковий імпорт (якщо потрібен)
-# from some_new_module import some_new_function
-
-# Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     session=AiohttpSession()
 )
 
-# Ініціалізація диспетчера з підтримкою FSM
 dp = Dispatcher(storage=MemoryStorage())
 
-# Додавання Middleware
 dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
 async def create_tables():
-    """Створює таблиці у базі даних, якщо вони ще не існують."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Tables created successfully.")
 
 async def register_handlers():
-    """Реєстрація всіх хендлерів."""
     try:
-        # Реєстрація хендлерів
         setup_handlers(dp)
         setup_missing_handlers(dp)
         logger.info("Handlers registered successfully.")
@@ -58,7 +45,6 @@ async def register_handlers():
         raise
 
 async def shutdown():
-    """Закриває ресурси перед завершенням роботи."""
     if bot.session:
         await bot.session.close()
     if engine:
@@ -68,20 +54,12 @@ async def shutdown():
 async def main():
     logger.info("Starting bot...")
     try:
-        # Ініціалізація бази даних
         logger.info("Initializing database...")
         await init_db()
-
-        # Створення таблиць перед запуском бота
         await create_tables()
-
-        # Налаштування хендлерів
         await register_handlers()
-
-        # Запуск полінгу
         logger.info("Starting polling...")
         await dp.start_polling(bot)
-
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
     finally:
