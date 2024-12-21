@@ -1,10 +1,4 @@
-# states.py
-
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
-import logging
-
-logger = logging.getLogger(__name__)
 
 class MenuStates(StatesGroup):
     INTRO_PAGE_1 = State()
@@ -22,31 +16,32 @@ class MenuStates(StatesGroup):
     STATISTICS_MENU = State()
     ACHIEVEMENTS_MENU = State()
     SETTINGS_MENU = State()
-    CHANGE_USERNAME = State()
-    RECEIVE_FEEDBACK = State()
-    REPORT_BUG = State()
+    FEEDBACK_MENU = State()
     HELP_MENU = State()
     SEARCH_HERO = State()
     SEARCH_TOPIC = State()
-    GPT_MENU = State()
-    M6_MENU = State()
+    CHANGE_USERNAME = State()
+    RECEIVE_FEEDBACK = State()
+    REPORT_BUG = State()
+    TOURNAMENTS_MENU = State()
     META_MENU = State()
+    M6_MENU = State()
+    GPT_MENU = State()
 
-async def increment_step(state: FSMContext, max_steps: int = 3):
-    """
-    Increments the step in the state data. Resets to MAIN_MENU after max_steps.
-    """
+    # Додаткові стани
+    CHALLENGES_MENU = State()
+    BUST_MENU = State()
+    TEAMS_MENU = State()
+    TRADING_MENU = State()
+    SETTINGS_SUBMENU = State()
+    HELP_SUBMENU = State()
+    MY_TEAM_MENU = State()
+    SELECT_LANGUAGE = State()
+
+async def increment_step(state):
     data = await state.get_data()
-    step = data.get("step", 0) + 1
-    logger.info(f"Current step: {step}")
-    if step >= max_steps:
-        # Save necessary data before clearing
-        interactive_message_id = data.get("interactive_message_id")
-        bot_message_id = data.get("bot_message_id")
+    step_count = data.get("step_count", 0) + 1
+    if step_count >= 3:
         await state.clear()
-        await state.set_state(MenuStates.MAIN_MENU)
-        await state.update_data(interactive_message_id=interactive_message_id, bot_message_id=bot_message_id)
-        logger.info("State reset to MAIN_MENU")
-    else:
-        await state.update_data(step=step)
-        logger.info(f"Step incremented to {step}")
+        step_count = 0
+    await state.update_data(step_count=step_count)
