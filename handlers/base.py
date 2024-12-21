@@ -64,6 +64,8 @@ from texts import (
     M6_NEWS_TEXT
 )
 
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup  # Додано імпорт для клавіатур, якщо необхідно
+
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -146,15 +148,19 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
                     parse_mode=ParseMode.HTML
                 )
         else:
-            interactive_message_id = await send_or_update_interactive_message(
-                bot=bot,
-                chat_id=message.chat.id,
-                text=formatted_profile_text,
-                keyboard=get_generic_inline_keyboard(),
-                message_id=None,
-                state=state,
-                parse_mode=ParseMode.HTML
-            )
+            try:
+                interactive_message_id = await send_or_update_interactive_message(
+                    bot=bot,
+                    chat_id=message.chat.id,
+                    text=formatted_profile_text,
+                    keyboard=get_generic_inline_keyboard(),
+                    message_id=None,
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
+            except Exception as e:
+                logger.error(f"Не вдалося надіслати інтерактивне повідомлення: {e}")
+                interactive_message_id = None
 
         try:
             my_profile_message = await bot.send_message(
@@ -238,17 +244,21 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     new_keyboard = get_intro_page_2_keyboard()
     new_state = MenuStates.INTRO_PAGE_2
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=callback.message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_text,
-        new_keyboard=new_keyboard,
-        state=state,
-        parse_mode=ParseMode.HTML
-    )
-    await state.set_state(new_state)
-    await callback.answer()
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=callback.message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_text,
+            new_keyboard=new_keyboard,
+            state=state,
+            parse_mode=ParseMode.HTML
+        )
+        await state.set_state(new_state)
+        await callback.answer()
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати вступну сторінку 2: {e}")
+        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT, show_alert=True)
 
 @router.callback_query(F.data == "intro_next_2")
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
@@ -265,17 +275,21 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     new_keyboard = get_intro_page_3_keyboard()
     new_state = MenuStates.INTRO_PAGE_3
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=callback.message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_text,
-        new_keyboard=new_keyboard,
-        state=state,
-        parse_mode=ParseMode.HTML
-    )
-    await state.set_state(new_state)
-    await callback.answer()
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=callback.message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_text,
+            new_keyboard=new_keyboard,
+            state=state,
+            parse_mode=ParseMode.HTML
+        )
+        await state.set_state(new_state)
+        await callback.answer()
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати вступну сторінку 3: {e}")
+        await bot.answer_callback_query(callback.id, text=GENERIC_ERROR_MESSAGE_TEXT, show_alert=True)
 
 @router.callback_query(F.data == "intro_start")
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot, db: AsyncSession):
@@ -308,15 +322,19 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     new_interactive_text = MAIN_MENU_DESCRIPTION
     new_interactive_keyboard = get_generic_inline_keyboard()
 
-    interactive_message_id = await send_or_update_interactive_message(
-        bot=bot,
-        chat_id=callback.message.chat.id,
-        text=new_interactive_text,
-        keyboard=new_interactive_keyboard,
-        message_id=interactive_message_id,
-        state=state,
-        parse_mode=ParseMode.HTML
-    )
+    try:
+        interactive_message_id = await send_or_update_interactive_message(
+            bot=bot,
+            chat_id=callback.message.chat.id,
+            text=new_interactive_text,
+            keyboard=new_interactive_keyboard,
+            message_id=interactive_message_id,
+            state=state,
+            parse_mode=ParseMode.HTML
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати або оновити інтерактивне повідомлення: {e}")
+        interactive_message_id = None
 
     await state.set_state(MenuStates.MAIN_MENU)
     await callback.answer()
@@ -412,14 +430,17 @@ async def handle_menu(
 
     await safe_delete_message(bot, chat_id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=chat_id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=chat_id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
     await state.set_state(updated_state)
@@ -461,7 +482,11 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
         try:
-            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
+            main_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=MAIN_MENU_ERROR_TEXT,
+                reply_markup=get_main_menu()
+            )
             await state.update_data(bot_message_id=main_message.message_id)
             await state.set_state(MenuStates.MAIN_MENU)
         except Exception as e:
@@ -500,17 +525,19 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник зміни імені користувача
@@ -658,17 +685,19 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник меню META
@@ -729,14 +758,17 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
     await state.set_state(new_state)
@@ -799,14 +831,17 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
     await state.set_state(new_state)
@@ -866,14 +901,17 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
     await state.set_state(new_state)
@@ -955,14 +993,17 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.set_state(new_state)
     await state.update_data(bot_message_id=new_bot_message_id)
@@ -1044,14 +1085,17 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.set_state(new_state)
     await state.update_data(bot_message_id=new_bot_message_id)
@@ -1115,17 +1159,19 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник меню Досягнення
@@ -1190,17 +1236,19 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник меню Білди
@@ -1262,17 +1310,19 @@ async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: B
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник меню Голосування
@@ -1336,17 +1386,19 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник меню Профіль
@@ -1361,7 +1413,8 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
-if not bot_message_id or not interactive_message_id:
+    # Виправлено логічний оператор з 'або' на 'or'
+    if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
         try:
             main_message = await bot.send_message(
@@ -1426,17 +1479,19 @@ if not bot_message_id or not interactive_message_id:
 
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_generic_inline_keyboard(),
+            state=state
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
 
     await state.update_data(bot_message_id=new_bot_message_id)
-
     await state.set_state(new_state)
 
 # Обробник інлайн-кнопок
@@ -1648,14 +1703,17 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     if interactive_message_id:
-        await check_and_edit_message(
-            bot=bot,
-            chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            new_text=new_interactive_text,
-            new_keyboard=get_generic_inline_keyboard(),
-            state=state
-        )
+        try:
+            await check_and_edit_message(
+                bot=bot,
+                chat_id=message.chat.id,
+                message_id=interactive_message_id,
+                new_text=new_interactive_text,
+                new_keyboard=get_generic_inline_keyboard(),
+                state=state
+            )
+        except Exception as e:
+            logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
     else:
         try:
             interactive_message = await bot.send_message(
