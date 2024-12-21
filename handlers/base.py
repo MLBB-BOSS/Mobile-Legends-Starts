@@ -13,7 +13,11 @@ from sqlalchemy.future import select
 
 from states import MenuStates, increment_step
 
-from utils.message_utils import safe_delete_message, check_and_edit_message
+from utils.message_utils import (
+    safe_delete_message,
+    check_and_edit_message,
+    send_or_update_interactive_message  # Додано імпорт send_or_update_interactive_message
+)
 from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
@@ -78,8 +82,6 @@ menu_button_to_class = {
 }
 
 # Додавання функції transition_state
-from states import MenuStates
-
 async def transition_state(state: FSMContext, new_state: MenuStates):
     """
     Очищає попередні дані стану та переходить до нового стану.
@@ -1359,7 +1361,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
-    if not bot_message_id or not interactive_message_id:
+    if not bot_message_id або not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
         try:
             main_message = await bot.send_message(
