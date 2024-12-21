@@ -32,7 +32,7 @@ from texts import (
     INSTRUCTIONS_TEXT, FAQ_TEXT, HELP_SUPPORT_TEXT,
     MY_TEAM_TEXT
 )
-from handlers.base import safe_delete_message, check_and_edit_message, send_or_update_interactive_message
+from handlers.base import safe_delete_message, check_and_edit_message  # send_or_update_interactive_message видалено
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,6 +43,7 @@ router = Router()
 async def transition_state(state: FSMContext, new_state: MenuStates):
     await state.clear()
     await state.set_state(new_state)
+
 
 # Спільна функція для обробки переходів між меню
 async def handle_menu_transition(
@@ -109,6 +110,7 @@ async def handle_menu_transition(
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, new_state)
 
+
 # Обробник для кнопки "Challenges"
 @router.message(F.text == MenuButton.CHALLENGES.value)
 async def handle_challenges(message: Message, state: FSMContext, bot: Bot):
@@ -136,7 +138,7 @@ async def handle_challenges_menu_buttons(message: Message, state: FSMContext, bo
         chat_id=message.chat.id,
         current_state=MenuStates.CHALLENGES_MENU,
         new_state=MenuStates.CHALLENGES_MENU,
-        new_text=CHALLENGES_TEXT,  # Можливо, тут слід оновити текст відповідно до вибору
+        new_text=CHALLENGES_TEXT,  # Оновіть текст відповідно до вибору
         new_keyboard_func=get_challenges_menu
     )
 
@@ -167,7 +169,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
         chat_id=message.chat.id,
         current_state=MenuStates.GUIDES_MENU,
         new_state=MenuStates.GUIDES_MENU,
-        new_text=GUIDES_TEXT,  # Можливо, оновити відповідно до вибору
+        new_text=GUIDES_TEXT,  # Оновіть відповідно до вибору
         new_keyboard_func=get_guides_menu
     )
 
@@ -198,7 +200,7 @@ async def handle_bust_menu_buttons(message: Message, state: FSMContext, bot: Bot
         chat_id=message.chat.id,
         current_state=MenuStates.BUST_MENU,
         new_state=MenuStates.BUST_MENU,
-        new_text=BUST_TEXT,  # Оновити відповідно до вибору
+        new_text=BUST_TEXT,  # Оновіть відповідно до вибору
         new_keyboard_func=get_bust_menu
     )
 
@@ -229,7 +231,7 @@ async def handle_teams_menu_buttons(message: Message, state: FSMContext, bot: Bo
         chat_id=message.chat.id,
         current_state=MenuStates.TEAMS_MENU,
         new_state=MenuStates.TEAMS_MENU,
-        new_text=TEAMS_TEXT,  # Оновити відповідно до вибору
+        new_text=TEAMS_TEXT,  # Оновіть відповідно до вибору
         new_keyboard_func=get_teams_menu
     )
 
@@ -260,7 +262,7 @@ async def handle_trading_menu_buttons(message: Message, state: FSMContext, bot: 
         chat_id=message.chat.id,
         current_state=MenuStates.TRADING_MENU,
         new_state=MenuStates.TRADING_MENU,
-        new_text=TRADING_TEXT,  # Оновити відповідно до вибору
+        new_text=TRADING_TEXT,  # Оновіть відповідно до вибору
         new_keyboard_func=get_trading_menu
     )
 
@@ -507,7 +509,7 @@ async def handle_my_team_menu_buttons(message: Message, state: FSMContext, bot: 
         chat_id=message.chat.id,
         current_state=MenuStates.MY_TEAM_MENU,
         new_state=MenuStates.MY_TEAM_MENU,
-        new_text=MY_TEAM_TEXT,  # Оновити відповідно до вибору
+        new_text=MY_TEAM_TEXT,  # Оновіть відповідно до вибору
         new_keyboard_func=get_my_team_menu
     )
 
