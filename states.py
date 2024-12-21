@@ -1,5 +1,3 @@
-# states.py
-
 from aiogram.fsm.state import StatesGroup, State
 
 class MenuStates(StatesGroup):
@@ -40,8 +38,6 @@ class MenuStates(StatesGroup):
     MY_TEAM_MENU = State()
     SELECT_LANGUAGE = State()
 
-
-# Також можна винести додаткову функцію increment_step, якщо вона використовується в обох файлах:
 
 async def increment_step(state):
     data = await state.get_data()
