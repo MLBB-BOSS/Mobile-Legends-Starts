@@ -1,6 +1,6 @@
 # states.py
+
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
 
 class MenuStates(StatesGroup):
     INTRO_PAGE_1 = State()
@@ -30,7 +30,20 @@ class MenuStates(StatesGroup):
     M6_MENU = State()
     GPT_MENU = State()
 
-async def increment_step(state: FSMContext):
+    # Додаткові стани з missing_handlers.py
+    CHALLENGES_MENU = State()
+    BUST_MENU = State()
+    TEAMS_MENU = State()
+    TRADING_MENU = State()
+    SETTINGS_SUBMENU = State()
+    HELP_SUBMENU = State()
+    MY_TEAM_MENU = State()
+    SELECT_LANGUAGE = State()
+
+
+# Також можна винести додаткову функцію increment_step, якщо вона використовується в обох файлах:
+
+async def increment_step(state):
     data = await state.get_data()
     step_count = data.get("step_count", 0) + 1
     if step_count >= 3:
