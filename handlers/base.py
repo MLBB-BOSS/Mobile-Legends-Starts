@@ -1,12 +1,12 @@
 # handlers/base.py
 
 import logging
-from aiogram.fsm.state import StatesGroup, State
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
+from aiogram.fsm.state import StatesGroup, State
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -282,7 +282,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
             logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
         await state.set_state(MenuStates.MAIN_MENU)
 
-# Обробчик команди /start з реєстрацією користувача
+# Обробник команди /start з реєстрацією користувача
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -480,24 +480,24 @@ async def handle_menu(
         await process_my_profile(message=message, state=state, db=db, bot=bot)
         return
     elif user_choice == MenuButton.TOURNAMENTS.value:
-        new_main_text = "🏆 Меню Турніри"
+        new_main_text = TOURNAMENTS_MENU_TEXT
         new_main_keyboard = get_tournaments_menu()
-        new_interactive_text = "Меню Турніри"
+        new_interactive_text = TOURNAMENTS_MENU_TEXT
         updated_state = MenuStates.TOURNAMENTS_MENU
     elif user_choice == MenuButton.META.value:
-        new_main_text = "🔮 Меню META"
+        new_main_text = META_MENU_TEXT
         new_main_keyboard = get_meta_menu()
-        new_interactive_text = "Меню META"
+        new_interactive_text = META_MENU_TEXT
         updated_state = MenuStates.META_MENU
     elif user_choice == MenuButton.M6.value:
-        new_main_text = "🚀 Меню M6"
+        new_main_text = M6_MENU_TEXT
         new_main_keyboard = get_m6_menu()
-        new_interactive_text = "Меню M6"
+        new_interactive_text = M6_MENU_TEXT
         updated_state = MenuStates.M6_MENU
     elif user_choice == MenuButton.GPT.value:
-        new_main_text = "🤖 Меню GPT"
+        new_main_text = GPT_MENU_TEXT
         new_main_keyboard = get_gpt_menu()
-        new_interactive_text = "Меню GPT"
+        new_interactive_text = GPT_MENU_TEXT
         updated_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повернення до головного меню
@@ -535,8 +535,6 @@ async def handle_menu(
 
     # Оновлення стану користувача
     await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлення нового стану
     await state.set_state(updated_state)
 
 # Обробчик меню "Main Menu"
@@ -1097,10 +1095,8 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     )
 
     # Оновлюємо стан користувача
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлюємо новий стан
     await state.set_state(new_state)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
 # Обробчик натискання звичайних кнопок у підрозділі "Персонажі"
 @router.message(MenuStates.HEROES_MENU)
@@ -1194,6 +1190,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
 
     # Оновлюємо стан користувача
     await state.set_state(new_state)
+    await state.update_data(bot_message_id=new_bot_message_id)
 
 # Обробчик натискання звичайних кнопок у підрозділі "Статистика"
 @router.message(MenuStates.STATISTICS_MENU)
