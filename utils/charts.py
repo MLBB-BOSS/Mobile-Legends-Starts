@@ -3,9 +3,8 @@ import matplotlib.pyplot as plt
 
 from aiogram import Router
 from aiogram.types import Message
-from aiogram.filters import Command
+from aiogram.filters import Command  # Імпорт для фільтра команд
 
-# Ініціалізація маршрутизатора
 charts_router = Router()
 
 # Додатковий хендлер для обробки команди "/chart"
