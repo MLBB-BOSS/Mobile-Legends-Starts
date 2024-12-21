@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-from utils.db import
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
