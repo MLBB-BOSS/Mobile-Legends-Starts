@@ -1,11 +1,12 @@
+# bot.py
+
 import asyncio
 import logging
-from handlers.progress import router as progress_router
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.memory import MemoryStorage  # Розгляньте можливість використання RedisStorage для продуктивних ботів
 
 from config import settings
 from utils.db import engine, async_session, init_db
@@ -14,22 +15,27 @@ import models.user
 import models.user_stats
 
 from middlewares.database import DatabaseMiddleware
-from handlers.base import setup_handlers
-from handlers.missing_handlers import setup_missing_handlers
+from handlers import setup_handlers  # Імпортуємо з handlers/__init__.py
 
-logging.basicConfig(level=logging.INFO)
+# Налаштування логування
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+# Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     session=AiohttpSession()
 )
 
-dp = Dispatcher(storage=MemoryStorage())
+# Ініціалізація диспетчера з MemoryStorage (розгляньте RedisStorage для продуктивності)
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage)
 
-# Реєструємо
-dp.include_router(progress_router)
+# Реєструємо мідлвари перед реєстрацією маршрутизаторів
 dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
@@ -41,7 +47,6 @@ async def create_tables():
 async def register_handlers():
     try:
         setup_handlers(dp)
-        setup_missing_handlers(dp)
         logger.info("Handlers registered successfully.")
     except Exception as handler_error:
         logger.error(f"Handler setup error: {handler_error}")
@@ -62,7 +67,8 @@ async def main():
         await create_tables()
         await register_handlers()
         logger.info("Starting polling...")
-        await dp.start_polling(bot)
+        async with bot:
+            await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
     finally:
