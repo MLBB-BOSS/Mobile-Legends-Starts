@@ -14,9 +14,7 @@ from sqlalchemy.future import select
 # Імпортуємо MenuStates та increment_step з states.py
 from states import MenuStates, increment_step
 
-# Імпортуємо функції без дублювання
 from utils.message_utils import safe_delete_message, check_and_edit_message
-
 from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
@@ -60,7 +58,7 @@ from texts import (
     UNHANDLED_INLINE_BUTTON_TEXT, MAIN_MENU_BACK_TO_PROFILE_TEXT,
     TOURNAMENT_CREATE_TEXT, TOURNAMENT_VIEW_TEXT, META_HERO_LIST_TEXT,
     META_RECOMMENDATIONS_TEXT, META_UPDATES_TEXT, M6_INFO_TEXT, M6_STATS_TEXT,
-    M6_NEWS_TEXT, GPT_MENU_TEXT
+    M6_NEWS_TEXT
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -128,6 +126,59 @@ async def send_or_update_interactive_message(
     except Exception as e:
         logger.error(f"Не вдалося відправити повідомлення: {e}")
         return message_id
+
+async def safe_delete_message(bot: Bot, chat_id: int, message_id: int):
+    """
+    Безпечне видалення повідомлення з обробкою виключень.
+    """
+    if message_id:
+        try:
+            await bot.delete_message(chat_id=chat_id, message_id=message_id)
+            logger.info(f"Повідомлення {message_id} успішно видалено.")
+        except Exception as e:
+            logger.error(f"Не вдалося видалити повідомлення {message_id}: {e}")
+
+async def check_and_edit_message(
+    bot: Bot,
+    chat_id: int,
+    message_id: int,
+    new_text: str,
+    new_keyboard,
+    state: FSMContext,
+    parse_mode: str = ParseMode.HTML
+):
+    """
+    Перевірка зміни тексту або клавіатури перед редагуванням повідомлення.
+    """
+    state_data = await state.get_data()
+    last_text = state_data.get('last_text')
+    last_keyboard = state_data.get('last_keyboard')
+
+    if last_text != new_text or last_keyboard != new_keyboard:
+        try:
+            await bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=new_text,
+                reply_markup=new_keyboard,
+                parse_mode=parse_mode
+            )
+            await state.update_data(last_text=new_text, last_keyboard=new_keyboard)
+            logger.info(f"Повідомлення {message_id} успішно оновлено.")
+        except Exception as e:
+            logger.error(f"Не вдалося редагувати повідомлення {message_id}: {e}")
+            await bot.send_message(
+                chat_id=chat_id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+
+async def transition_state(state: FSMContext, new_state: State):
+    """
+    Очищення старих даних та встановлення нового стану.
+    """
+    await state.clear()
+    await state.set_state(new_state)
 
 # Рефакторинг: створення окремої функції для обробки профілю
 async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
@@ -231,7 +282,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
             logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
         await state.set_state(MenuStates.MAIN_MENU)
 
-# Обробчик команди /start з реєстрацією користувача
+# Обробник команди /start з реєстрацією користувача
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -523,11 +574,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
         try:
-            main_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=MAIN_MENU_ERROR_TEXT,
-                reply_markup=get_main_menu()
-            )
+            main_message = await bot.send_message(chat_id=message.chat.id, text=MAIN_MENU_ERROR_TEXT, reply_markup=get_main_menu())
             await state.update_data(bot_message_id=main_message.message_id)
             await state.set_state(MenuStates.MAIN_MENU)
         except Exception as e:
