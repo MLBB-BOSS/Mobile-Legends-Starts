@@ -223,10 +223,10 @@ def get_heroes_menu():
         buttons=[
             MenuButton.TANK,
             MenuButton.MAGE,
+            MenuButton.SUPPORT,
             MenuButton.MARKSMAN,
             MenuButton.ASSASSIN,
             MenuButton.FIGHTER,
-            MenuButton.SUPPORT,
             MenuButton.META,
             MenuButton.COUNTER_PICKS,
             MenuButton.COMPARISON,
