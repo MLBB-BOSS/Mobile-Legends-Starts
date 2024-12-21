@@ -7,12 +7,13 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.utils.exceptions import MessageNotModified
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-# Імпортуємо MenuStates та increment_step з states.py
-from states import MenuStates, increment_step
+# Імпортуємо MenuStates з states.py
+from states import MenuStates
 
 from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.db import get_user_profile
@@ -77,14 +78,6 @@ menu_button_to_class = {
 
 # Допоміжні функції
 
-async def increment_step(state: FSMContext):
-    data = await state.get_data()
-    step_count = data.get("step_count", 0) + 1
-    if step_count >= 3:
-        await state.clear()
-        step_count = 0
-    await state.update_data(step_count=step_count)
-
 async def send_or_update_interactive_message(
     bot: Bot,
     chat_id: int,
@@ -108,6 +101,8 @@ async def send_or_update_interactive_message(
             )
             logger.info(f"Повідомлення {message_id} успішно відредаговано.")
             return message_id
+        except MessageNotModified:
+            logger.info(f"Повідомлення {message_id} не потребує редагування.")
         except Exception as e:
             logger.warning(f"Не вдалося редагувати повідомлення {message_id}: {e}")
 
@@ -165,6 +160,8 @@ async def check_and_edit_message(
             )
             await state.update_data(last_text=new_text, last_keyboard=new_keyboard)
             logger.info(f"Повідомлення {message_id} успішно оновлено.")
+        except MessageNotModified:
+            logger.info(f"Повідомлення {message_id} не потребує оновлення.")
         except Exception as e:
             logger.error(f"Не вдалося редагувати повідомлення {message_id}: {e}")
             await bot.send_message(
@@ -282,7 +279,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
             logger.error(f"Не вдалося надіслати повідомлення про помилку: {e}")
         await state.set_state(MenuStates.MAIN_MENU)
 
-# Обробник команди /start з реєстрацією користувача
+# Обробчик команди /start з реєстрацією користувача
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -334,9 +331,8 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
-    await increment_step(state)
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
     new_text = INTRO_PAGE_2_TEXT
     new_keyboard = get_intro_page_2_keyboard()
     new_state = MenuStates.INTRO_PAGE_2
@@ -361,9 +357,8 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
-    await increment_step(state)
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
     new_text = INTRO_PAGE_3_TEXT
     new_keyboard = get_intro_page_3_keyboard()
     new_state = MenuStates.INTRO_PAGE_3
@@ -392,7 +387,6 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         await bot.answer_callback_query(callback.id, text="Некоректна дія для цього стану.", show_alert=True)
         return
 
-    await increment_step(state)
     user_first_name = callback.from_user.first_name or "Користувач"
     main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
 
@@ -408,8 +402,8 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         logger.error(f"Не вдалося надіслати головне меню: {e}")
 
     # Оновлення або відправка інтерактивного повідомлення
-    state_data = await state.get_data()
-    interactive_message_id = state_data.get('interactive_message_id')
+    data = await state.get_data()
+    interactive_message_id = data.get('interactive_message_id')
     new_interactive_text = MAIN_MENU_DESCRIPTION
     new_interactive_keyboard = get_generic_inline_keyboard()
 
@@ -429,7 +423,6 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
 # Обробчик кнопки "🪪 Мій Профіль"
 @router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-    await increment_step(state)
     await process_my_profile(message, state, db, bot)
 
 # Уніфікована функція для обробки меню
@@ -448,7 +441,6 @@ async def handle_menu(
 ):
     logger.info(f"User selected '{user_choice}' in menu")
 
-    await increment_step(state)
     data = await state.get_data()
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
@@ -482,22 +474,22 @@ async def handle_menu(
     elif user_choice == MenuButton.TOURNAMENTS.value:
         new_main_text = TOURNAMENTS_MENU_TEXT
         new_main_keyboard = get_tournaments_menu()
-        new_interactive_text = TOURNAMENTS_MENU_TEXT
+        new_interactive_text = "Меню Турніри"
         updated_state = MenuStates.TOURNAMENTS_MENU
     elif user_choice == MenuButton.META.value:
         new_main_text = META_MENU_TEXT
         new_main_keyboard = get_meta_menu()
-        new_interactive_text = META_MENU_TEXT
+        new_interactive_text = "Меню META"
         updated_state = MenuStates.META_MENU
     elif user_choice == MenuButton.M6.value:
         new_main_text = M6_MENU_TEXT
         new_main_keyboard = get_m6_menu()
-        new_interactive_text = M6_MENU_TEXT
+        new_interactive_text = "Меню M6"
         updated_state = MenuStates.M6_MENU
     elif user_choice == MenuButton.GPT.value:
         new_main_text = GPT_MENU_TEXT
         new_main_keyboard = get_gpt_menu()
-        new_interactive_text = GPT_MENU_TEXT
+        new_interactive_text = "Меню GPT"
         updated_state = MenuStates.GPT_MENU
     elif user_choice == MenuButton.BACK.value:
         # Повернення до головного меню
@@ -510,7 +502,7 @@ async def handle_menu(
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_main_keyboard = main_menu_keyboard_func()
         new_interactive_text = "Невідома команда"
-        updated_state = MenuStates.MAIN_MENU
+        updated_state = new_state
 
     # Відправка нового звичайного повідомлення
     try:
@@ -1828,7 +1820,8 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
         await state.set_state(current_state)
         return
     else:
-        new_main_text = MAIN_MENU_TEXT.format(user_first_name="Користувач")  # Замість цього використовуйте відповідний спосіб отримання імені
+        user_first_name = message.from_user.first_name or "Користувач"
+        new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
         new_main_keyboard = get_main_menu()
         new_interactive_text = MAIN_MENU_DESCRIPTION
         new_state = MenuStates.MAIN_MENU
