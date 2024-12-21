@@ -7,15 +7,20 @@ class CallbackData(str, Enum):
     BACK = "back"
 
 def get_generic_inline_keyboard():
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="MLS Button", callback_data="mls_button")],
-            [InlineKeyboardButton(text="Назад до меню", callback_data="menu_back")],
-        ]
-    )
-    return keyboard
+    """
+    Видаляємо усі інлайн-кнопки, окрім тих, що вам можуть бути потрібні
+    — але зараз залишаємо лише «порожнє» або мінімальне інлайн-повідомлення.
+    Приклад — абсолютно без кнопок.
+    """
+    # Порожнє інлайн-меню, або мінімальний варіант
+    # Залишаємо None або створюємо «порожнє» InlineKeyboardMarkup
+    # Якщо треба взагалі без кнопок — можна повернути None.
+    return None
 
 def get_intro_page_1_keyboard():
+    """
+    Кнопки для сторінок інтро залишаємо.
+    """
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="Далі", callback_data="intro_next_1")],
@@ -24,6 +29,9 @@ def get_intro_page_1_keyboard():
     return keyboard
 
 def get_intro_page_2_keyboard():
+    """
+    Кнопки для сторінок інтро залишаємо.
+    """
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="Далі", callback_data="intro_next_2")],
@@ -32,6 +40,9 @@ def get_intro_page_2_keyboard():
     return keyboard
 
 def get_intro_page_3_keyboard():
+    """
+    Кнопки для сторінок інтро залишаємо.
+    """
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="Розпочати", callback_data="intro_start")],
@@ -39,30 +50,28 @@ def get_intro_page_3_keyboard():
     )
     return keyboard
 
+########################
+# Приклад "головного" інлайн-меню та інших функцій нижче видаляємо або робимо порожніми,
+# бо за умовою треба прибрати усі інлайн-кнопки (крім інтро).
+########################
+
 def get_main_inline_keyboard():
-    # Інлайн-клавіатура для головного меню (приклад)
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Персонажі", callback_data=CallbackData.HEROES.value)],
-            [InlineKeyboardButton(text="Гайди", callback_data=CallbackData.GUIDES.value)],
-            [InlineKeyboardButton(text="Назад", callback_data=CallbackData.BACK.value)]
-        ]
-    )
+    """
+    Раніше тут була інлайн-клавіатура з 3 кнопками.
+    Тепер робимо «порожньою» або повертаємо None.
+    """
+    return None
 
 def get_heroes_inline_keyboard():
-    # Інлайн-клавіатура для меню героїв
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Список Героїв", callback_data="heroes_list")],
-            [InlineKeyboardButton(text="Назад", callback_data=CallbackData.BACK.value)]
-        ]
-    )
+    """
+    Раніше тут була інлайн-клавіатура для «Герої».
+    Прибираємо кнопки.
+    """
+    return None
 
 def get_guides_inline_keyboard():
-    # Інлайн-клавіатура для меню гайдів
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Нові гайди", callback_data="new_guides")],
-            [InlineKeyboardButton(text="Назад", callback_data=CallbackData.BACK.value)]
-        ]
-    )
+    """
+    Раніше тут була інлайн-клавіатура для «Гайди».
+    Прибираємо кнопки.
+    """
+    return None
