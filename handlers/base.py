@@ -1361,7 +1361,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
     bot_message_id = data.get('bot_message_id')
     interactive_message_id = data.get('interactive_message_id')
 
-if not bot_message_id or not interactive_message_id::
+if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
         try:
             main_message = await bot.send_message(
