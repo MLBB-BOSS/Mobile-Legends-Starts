@@ -1,0 +1,600 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1900" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="title desc" style="font-family: Arial, sans-serif; width: 100%; height: auto;">
+  <!-- Опис та заголовок для доступності -->
+  <title id="title">Інтерактивний Профільний Екран</title>
+  <desc id="desc">Цей SVG представляє інтерактивний профільний екран з анімованим фоном, аватаром, статистикою, графіками та посиланнями на соціальні мережі.</desc>
+  
+  <!-- Стилі з використанням CSS-перемінних -->
+  <style>
+    :root {
+      --gold-color: #FFD700;
+      --dark-gray: #3a3a3a;
+      --light-gray: #1e1e1e;
+      --grid-color: #444444;
+      --white-color: #FFFFFF;
+      --green-color: #4CAF50;
+      --red-color: #F44336;
+      --purple-color: #6A5ACD;
+      --orange-color: #FF4500;
+      --turquoise-color: #00CED1;
+      --discord-color: #7289DA;
+      --twitter-color: #1DA1F2;
+      --youtube-color: #FF0000;
+      --shadow-color: #000000;
+      --semi-transparent-white: rgba(255, 255, 255, 0.2);
+      --semi-transparent-black: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Загальні стилі */
+    text {
+      filter: drop-shadow(2px 2px 4px var(--shadow-color));
+    }
+
+    /* Заголовок */
+    .title {
+      fill: var(--gold-color);
+      font-size: 36px;
+      font-weight: bold;
+      text-anchor: middle;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+    }
+
+    /* Розділовий заголовок */
+    .section-title {
+      fill: var(--gold-color);
+      font-size: 28px;
+      font-weight: bold;
+      text-anchor: start;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      animation-delay: 1s;
+    }
+
+    /* Статистичний текст */
+    .stat-text {
+      fill: var(--white-color);
+      font-size: 20px;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      animation-delay: 2s;
+    }
+
+    /* Виділення тексту */
+    .highlight {
+      fill: var(--gold-color);
+    }
+
+    /* Стовпці графіку */
+    .graph-bar {
+      transition: fill 0.3s;
+    }
+    .graph-bar:hover {
+      fill: var(--gold-color);
+    }
+
+    /* Соціальні іконки */
+    .social-icon {
+      cursor: pointer;
+      transition: transform 0.3s, fill 0.3s;
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+      animation-delay: 3s;
+    }
+    .social-icon:hover {
+      transform: scale(1.2);
+      fill: var(--gold-color);
+    }
+
+    /* Аватар */
+    .avatar-square {
+      fill: var(--dark-gray);
+      stroke: var(--gold-color);
+      stroke-width: 2;
+      cursor: pointer;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      animation-delay: 1.5s;
+      transition: stroke-width 0.3s, fill 0.3s;
+    }
+    .avatar-square:hover {
+      stroke-width: 4;
+      fill: rgba(58, 58, 58, 0.8); /* Легкий фон при наведенні */
+    }
+
+    /* Сітка графіків */
+    .grid line {
+      stroke: var(--grid-color);
+      stroke-opacity: 0.3;
+      stroke-width: 1;
+    }
+    .grid text {
+      fill: var(--white-color);
+      font-size: 12px;
+    }
+
+    /* Плашки для блоків */
+    .block-background {
+      fill: var(--semi-transparent-black);
+      rx: 15;
+      ry: 15;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      animation-delay: 1s;
+    }
+
+    /* Легенда */
+    .legend-text {
+      fill: var(--white-color);
+      font-size: 16px;
+      text-anchor: start;
+    }
+
+    /* Анімації */
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+  
+  <!-- Визначення градієнта та фільтрів -->
+  <defs>
+    <!-- Анімований радіальний градієнтний фон з фокусом у нижньому правому куті -->
+    <radialGradient id="bgGradient" cx="1" cy="1" r="1.5" fx="1" fy="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="var(--purple-color)">
+        <animate attributeName="stop-color" 
+                 values="#2b004b;var(--light-gray);#2b004b" 
+                 dur="5s" 
+                 repeatCount="indefinite" />
+      </stop>
+      <stop offset="50%" stop-color="var(--light-gray)">
+        <animate attributeName="stop-color" 
+                 values="var(--light-gray);#2b004b;var(--light-gray)" 
+                 dur="5s" 
+                 repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="var(--light-gray)" />
+      <!-- Анімація пульсації градієнта -->
+      <animateTransform 
+          attributeName="gradientTransform" 
+          type="scale" 
+          from="1 1" 
+          to="1.5 1.5" 
+          dur="5s" 
+          repeatCount="indefinite" />
+    </radialGradient>
+
+    <!-- Фільтр тіні -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="var(--shadow-color)" />
+    </filter>
+
+    <!-- Іконки соціальних мереж -->
+    <symbol id="discord" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="12" fill="var(--discord-color)"/>
+      <text x="12" y="16" fill="#FFFFFF" font-size="12" text-anchor="middle" alignment-baseline="middle">D</text>
+    </symbol>
+    <symbol id="twitter" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="12" fill="var(--twitter-color)"/>
+      <text x="12" y="16" fill="#FFFFFF" font-size="12" text-anchor="middle" alignment-baseline="middle">T</text>
+    </symbol>
+    <symbol id="youtube" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="12" fill="var(--youtube-color)"/>
+      <text x="12" y="16" fill="#FFFFFF" font-size="12" text-anchor="middle" alignment-baseline="middle">Y</text>
+    </symbol>
+  </defs>
+
+  <!-- Фон -->
+  <rect width="900" height="1900" fill="url(#bgGradient)" />
+
+  <!-- Заголовок -->
+  <g id="header" filter="url(#shadow)">
+    <text x="450" y="100" class="title">Ваш Профіль</text>
+  </g>
+
+  <!-- Блок користувача -->
+  <g id="userInfo" transform="translate(50, 150)">
+    <!-- Плашка фону блоку -->
+    <rect x="0" y="0" width="800" height="250" class="block-background" />
+    
+    <!-- Аватар + Додаткова інформація -->
+    <g transform="translate(10, 10)">
+      <!-- Аватар -->
+      <a href="#" aria-label="Завантажити новий аватар">
+        <rect x="0" y="0" width="180" height="180" class="avatar-square">
+          <animateTransform 
+              attributeName="transform" 
+              type="scale" 
+              begin="0s" 
+              dur="1.5s" 
+              values="1;1.1;1" 
+              repeatCount="indefinite" />
+        </rect>
+        <!-- Текст всередині квадрата -->
+        <text x="90" y="100" text-anchor="middle" fill="var(--white-color)" font-size="24" font-weight="bold">
+          Фото
+        </text>
+      </a>
+      
+      <!-- Додаткова інформація праворуч -->
+      <g transform="translate(200, 0)">
+        <text class="stat-text" y="30">👤 Ім'я: <tspan class="highlight">Олег</tspan></text>
+        <text class="stat-text" y="70">⭐ Рівень: <tspan class="highlight">10</tspan></text>
+        <text class="stat-text" y="110">🏅 Нагороди: <tspan class="highlight">3</tspan></text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Статистика -->
+  <g id="statisticsSection" filter="url(#shadow)" transform="translate(50, 450)">
+    <text class="section-title" x="0" y="0">Статистика</text>
+    <g transform="translate(0, 50)">
+      <text y="50" class="stat-text">📈 Рівень: <tspan class="highlight">100</tspan></text>
+      <text y="100" class="stat-text">🚀 Рейтинг: <tspan class="highlight">ТОП 1</tspan></text>
+      <text y="150" class="stat-text">🎖️ Бейджів: <tspan class="highlight">56</tspan></text>
+      <text y="200" class="stat-text">🏆 Перемоги: <tspan class="highlight">16</tspan></text>
+      
+      <!-- Додаткові пункти статистики -->
+      <text y="250" class="stat-text">🏅 Активність: <tspan class="highlight">15 днів</tspan></text>
+      <text y="300" class="stat-text">⏳ Час у грі: <tspan class="highlight">40 годин</tspan></text>
+      <text y="350" class="stat-text">🤝 Друзів у грі: <tspan class="highlight">5</tspan></text>
+      <text y="400" class="stat-text">🎮 Улюблений герой: <tspan class="highlight">Ланселот</tspan></text>
+      <text y="450" class="stat-text">📅 Останній турнір: <tspan class="highlight">18.12.2024</tspan></text>
+    </g>
+  </g>
+
+  <!-- Графіки -->
+  <g id="chartsSection" filter="url(#shadow)" transform="translate(50, 700)" opacity="0">
+    <text class="section-title" x="0" y="0">Графіки</text>
+    
+    <!-- Стовпчастий графік з сіткою -->
+    <g class="bar-chart" transform="translate(150, 100)">
+      <!-- Сітка -->
+      <g class="grid">
+        <!-- Горизонтальні лінії -->
+        <line x1="0" y1="0" x2="800" y2="0" />
+        <line x1="0" y1="50" x2="800" y2="50" />
+        <line x1="0" y1="100" x2="800" y2="100" />
+        <line x1="0" y1="150" x2="800" y2="150" />
+        <line x1="0" y1="200" x2="800" y2="200" />
+      </g>
+      
+      <!-- Легенда -->
+      <text x="0" y="-20" class="legend-text">Перемоги</text>
+      <text x="200" y="-20" class="legend-text">Програші</text>
+      <text x="400" y="-20" class="legend-text">Активність</text>
+      <text x="600" y="-20" class="legend-text">Час</text>
+      
+      <!-- Бар 1 -->
+      <rect class="graph-bar" x="100" y="200" width="50" height="0" fill="#6A5ACD"> <!-- Фіолетовий -->
+        <animate attributeName="height" from="0" to="200" dur="1.5s" fill="freeze" />
+        <animate attributeName="y" from="200" to="0" dur="1.5s" fill="freeze" />
+        <title>Перемоги: 200</title>
+      </rect>
+      <!-- Бар 2 -->
+      <rect class="graph-bar" x="200" y="200" width="50" height="0" fill="#FF4500"> <!-- Помаранчевий -->
+        <animate attributeName="height" from="0" to="150" dur="1.5s" fill="freeze" />
+        <animate attributeName="y" from="200" to="50" dur="1.5s" fill="freeze" />
+        <title>Програші: 150</title>
+      </rect>
+      <!-- Бар 3 -->
+      <rect class="graph-bar" x="300" y="200" width="50" height="0" fill="#00CED1"> <!-- Бірюзовий -->
+        <animate attributeName="height" from="0" to="180" dur="1.5s" fill="freeze" />
+        <animate attributeName="y" from="200" to="20" dur="1.5s" fill="freeze" />
+        <title>Активність: 180</title>
+      </rect>
+      <!-- Бар 4 -->
+      <rect class="graph-bar" x="400" y="200" width="50" height="0" fill="#FFD700"> <!-- Золотий -->
+        <animate attributeName="height" from="0" to="120" dur="1.5s" fill="freeze" />
+        <animate attributeName="y" from="200" to="80" dur="1.5s" fill="freeze" />
+        <title>Час: 120</title>
+      </rect>
+      
+      <!-- Підписи -->
+      <text x="125" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">200</text>
+      <text x="225" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">150</text>
+      <text x="325" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">180</text>
+      <text x="425" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">120</text>
+    </g>
+
+    <!-- Лінійний графік з сіткою -->
+    <g transform="translate(0, 400)">
+      <!-- Сітка -->
+      <g class="grid">
+        <line x1="0" y1="0" x2="800" y2="0" />
+        <line x1="0" y1="50" x2="800" y2="50" />
+        <line x1="0" y1="100" x2="800" y2="100" />
+        <line x1="0" y1="150" x2="800" y2="150" />
+        <line x1="0" y1="200" x2="800" y2="200" />
+      </g>
+      
+      <text x="400" y="-20" fill="var(--white-color)" font-size="16px" text-anchor="middle">Активність за місяць</text>
+      
+      <polyline points="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" fill="none" stroke="var(--gold-color)" stroke-width="3">
+        <animate 
+            attributeName="points" 
+            from="50,200 100,200 150,200 200,200 250,200 300,200 350,200 400,200 450,200 500,200 550,200 600,200 650,200 700,200 750,200 800,200" 
+            to="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" 
+            dur="2s" 
+            fill="freeze" />
+      </polyline>
+      
+      <!-- Точки даних -->
+      <circle cx="50" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="200" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>200 активностей</title>
+      </circle>
+      <circle cx="100" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="150" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>150 активностей</title>
+      </circle>
+      <circle cx="150" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="180" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>180 активностей</title>
+      </circle>
+      <circle cx="200" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="130" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>130 активностей</title>
+      </circle>
+      <circle cx="250" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="170" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>170 активностей</title>
+      </circle>
+      <circle cx="300" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="100" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>100 активностей</title>
+      </circle>
+      <circle cx="350" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="140" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>140 активностей</title>
+      </circle>
+      <circle cx="400" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="160" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>160 активностей</title>
+      </circle>
+      <circle cx="450" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="120" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>120 активностей</title>
+      </circle>
+      <circle cx="500" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="180" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>180 активностей</title>
+      </circle>
+      <circle cx="550" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="140" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>140 активностей</title>
+      </circle>
+      <circle cx="600" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="160" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>160 активностей</title>
+      </circle>
+      <circle cx="650" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="120" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>120 активностей</title>
+      </circle>
+      <circle cx="700" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="180" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>180 активностей</title>
+      </circle>
+      <circle cx="750" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="140" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>140 активностей</title>
+      </circle>
+      <circle cx="800" cy="200" r="0" fill="var(--gold-color)">
+        <animate 
+            attributeName="cy" 
+            from="200" 
+            to="160" 
+            dur="2s" 
+            fill="freeze" />
+        <animate 
+            attributeName="r" 
+            from="0" 
+            to="5" 
+            dur="2s" 
+            fill="freeze" />
+        <title>160 активностей</title>
+      </circle>
+    </g>
+
+    <!-- Анімація появи секції графіків -->
+    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1s" />
+  </g>
+
+  <!-- Соціальні мережі -->
+  <g id="socialLinksSection" filter="url(#shadow)" transform="translate(200, 1600)" opacity="0">
+    <text class="section-title" x="0" y="0">Соціальні мережі</text>
+    <g transform="translate(0, 50)">
+      <!-- Discord -->
+      <a href="https://discord.com/users/is_mlbb" target="_blank" aria-label="Discord: @is_mlbb">
+        <use href="#discord" class="social-icon" x="0" y="0" width="40" height="40">
+          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
+        </use>
+        <title>Discord: @is_mlbb</title>
+      </a>
+      
+      <!-- Twitter -->
+      <a href="https://twitter.com/is_mlbb" target="_blank" aria-label="Twitter: @is_mlbb">
+        <use href="#twitter" class="social-icon" x="80" y="0" width="40" height="40">
+          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
+        </use>
+        <title>Twitter: @is_mlbb</title>
+      </a>
+      
+      <!-- YouTube -->
+      <a href="https://youtube.com/is_mlbb" target="_blank" aria-label="YouTube: is_mlbb">
+        <use href="#youtube" class="social-icon" x="160" y="0" width="40" height="40">
+          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
+        </use>
+        <title>YouTube: is_mlbb</title>
+      </a>
+    </g>
+    <!-- Анімація появи секції соціальних мереж -->
+    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1.5s" />
+  </g>
+</svg>
