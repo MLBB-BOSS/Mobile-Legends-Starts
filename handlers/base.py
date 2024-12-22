@@ -1,12 +1,10 @@
 # handlers/base.py
 import logging
-from aiogram import types
-from aiogram import Router, F, Bot, Dispatcher
+from aiogram import types, Router, F, Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
-from aiogram.fsm.state import StatesGroup, State
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -27,15 +25,14 @@ from keyboards.menus import (
     get_achievements_menu, get_settings_menu, get_feedback_menu, get_help_menu,
     get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class
 )
-from keyboards.inline_menus import
+from keyboards.inline_menus import (
     get_generic_inline_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
-from aiogram.types import 
-    InlineKeyboardMarkup, 
-    InlineKeyboardButton
+
+# Додайте функціональність тут...
 )
 from texts import (
     INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT, MAIN_MENU_TEXT,
