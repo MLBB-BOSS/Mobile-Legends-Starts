@@ -61,6 +61,11 @@ from texts import (
     M6_NEWS_TEXT, GPT_MENU_TEXT, TOURNAMENTS_MENU_TEXT, META_MENU_TEXT
 )
 
+import networkx as nx
+import plotly.graph_objects as go
+import io
+from PIL import Image
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -180,6 +185,80 @@ async def transition_state(state: FSMContext, new_state: State):
     await state.clear()
     await state.set_state(new_state)
 
+# Функції для генерації графіків
+
+def create_overall_activity_graph():
+    # Приклад: Генерація випадкових даних активності
+    days = list(range(1, 31))
+    activity = [i + (i % 5) * 10 for i in days]  # Приклад даних
+    fig = go.Figure(data=go.Bar(x=days, y=activity))
+    fig.update_layout(
+        title="📊 Загальна Активність за Місяць",
+        xaxis_title="Дні",
+        yaxis_title="Активність",
+        template="plotly_white"
+    )
+    img_bytes = fig.to_image(format="png")
+    return img_bytes
+
+def create_rating_graph():
+    # Приклад: Генерація випадкових даних рейтингу
+    months = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень']
+    ratings = [1500, 2000, 1800, 2200, 2100, 2300]  # Приклад даних
+    fig = go.Figure(data=go.Scatter(x=months, y=ratings, mode='lines+markers'))
+    fig.update_layout(
+        title="🥇 Ваш Рейтинг за Місяць",
+        xaxis_title="Місяці",
+        yaxis_title="Рейтинг",
+        template="plotly_white"
+    )
+    img_bytes = fig.to_image(format="png")
+    return img_bytes
+
+def create_game_stats_graph():
+    # Приклад: Генерація випадкових ігрових статистик
+    heroes = ['Hero A', 'Hero B', 'Hero C', 'Hero D', 'Hero E']
+    kills = [50, 70, 60, 80, 90]  # Приклад даних
+    deaths = [30, 40, 35, 45, 50]
+    assists = [100, 120, 110, 130, 140]
+    fig = go.Figure(data=[
+        go.Bar(name='Вбивства', x=heroes, y=kills),
+        go.Bar(name='Смерті', x=heroes, y=deaths),
+        go.Bar(name='Допомоги', x=heroes, y=assists)
+    ])
+    fig.update_layout(
+        barmode='group',
+        title="🎮 Ігрова Статистика Героїв",
+        xaxis_title="Герої",
+        yaxis_title="Кількість",
+        template="plotly_white"
+    )
+    img_bytes = fig.to_image(format="png")
+    return img_bytes
+
+def create_comparison_graph(hero1_stats, hero2_stats, hero1_name, hero2_name):
+    """
+    Генерація графіка порівняння двох героїв.
+    hero1_stats та hero2_stats - словники з ключами 'kills', 'deaths', 'assists'.
+    """
+    categories = ['Вбивства', 'Смерті', 'Допомоги']
+    hero1_values = [hero1_stats.get('kills', 0), hero1_stats.get('deaths', 0), hero1_stats.get('assists', 0)]
+    hero2_values = [hero2_stats.get('kills', 0), hero2_stats.get('deaths', 0), hero2_stats.get('assists', 0)]
+
+    fig = go.Figure(data=[
+        go.Bar(name=hero1_name, x=categories, y=hero1_values),
+        go.Bar(name=hero2_name, x=categories, y=hero2_values)
+    ])
+    fig.update_layout(
+        barmode='group',
+        title=f"⚔️ Порівняння: {hero1_name} vs {hero2_name}",
+        xaxis_title="Категорії",
+        yaxis_title="Кількість",
+        template="plotly_white"
+    )
+    img_bytes = fig.to_image(format="png")
+    return img_bytes
+
 # Рефакторинг: створення окремої функції для обробки профілю
 async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_id = message.from_user.id
@@ -216,20 +295,64 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
         old_bot_message_id = data.get('bot_message_id')  # ID попереднього звичайного повідомлення
         interactive_message_id = data.get('interactive_message_id')  # ID інлайн-повідомлення
 
-        # Редагування існуючого інлайн-повідомлення з даними профілю
-        if interactive_message_id:
+        # Генерація графіків для профілю
+        try:
+            overall_activity_bytes = create_overall_activity_graph()
+            rating_bytes = create_rating_graph()
+            game_stats_bytes = create_game_stats_graph()
+        except Exception as e:
+            logger.error(f"Помилка при генерації графіків профілю: {e}")
+            overall_activity_bytes = rating_bytes = game_stats_bytes = None
+
+        # Створення комбінованого зображення (опціонально)
+        # Якщо ви хочете показати кілька графіків одночасно, можна використовувати бібліотеки для складання зображень
+        # Наприклад, PIL (Pillow)
+
+        if overall_activity_bytes and rating_bytes and game_stats_bytes:
             try:
-                await check_and_edit_message(
-                    bot=bot,
+                # Відкриття зображень
+                img1 = Image.open(io.BytesIO(overall_activity_bytes))
+                img2 = Image.open(io.BytesIO(rating_bytes))
+                img3 = Image.open(io.BytesIO(game_stats_bytes))
+
+                # Встановлення розміру для графіків
+                img1 = img1.resize((600, 400))
+                img2 = img2.resize((600, 400))
+                img3 = img3.resize((600, 400))
+
+                # Створення нового зображення для об'єднання графіків
+                combined_width = img1.width
+                combined_height = img1.height + img2.height + img3.height
+                combined_image = Image.new('RGB', (combined_width, combined_height))
+
+                # Вставка графіків
+                combined_image.paste(img1, (0, 0))
+                combined_image.paste(img2, (0, img1.height))
+                combined_image.paste(img3, (0, img1.height + img2.height))
+
+                # Збереження комбінованого зображення в байтовий буфер
+                buffer = io.BytesIO()
+                combined_image.save(buffer, format="PNG")
+                combined_image_bytes = buffer.getvalue()
+            except Exception as e:
+                logger.error(f"Помилка при об'єднанні графіків: {e}")
+                combined_image_bytes = None
+        else:
+            combined_image_bytes = None
+
+        # Форматування тексту профілю
+        if combined_image_bytes:
+            # Створення інтерактивного повідомлення з графіками
+            try:
+                await bot.edit_message_media(
+                    media=types.InputMediaPhoto(media=combined_image_bytes, caption=formatted_profile_text),
                     chat_id=message.chat.id,
                     message_id=interactive_message_id,
-                    new_text=formatted_profile_text,
-                    new_keyboard=get_generic_inline_keyboard(),
-                    state=state,
-                    parse_mode=ParseMode.HTML
+                    reply_markup=get_generic_inline_keyboard()
                 )
+                logger.info(f"Інтерактивне повідомлення профілю оновлено для користувача {message.from_user.id}")
             except Exception as e:
-                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+                logger.error(f"Не вдалося відредагувати інтерактивне повідомлення профілю: {e}")
                 interactive_message_id = await send_or_update_interactive_message(
                     bot=bot,
                     chat_id=message.chat.id,
@@ -240,16 +363,29 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
                     parse_mode=ParseMode.HTML
                 )
         else:
-            # Якщо інлайн-повідомлення не існує, створіть нове
-            interactive_message_id = await send_or_update_interactive_message(
-                bot=bot,
-                chat_id=message.chat.id,
-                text=formatted_profile_text,
-                keyboard=get_generic_inline_keyboard(),
-                message_id=None,
-                state=state,
-                parse_mode=ParseMode.HTML
-            )
+            # Якщо неможливо створити комбіноване зображення, відправляємо текстове повідомлення профілю
+            try:
+                await check_and_edit_message(
+                    bot=bot,
+                    chat_id=message.chat.id,
+                    message_id=interactive_message_id,
+                    new_text=formatted_profile_text,
+                    new_keyboard=get_generic_inline_keyboard(),
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
+                logger.info(f"Текстове інтерактивне повідомлення профілю оновлено для користувача {message.from_user.id}")
+            except Exception as e:
+                logger.error(f"Не вдалося відредагувати текстове інтерактивне повідомлення профілю: {e}")
+                interactive_message_id = await send_or_update_interactive_message(
+                    bot=bot,
+                    chat_id=message.chat.id,
+                    text=formatted_profile_text,
+                    keyboard=get_generic_inline_keyboard(),
+                    message_id=None,
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
 
         # Надсилання нового звичайного повідомлення з текстом «🪪 Мій Профіль»
         try:
@@ -703,7 +839,11 @@ async def handle_receive_feedback(message: Message, state: FSMContext, db: Async
         response_text = "❌ Будь ласка, надайте ваш зворотний зв'язок."
 
     try:
-        await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=response_text,
+            reply_markup=get_generic_inline_keyboard()
+        )
     except Exception as e:
         logger.error(f"Не вдалося надіслати повідомлення про отримання зворотного зв'язку: {e}")
 
@@ -1168,10 +1308,32 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         new_interactive_text = "Пошук героя"
         new_state = MenuStates.SEARCH_HERO
     elif user_choice == MenuButton.COMPARISON.value:
-        new_main_text = "⚔️ Функція порівняння героїв ще в розробці."
-        new_main_keyboard = get_heroes_menu()
-        new_interactive_text = "Порівняння героїв"
-        new_state = MenuStates.HEROES_MENU
+        # Обробка функції порівняння персонажів
+        await safe_delete_message(bot, message.chat.id, interactive_message_id)
+
+        # Запитуємо імена двох героїв для порівняння
+        try:
+            comparison_prompt = "⚔️ Введіть імена двох героїв для порівняння, розділивши їх комою (наприклад, Hero A, Hero B):"
+            comparison_keyboard = ReplyKeyboardRemove()
+            comparison_message = await bot.send_message(
+                chat_id=message.chat.id,
+                text=comparison_prompt,
+                reply_markup=comparison_keyboard
+            )
+            await state.update_data(
+                comparison_step=1,
+                temp_data={},
+                interactive_message_id=comparison_message.message_id
+            )
+            await state.set_state(MenuStates.COMPARISON_STEP_1)
+        except Exception as e:
+            logger.error(f"Не вдалося відправити запит на порівняння героїв: {e}")
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+        return
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
@@ -1208,7 +1370,129 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
     await state.set_state(new_state)
     await state.update_data(bot_message_id=new_bot_message_id)
 
-# Обробчик натискання звичайних кнопок у підрозділі "Статистика"
+# Обробчик порівняння персонажів (крок 1: введення імен героїв)
+@router.message(MenuStates.COMPARISON_STEP_1)
+async def handle_comparison_step_1(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    heroes_input = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"User {user_id} ввів героїв для порівняння: {heroes_input}")
+    await safe_delete_message(bot, message.chat.id, message.message_id)
+
+    if ',' not in heroes_input:
+        response_text = "❌ Будь ласка, введіть імена двох героїв, розділивши їх комою (наприклад, Hero A, Hero B)."
+        try:
+            await bot.send_message(chat_id=message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку порівняння: {e}")
+        return
+
+    hero1_name, hero2_name = [name.strip() for name in heroes_input.split(',', 1)]
+
+    # Зберігаємо імена героїв в тимчасові дані
+    await state.update_data(
+        comparison_step=2,
+        temp_data={'hero1_name': hero1_name, 'hero2_name': hero2_name}
+    )
+    await state.set_state(MenuStates.COMPARISON_STEP_2)
+
+    # Запитуємо підтвердження або додаткову інформацію, якщо потрібно
+    comparison_confirm_text = f"Ви хочете порівняти **{hero1_name}** та **{hero2_name}**?\n\n" \
+                              f"Натисніть 'Так' для підтвердження або 'Скасувати' для відміни."
+    confirmation_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✅ Так", callback_data="compare_confirm_yes")],
+        [InlineKeyboardButton(text="❌ Скасувати", callback_data="compare_confirm_no")]
+    ])
+
+    try:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=comparison_confirm_text,
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=confirmation_keyboard
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати підтвердження порівняння: {e}")
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=GENERIC_ERROR_MESSAGE_TEXT,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+# Обробчик підтвердження порівняння героїв
+@router.callback_query(F.data.startswith("compare_confirm_"))
+async def handle_comparison_confirmation(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
+    data = callback.data
+    state_data = await state.get_data()
+
+    if data == "compare_confirm_yes":
+        temp_data = state_data.get('temp_data', {})
+        hero1_name = temp_data.get('hero1_name')
+        hero2_name = temp_data.get('hero2_name')
+
+        if not hero1_name or not hero2_name:
+            response_text = "❌ Дані для порівняння відсутні. Спробуйте ще раз."
+            try:
+                await bot.send_message(chat_id=callback.message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+            except Exception as e:
+                logger.error(f"Не вдалося надіслати повідомлення про помилку порівняння: {e}")
+            await state.set_state(MenuStates.HEROES_MENU)
+            return
+
+        # Тут ви повинні отримати статистику героїв з бази даних
+        # Наприклад:
+        # hero1_stats = await get_hero_stats(db, hero1_name)
+        # hero2_stats = await get_hero_stats(db, hero2_name)
+        # Для прикладу використаємо фіктивні дані:
+        hero1_stats = {'kills': 50, 'deaths': 30, 'assists': 100}
+        hero2_stats = {'kills': 70, 'deaths': 40, 'assists': 120}
+
+        # Генерація графіка порівняння
+        try:
+            comparison_graph_bytes = create_comparison_graph(hero1_stats, hero2_stats, hero1_name, hero2_name)
+        except Exception as e:
+            logger.error(f"Не вдалося згенерувати графік порівняння: {e}")
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+            await state.set_state(MenuStates.HEROES_MENU)
+            return
+
+        # Надсилання графіка
+        try:
+            await bot.send_photo(
+                chat_id=callback.message.chat.id,
+                photo=io.BytesIO(comparison_graph_bytes),
+                caption=f"⚔️ Порівняння: {hero1_name} vs {hero2_name}",
+                reply_markup=get_generic_inline_keyboard()
+            )
+            logger.info(f"Порівняння між {hero1_name} та {hero2_name} надіслано користувачу {callback.from_user.id}")
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати графік порівняння: {e}")
+            await bot.send_message(
+                chat_id=callback.message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+
+        # Очистка тимчасових даних та повернення до меню Персонажі
+        await state.clear()
+        await state.set_state(MenuStates.HEROES_MENU)
+    elif data == "compare_confirm_no":
+        response_text = "❌ Порівняння скасовано."
+        try:
+            await bot.send_message(chat_id=callback.message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про скасування порівняння: {e}")
+        await state.set_state(MenuStates.HEROES_MENU)
+    else:
+        logger.warning(f"Некоректні дані для порівняння: {data}")
+        await bot.answer_callback_query(callback.id, text="Некоректна дія.", show_alert=True)
+
+    await callback.answer()
+
+# Обробчик меню "Statistics Menu"
 @router.message(MenuStates.STATISTICS_MENU)
 async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     user_choice = message.text
@@ -1240,14 +1524,20 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
     new_interactive_text = ""
     new_state = MenuStates.STATISTICS_MENU
 
+    image_bytes = None
+    caption = ""
+
     if user_choice == MenuButton.ACTIVITY.value:
-        new_main_text = ACTIVITY_TEXT
+        image_bytes = create_overall_activity_graph()
+        caption = "📊 Загальна активність за місяць"
         new_interactive_text = "Загальна активність"
     elif user_choice == MenuButton.RANKING.value:
-        new_main_text = RANKING_TEXT
+        image_bytes = create_rating_graph()
+        caption = "🥇 Ваш рейтинг за місяць"
         new_interactive_text = "Рейтинг"
     elif user_choice == MenuButton.GAME_STATS.value:
-        new_main_text = GAME_STATS_TEXT
+        image_bytes = create_game_stats_graph()
+        caption = "🎮 Ігрова статистика героїв"
         new_interactive_text = "Ігрова статистика"
     elif user_choice == MenuButton.BACK.value:
         new_main_text = PROFILE_MENU_TEXT
@@ -1259,32 +1549,49 @@ async def handle_statistics_menu_buttons(message: Message, state: FSMContext, db
         new_interactive_text = "Невідома команда"
         new_state = MenuStates.STATISTICS_MENU
 
-    # Відправка нового повідомлення з клавіатурою
-    try:
-        main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
-        new_bot_message_id = main_message.message_id
-    except Exception as e:
-        logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
-        return
+    # Якщо обрано один з підрозділів статистики, надсилаємо графік
+    if image_bytes and caption:
+        try:
+            # Відправляємо графік як фотографію
+            await bot.send_photo(
+                chat_id=message.chat.id,
+                photo=io.BytesIO(image_bytes),
+                caption=caption,
+                reply_markup=get_statistics_back_keyboard()
+            )
+            logger.info(f"Графік '{user_choice}' надіслано користувачу {message.from_user.id}")
+        except Exception as e:
+            logger.error(f"Не вдалося відправити графік '{user_choice}': {e}")
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=GENERIC_ERROR_MESSAGE_TEXT,
+                reply_markup=get_generic_inline_keyboard()
+            )
+    else:
+        # Відправка текстового повідомлення для інших опцій
+        try:
+            main_message = await bot.send_message(chat_id=message.chat.id, text=new_main_text, reply_markup=new_main_keyboard)
+            new_bot_message_id = main_message.message_id
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати нове повідомлення: {e}")
+            return
 
-    # Видалення старого повідомлення
-    await safe_delete_message(bot, message.chat.id, bot_message_id)
+        # Видалення старого звичайного повідомлення
+        await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    # Редагування інтерактивного повідомлення
-    await check_and_edit_message(
-        bot=bot,
-        chat_id=message.chat.id,
-        message_id=interactive_message_id,
-        new_text=new_interactive_text,
-        new_keyboard=get_generic_inline_keyboard(),
-        state=state
-    )
+        # Редагування інтерактивного повідомлення
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            new_text=new_interactive_text,
+            new_keyboard=get_statistics_back_keyboard(),
+            state=state
+        )
 
-    # Оновлюємо стан користувача
-    await state.update_data(bot_message_id=new_bot_message_id)
-
-    # Встановлюємо новий стан
-    await state.set_state(new_state)
+        # Оновлюємо стан користувача
+        await state.update_data(bot_message_id=new_bot_message_id)
+        await state.set_state(new_state)
 
 # Обробчик натискання звичайних кнопок у підрозділі "Досягнення"
 @router.message(MenuStates.ACHIEVEMENTS_MENU)
@@ -1367,7 +1674,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     # Встановлюємо новий стан
     await state.set_state(new_state)
 
-# Обробчик натискання звичайних кнопок у меню Білди
+# Обробчик натискання звичайних кнопок у підрозділі "Білди"
 @router.message(MenuStates.BUILDS_MENU)
 async def handle_builds_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     user_choice = message.text
@@ -1743,7 +2050,75 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     # Повертаємо користувача до меню Зворотний Зв'язок
     await state.set_state(MenuStates.FEEDBACK_MENU)
 
-# Обробчик для невідомих повідомлень
+# Обробчик для порівняння героїв (підтвердження)
+@router.callback_query(F.data == "compare_confirm_yes")
+async def handle_compare_yes(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
+    state_data = await state.get_data()
+    hero1_name = state_data.get('temp_data', {}).get('hero1_name')
+    hero2_name = state_data.get('temp_data', {}).get('hero2_name')
+
+    if not hero1_name or not hero2_name:
+        response_text = "❌ Дані для порівняння відсутні. Спробуйте ще раз."
+        try:
+            await bot.send_message(chat_id=callback.message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про помилку порівняння: {e}")
+        await state.set_state(MenuStates.HEROES_MENU)
+        return
+
+    # Тут ви повинні отримати статистику героїв з бази даних
+    # Наприклад:
+    # hero1_stats = await get_hero_stats(db, hero1_name)
+    # hero2_stats = await get_hero_stats(db, hero2_name)
+    # Для прикладу використаємо фіктивні дані:
+    hero1_stats = {'kills': 50, 'deaths': 30, 'assists': 100}
+    hero2_stats = {'kills': 70, 'deaths': 40, 'assists': 120}
+
+    # Генерація графіка порівняння
+    try:
+        comparison_graph_bytes = create_comparison_graph(hero1_stats, hero2_stats, hero1_name, hero2_name)
+    except Exception as e:
+        logger.error(f"Не вдалося згенерувати графік порівняння: {e}")
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=GENERIC_ERROR_MESSAGE_TEXT,
+            reply_markup=get_generic_inline_keyboard()
+        )
+        await state.set_state(MenuStates.HEROES_MENU)
+        return
+
+    # Надсилання графіка
+    try:
+        await bot.send_photo(
+            chat_id=callback.message.chat.id,
+            photo=io.BytesIO(comparison_graph_bytes),
+            caption=f"⚔️ Порівняння: {hero1_name} vs {hero2_name}",
+            reply_markup=get_generic_inline_keyboard()
+        )
+        logger.info(f"Порівняння між {hero1_name} та {hero2_name} надіслано користувачу {callback.from_user.id}")
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати графік порівняння: {e}")
+        await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=GENERIC_ERROR_MESSAGE_TEXT,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+    # Очистка тимчасових даних та повернення до меню Персонажі
+    await state.clear()
+    await state.set_state(MenuStates.HEROES_MENU)
+
+@router.callback_query(F.data == "compare_confirm_no")
+async def handle_compare_no(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    response_text = "❌ Порівняння скасовано."
+    try:
+        await bot.send_message(chat_id=callback.message.chat.id, text=response_text, reply_markup=get_generic_inline_keyboard())
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати повідомлення про скасування порівняння: {e}")
+    await state.set_state(MenuStates.HEROES_MENU)
+    await callback.answer()
+
+# Обробчик невідомих повідомлень
 @router.message()
 async def unknown_command(message: Message, state: FSMContext, bot: Bot):
     logger.warning(f"Невідоме повідомлення від {message.from_user.id}: {message.text}")
