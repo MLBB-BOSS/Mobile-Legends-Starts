@@ -202,13 +202,7 @@
       <!-- Аватар -->
       <a href="#" aria-label="Завантажити новий аватар">
         <rect x="0" y="0" width="180" height="180" class="avatar-square">
-          <animateTransform 
-              attributeName="transform" 
-              type="scale" 
-              begin="0s" 
-              dur="1.5s" 
-              values="1;1.1;1" 
-              repeatCount="indefinite" />
+          <!-- Анімацію видалено -->
         </rect>
         <!-- Текст всередині квадрата -->
         <text x="90" y="100" text-anchor="middle" fill="var(--white-color)" font-size="24" font-weight="bold">
@@ -315,7 +309,7 @@
             attributeName="points" 
             from="50,200 100,200 150,200 200,200 250,200 300,200 350,200 400,200 450,200 500,200 550,200 600,200 650,200 700,200 750,200 800,200" 
             to="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
       </polyline>
       
@@ -325,13 +319,13 @@
             attributeName="cy" 
             from="200" 
             to="200" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>200 активностей</title>
       </circle>
@@ -340,13 +334,13 @@
             attributeName="cy" 
             from="200" 
             to="150" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>150 активностей</title>
       </circle>
@@ -355,13 +349,13 @@
             attributeName="cy" 
             from="200" 
             to="180" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>180 активностей</title>
       </circle>
@@ -370,13 +364,13 @@
             attributeName="cy" 
             from="200" 
             to="130" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>130 активностей</title>
       </circle>
@@ -385,13 +379,13 @@
             attributeName="cy" 
             from="200" 
             to="170" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>170 активностей</title>
       </circle>
@@ -400,13 +394,13 @@
             attributeName="cy" 
             from="200" 
             to="100" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>100 активностей</title>
       </circle>
@@ -415,13 +409,13 @@
             attributeName="cy" 
             from="200" 
             to="140" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>140 активностей</title>
       </circle>
@@ -430,13 +424,13 @@
             attributeName="cy" 
             from="200" 
             to="160" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>160 активностей</title>
       </circle>
@@ -445,13 +439,13 @@
             attributeName="cy" 
             from="200" 
             to="120" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>120 активностей</title>
       </circle>
@@ -460,13 +454,13 @@
             attributeName="cy" 
             from="200" 
             to="180" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>180 активностей</title>
       </circle>
@@ -475,13 +469,13 @@
             attributeName="cy" 
             from="200" 
             to="140" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>140 активностей</title>
       </circle>
@@ -490,13 +484,13 @@
             attributeName="cy" 
             from="200" 
             to="160" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>160 активностей</title>
       </circle>
@@ -505,13 +499,13 @@
             attributeName="cy" 
             from="200" 
             to="120" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>120 активностей</title>
       </circle>
@@ -520,13 +514,13 @@
             attributeName="cy" 
             from="200" 
             to="180" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>180 активностей</title>
       </circle>
@@ -535,13 +529,13 @@
             attributeName="cy" 
             from="200" 
             to="140" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>140 активностей</title>
       </circle>
@@ -550,13 +544,13 @@
             attributeName="cy" 
             from="200" 
             to="160" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <animate 
             attributeName="r" 
             from="0" 
             to="5" 
-            dur="2s" 
+            dur="4s" 
             fill="freeze" />
         <title>160 активностей</title>
       </circle>
