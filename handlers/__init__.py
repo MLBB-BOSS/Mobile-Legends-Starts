@@ -1,5 +1,3 @@
-# handlers/__init__.py
-
 from .base import router as base_router
 from .progress import router as progress_router
 from .missing_handlers import router as missing_handlers_router
@@ -15,3 +13,5 @@ routers = [
 def setup_handlers(dp):
     for router in routers:
         dp.include_router(router)
+    dp.include_router(missing_handlers_router)
+    # Включіть інші роутери
