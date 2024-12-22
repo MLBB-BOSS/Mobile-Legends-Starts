@@ -25,6 +25,8 @@ class MenuStates(StatesGroup):
     COUNTER_PICKS_MENU = State()
     BUILDS_MENU = State()
     VOTING_MENU = State()
+    COMPARISON_STEP_1 = State()
+    COMPARISON_STEP_2 = State()
 
     # Меню статистики
     STATISTICS_MENU = State()
