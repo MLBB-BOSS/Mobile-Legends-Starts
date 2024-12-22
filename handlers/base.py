@@ -70,14 +70,6 @@ logger = logging.getLogger(__name__)
 
 router = Router()
 
-# Функція переходу між станами
-async def transition_state(state: FSMContext, new_state: State):
-    """
-    Функція для переходу між станами FSMContext.
-    """
-    await state.set_state(new_state)
-    logger.info(f"Перехід до нового стану: {new_state}")
-
 # Обробник прикладу
 @router.message(Command("example"))
 async def handle_example(message: Message, state: FSMContext):
