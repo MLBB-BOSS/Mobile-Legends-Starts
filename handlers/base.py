@@ -27,7 +27,7 @@ from keyboards.menus import (
     get_achievements_menu, get_settings_menu, get_feedback_menu, get_help_menu,
     get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class
 )
-from keyboards.inline_menus import (
+from keyboards.inline_menus import
     get_generic_inline_keyboard,
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
