@@ -1,17 +1,10 @@
+from aiogram import Dispatcher
 from .base import router as base_router
-from .progress import router as progress_router
 from .missing_handlers import router as missing_handlers_router
-# Додайте інші маршрутизатори тут
 
-routers = [
-    base_router,
-    progress_router,
-    missing_handlers_router,
-    # Додайте інші маршрутизатори сюди
-]
+def setup_handlers(dp: Dispatcher):
+    routers = [base_router, missing_handlers_router]
 
-def setup_handlers(dp):
     for router in routers:
-        dp.include_router(router)
-    dp.include_router(missing_handlers_router)
-    # Включіть інші роутери
+        if router not in dp.routers:
+            dp.include_router(router)
