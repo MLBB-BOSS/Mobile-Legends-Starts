@@ -1,6 +1,7 @@
 # handlers/base.py
 
 import logging
+from aiogram import types
 from aiogram import Router, F, Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
@@ -33,6 +34,11 @@ from keyboards.inline_menus import (
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
+
+from aiogram.types import 
+    InlineKeyboardMarkup, 
+    InlineKeyboardButton
+
 from texts import (
     INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT, MAIN_MENU_TEXT,
     MAIN_MENU_DESCRIPTION, MAIN_MENU_ERROR_TEXT, NAVIGATION_MENU_TEXT,
