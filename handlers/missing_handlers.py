@@ -6,8 +6,10 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
+# handlers/missing_handlers.py
 
-from states import MenuStates, increment_step
+from states import MenuStates
+from utils.state_utils import increment_step  # Новий шлях імпорту
 from keyboards.menus import (
     MenuButton,
     get_generic_inline_keyboard,
