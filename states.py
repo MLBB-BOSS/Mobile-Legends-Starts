@@ -19,15 +19,14 @@ class MenuStates(StatesGroup):
     SEARCH_HERO = State()
     CHALLENGES_MENU = State()
     COMPARISON_STEP_1 = State()
+    COMPARISON_STEP_2 = State()
 
     # Гайди, контр-піки та білди
     GUIDES_MENU = State()
     COUNTER_PICKS_MENU = State()
     BUILDS_MENU = State()
     VOTING_MENU = State()
-    COMPARISON_STEP_1 = State()
-    COMPARISON_STEP_2 = State()
-
+    
     # Меню статистики
     STATISTICS_MENU = State()
     ACHIEVEMENTS_MENU = State()
