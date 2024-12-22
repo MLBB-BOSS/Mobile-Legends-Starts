@@ -51,13 +51,5 @@ class MenuStates(StatesGroup):
     REPORT_BUG = State()
     SELECT_LANGUAGE = State()
 
-    # Додано стан FEEDBACK_MENU
+    # Виправлення: додано стан FEEDBACK_MENU
     FEEDBACK_MENU = State()
-
-async def increment_step(state):
-    data = await state.get_data()
-    step_count = data.get("step_count", 0) + 1
-    if step_count >= 3:
-        await state.clear()
-        step_count = 0
-    await state.update_data(step_count=step_count)
