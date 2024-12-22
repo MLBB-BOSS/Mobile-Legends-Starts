@@ -69,6 +69,23 @@ logger = logging.getLogger(__name__)
 
 router = Router()
 
+# Функція переходу між станами
+async def transition_state(state: FSMContext, new_state: State):
+    """
+    Функція для переходу між станами FSMContext.
+    """
+    await state.set_state(new_state)
+    logger.info(f"Перехід до нового стану: {new_state}")
+
+# Обробник прикладу
+@router.message(Command("example"))
+async def handle_example(message: Message, state: FSMContext):
+    """
+    Обробник для демонстрації переходу між станами.
+    """
+    await transition_state(state, MenuStates.MAIN_MENU)
+    await message.answer("Перехід до головного меню.")
+
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
