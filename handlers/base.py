@@ -31,9 +31,6 @@ from keyboards.inline_menus import (
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
-
-# Додайте функціональність тут...
-)
 from texts import (
     INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT, MAIN_MENU_TEXT,
     MAIN_MENU_DESCRIPTION, MAIN_MENU_ERROR_TEXT, NAVIGATION_MENU_TEXT,
