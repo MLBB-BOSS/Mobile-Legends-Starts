@@ -1,5 +1,6 @@
 # handlers/base.py
 import logging
+from aiogram.fsm.state import State
 from aiogram import types, Router, F, Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
