@@ -1,17 +1,17 @@
-aiogram==3.14.0  # Асинхронна бібліотека для роботи з Telegram API
-pydantic>=2.3.0  # Валідація даних та типізація
-pydantic-settings>=2.3.0  # Управління конфігураціями через Pydantic
-python-dotenv>=1.0.0  # Завантаження змінних середовища з .env файлу
-SQLAlchemy>=2.0.35  # ORM для роботи з базами даних
-asyncpg==0.30.0  # Асинхронний клієнт для PostgreSQL
-typing-extensions>=4.7.1  # Додаткові інструменти для розширеної типізації
-openai==1.55.3  # Інтеграція з OpenAI API для використання ШІ
-matplotlib>=3.8.0 # Побудова статичних графіків і візуалізація
-seaborn==0.13.2  # Статистична візуалізація на основі Matplotlib
+aiogram==3.14.0
+pydantic>=2.3.0
+pydantic-settings>=2.3.0
+python-dotenv>=1.0.0
+SQLAlchemy>=2.0.35
+asyncpg==0.30.0
+typing-extensions>=4.7.1
+openai==1.55.3
+matplotlib>=3.8.0
+seaborn==0.13.2
 plotly==5.24.1
-kaleido==0.2.1  # Інтерактивні графіки та візуалізація даних
-rich>=13.9.4  # Красивий вивід тексту, форматовані логи
-Pillow==11.0.0  # Робота із зображеннями (створення, редагування, збереження)
+kaleido==0.2.1
+rich>=13.9.4
+Pillow==11.0.0
 networkx==3.4.2
 numpy==2.1.0
 cairosvg==2.7.1
