@@ -1,12 +1,10 @@
-# bot.py
-
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Розгляньте можливість використання RedisStorage для продуктивних ботів
+from aiogram.fsm.storage.memory import MemoryStorage  # Використовуйте RedisStorage для продуктивних ботів
 
 from config import settings
 from utils.db import engine, async_session, init_db
@@ -19,33 +17,26 @@ from handlers import setup_handlers  # Імпортуємо з handlers/__init__
 
 from rich.logging import RichHandler
 from rich.console import Console
-import logging
 
+# Логування з Rich
 console = Console()
 
 logging.basicConfig(
-    level="INFO",
-    format="%(message)s",
-    datefmt="[%X]",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[RichHandler(console=console)],
 )
 
 logger = logging.getLogger("rich")
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 # Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    session=AiohttpSession()
+    session=AiohttpSession(),
 )
 
-# Ініціалізація диспетчера з MemoryStorage (розгляньте RedisStorage для продуктивності)
+# Ініціалізація диспетчера з MemoryStorage (заміна на RedisStorage при масштабуванні)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
@@ -54,11 +45,13 @@ dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
 async def create_tables():
+    """Створення таблиць у базі даних."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Tables created successfully.")
 
 async def register_handlers():
+    """Реєстрація обробників."""
     try:
         setup_handlers(dp)
         logger.info("Handlers registered successfully.")
@@ -67,6 +60,7 @@ async def register_handlers():
         raise
 
 async def shutdown():
+    """Закриття ресурсів під час зупинки бота."""
     if bot.session:
         await bot.session.close()
     if engine:
@@ -74,6 +68,7 @@ async def shutdown():
     logger.info("Resources closed successfully.")
 
 async def main():
+    """Основна функція запуску бота."""
     logger.info("Starting bot...")
     try:
         logger.info("Initializing database...")
