@@ -12,8 +12,8 @@ plotly==5.24.1
 kaleido==0.2.1
 rich>=13.9.4
 Pillow==10.4.0
-networkx==3.4.2
-numpy==2.1.0
+networkx
+numpy==2.0.2
 cairosvg==2.7.1
 boto3==1.35.77
 botocore==1.35.79
