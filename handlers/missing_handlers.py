@@ -4,7 +4,6 @@ import logging
 from aiogram import Router, F, Bot
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command
 
 from states import MenuStates
 from utils.state_utils import increment_step
@@ -32,7 +31,7 @@ from texts import (
     INSTRUCTIONS_TEXT, FAQ_TEXT, HELP_SUPPORT_TEXT,
     MY_TEAM_TEXT
 )
-from handlers.base import safe_delete_message, check_and_edit_message, send_or_update_interactive_message
+from handlers.base import safe_delete_message, check_and_edit_message
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -44,7 +43,7 @@ async def transition_state(state: FSMContext, new_state: MenuStates):
     await state.set_state(new_state)
 
 # Обробник для кнопки "Challenges"
-@router.message(F.text == MenuButton.CHALLENGES.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.CHALLENGES.value, MenuStates.MAIN_MENU)
 async def handle_challenges(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Challenges")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -177,7 +176,7 @@ async def handle_challenges_menu_buttons(message: Message, state: FSMContext, bo
     await transition_state(state, new_state)
 
 # Обробник для кнопки "Guides"
-@router.message(F.text == MenuButton.GUIDES.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.GUIDES.value, MenuStates.MAIN_MENU)
 async def handle_guides(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Guides")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -320,7 +319,7 @@ async def handle_guides_menu_buttons(message: Message, state: FSMContext, bot: B
     await transition_state(state, new_state)
 
 # Обробник для кнопки "Bust"
-@router.message(F.text == MenuButton.BUST.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.BUST.value, MenuStates.MAIN_MENU)
 async def handle_bust(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Bust")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -453,7 +452,7 @@ async def handle_bust_menu_buttons(message: Message, state: FSMContext, bot: Bot
     await transition_state(state, new_state)
 
 # Обробник для кнопки "Teams"
-@router.message(F.text == MenuButton.TEAMS.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.TEAMS.value, MenuStates.MAIN_MENU)
 async def handle_teams(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Teams")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -588,7 +587,7 @@ async def handle_teams_menu_buttons(message: Message, state: FSMContext, bot: Bo
     await transition_state(state, new_state)
 
 # Обробник для кнопки "Trading"
-@router.message(F.text == MenuButton.TRADING.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.TRADING.value, MenuStates.MAIN_MENU)
 async def handle_trading(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Trading")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -725,7 +724,7 @@ async def handle_trading_menu_buttons(message: Message, state: FSMContext, bot: 
     await transition_state(state, new_state)
 
 # Обробник для кнопки "Settings"
-@router.message(F.text == MenuButton.SETTINGS.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.SETTINGS.value, MenuStates.MAIN_MENU)
 async def handle_settings(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Settings")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -881,18 +880,6 @@ async def handle_select_language(message: Message, state: FSMContext, bot: Bot):
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут реалізуйте логіку зміни мови інтерфейсу, наприклад, оновлення в базі даних
-    # Приклад:
-    # user_id = message.from_user.id
-    # async with db.begin():
-    #     user = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
-    #     user = user.scalars().first()
-    #     if user:
-    #         user.language = selected_language
-    #         await db.commit()
-    #         response_text = f"Інтерфейс змінено на {selected_language}."
-    #     else:
-    #         response_text = "❌ Користувача не знайдено."
-
     # Для демонстрації відправимо підтвердження:
     try:
         response_text = f"Інтерфейс змінено на {selected_language}."
@@ -934,18 +921,6 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут реалізуйте логіку зміни імені користувача, наприклад, оновлення в базі даних
-    # Приклад:
-    # user_id = message.from_user.id
-    # async with db.begin():
-    #     user = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
-    #     user = user.scalars().first()
-    #     if user:
-    #         user.username = new_username
-    #         await db.commit()
-    #         response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-    #     else:
-    #         response_text = "❌ Користувача не знайдено."
-
     # Для демонстрації відправимо підтвердження:
     try:
         response_text = f"Username changed to {new_username}."
@@ -976,7 +951,7 @@ async def handle_change_username(message: Message, state: FSMContext, bot: Bot):
         logger.error(f"Failed to send Settings menu after changing username: {e}")
 
 # Обробник для кнопки "Help"
-@router.message(F.text == MenuButton.HELP.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.HELP.value, MenuStates.MAIN_MENU)
 async def handle_help(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected Help")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -1113,7 +1088,7 @@ async def handle_help_menu_buttons(message: Message, state: FSMContext, bot: Bot
     await transition_state(state, new_state)
 
 # Обробник для кнопки "My Team"
-@router.message(F.text == MenuButton.MY_TEAM.value, state=MenuStates.MAIN_MENU)
+@router.message(F.text == MenuButton.MY_TEAM.value, MenuStates.MAIN_MENU)
 async def handle_my_team(message: Message, state: FSMContext, bot: Bot):
     logger.info(f"User {message.from_user.id} selected My Team")
     await safe_delete_message(bot, message.chat.id, message.message_id)
@@ -1343,18 +1318,6 @@ async def handle_update_id(message: Message, state: FSMContext, bot: Bot):
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут реалізуйте логіку оновлення ID, наприклад, оновлення в базі даних
-    # Приклад:
-    # user_id = message.from_user.id
-    # async with db.begin():
-    #     user = await db.execute(select(models.user.User).where(models.user.User.telegram_id == user_id))
-    #     user = user.scalars().first()
-    #     if user:
-    #         user.id = new_id  # Приклад оновлення
-    #         await db.commit()
-    #         response_text = UPDATE_ID_SUCCESS_TEXT
-    #     else:
-    #         response_text = "❌ Користувача не знайдено."
-
     # Для демонстрації відправимо підтвердження:
     try:
         response_text = UPDATE_ID_SUCCESS_TEXT
@@ -1416,9 +1379,3 @@ async def handle_notifications(message: Message, state: FSMContext, bot: Bot):
         await transition_state(state, MenuStates.SETTINGS_SUBMENU)
     except Exception as e:
         logger.error(f"Failed to send Settings menu after notifications: {e}")
-
-# Функція для налаштування обробників
-def setup_missing_handlers(dp: Router):
-    dp.include_router(router)
-    # Якщо у вас є інші роутери, включіть їх тут, наприклад:
-    # dp.include_router(profile_router)
