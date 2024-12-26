@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Створення асинхронного двигуна
 engine = create_async_engine(
-    settings.AS_BASE,  # Використовуємо AS_BASE замість DB_ASYNC_URL
+    settings.DATABASE_URL,  # Використовуємо AS_BASE замість DB_ASYNC_URL
     echo=settings.DEBUG,
     pool_pre_ping=True,
     pool_size=10,
