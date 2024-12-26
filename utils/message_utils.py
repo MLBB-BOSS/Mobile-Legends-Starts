@@ -1,9 +1,7 @@
-# utils/message_utils.py
-
 import logging
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup
-from aiogram.enums import ParseMode
+from aiogram.enums import ParseMode  # Додано імпорт
 from aiogram.fsm.context import FSMContext
 
 logger = logging.getLogger(__name__)
@@ -22,7 +20,7 @@ async def check_and_edit_message(
     new_text: str,
     new_keyboard: InlineKeyboardMarkup,
     state: FSMContext,
-    parse_mode: ParseMode = ParseMode.HTML
+    parse_mode: ParseMode = ParseMode.HTML  # Використання ParseMode.HTML
 ):
     try:
         await bot.edit_message_text(
@@ -44,7 +42,7 @@ async def send_or_update_interactive_message(
     keyboard: InlineKeyboardMarkup,
     message_id: int | None,
     state: FSMContext,
-    parse_mode: ParseMode = ParseMode.HTML
+    parse_mode: ParseMode = ParseMode.HTML  # Використання ParseMode.HTML
 ) -> int:
     try:
         if message_id:
