@@ -3,9 +3,9 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
 import logging
-from interface_messages import InterfaceMessages
-from navigation_state_manager import NavigationStateManager
-from navigation_config import NavigationConfig
+from interface_messages import InterfaceMessages  # Додайте цей імпорт
+from navigation_state_manager import NavigationStateManager  # Додайте цей імпорт
+from navigation_config import NavigationConfig  # Додайте цей імпорт
 from handlers.navigation_errors import handle_navigation_error
 
 router = Router()
