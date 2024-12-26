@@ -1,3 +1,4 @@
+# handlers/navigation_handlers.py
 from aiogram import Router, Bot, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
