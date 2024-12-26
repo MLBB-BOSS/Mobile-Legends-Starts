@@ -1,3 +1,4 @@
+# handlers/navigation_errors.py
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 import logging
