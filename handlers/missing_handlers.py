@@ -6,7 +6,9 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-# handlers/missing_handlers.py
+from interface_messages import InterfaceMessages
+from navigation_state_manager import NavigationStateManager
+from navigation_config import NavigationConfig
 
 from states import MenuStates
 from utils.state_utils import increment_step  # Новий шлях імпорту
