@@ -1,84 +1,64 @@
+# bot.py
+
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties  # Додано імпорт
-from aiogram.fsm.storage.memory import MemoryStorage  # Заміна на RedisStorage для масштабованості
+from aiogram.client.default import DefaultBotProperties
+from aiogram.fsm.storage.memory import MemoryStorage
 from config import settings
+from handlers.base import setup_handlers
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
 import models.user_stats
-from middlewares.database import DatabaseMiddleware
-from handlers import setup_handlers  # Імпортуємо з handlers/__init__.py
-from rich.logging import RichHandler
-from rich.console import Console
 
-# Логування з Rich
-console = Console()
+from middlewares.database import DatabaseMiddleware  # Імпорт Middleware
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[RichHandler(console=console)],
-)
-
-logger = logging.getLogger("rich")
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML),  # Використовується DefaultBotProperties
-    session=AiohttpSession(),
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    session=AiohttpSession()
 )
 
-# Заміна на RedisStorage для масштабованості
-storage = MemoryStorage()  # Для продакшн середовища RedisStorage
-dp = Dispatcher(storage=storage)
+# Ініціалізація диспетчера з підтримкою FSM
+dp = Dispatcher(storage=MemoryStorage())
 
-# Реєстрація мідлвар
+# Додавання Middleware
 dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
 async def create_tables():
-    """Створення таблиць у базі даних."""
+    """Створює таблиці у базі даних, якщо вони ще не існують."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Tables created successfully.")
 
-async def register_handlers():
-    """Реєстрація обробників."""
-    try:
-        setup_handlers(dp)
-        logger.info("Handlers registered successfully.")
-    except Exception as handler_error:
-        logger.error(f"Handler setup error: {handler_error}")
-        raise
-
-async def shutdown():
-    """Закриття ресурсів під час зупинки бота."""
-    if bot.session:
-        await bot.session.close()
-    if engine:
-        await engine.dispose()
-    logger.info("Resources closed successfully.")
-
 async def main():
-    """Основна функція запуску бота."""
     logger.info("Starting bot...")
     try:
-        logger.info("Initializing database...")
+        # Ініціалізація бази даних
         await init_db()
+
+        # Створення таблиць перед запуском бота
         await create_tables()
-        await register_handlers()
-        logger.info("Starting polling...")
-        async with bot:
-            await dp.start_polling(bot)
+
+        # Налаштування хендлерів
+        setup_handlers(dp)
+
+        # Запуск полінгу
+        await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Error while running bot: {e}")
     finally:
-        await shutdown()
+        if bot.session:
+            await bot.session.close()
 
 if __name__ == "__main__":
     try:
