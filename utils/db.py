@@ -1,7 +1,5 @@
 #utils/db.py
 
-from utils.charts import create_chart
-from utils.charts import charts_router
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from models.base import Base
@@ -14,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Створення асинхронного двигуна
 engine = create_async_engine(
-    settings.DATABASE_URL,  # Використовуємо AS_BASE замість DB_ASYNC_URL
+    settings.AS_BASE,  # Використовуємо AS_BASE замість DB_ASYNC_URL
     echo=settings.DEBUG,
     pool_pre_ping=True,
     pool_size=10,
