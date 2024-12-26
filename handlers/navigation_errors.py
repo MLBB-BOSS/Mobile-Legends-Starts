@@ -1,7 +1,7 @@
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 import logging
-from navigation_config import NavigationConfig
+from navigation_config import NavigationConfig  # Додайте цей імпорт
 
 logger = logging.getLogger(__name__)
 
