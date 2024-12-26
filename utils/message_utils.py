@@ -3,6 +3,7 @@ from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.enums import ParseMode  # Додано імпорт
 from aiogram.fsm.context import FSMContext
+from typing import Optional  # Додано імпорт
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ async def send_or_update_interactive_message(
     chat_id: int,
     text: str,
     keyboard: InlineKeyboardMarkup,
-    message_id: int | None,
+    message_id: Optional[int],  # Заміна int | None на Optional[int]
     state: FSMContext,
     parse_mode: ParseMode = ParseMode.HTML  # Використання ParseMode.HTML
 ) -> int:
