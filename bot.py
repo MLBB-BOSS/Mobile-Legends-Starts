@@ -3,6 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.client.default import DefaultBotProperties  # Додано імпорт
 from aiogram.fsm.storage.memory import MemoryStorage  # Заміна на RedisStorage для масштабованості
 from config import settings
 from utils.db import engine, async_session, init_db
@@ -28,7 +29,7 @@ logger = logging.getLogger("rich")
 # Ініціалізація бота
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),  # Використовується DefaultBotProperties
     session=AiohttpSession(),
 )
 
