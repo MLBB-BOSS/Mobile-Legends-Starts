@@ -1,6 +1,6 @@
-# interface_messages.py
 from dataclasses import dataclass
 from typing import Optional
+from aiogram import Bot  # Додайте цей імпорт
 
 @dataclass
 class InterfaceMessages:
@@ -12,7 +12,7 @@ class InterfaceMessages:
 
     async def update(
         self,
-        bot: Bot,
+        bot: Bot,  # Використовуємо імпортований клас Bot
         chat_id: int,
         new_message_id: int,
         new_interactive_id: int,
