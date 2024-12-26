@@ -3,18 +3,14 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage  # Використовуйте RedisStorage для продуктивних ботів
-
+from aiogram.fsm.storage.memory import MemoryStorage  # Заміна на RedisStorage для масштабованості
 from config import settings
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
 import models.user_stats
-
 from middlewares.database import DatabaseMiddleware
 from handlers import setup_handlers  # Імпортуємо з handlers/__init__.py
-
 from rich.logging import RichHandler
 from rich.console import Console
 
@@ -36,11 +32,11 @@ bot = Bot(
     session=AiohttpSession(),
 )
 
-# Ініціалізація диспетчера з MemoryStorage (заміна на RedisStorage при масштабуванні)
-storage = MemoryStorage()
+# Заміна на RedisStorage для масштабованості
+storage = MemoryStorage()  # Для продакшн середовища RedisStorage
 dp = Dispatcher(storage=storage)
 
-# Реєструємо мідлвари перед реєстрацією маршрутизаторів
+# Реєстрація мідлвар
 dp.message.middleware(DatabaseMiddleware(async_session))
 dp.callback_query.middleware(DatabaseMiddleware(async_session))
 
