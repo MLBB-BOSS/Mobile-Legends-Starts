@@ -21,3 +21,4 @@ class MenuStates(StatesGroup):
     CHANGE_USERNAME = State()
     RECEIVE_FEEDBACK = State()  # Доданий стан
     REPORT_BUG = State()  # Доданий стан
+    TOURNAMENTS_MENU = State()
