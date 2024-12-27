@@ -44,3 +44,11 @@ class MenuStates(StatesGroup):
     COMPARISON_STEP_1 = State()  # Вибір першого героя/предмета для порівняння
     COMPARISON_STEP_2 = State()  # Вибір другого героя/предмета для порівняння
     COMPARISON_RESULT = State()  # Показ результатів порівняння
+    # Hero search and management states
+    SEARCH_HERO = State()           # Стан пошуку героя
+    HERO_DETAILS = State()          # Перегляд деталей героя
+    HERO_SELECTION = State()        # Вибір героя зі списку
+    HERO_FILTER = State()           # Фільтрація героїв
+    HERO_SORT = State()             # Сортування героїв
+    HERO_FAVORITES = State()        # Обрані герої
+    HERO_STATISTICS = State()       # Статистика героя
