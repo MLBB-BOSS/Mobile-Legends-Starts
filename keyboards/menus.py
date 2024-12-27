@@ -1,4 +1,3 @@
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from enum import Enum, unique
 import logging
@@ -599,16 +598,14 @@ def get_trading_menu():
 
 def get_generic_inline_keyboard():
     """
-    Створює інлайн-клавіатуру (заглушка).
+    Створює інлайн-клавіатуру з однією кнопкою Назад.
 
-    :return: None
+    :return: InlineKeyboardMarkup об'єкт
     """
-    # Цю функцію можна реалізувати для інлайн-кнопок, якщо потрібно.
-    # Поки що залишимо заглушку або реалізуємо базову інлайн-клавіатуру.
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="       ░▒▓█ Ｍ Ｌ Ｓ █▓▒░    ", callback_data="menu_back")
+                InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back")
             ]
         ]
     )
@@ -624,5 +621,6 @@ def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(row_width=3)
     for hero in heroes:
         keyboard.insert(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
-    keyboard.add(InlineKeyboardButton(text="Повернутися", callback_data="menu_back"))
+    # Додавання кнопки "Назад" з декоративним текстом
+    keyboard.add(InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back"))
     return keyboard
