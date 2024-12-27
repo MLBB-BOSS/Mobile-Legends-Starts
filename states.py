@@ -33,3 +33,5 @@ class MenuStates(StatesGroup):
     
     # New state causing the current error
     META_MENU = State()  # Add this state for the meta game menu
+    # New state causing the current error
+    M6_MENU = State()  # Add this state for the M6 menu section
