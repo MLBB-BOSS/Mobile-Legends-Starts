@@ -1361,6 +1361,14 @@ META_MENU_TEXT = """╔═══════════════════
 ╚════════════════════════════════════════════╝
 """
 
+class TextTemplates:
+    FEEDBACK_TEXT = "..."
+    RATING_TEXT = "..."
+    SUGGEST_TEXT = "..."
+    REPORT_TEXT = "..."
+    MENU_TEXT = "..."
+    UNKNOWN_COMMAND_TEXT = "..."
+    ERROR_TEXT = "..."
 
 # ============================[LOGGING SETUP]=============================
 import logging
