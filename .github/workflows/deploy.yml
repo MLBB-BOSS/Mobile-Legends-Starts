@@ -10,11 +10,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HEROKU_APP_NAME: mlbb  # Змінено назву додатку
+      HEROKU_APP_NAME: mlbb
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: aiogram-3x  # Явно вказуємо гілку
 
       - name: Install Heroku CLI
         run: |
@@ -25,14 +26,13 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           heroku auth:token
-          heroku container:login
+          heroku git:remote -a $HEROKU_APP_NAME
 
-      - name: Create and deploy to Heroku
+      - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku create $HEROKU_APP_NAME || true
-          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git aiogram-3x:master
+          git push heroku aiogram-3x:main --force
 
       - name: Verify deployment
         env:
