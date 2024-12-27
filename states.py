@@ -1,6 +1,6 @@
-# states.py
+# handlers/missing_handlers.py
 
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 class MenuStates(StatesGroup):
     MAIN_MENU = State()
@@ -21,4 +21,16 @@ class MenuStates(StatesGroup):
     GPT_MENU = State()
     HELP_SUBMENU = State()
     CHANGE_USERNAME = State()
-    # Додайте інші необхідні стани...
+    RECEIVE_FEEDBACK = State()  # Доданий стан
+
+# Використання станів
+async def some_handler(message: types.Message, state: FSMContext):
+    await state.set_state(MenuStates.MAIN_MENU)  # Перевірте, що всі стани використовуються
+    # Інший код
+
+# Перевірка інших станів
+async def another_handler(message: types.Message, state: FSMContext):
+    await state.set_state(MenuStates.CHALLENGES_MENU)  # Перевірте, що всі стани використовуються
+    # Інший код
+
+# Повторіть для всіх станів з MenuStates
