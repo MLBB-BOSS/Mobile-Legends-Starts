@@ -52,3 +52,81 @@ class MenuStates(StatesGroup):
     HERO_SORT = State()             # Сортування героїв
     HERO_FAVORITES = State()        # Обрані герої
     HERO_STATISTICS = State()       # Статистика героя
+    # Search System States
+    SEARCH_TOPIC = State()
+SEARCH_CATEGORY = State()
+SEARCH_RESULT = State()
+SEARCH_FILTER = State()
+SEARCH_HISTORY = State()
+SEARCH_FAVORITES = State()
+
+# Tournament System States
+TOURNAMENT_CREATE = State()
+TOURNAMENT_EDIT = State()
+TOURNAMENT_JOIN = State()
+TOURNAMENT_LIST = State()
+TOURNAMENT_BRACKET = State()
+TOURNAMENT_RESULTS = State()
+TOURNAMENT_RULES = State()
+
+# Team Management States
+TEAM_CREATE = State()
+TEAM_EDIT = State()
+TEAM_INVITE = State()
+TEAM_ROSTER = State()
+TEAM_SETTINGS = State()
+TEAM_STATS = State()
+
+# Match States
+MATCH_CREATE = State()
+MATCH_JOIN = State()
+MATCH_RESULT = State()
+MATCH_HISTORY = State()
+MATCH_REPORT = State()
+
+# Content Management States
+CONTENT_CREATE = State()
+CONTENT_EDIT = State()
+CONTENT_DELETE = State()
+CONTENT_REVIEW = State()
+
+# Achievement System States
+ACHIEVEMENT_VIEW = State()
+ACHIEVEMENT_PROGRESS = State()
+ACHIEVEMENT_CLAIM = State()
+
+# Community States
+COMMUNITY_CHAT = State()
+COMMUNITY_EVENTS = State()
+COMMUNITY_RULES = State()
+
+# Notification States
+NOTIFICATIONS_SETTINGS = State()
+NOTIFICATIONS_LIST = State()
+
+# Report System States
+REPORT_CREATE = State()
+REPORT_DETAILS = State()
+REPORT_STATUS = State()
+
+# Guide System States
+GUIDE_CREATE = State()
+GUIDE_EDIT = State()
+GUIDE_VIEW = State()
+GUIDE_LIST = State()
+
+# Analytics States
+ANALYTICS_OVERVIEW = State()
+ANALYTICS_DETAILED = State()
+ANALYTICS_EXPORT = State()
+
+# Screenshot Management States
+SCREENSHOT_UPLOAD = State()
+SCREENSHOT_REVIEW = State()
+
+SCREENSHOT_GALLERY = State()
+
+# Support States
+SUPPORT_TICKET = State()
+SUPPORT_CHAT = State()
+SUPPORT_FAQ = State()
