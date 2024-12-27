@@ -538,101 +538,100 @@ def get_meta_menu():
             MenuButton.BACK
         ],
         placeholder="Оберіть опцію META",
-        row_width=3
+        row_width=2
     )
-
-def get_m6_menu():
+    
+    def get_tournaments_menu():
     """
-    Створює меню M6.
+    Створює меню Турнірів.
 
     :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
-            MenuButton.M6_INFO,
-            MenuButton.M6_STATS,
-            MenuButton.M6_NEWS,
+            MenuButton.CREATE_TOURNAMENT,
+            MenuButton.VIEW_TOURNAMENTS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть інформацію про M6",
-        row_width=3
-    )
-
-def get_gpt_menu():
-    """
-    Створює меню GPT.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.GPT_DATA_GENERATION,
-            MenuButton.GPT_HINTS,
-            MenuButton.GPT_HERO_STATS,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть опцію GPT",
+        placeholder="Оберіть дію з турнірами",
         row_width=2
     )
 
-def get_teams_menu():
+    def get_profile_menu():
     """
-    Створює меню Команд.
+    Створює меню Профілю.
 
     :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_TEAM,
-            MenuButton.VIEW_TEAMS,
+            MenuButton.STATISTICS,
+            MenuButton.MY_TEAM,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.HELP,
+            MenuButton.GPT,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію Команди",
+        placeholder="Оберіть дію з профілем",
         row_width=2
     )
 
-def get_trading_menu():
+    def get_settings_menu():
     """
-    Створює меню Торгівлі.
+    Створює меню Налаштувань.
 
     :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_TRADE,
-            MenuButton.VIEW_TRADES,
-            MenuButton.MANAGE_TRADES,
+            MenuButton.LANGUAGE,
+            MenuButton.CHANGE_USERNAME,
+            MenuButton.UPDATE_ID,
+            MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію Торгівлі",
+        placeholder="Налаштуйте свій профіль",
         row_width=2
     )
 
-def get_generic_inline_keyboard():
+    def get_feedback_menu():
     """
-    Створює інлайн-клавіатуру з однією кнопкою Назад.
+    Створює меню Зворотного Зв'язку.
 
-    :return: InlineKeyboardMarkup об'єкт
+    :return: ReplyKeyboardMarkup об'єкт
     """
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back")
-            ]
-        ]
+    return create_menu(
+        buttons=[
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK
+        ],
+        placeholder="Виберіть тип зворотного зв'язку",
+        row_width=2
     )
+    
+    # Ініціалізація бота та диспетчера
 
-def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
+    bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
 
-    :param hero_class: Назва класу героя
-    :return: InlineKeyboardMarkup об'єкт
-    """
-    heroes = heroes_by_class.get(hero_class, [])
-    keyboard = InlineKeyboardMarkup(row_width=3)
-    for hero in heroes:
-        keyboard.insert(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
-    # Додавання кнопки "Назад" з декоративним текстом
-    keyboard.add(InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back"))
-    return keyboard
+@dp.message_handler(commands=['profile'])
+async def send_profile_menu(message: types.Message):
+    profile_menu = get_profile_menu()
+    await message.answer("Оберіть дію з профілем:", reply_markup=profile_menu)
+
+@dp.message_handler(commands=['settings'])
+async def send_settings_menu(message: types.Message):
+    settings_menu = get_settings_menu()
+    await message.answer("Налаштуйте свій профіль:", reply_markup=settings_menu)
+
+@dp.message_handler(commands=['feedback'])
+async def send_feedback_menu(message: types.Message):
+    feedback_menu = get_feedback_menu()
+    await message.answer("Виберіть тип зворотного зв'язку:", reply_markup=feedback_menu)
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
+    
