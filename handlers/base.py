@@ -1,7 +1,8 @@
 # handlers/base.py
 import logging
 import io
-from typing import Optional
+from aiogram.filters import Command
+from aiogram.filters.text import Text
 
 import networkx as nx
 import plotly.graph_objects as go
