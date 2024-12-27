@@ -15,19 +15,21 @@ jobs:
           fetch-depth: 0
           ref: aiogram-3x
 
-      # Install Heroku CLI using the official method
+      # Install Heroku CLI using the official installation script
       - name: Install Heroku CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y heroku
+          curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+          # Verify installation
+          which heroku
           heroku --version
 
-      # Set up Heroku credentials
-      - name: Set up Heroku credentials
+      # Add Heroku Remote and Deploy
+      - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
         run: |
+          # Configure Git with Heroku credentials
           cat > ~/.netrc << EOF
           machine api.heroku.com
               login $HEROKU_EMAIL
@@ -38,15 +40,10 @@ jobs:
           EOF
           chmod 600 ~/.netrc
 
-      # Deploy directly using Git
-      - name: Deploy to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          git remote add heroku https://git.heroku.com/mlbb.git
+          # Add Heroku remote and push
+          heroku git:remote -a mlbb
           git push heroku aiogram-3x:main --force
 
-      # Verify deployment
       - name: Verify deployment
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
