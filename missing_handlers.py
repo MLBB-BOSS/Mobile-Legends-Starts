@@ -1,3 +1,4 @@
+from texts import TextTemplates  # Імпортуємо клас
 from typing import Optional, Dict, Any, List
 from enum import Enum
 from dataclasses import dataclass
@@ -158,7 +159,7 @@ class StateManager:
             transition_type=TransitionType.ROLLBACK,
             additional_data=previous_state["data"]
         )
-
+        
     async def reset_state(self, state: FSMContext) -> StateTransitionResult:
         """Повне скидання стану"""
         return await self.transition_state(
