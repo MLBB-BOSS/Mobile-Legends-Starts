@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command
+from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -90,11 +90,6 @@ MENU_BUTTON_TO_CLASS = {
 async def handle_error(bot: Bot, chat_id: int, error_message: str, logger: logging.Logger):
     """
     Централізована функція для обробки помилок.
-    
-    :param bot: Екземпляр бота.
-    :param chat_id: ID чату, куди надсилати повідомлення.
-    :param error_message: Текст помилки для користувача.
-    :param logger: Логгер для запису помилок.
     """
     try:
         await bot.send_message(chat_id=chat_id, text=error_message, reply_markup=get_generic_inline_keyboard())
@@ -104,8 +99,6 @@ async def handle_error(bot: Bot, chat_id: int, error_message: str, logger: loggi
 async def increment_step(state: FSMContext):
     """
     Інкрементує крок у FSM. Якщо крок досягає 3, не очищає стан.
-    
-    :param state: Контекст FSM.
     """
     data = await state.get_data()
     step_count = data.get("step_count", 0) + 1
@@ -123,8 +116,6 @@ async def send_or_update_interactive_message(
 ) -> Optional[int]:
     """
     Відправка нового повідомлення або оновлення існуючого.
-    
-    :return: ID відправленого або оновленого повідомлення.
     """
     if message_id:
         try:
@@ -167,14 +158,6 @@ async def check_and_edit_message(
 ):
     """
     Перевірка зміни тексту або клавіатури перед редагуванням повідомлення.
-    
-    :param bot: Екземпляр бота.
-    :param chat_id: ID чату.
-    :param message_id: ID повідомлення для редагування.
-    :param new_text: Новий текст повідомлення.
-    :param new_keyboard: Нова клавіатура.
-    :param state: Контекст FSM.
-    :param parse_mode: Режим парсингу тексту.
     """
     state_data = await state.get_data()
     last_text = state_data.get('last_text')
@@ -198,9 +181,6 @@ async def check_and_edit_message(
 async def transition_state(state: FSMContext, new_state: State):
     """
     Встановлення нового стану без очищення існуючих даних.
-    
-    :param state: Контекст FSM.
-    :param new_state: Новий стан для встановлення.
     """
     await state.set_state(new_state)
     logger.debug(f"Стан встановлено на {new_state}")
@@ -358,7 +338,7 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
 
 # Обробники вступних сторінок
-@router.callback_query(F.data == "intro_next_1")
+@router.callback_query(Text(equals="intro_next_1"))
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
     Обробник для переходу від INTRO_PAGE_1 до INTRO_PAGE_2.
@@ -388,7 +368,7 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     await transition_state(state, new_state)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_next_2")
+@router.callback_query(Text(equals="intro_next_2"))
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
     Обробник для переходу від INTRO_PAGE_2 до INTRO_PAGE_3.
@@ -418,7 +398,7 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     await transition_state(state, new_state)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_start")
+@router.callback_query(Text(equals="intro_start"))
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot, db: AsyncSession):
     """
     Обробник для завершення вступних сторінок та переходу до головного меню.
@@ -495,18 +475,6 @@ async def handle_menu(
 ):
     """
     Уніфікована функція для обробки різних меню.
-
-    :param user_choice: Вибір користувача.
-    :param message: Повідомлення користувача.
-    :param state: Контекст FSM.
-    :param db: Асинхронна сесія бази даних.
-    :param bot: Екземпляр бота.
-    :param chat_id: ID чату.
-    :param main_menu_error: Текст повідомлення про помилку головного меню.
-    :param main_menu_keyboard_func: Функція для отримання клавіатури головного меню.
-    :param main_menu_text: Текст головного меню.
-    :param interactive_text: Текст інтерактивного повідомлення.
-    :param new_state: Новий стан після обробки.
     """
     logger.info(f"Користувач обрав '{user_choice}' в меню")
 
@@ -604,11 +572,6 @@ async def handle_menu(
 async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробка відображення профілю користувача.
-
-    :param message: Повідомлення користувача.
-    :param state: Контекст FSM.
-    :param db: Асинхронна сесія бази даних.
-    :param bot: Екземпляр бота.
     """
     user_id = message.from_user.id
     profile_data = await get_user_profile(db, user_id)  # Отримання профілю з БД
@@ -764,7 +727,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
         await transition_state(state, MenuStates.MAIN_MENU)
 
 # Обробчик кнопки "🪪 Мій Профіль"
-@router.message(F.text == "🪪 Мій Профіль")
+@router.message(Text(equals="🪪 Мій Профіль"))
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробчик натискання кнопки "🪪 Мій Профіль".
@@ -824,6 +787,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+            await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
     # Визначаємо новий текст та клавіатуру
@@ -1102,13 +1066,13 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
     new_interactive_text = ""
     new_state = MenuStates.META_MENU
 
-    if user_choice == MenuButton.HERO_LIST.value:
+    if user_choice == MenuButton.META_HERO_LIST.value:
         new_main_text = META_HERO_LIST_TEXT
         new_interactive_text = "Список героїв META"
-    elif user_choice == MenuButton.RECOMMENDATIONS.value:
+    elif user_choice == MenuButton.META_RECOMMENDATIONS.value:
         new_main_text = META_RECOMMENDATIONS_TEXT
         new_interactive_text = "Рекомендації META"
-    elif user_choice == MenuButton.UPDATES.value:
+    elif user_choice == MenuButton.META_UPDATES.value:
         new_main_text = META_UPDATES_TEXT
         new_interactive_text = "Оновлення META"
     elif user_choice == MenuButton.BACK.value:
@@ -1134,7 +1098,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1187,13 +1151,13 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     new_interactive_text = ""
     new_state = MenuStates.M6_MENU
 
-    if user_choice == MenuButton.INFO.value:
+    if user_choice == MenuButton.M6_INFO.value:
         new_main_text = M6_INFO_TEXT
         new_interactive_text = "Інформація про M6"
-    elif user_choice == MenuButton.STATS.value:
+    elif user_choice == MenuButton.M6_STATS.value:
         new_main_text = M6_STATS_TEXT
         new_interactive_text = "Статистика M6"
-    elif user_choice == MenuButton.NEWS.value:
+    elif user_choice == MenuButton.M6_NEWS.value:
         new_main_text = M6_NEWS_TEXT
         new_interactive_text = "Новини M6"
     elif user_choice == MenuButton.BACK.value:
@@ -1219,7 +1183,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1271,12 +1235,15 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
     new_interactive_text = ""
     new_state = MenuStates.GPT_MENU
 
-    if user_choice == MenuButton.CHAT.value:
-        new_main_text = "🤖 GPT Chat ще в розробці."
-        new_interactive_text = "GPT Chat"
-    elif user_choice == MenuButton.ASSIST.value:
-        new_main_text = "🤖 GPT Assist ще в розробці."
-        new_interactive_text = "GPT Assist"
+    if user_choice == MenuButton.GPT_DATA_GENERATION.value:
+        new_main_text = "📊 GPT Генерація Даних ще в розробці."
+        new_interactive_text = "GPT Генерація Даних"
+    elif user_choice == MenuButton.GPT_HINTS.value:
+        new_main_text = "💡 GPT Поради ще в розробці."
+        new_interactive_text = "GPT Поради"
+    elif user_choice == MenuButton.GPT_HERO_STATS.value:
+        new_main_text = "📈 GPT Статистика Героїв ще в розробці."
+        new_interactive_text = "GPT Статистика Героїв"
     elif user_choice == MenuButton.BACK.value:
         new_main_text = NAVIGATION_MENU_TEXT
         new_main_keyboard = get_navigation_menu()
@@ -1299,7 +1266,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1341,7 +1308,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
                 text=MAIN_MENU_ERROR_TEXT,
                 reply_markup=get_main_menu()
             )
-            # Зберігаємо ID повідомлення бота
             await state.update_data(bot_message_id=main_message.message_id)
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
@@ -1483,7 +1449,10 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         # Запитуємо імена двох героїв для порівняння
         try:
             comparison_prompt = "⚔️ Введіть імена двох героїв для порівняння, розділивши їх комою (наприклад, Hero A, Hero B):"
-            comparison_keyboard = ReplyKeyboardRemove()
+            comparison_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="✅ Так", callback_data="compare_confirm_yes")],
+                [InlineKeyboardButton(text="❌ Скасувати", callback_data="compare_confirm_no")]
+            ])
             comparison_message = await bot.send_message(
                 chat_id=message.chat.id,
                 text=comparison_prompt,
@@ -1591,7 +1560,7 @@ async def handle_comparison_step_1(message: Message, state: FSMContext, db: Asyn
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
 
 # Обробчик підтвердження порівняння героїв
-@router.callback_query(F.data.startswith("compare_confirm_"))
+@router.callback_query(Text(startswith="compare_confirm_"))
 async def handle_comparison_confirmation(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробчик для підтвердження або скасування порівняння героїв.
@@ -2106,6 +2075,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
                 text=MAIN_MENU_ERROR_TEXT,
                 reply_markup=get_main_menu()
             )
+            # Зберігаємо ID повідомлення бота
             await state.update_data(bot_message_id=main_message.message_id)
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
@@ -2299,7 +2269,7 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     # Тут додайте логіку обробки пропозиції теми
-    # Наприклад, збереження в базі даних або відправка адміністратору
+    # Наприклад, збереження в базі даних або надсилання адміністратору
     # Поки що відправимо повідомлення про отримання запиту
 
     if topic:
