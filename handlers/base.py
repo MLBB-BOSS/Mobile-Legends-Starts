@@ -8,7 +8,8 @@ import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -228,7 +229,7 @@ def create_game_stats_graph() -> bytes:
     ])
     fig.update_layout(
         barmode='group',
-        title="🎮 Ігрова Статистика Героїв",
+        title="🎮 Ігрова Статистична Героїв",
         xaxis_title="Герої",
         yaxis_title="Кількість",
         template="plotly_white"
@@ -1013,7 +1014,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1301,7 +1302,6 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        # Надсилаємо нове повідомлення з клавіатурою
         try:
             main_message = await bot.send_message(
                 chat_id=message.chat.id,
@@ -1415,7 +1415,6 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
                 text=MAIN_MENU_ERROR_TEXT,
                 reply_markup=get_main_menu()
             )
-            # Зберігаємо ID повідомлення бота
             await state.update_data(bot_message_id=main_message.message_id)
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
@@ -1977,19 +1976,17 @@ async def handle_voting_menu_buttons(message: Message, state: FSMContext, bot: B
 
     if not bot_message_id or not interactive_message_id:
         logger.error("bot_message_id або interactive_message_id не знайдено")
-        # Надсилаємо нове повідомлення з клавіатурою
         try:
             main_message = await bot.send_message(
                 chat_id=message.chat.id,
                 text=MAIN_MENU_ERROR_TEXT,
                 reply_markup=get_main_menu()
             )
-            # Зберігаємо ID повідомлення бота
             await state.update_data(bot_message_id=main_message.message_id)
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
-            await handle_error(bot, chat_id=message.chat.id, error_message=MAIN_MENU_ERROR_TEXT, logger=logger)
+            await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
     # Визначаємо новий текст та клавіатуру
