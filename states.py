@@ -35,3 +35,8 @@ class MenuStates(StatesGroup):
     META_MENU = State()  # Add this state for the meta game menu
     # New state causing the current error
     M6_MENU = State()  # Add this state for the M6 menu section
+    # Additional states found in handlers
+    HERO_LIST_MENU = State()      # Used in meta menu for hero list
+    RECOMMENDATIONS_MENU = State() # Used in meta menu for recommendations
+    UPDATES_MENU = State()        # Used in meta menu for updates
+    BACK_TO_MAIN = State()
