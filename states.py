@@ -22,11 +22,14 @@ class MenuStates(StatesGroup):
     CHANGE_USERNAME = State()
     RECEIVE_FEEDBACK = State()
     REPORT_BUG = State()
-
-    # New states to add based on the handlers
-    TOURNAMENTS_MENU = State()      # Used in handlers causing the current error
-    HEROES_MENU = State()           # Used in base.py
-    COUNTER_PICKS_MENU = State()    # Used in base.py
-    BUILDS_MENU = State()           # Used in base.py
-    VOTING_MENU = State()           # Used in base.py
-    NAVIGATION_MENU = State()       # Used in navigation handlers
+    
+    # Previously suggested states
+    TOURNAMENTS_MENU = State()
+    HEROES_MENU = State()
+    COUNTER_PICKS_MENU = State()
+    BUILDS_MENU = State()
+    VOTING_MENU = State()
+    NAVIGATION_MENU = State()
+    
+    # New state causing the current error
+    META_MENU = State()  # Add this state for the meta game menu
