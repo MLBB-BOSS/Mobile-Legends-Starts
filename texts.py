@@ -98,6 +98,18 @@ heroes_by_class = {
 # ============================[ERROR MESSAGES]===========================
 # Набір текстових повідомлень, що допомагають інформувати користувача про помилки.
 
+
+LANGUAGE_TEXT = {
+    "en": {
+        "welcome": "Welcome to the Mobile Legends Starts bot!",
+        "help": "Here is a list of commands you can use..."
+    },
+    "uk": {
+        "welcome": "Ласкаво просимо до Mobile Legends Starts бота!",
+        "help": "Ось список команд, які ви можете використовувати..."
+    }
+}
+
 MAIN_MENU_ERROR_TEXT = """╔════════════════════════════════════════════╗
 ║   ❗ <b>Щось пішло не так.</b>                     ║
 ║   Ми перепрошуємо за незручності.                 ║
