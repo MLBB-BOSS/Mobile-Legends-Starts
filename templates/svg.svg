@@ -1,400 +1,378 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1900" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="title desc" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 100%; height: auto;">
-  <!-- Опис та заголовок для доступності -->
-  <title id="title">Інтерактивний Профільний Екран</title>
-  <desc id="desc">Цей SVG представляє інтерактивний профільний екран з анімованим фоном, аватаром, статистикою, графіками та посиланнями на соціальні мережі.</desc>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інтерактивний Профільний Екран</title>
+    <style>
+        /* Змінні кольорів */
+        :root {
+            --gold-color: #FFD700;
+            --dark-gray: #1a1a1a;
+            --light-gray: #3a3a3a;
+            --grid-color: #444444;
+            --white-color: #FFFFFF;
+            --green-color: #4CAF50;
+            --red-color: #F44336;
+            --purple-color: #6A5ACD;
+            --orange-color: #FF4500;
+            --turquoise-color: #00CED1;
+            --discord-color: #7289DA;
+            --twitter-color: #1DA1F2;
+            --youtube-color: #FF0000;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --semi-transparent-white: rgba(255, 255, 255, 0.2);
+            --semi-transparent-black: rgba(0, 0, 0, 0.3);
+            --accent-color: #1E90FF; /* Доданий синій акцент */
+        }
 
-  <!-- Стилі з використанням CSS-перемінних -->
-  <style>
-    :root {
-      --gold-color: #FFD700;
-      --dark-gray: #3a3a3a;
-      --light-gray: #1e1e1e;
-      --grid-color: #444444;
-      --white-color: #FFFFFF;
-      --green-color: #4CAF50;
-      --red-color: #F44336;
-      --purple-color: #6A5ACD;
-      --orange-color: #FF4500;
-      --turquoise-color: #00CED1;
-      --discord-color: #7289DA;
-      --twitter-color: #1DA1F2;
-      --youtube-color: #FF0000;
-      --shadow-color: rgba(0, 0, 0, 0.5);
-      --semi-transparent-white: rgba(255, 255, 255, 0.2);
-      --semi-transparent-black: rgba(0, 0, 0, 0.3);
-      --accent-color: #1E90FF; /* Доданий синій акцент */
-    }
+        /* Загальні стилі */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark-gray);
+            color: var(--white-color);
+            margin: 0;
+            padding: 0;
+        }
 
-    /* Загальні стилі */
-    text {
-      filter: drop-shadow(2px 2px 4px var(--shadow-color));
-    }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            border-radius: 16px;
+        }
 
-    /* Заголовок */
-    .title {
-      fill: var(--gold-color);
-      font-size: 48px; /* Збільшений розмір */
-      font-weight: bold;
-      text-anchor: middle;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Сучасний шрифт */
-    }
+        /* Заголовок */
+        .header {
+            text-align: center;
+            font-size: 48px; /* Збільшений розмір */
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: var(--gold-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
 
-    /* Розділовий заголовок */
-    .section-title {
-      fill: var(--gold-color);
-      font-size: 32px; /* Збільшений розмір */
-      font-weight: bold;
-      text-anchor: start;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 1s;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      position: relative;
-    }
+        /* Блок профілю */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Проміжок між блоками */
+            margin-bottom: 40px;
+            transform-origin: center;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 1s;
+        }
+        .profile-section:hover {
+            transform: scale(1.02);
+        }
 
-    /* Декоративна лінія під заголовком */
-    .section-title::after {
-      content: '';
-      display: block;
-      width: 100px;
-      height: 4px;
-      background-color: var(--accent-color);
-      margin-top: 4px;
-    }
+        .photo {
+            width: 180px;
+            height: 180px;
+            border: 2px solid var(--gold-color);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--white-color);
+            background-color: var(--light-gray);
+            cursor: pointer;
+            transition: border-width 0.3s, background-color 0.3s;
+            position: relative;
+        }
+        .photo:hover {
+            border-width: 4px;
+            background-color: rgba(58, 58, 58, 0.8);
+        }
+        .photo::after {
+            content: 'Фото';
+            position: absolute;
+            bottom: 10px;
+            font-size: 16px;
+            color: var(--white-color);
+        }
 
-    /* Статистичний текст */
-    .stat-text {
-      fill: var(--white-color);
-      font-size: 22px; /* Збільшений розмір */
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 2s;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-    /* Виділення тексту */
-    .highlight {
-      fill: var(--gold-color);
-      font-weight: bold;
-    }
+        .user-info div {
+            font-size: 22px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 1.5s;
+        }
 
-    /* Стовпці графіку */
-    .graph-bar {
-      transition: fill 0.3s, height 1.5s ease, y 1.5s ease;
-      cursor: pointer;
-    }
-    .graph-bar:hover {
-      fill: var(--accent-color);
-      transform: scale(1.05);
-    }
+        .user-info span {
+            color: var(--gold-color);
+            font-weight: bold;
+        }
 
-    /* Соціальні іконки */
-    .social-icon {
-      cursor: pointer;
-      transition: transform 0.3s, fill 0.3s;
-      opacity: 0;
-      animation: fadeIn 1s forwards;
-      animation-delay: 3s;
-    }
-    .social-icon:hover {
-      transform: scale(1.2);
-      fill: var(--accent-color);
-    }
+        /* Статистика */
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Два стовпці */
+            gap: 10px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 2s;
+        }
 
-    /* Аватар */
-    .avatar-square {
-      fill: var(--dark-gray);
-      stroke: var(--gold-color);
-      stroke-width: 2;
-      cursor: pointer;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 1.5s;
-      transition: stroke-width 0.3s, fill 0.3s;
-      rx: 15; /* Округлення кутів */
-      ry: 15;
-    }
-    .avatar-square:hover {
-      stroke-width: 4;
-      fill: rgba(58, 58, 58, 0.8); /* Легкий фон при наведенні */
-    }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            padding: 10px;
+            background-color: var(--semi-transparent-black);
+            border-radius: 10px;
+            transition: background-color 0.3s, color 0.3s;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 2s;
+        }
+        .stat-item:hover {
+            background-color: var(--semi-transparent-white);
+            color: var(--dark-gray);
+        }
 
-    /* Сітка графіків */
-    .grid line {
-      stroke: var(--grid-color);
-      stroke-opacity: 0.3;
-      stroke-width: 1;
-    }
-    .grid text {
-      fill: var(--white-color);
-      font-size: 14px; /* Збільшений розмір */
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        .stat-item span {
+            color: var(--gold-color);
+            font-weight: bold;
+        }
 
-    /* Плашки для блоків */
-    .block-background {
-      fill: var(--semi-transparent-black);
-      rx: 15;
-      ry: 15;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 1s;
-    }
+        /* Графіки */
+        .charts {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 2s;
+        }
 
-    /* Легенда */
-    .legend-text {
-      fill: var(--white-color);
-      font-size: 18px; /* Збільшений розмір */
-      text-anchor: start;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        .bar-chart {
+            display: flex;
+            justify-content: space-between;
+            width: 80%; /* Ширина графіка */
+            background-color: var(--semi-transparent-black);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+        }
+        .bar-chart:hover {
+            transform: scale(1.02);
+        }
 
-    /* Анімації */
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
+        .bar {
+            width: 50px;
+            background-color: var(--gold-color);
+            text-align: center;
+            color: var(--dark-gray);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: background-color 0.3s, transform 0.3s;
+            height: 0;
+            opacity: 0;
+            animation: growBar 1.5s forwards;
+        }
+        .bar:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.05);
+        }
 
-    /* Роздільники між графіками */
-    .separator {
-      stroke: var(--light-gray);
-      stroke-width: 2;
-      opacity: 0.5;
-    }
-  </style>
+        .bar:nth-child(1) {
+            animation-delay: 2.5s;
+            height: 200px;
+            opacity: 1;
+        }
+        .bar:nth-child(2) {
+            animation-delay: 2.7s;
+            height: 150px;
+            opacity: 1;
+        }
+        .bar:nth-child(3) {
+            animation-delay: 2.9s;
+            height: 180px;
+            opacity: 1;
+        }
+        .bar:nth-child(4) {
+            animation-delay: 3.1s;
+            height: 120px;
+            opacity: 1;
+        }
 
-  <!-- Визначення градієнта та фільтрів -->
-  <defs>
-    <!-- Градієнтний фон з додаванням текстури -->
-    <radialGradient id="bgGradient" cx="1" cy="1" r="1.5" fx="1" fy="1" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="var(--purple-color)">
-        <animate attributeName="stop-color" 
-                 values="#2b004b;var(--light-gray);#2b004b" 
-                 dur="5s" 
-                 repeatCount="indefinite" />
-      </stop>
-      <stop offset="50%" stop-color="var(--light-gray)">
-        <animate attributeName="stop-color" 
-                 values="var(--light-gray);#2b004b;var(--light-gray)" 
-                 dur="5s" 
-                 repeatCount="indefinite" />
-      </stop>
-      <stop offset="100%" stop-color="var(--light-gray)" />
-      <!-- Анімація пульсації градієнта -->
-      <animateTransform 
-          attributeName="gradientTransform" 
-          type="scale" 
-          from="1 1" 
-          to="1.5 1.5" 
-          dur="5s" 
-          repeatCount="indefinite" />
-    </radialGradient>
+        .bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: var(--white-color);
+        }
 
-    <!-- Фільтр тіні -->
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="var(--shadow-color)" />
-    </filter>
+        /* Соціальні мережі */
+        .social-media {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+            animation-delay: 3s;
+        }
 
-    <!-- Іконки соціальних мереж з покращеним дизайном -->
-    <symbol id="discord" viewBox="0 0 24 24">
-      <path d="M20.317 4.369a19.794 19.794 0 00-4.887-1.412.1.1 0 00-.09.042C14.628 3.042 12 5.006 12 5.006s-2.627-1.964-2.34-2.001a.1.1 0 00-.09-.042A19.705 19.705 0 003.683 4.37C2.818 5.422 2 7.161 2 9.255c0 4.464 2.824 8.217 6.872 9.546a.999.999 0 00.172.018c.19 0 .376-.014.56-.04a15.3 15.3 0 01-2.76-3.66c.233-.016.46-.024.687-.024a9.283 9.283 0 006.873-2.887 9.283 9.283 0 006.873 2.887c.227 0 .454.008.687.024a15.3 15.3 0 01-2.76 3.66c.184.026.37.04.56.04a.999.999 0 00.172-.018c4.048-1.329 6.872-5.082 6.872-9.546 0-2.094-.818-3.833-1.683-4.886zM8.5 15.27c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4zm7 0c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4z" fill="currentColor"/>
-    </symbol>
-    <symbol id="twitter" viewBox="0 0 24 24">
-      <path d="M23.954 4.569a10 10 0 01-2.825.775 4.932 4.932 0 002.163-2.723 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-8.384 4.482A13.94 13.94 0 011.671 3.149a4.916 4.916 0 001.523 6.574A4.897 4.897 0 01.964 9.1v.061a4.916 4.916 0 003.946 4.814 4.902 4.902 0 01-2.212.084 4.918 4.918 0 004.588 3.417A9.867 9.867 0 010 19.54a13.94 13.94 0 007.548 2.209c9.057 0 14.01-7.514 14.01-14.01 0-.213-.005-.425-.014-.636A10.025 10.025 0 0024 4.59z" fill="currentColor"/>
-    </symbol>
-    <symbol id="youtube" viewBox="0 0 24 24">
-      <path d="M19.615 3.184a2.99 2.99 0 00-2.105-2.105C15.688.667 12 0 12 0s-3.688.667-5.51 1.079a2.99 2.99 0 00-2.105 2.105C4 4.006 4 6 4 6s0 1.994.385 2.816a2.99 2.99 0 002.105 2.105C8.312 11.333 12 12 12 12s3.688-.667 5.51-1.079a2.99 2.99 0 002.105-2.105C20 7.994 20 6 20 6s0-1.994-.385-2.816zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="currentColor"/>
-    </symbol>
-  </defs>
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            fill: var(--gold-color);
+            cursor: pointer;
+            transition: transform 0.3s, fill 0.3s;
+        }
+        .social-icon:hover {
+            transform: scale(1.2);
+            fill: var(--accent-color);
+        }
 
-  <!-- Фон з додаванням текстури -->
-  <rect width="900" height="1900" fill="url(#bgGradient)" />
+        /* Анімації */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-  <!-- Заголовок -->
-  <g id="header" filter="url(#shadow)">
-    <text x="450" y="100" class="title">Ваш Профіль</text>
-  </g>
+        @keyframes growBar {
+            from { height: 0; opacity: 0; }
+            to { height: var(--bar-height); opacity: 1; }
+        }
 
-  <!-- Блок користувача -->
-  <g id="userInfo" transform="translate(50, 200)">
-    <!-- Плашка фону блоку -->
-    <rect x="0" y="0" width="800" height="250" class="block-background" />
+        /* Адаптивність */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
 
-    <!-- Аватар + Додаткова інформація -->
-    <g transform="translate(20, 20)">
-      <!-- Аватар -->
-      <a href="#" aria-label="Завантажити новий аватар">
-        <rect x="0" y="0" width="180" height="180" class="avatar-square"></rect>
-        <!-- Текст всередині квадрата -->
-        <text x="90" y="100" text-anchor="middle" fill="var(--white-color)" font-size="24" font-weight="bold" pointer-events="none">
-          Фото
-        </text>
-      </a>
+            .profile-section {
+                flex-direction: column;
+                align-items: center;
+            }
 
-      <!-- Додаткова інформація праворуч -->
-      <g transform="translate(220, 0)">
-        <text class="stat-text" y="30">👤 Ім'я: <tspan class="highlight">Олег</tspan></text>
-        <text class="stat-text" y="70">⭐ Рівень: <tspan class="highlight">10</tspan></text>
-        <text class="stat-text" y="110">🏅 Нагороди: <tspan class="highlight">3</tspan></text>
-      </g>
-    </g>
-  </g>
+            .statistics {
+                grid-template-columns: 1fr; /* Один стовпець */
+            }
 
-  <!-- Статистика -->
-  <g id="statisticsSection" filter="url(#shadow)" transform="translate(50, 500)">
-    <text class="section-title" x="0" y="0">Статистика</text>
-    <g transform="translate(0, 50)">
-      <text y="50" class="stat-text">📈 Рівень: <tspan class="highlight">100</tspan></text>
-      <text y="100" class="stat-text">🚀 Рейтинг: <tspan class="highlight">ТОП 1</tspan></text>
-      <text y="150" class="stat-text">🎖️ Бейджів: <tspan class="highlight">56</tspan></text>
-      <text y="200" class="stat-text">🏆 Перемоги: <tspan class="highlight">16</tspan></text>
+            .bar-chart {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
 
-      <!-- Додаткові пункти статистики -->
-      <text y="250" class="stat-text">🏅 Активність: <tspan class="highlight">15 днів</tspan></text>
-      <text y="300" class="stat-text">⏳ Час у грі: <tspan class="highlight">40 годин</tspan></text>
-      <text y="350" class="stat-text">🤝 Друзів у грі: <tspan class="highlight">5</tspan></text>
-      <text y="400" class="stat-text">🎮 Улюблений герой: <tspan class="highlight">Ланселот</tspan></text>
-      <text y="450" class="stat-text">📅 Останній турнір: <tspan class="highlight">18.12.2024</tspan></text>
-    </g>
-  </g>
+            .bar {
+                width: 80%;
+                margin-bottom: 10px;
+            }
 
-  <!-- Графіки -->
-  <g id="chartsSection" filter="url(#shadow)" transform="translate(50, 800)" class="fade-in" style="animation-delay: 1s;">
-    <text class="section-title" x="0" y="0">Графіки</text>
+            .header {
+                font-size: 32px;
+            }
 
-    <!-- Стовпчастий графік з сіткою -->
-    <g class="bar-chart" transform="translate(150, 100)">
-      <!-- Сітка -->
-      <g class="grid">
-        <!-- Горизонтальні лінії -->
-        <line x1="0" y1="0" x2="800" y2="0" />
-        <line x1="0" y1="50" x2="800" y2="50" />
-        <line x1="0" y1="100" x2="800" y2="100" />
-        <line x1="0" y1="150" x2="800" y2="150" />
-        <line x1="0" y1="200" x2="800" y2="200" />
-      </g>
-
-      <!-- Легенда -->
-      <g transform="translate(0, -40)">
-        <text x="0" y="0" class="legend-text">Перемоги</text>
-        <text x="200" y="0" class="legend-text">Програші</text>
-        <text x="400" y="0" class="legend-text">Активність</text>
-        <text x="600" y="0" class="legend-text">Час</text>
-      </g>
-
-      <!-- Бар 1 -->
-      <rect class="graph-bar" x="100" y="200" width="50" height="0" fill="#6A5ACD"> <!-- Фіолетовий -->
-        <animate attributeName="height" from="0" to="200" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="0" dur="1.5s" fill="freeze" />
-        <title>Перемоги: 200</title>
-      </rect>
-      <!-- Бар 2 -->
-      <rect class="graph-bar" x="200" y="200" width="50" height="0" fill="#FF4500"> <!-- Помаранчевий -->
-        <animate attributeName="height" from="0" to="150" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="50" dur="1.5s" fill="freeze" />
-        <title>Програші: 150</title>
-      </rect>
-      <!-- Бар 3 -->
-      <rect class="graph-bar" x="300" y="200" width="50" height="0" fill="#00CED1"> <!-- Бірюзовий -->
-        <animate attributeName="height" from="0" to="180" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="20" dur="1.5s" fill="freeze" />
-        <title>Активність: 180</title>
-      </rect>
-      <!-- Бар 4 -->
-      <rect class="graph-bar" x="400" y="200" width="50" height="0" fill="#FFD700"> <!-- Золотий -->
-        <animate attributeName="height" from="0" to="120" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="80" dur="1.5s" fill="freeze" />
-        <title>Час: 120</title>
-      </rect>
-
-      <!-- Підписи -->
-      <text x="125" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">200</text>
-      <text x="225" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">150</text>
-      <text x="325" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">180</text>
-      <text x="425" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">120</text>
-    </g>
-
-    <!-- Роздільник між графіками -->
-    <line x1="0" y1="300" x2="800" y2="300" class="separator" />
-
-    <!-- Лінійний графік з сіткою -->
-    <g transform="translate(0, 350)">
-      <!-- Сітка -->
-      <g class="grid">
-        <line x1="0" y1="0" x2="800" y2="0" />
-        <line x1="0" y1="50" x2="800" y2="50" />
-        <line x1="0" y1="100" x2="800" y2="100" />
-        <line x1="0" y1="150" x2="800" y2="150" />
-        <line x1="0" y1="200" x2="800" y2="200" />
-      </g>
-
-      <text x="400" y="-30" fill="var(--white-color)" font-size="20px" text-anchor="middle">Активність за місяць</text>
-
-      <polyline points="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" fill="none" stroke="var(--gold-color)" stroke-width="3">
-        <animate 
-            attributeName="points" 
-            from="50,200 100,200 150,200 200,200 250,200 300,200 350,200 400,200 450,200 500,200 550,200 600,200 650,200 700,200 750,200 800,200" 
-            to="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" 
-            dur="4s" 
-            fill="freeze" />
-      </polyline>
-
-      <!-- Точки даних -->
-      <circle cx="50" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="200" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>200 активностей</title>
-      </circle>
-      <!-- Повторити анімацію для інших точок даних -->
-      <!-- ... -->
-    </g>
-
-    <!-- Анімація появи секції графіків -->
-    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1s" />
-  </g>
-
-  <!-- Соціальні мережі -->
-  <g id="socialLinksSection" filter="url(#shadow)" transform="translate(50, 1600)" class="fade-in" style="animation-delay: 1.5s;">
-    <text class="section-title" x="0" y="0">Соціальні мережі</text>
-    <g transform="translate(0, 50)">
-      <!-- Discord -->
-      <a href="https://discord.com/users/is_mlbb" target="_blank" aria-label="Discord: @is_mlbb">
-        <use href="#discord" class="social-icon" x="0" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>Discord: @is_mlbb</title>
-      </a>
-
-      <!-- Twitter -->
-      <a href="https://twitter.com/is_mlbb" target="_blank" aria-label="Twitter: @is_mlbb">
-        <use href="#twitter" class="social-icon" x="80" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>Twitter: @is_mlbb</title>
-      </a>
-
-      <!-- YouTube -->
-      <a href="https://youtube.com/is_mlbb" target="_blank" aria-label="YouTube: is_mlbb">
-        <use href="#youtube" class="social-icon" x="160" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>YouTube: is_mlbb</title>
-      </a>
-    </g>
-    <!-- Анімація появи секції соціальних мереж -->
-    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1.5s" />
-  </g>
-</svg>
+            .stat-item {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <h1 class="header">Ваш Профіль</h1>
+        
+        <!-- Блок користувача -->
+        <div class="profile-section">
+            <div class="photo" aria-label="Завантажити новий аватар">
+                <!-- Можна замінити текст "Фото" на зображення аватара -->
+                <!-- <img src="path_to_avatar_image.jpg" alt="Аватар користувача" style="width: 100%; height: 100%; border-radius: 15px;"> -->
+            </div>
+            <div class="user-info">
+                <div>👤 Ім'я: <span>Олег</span></div>
+                <div>⭐ Рівень: <span>10</span></div>
+                <div>🏅 Нагороди: <span>3</span></div>
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="statistics">
+            <div class="stat-item">📈 Рівень: <span>100</span></div>
+            <div class="stat-item">🚀 Рейтинг: <span>ТОП 1</span></div>
+            <div class="stat-item">🎖️ Бейджів: <span>56</span></div>
+            <div class="stat-item">🏆 Перемоги: <span>16</span></div>
+            <div class="stat-item">🏅 Активність: <span>15 днів</span></div>
+            <div class="stat-item">⏳ Час у грі: <span>40 годин</span></div>
+            <div class="stat-item">🤝 Друзів у грі: <span>5</span></div>
+            <div class="stat-item">🎮 Улюблений герой: <span>Ланселот</span></div>
+            <div class="stat-item">📅 Останній турнір: <span>18.12.2024</span></div>
+        </div>
+        
+        <!-- Графіки -->
+        <div class="charts">
+            <div class="bar-chart">
+                <div class="bar" data-value="200" style="--bar-height: 200px;"></div>
+                <div class="bar" data-value="150" style="--bar-height: 150px;"></div>
+                <div class="bar" data-value="180" style="--bar-height: 180px;"></div>
+                <div class="bar" data-value="120" style="--bar-height: 120px;"></div>
+            </div>
+            <!-- Додаткові графіки можна додати тут -->
+        </div>
+        
+        <!-- Соціальні мережі -->
+        <div class="social-media">
+            <!-- Discord -->
+            <a href="https://discord.com/users/is_mlbb" target="_blank" aria-label="Discord: @is_mlbb">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <use href="#discord"></use>
+                </svg>
+            </a>
+            <!-- Twitter -->
+            <a href="https://twitter.com/is_mlbb" target="_blank" aria-label="Twitter: @is_mlbb">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <use href="#twitter"></use>
+                </svg>
+            </a>
+            <!-- YouTube -->
+            <a href="https://youtube.com/is_mlbb" target="_blank" aria-label="YouTube: is_mlbb">
+                <svg class="social-icon" viewBox="0 0 24 24">
+                    <use href="#youtube"></use>
+                </svg>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Визначення іконок соціальних мереж -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="discord" viewBox="0 0 24 24">
+            <path d="M20.317 4.369a19.794 19.794 0 00-4.887-1.412.1.1 0 00-.09.042C14.628 3.042 12 5.006 12 5.006s-2.627-1.964-2.34-2.001a.1.1 0 00-.09-.042A19.705 19.705 0 003.683 4.37C2.818 5.422 2 7.161 2 9.255c0 4.464 2.824 8.217 6.872 9.546a.999.999 0 00.172.018c.19 0 .376-.014.56-.04a15.3 15.3 0 01-2.76-3.66c.233-.016.46-.024.687-.024a9.283 9.283 0 006.873-2.887 9.283 9.283 0 006.873 2.887c.227 0 .454.008.687.024a15.3 15.3 0 01-2.76 3.66c.184.026.37.04.56.04a.999.999 0 00.172-.018c4.048-1.329 6.872-5.082 6.872-9.546 0-2.094-.818-3.833-1.683-4.886zM8.5 15.27c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4zm7 0c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4z" fill="currentColor"/>
+        </symbol>
+        <symbol id="twitter" viewBox="0 0 24 24">
+            <path d="M23.954 4.569a10 10 0 01-2.825.775 4.932 4.932 0 002.163-2.723 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-8.384 4.482A13.94 13.94 0 011.671 3.149a4.916 4.916 0 001.523 6.574A4.897 4.897 0 01.964 9.1v.061a4.916 4.916 0 003.946 4.814 4.902 4.902 0 01-2.212.084 4.918 4.918 0 004.588 3.417A9.867 9.867 0 010 19.54a13.94 13.94 0 007.548 2.209c9.057 0 14.01-7.514 14.01-14.01 0-.213-.005-.425-.014-.636A10.025 10.025 0 0024 4.59z" fill="currentColor"/>
+        </symbol>
+        <symbol id="youtube" viewBox="0 0 24 24">
+            <path d="M19.615 3.184a2.99 2.99 0 00-2.105-2.105C15.688.667 12 0 12 0s-3.688.667-5.51 1.079a2.99 2.99 0 00-2.105 2.105C4 4.006 4 6 4 6s0 1.994.385 2.816a2.99 2.99 0 002.105 2.105C8.312 11.333 12 12 12 12s3.688-.667 5.51-1.079a2.99 2.99 0 002.105-2.105C20 7.994 20 6 20 6s0-1.994-.385-2.816zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="currentColor"/>
+        </symbol>
+    </svg>
+</body>
+</html>
