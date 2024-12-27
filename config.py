@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseSettings, Field
+from pydantic_settings import BaseSettings, Field
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +39,6 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        # Додано підтримку .env файлу
         env_file = ".env"
         env_file_encoding = "utf-8"
 
