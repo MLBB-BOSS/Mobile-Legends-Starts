@@ -9,6 +9,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      HEROKU_APP_NAME: mlbb  # Змінено назву додатку
     steps:
       - uses: actions/checkout@v3
         with:
@@ -29,10 +31,12 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku create mlbb-boss-bot || true
-          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/mlbb-boss-bot.git aiogram-3x:master
+          heroku create $HEROKU_APP_NAME || true
+          git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git aiogram-3x:master
 
       - name: Verify deployment
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku ps
-          heroku logs --tail
+          heroku ps --app $HEROKU_APP_NAME
+          heroku logs --tail --app $HEROKU_APP_NAME --num 50
