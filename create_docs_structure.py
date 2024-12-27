@@ -1,92 +1,53 @@
-"""
-Script to automatically create documentation structure for MLBB-BOSS project.
-"""
+# create_docs_structure.py
 
 import os
-from pathlib import Path
-from typing import Dict, List
+from datetime import datetime
 
-# Structure definition
-DOCS_STRUCTURE: Dict[str, List[str]] = {
-    "guide": [
-        "getting-started.md",
-        "commands.md",
-        "tournaments.md"
-    ],
-    "api": [
-        "handlers.md",
-        "utils.md",
-        "database.md"
-    ],
-    "development": [
-        "contributing.md",
-        "architecture.md"
-    ]
-}
+class DocsGenerator:
+    def __init__(self):
+        self.base_path = "docs"
+        self.current_date = "2024-12-27 20:09:26"  # Оновлено згідно з вашими даними
+        self.project_name = "Mobile-Legends-Stats"
+        self.author = "MLBB-BOSS"
+        self.bot_name = "@MLBB_MLS_BOT"
+        self.branch = "aiogram-3x"
+        self.heroku_app = "mlbb"
 
-# Template content for different types of files
-TEMPLATES = {
-    "index.md": """# MLBB-BOSS Documentation
+    def create_directory_structure(self):
+        directories = [
+            "",
+            "/api",
+            "/user-guide",
+            "/admin-guide",
+            "/developer-guide",
+            "/deployment",
+            "/states",
+            "/handlers",
+            "/database",
+            "/utils"
+        ]
 
-Ласкаво просимо до документації MLBB-BOSS - бота для організації турнірів Mobile Legends!
+        for dir_path in directories:
+            full_path = os.path.join(self.base_path, dir_path.lstrip("/"))
+            os.makedirs(full_path, exist_ok=True)
 
-## Можливості
+    def create_deployment_docs(self):
+        deployment_content = f"""# Deployment Guide
 
-- Організація турнірів
-- Управління учасниками
-- Збереження скріншотів
-- Система досягнень
-- Статистика гравців
+## Heroku Deployment
 
-## Швидкий старт
+### Application Information
+- **App Name:** {self.heroku_app}
+- **Branch:** {self.branch}
+- **Last Deploy:** {self.current_date}
 
-1. Додайте бота до вашої групи
-2. Використовуйте команду /start
-3. Слідуйте інструкціям для налаштування
+### Deployment Process
+1. Push to branch `{self.branch}`
+2. GitHub Actions automatically:
+   - Generates documentation
+   - Deploys to Heroku
 
-## Корисні посилання
-
-- [Початок роботи](guide/getting-started.md)
-- [Команди бота](guide/commands.md)
-- [API документація](api/handlers.md)
-""",
-    "guide/getting-started.md": """# Початок роботи
-
-## Встановлення бота
-
-1. Додайте бота до вашої групи
-2. Надайте необхідні права
-3. Виконайте початкове налаштування
-
-## Базові команди
-
-- `/start` - Почати роботу з ботом
-- `/help` - Отримати довідку
-- `/tournament` - Створити новий турнір
-""",
-    "guide/commands.md": """# Команди бота
-
-## Загальні команди
-
-- `/start` - Початок роботи
-- `/help` - Довідка
-- `/settings` - Налаштування
-
-## Команди турніру
-
-- `/tournament create` - Створити турнір
-- `/tournament list` - Список турнірів
-- `/tournament join` - Приєднатися до турніру
-""",
-    "api/handlers.md": """# Handlers API
-
-## MessageHandler
-
-Основний клас для обробки повідомлень.
-
-```python
-class MessageHandler:
-    '''
-    Обробник повідомлень бота.
-    '''
-    pass
+### Manual Deployment
+```bash
+heroku git:remote -a {self.heroku_app}
+git push heroku {self.branch}:main --force
