@@ -1,25 +1,29 @@
 import os
 from datetime import datetime
-import json
-import requests
+import sys
 
 class ReadmeGenerator:
-    def __init__(self):
-        self.current_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-        self.author = "MLBB-BOSS"
+    def __init__(self, current_time=None, current_user=None):
+        # Використовуємо передані параметри або значення за замовчуванням
+        self.current_date = current_time or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        self.author = current_user or "MLBB-BOSS"
         self.bot_name = "@MLBB_MLS_BOT"
         
-        # ASCII арт для лого (можна замінити на свій)
         self.ascii_art = """
-╔═══╗─────╔╗──────────╔═══╗────────╔╗
-║╔═╗║─────║║──────────║╔═╗║────────║║
-║║─║╠══╦══╣║╔══╦══╦══╗║╚══╦╗╔╦══╦══╣║╔══╗
-║║─║║╔╗║╔═╣║║╔╗║║═╣║═╣╠══╗║║║║╔═╣╔═╣║║══╣
-║╚═╝║╚╝║╚═╣╚╣╚╝║║═╣║═╣║╚═╝║╚╝║╚═╣╚═╣╚╬══║
-╚═══╩══╩══╩═╩══╩══╩══╝╚═══╩══╩══╩══╩═╩══╝
-        """
+████████╗██╗   ██╗    ████████╗██╗   ██╗████████╗
+╚══██╔══╝╚██╗ ██╔╝    ╚══██╔══╝██║   ██║╚══██╔══╝
+   ██║    ╚████╔╝        ██║   ██║   ██║   ██║   
+   ██║     ╚██╔╝         ██║   ██║   ██║   ██║   
+   ██║      ██║          ██║   ╚██████╔╝   ██║   
+   ╚═╝      ╚═╝          ╚═╝    ╚═════╝    ╚═╝   
+                                                  
+███╗   ███╗██╗     ███████╗    ██████╗  ██████╗ ████████╗
+████╗ ████║██║     ██╔════╝    ██╔══██╗██╔═══██╗╚══██╔══╝
+██╔████╔██║██║     ███████╗    ██████╔╝██║   ██║   ██║   
+██║╚██╔╝██║██║     ╚════██║    ██╔══██╗██║   ██║   ██║   
+██║ ╚═╝ ██║███████╗███████║    ██████╔╝╚██████╔╝   ██║   
+╚═╝     ╚═╝╚══════╝╚══════╝    ╚═════╝  ╚═════╝    ╚═╝"""
         
-        # Статистика (можна підключити реальні дані з API)
         self.stats = {
             "users": "1000+",
             "commands": "10000+",
@@ -27,6 +31,13 @@ class ReadmeGenerator:
             "states": 99
         }
 
-    def generate_readme(self):
-        readme = f"""
-<div align="center">
+    # ... (rest of the code remains the same)
+
+if __name__ == "__main__":
+    # Отримуємо параметри з командного рядка
+    current_time = sys.argv[1] if len(sys.argv) > 1 else None
+    current_user = sys.argv[2] if len(sys.argv) > 2 else None
+    
+    # Створюємо генератор з отриманими параметрами
+    generator = ReadmeGenerator(current_time, current_user)
+    generator.save_readme()
