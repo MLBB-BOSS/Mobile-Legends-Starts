@@ -17,27 +17,19 @@ jobs:
           fetch-depth: 0
           ref: aiogram-3x
 
-      # Install Heroku CLI first
-      - name: Install Heroku CLI
-        run: |
-          curl https://cli-assets.heroku.com/install.sh | sh
-
-      - name: Login to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          echo "$HEROKU_API_KEY" | heroku auth:token
-          heroku git:remote -a $HEROKU_APP_NAME
-
+      # Using AkhileshNS/heroku-deploy action which handles authentication better
       - name: Deploy to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: |
-          git push heroku aiogram-3x:main --force
+        uses: akhileshns/heroku-deploy@v3.12.14
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "mlbb"
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          branch: "aiogram-3x"
 
       - name: Verify deployment
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          heroku ps --app $HEROKU_APP_NAME
-          heroku logs --tail --app $HEROKU_APP_NAME --num 50
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku ps --app mlbb
+          heroku logs --tail --app mlbb --num 50
