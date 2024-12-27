@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 3200" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="title desc" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 100%; height: auto;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 1000" width="100px" height="1000px" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="title desc">
   <!-- Опис та заголовок для доступності -->
   <title id="title">Інтерактивний Профільний Екран</title>
-  <desc id="desc">Цей SVG представляє інтерактивний профільний екран з анімованим фоном, аватаром, статистикою, графіками та посиланнями на соціальні мережі.</desc>
+  <desc id="desc">Цей SVG представляє інтерактивний профільний екран з анімованим фоном, аватаром, статистикою, прогрес-баром та посиланнями на соціальні мережі.</desc>
 
   <!-- Стилі з використанням CSS-перемінних -->
   <style>
     :root {
       --gold-color: #FFD700;
-      --dark-gray: #1a1a1a;
-      --light-gray: #3a3a3a;
+      --dark-gray: #1A1A1A;
+      --light-gray: #3A3A3A;
       --grid-color: #444444;
       --white-color: #FFFFFF;
       --green-color: #4CAF50;
@@ -27,14 +27,14 @@
 
     /* Загальні стилі */
     text {
-      filter: drop-shadow(2px 2px 4px var(--shadow-color));
+      filter: drop-shadow(1px 1px 2px var(--shadow-color));
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* Заголовок */
     .title {
       fill: var(--gold-color);
-      font-size: 48px; /* Збільшений розмір */
+      font-size: 8px; /* Зменшений розмір для 0x10 формату */
       font-weight: bold;
       text-anchor: middle;
       opacity: 0;
@@ -44,31 +44,31 @@
     /* Розділовий заголовок */
     .section-title {
       fill: var(--gold-color);
-      font-size: 32px; /* Збільшений розмір */
+      font-size: 6px; /* Зменшений розмір */
       font-weight: bold;
       text-anchor: start;
       opacity: 0;
       animation: fadeIn 2s forwards;
-      animation-delay: 1s;
+      animation-delay: 0.5s;
     }
 
     /* Декоративна лінія під заголовком */
     .decorative-line {
       fill: none;
       stroke: var(--accent-color);
-      stroke-width: 4;
+      stroke-width: 1;
       opacity: 0;
       animation: fadeIn 2s forwards;
-      animation-delay: 1.2s;
+      animation-delay: 0.7s;
     }
 
     /* Статистичний текст */
     .stat-text {
       fill: var(--white-color);
-      font-size: 22px; /* Збільшений розмір */
+      font-size: 4px; /* Зменшений розмір */
       opacity: 0;
       animation: fadeIn 2s forwards;
-      animation-delay: 2s;
+      animation-delay: 1s;
     }
 
     /* Виділення тексту */
@@ -77,13 +77,18 @@
       font-weight: bold;
     }
 
-    /* Стовпці графіку */
-    .graph-bar {
-      transition: fill 0.3s;
-      cursor: pointer;
+    /* Прогрес-бар */
+    .progress-bar-bg {
+      fill: var(--semi-transparent-black);
+      rx: 5;
+      ry: 5;
     }
-    .graph-bar:hover {
-      fill: var(--accent-color);
+    .progress-bar-fill {
+      fill: var(--green-color);
+      rx: 5;
+      ry: 5;
+      animation: growBar 2s forwards;
+      animation-delay: 1.5s;
     }
 
     /* Соціальні іконки */
@@ -92,7 +97,7 @@
       transition: transform 0.3s, fill 0.3s;
       opacity: 0;
       animation: fadeIn 1s forwards;
-      animation-delay: 3s;
+      animation-delay: 2s;
     }
     .social-icon:hover {
       transform: scale(1.2);
@@ -103,46 +108,18 @@
     .avatar-square {
       fill: var(--dark-gray);
       stroke: var(--gold-color);
-      stroke-width: 2;
+      stroke-width: 0.5;
       cursor: pointer;
       opacity: 0;
       animation: fadeIn 2s forwards;
-      animation-delay: 1.5s;
+      animation-delay: 1s;
       transition: stroke-width 0.3s, fill 0.3s;
-      rx: 15; /* Округлення кутів */
-      ry: 15;
+      rx: 3; /* Округлення кутів */
+      ry: 3;
     }
     .avatar-square:hover {
-      stroke-width: 4;
-      fill: rgba(58, 58, 58, 0.8); /* Легкий фон при наведенні */
-    }
-
-    /* Сітка графіків */
-    .grid line {
-      stroke: var(--grid-color);
-      stroke-opacity: 0.3;
       stroke-width: 1;
-    }
-    .grid text {
-      fill: var(--white-color);
-      font-size: 14px; /* Збільшений розмір */
-    }
-
-    /* Плашки для блоків */
-    .block-background {
-      fill: var(--semi-transparent-black);
-      rx: 15;
-      ry: 15;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
-      animation-delay: 1s;
-    }
-
-    /* Легенда */
-    .legend-text {
-      fill: var(--white-color);
-      font-size: 18px; /* Збільшений розмір */
-      text-anchor: start;
+      fill: rgba(58, 58, 58, 0.8); /* Легкий фон при наведенні */
     }
 
     /* Анімації */
@@ -151,96 +128,20 @@
       to { opacity: 1; }
     }
 
-    /* Роздільники між графіками */
-    .separator {
-      stroke: var(--light-gray);
-      stroke-width: 2;
-      opacity: 0.5;
-    }
-
-    /* Стилі для додаткових елементів */
-    .ping-wave {
-      fill: none;
-      stroke: var(--accent-color);
-      stroke-width: 3;
-    }
-
-    .heatmap-cell {
-      transition: fill 0.5s;
-      cursor: pointer;
-    }
-    .heatmap-cell:hover {
-      fill: var(--accent-color);
-    }
-
-    .progress-bar-bg {
-      fill: var(--semi-transparent-black);
-      rx: 15;
-      ry: 15;
-    }
-    .progress-bar-fill {
-      fill: var(--green-color);
-      rx: 15;
-      ry: 15;
-    }
-
-    .radial-chart-bg {
-      fill: none;
-      stroke: var(--semi-transparent-black);
-      stroke-width: 10;
-    }
-    .radial-chart-fill {
-      fill: var(--gold-color);
-      opacity: 0.7;
-    }
-
-    .server-status-circle {
-      transition: fill 0.5s;
-    }
-    .server-status-circle.online {
-      fill: var(--green-color);
-    }
-    .server-status-circle.moderate {
-      fill: var(--orange-color);
-    }
-    .server-status-circle.offline {
-      fill: var(--red-color);
+    @keyframes growBar {
+      from { width: 0; }
+      to { width: 50; } /* 62% від 80px ширини */
     }
   </style>
 
-  <!-- Визначення градієнта та фільтрів -->
+  <!-- Визначення фільтрів -->
   <defs>
-    <!-- Градієнтний фон з додаванням текстури -->
-    <radialGradient id="bgGradient" cx="1" cy="1" r="1.5" fx="1" fy="1" gradientUnits="objectBoundingBox">
-      <stop offset="0%" stop-color="var(--purple-color)">
-        <animate attributeName="stop-color" 
-                 values="#2b004b;var(--light-gray);#2b004b" 
-                 dur="5s" 
-                 repeatCount="indefinite" />
-      </stop>
-      <stop offset="50%" stop-color="var(--light-gray)">
-        <animate attributeName="stop-color" 
-                 values="var(--light-gray);#2b004b;var(--light-gray)" 
-                 dur="5s" 
-                 repeatCount="indefinite" />
-      </stop>
-      <stop offset="100%" stop-color="var(--light-gray)" />
-      <!-- Анімація пульсації градієнта -->
-      <animateTransform 
-          attributeName="gradientTransform" 
-          type="scale" 
-          from="1 1" 
-          to="1.5 1.5" 
-          dur="5s" 
-          repeatCount="indefinite" />
-    </radialGradient>
-
     <!-- Фільтр тіні -->
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="var(--shadow-color)" />
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="var(--shadow-color)" />
     </filter>
 
-    <!-- Іконки соціальних мереж з покращеним дизайном -->
+    <!-- Іконки соціальних мереж -->
     <symbol id="discord" viewBox="0 0 24 24">
       <path d="M20.317 4.369a19.794 19.794 0 00-4.887-1.412.1.1 0 00-.09.042C14.628 3.042 12 5.006 12 5.006s-2.627-1.964-2.34-2.001a.1.1 0 00-.09-.042A19.705 19.705 0 003.683 4.37C2.818 5.422 2 7.161 2 9.255c0 4.464 2.824 8.217 6.872 9.546a.999.999 0 00.172.018c.19 0 .376-.014.56-.04a15.3 15.3 0 01-2.76-3.66c.233-.016.46-.024.687-.024a9.283 9.283 0 006.873-2.887 9.283 9.283 0 006.873 2.887c.227 0 .454.008.687.024a15.3 15.3 0 01-2.76 3.66c.184.026.37.04.56.04a.999.999 0 00.172-.018c4.048-1.329 6.872-5.082 6.872-9.546 0-2.094-.818-3.833-1.683-4.886zM8.5 15.27c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4zm7 0c-1.323 0-2.4-1.077-2.4-2.4s1.077-2.4 2.4-2.4 2.4 1.077 2.4 2.4-1.077 2.4-2.4 2.4z" fill="currentColor"/>
     </symbol>
@@ -252,620 +153,177 @@
     </symbol>
   </defs>
 
-  <!-- Фон з додаванням текстури -->
-  <rect width="900" height="3200" fill="url(#bgGradient)" />
+  <!-- Фон -->
+  <rect width="100" height="1000" fill="#1A1A1A" />
 
   <!-- Заголовок -->
   <g id="header" filter="url(#shadow)">
-    <text x="450" y="100" class="title">Ваш Профіль</text>
-  </g>
-  <!-- Декоративна лінія під заголовком -->
-  <g id="header-decorative-line" filter="url(#shadow)">
-    <line x1="450" y1="120" x2="450" y2="124" class="decorative-line" />
+    <text x="50" y="20" class="title">Ваш Профіль</text>
   </g>
 
-  <!-- Блок користувача -->
-  <g id="userInfo" transform="translate(50, 200)">
+  <!-- Блок Фото -->
+  <g id="photoBlock" transform="translate(25, 30)" filter="url(#shadow)">
     <!-- Плашка фону блоку -->
-    <rect x="0" y="0" width="800" height="250" class="block-background" />
-
-    <!-- Аватар + Додаткова інформація -->
-    <g transform="translate(20, 20)">
-      <!-- Аватар -->
-      <a href="#" aria-label="Завантажити новий аватар">
-        <rect x="0" y="0" width="180" height="180" class="avatar-square"></rect>
-        <!-- Текст всередині квадрата -->
-        <text x="90" y="100" text-anchor="middle" fill="var(--white-color)" font-size="24" font-weight="bold" pointer-events="none">
-          Фото
-        </text>
-      </a>
-
-      <!-- Додаткова інформація праворуч -->
-      <g transform="translate(220, 0)">
-        <text class="stat-text" y="30">👤 Ім'я: <tspan class="highlight">Олег</tspan></text>
-        <text class="stat-text" y="70">⭐ Рівень: <tspan class="highlight">10</tspan></text>
-        <text class="stat-text" y="110">🏅 Нагороди: <tspan class="highlight">3</tspan></text>
-      </g>
-    </g>
+    <rect x="0" y="0" width="50" height="50" class="avatar-square"></rect>
+    <!-- Текст всередині квадрата -->
+    <text x="25" y="30" text-anchor="middle" font-size="4" fill="#FFFFFF" pointer-events="none">Фото</text>
   </g>
 
   <!-- Статистика -->
-  <g id="statisticsSection" filter="url(#shadow)" transform="translate(50, 500)">
-    <text class="section-title" x="0" y="0">Статистика</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
-    <g transform="translate(0, 50)">
-      <text y="50" class="stat-text">📈 Рівень: <tspan class="highlight">100</tspan></text>
-      <text y="100" class="stat-text">🚀 Рейтинг: <tspan class="highlight">ТОП 1</tspan></text>
-      <text y="150" class="stat-text">🎖️ Бейджів: <tspan class="highlight">56</tspan></text>
-      <text y="200" class="stat-text">🏆 Перемоги: <tspan class="highlight">16</tspan></text>
-
-      <!-- Додаткові пункти статистики -->
-      <text y="250" class="stat-text">🏅 Активність: <tspan class="highlight">15 днів</tspan></text>
-      <text y="300" class="stat-text">⏳ Час у грі: <tspan class="highlight">40 годин</tspan></text>
-      <text y="350" class="stat-text">🤝 Друзів у грі: <tspan class="highlight">5</tspan></text>
-      <text y="400" class="stat-text">🎮 Улюблений герой: <tspan class="highlight">Ланселот</tspan></text>
-      <text y="450" class="stat-text">📅 Останній турнір: <tspan class="highlight">18.12.2024</tspan></text>
-    </g>
+  <g id="statistics" transform="translate(10, 90)" filter="url(#shadow)">
+    <text x="0" y="0" class="section-title">Статистика:</text>
+    <text x="0" y="10" class="stat-text">Рівень: <tspan class="highlight">100</tspan></text>
+    <text x="0" y="15" class="stat-text">Рейтинг: <tspan class="highlight">ТОП 1</tspan></text>
   </g>
 
-  <!-- Графіки -->
-  <g id="chartsSection" filter="url(#shadow)" transform="translate(50, 800)" opacity="0">
-    <text class="section-title" x="0" y="0">Графіки</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
-
-    <!-- Стовпчастий графік з сіткою -->
-    <g class="bar-chart" transform="translate(150, 100)">
-      <!-- Сітка -->
-      <g class="grid">
-        <!-- Горизонтальні лінії -->
-        <line x1="0" y1="0" x2="800" y2="0" />
-        <line x1="0" y1="50" x2="800" y2="50" />
-        <line x1="0" y1="100" x2="800" y2="100" />
-        <line x1="0" y1="150" x2="800" y2="150" />
-        <line x1="0" y1="200" x2="800" y2="200" />
-      </g>
-
-      <!-- Легенда -->
-      <g transform="translate(0, -40)">
-        <text x="0" y="0" class="legend-text">Перемоги</text>
-        <text x="200" y="0" class="legend-text">Програші</text>
-        <text x="400" y="0" class="legend-text">Активність</text>
-        <text x="600" y="0" class="legend-text">Час</text>
-      </g>
-
-      <!-- Бар 1 -->
-      <rect class="graph-bar" x="100" y="200" width="50" height="0" fill="#6A5ACD"> <!-- Фіолетовий -->
-        <animate attributeName="height" from="0" to="200" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="0" dur="1.5s" fill="freeze" />
-        <title>Перемоги: 200</title>
-      </rect>
-      <!-- Бар 2 -->
-      <rect class="graph-bar" x="200" y="200" width="50" height="0" fill="#FF4500"> <!-- Помаранчевий -->
-        <animate attributeName="height" from="0" to="150" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="50" dur="1.5s" fill="freeze" />
-        <title>Програші: 150</title>
-      </rect>
-      <!-- Бар 3 -->
-      <rect class="graph-bar" x="300" y="200" width="50" height="0" fill="#00CED1"> <!-- Бірюзовий -->
-        <animate attributeName="height" from="0" to="180" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="20" dur="1.5s" fill="freeze" />
-        <title>Активність: 180</title>
-      </rect>
-      <!-- Бар 4 -->
-      <rect class="graph-bar" x="400" y="200" width="50" height="0" fill="#FFD700"> <!-- Золотий -->
-        <animate attributeName="height" from="0" to="120" dur="1.5s" fill="freeze" />
-        <animate attributeName="y" from="200" to="80" dur="1.5s" fill="freeze" />
-        <title>Час: 120</title>
-      </rect>
-
-      <!-- Підписи -->
-      <text x="125" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">200</text>
-      <text x="225" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">150</text>
-      <text x="325" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">180</text>
-      <text x="425" y="220" text-anchor="middle" fill="var(--white-color)" font-size="14px">120</text>
-    </g>
-
-    <!-- Роздільник між графіками -->
-    <line x1="0" y1="300" x2="800" y2="300" class="separator" />
-
-    <!-- Лінійний графік з сіткою -->
-    <g transform="translate(0, 350)">
-      <!-- Сітка -->
-      <g class="grid">
-        <line x1="0" y1="0" x2="800" y2="0" />
-        <line x1="0" y1="50" x2="800" y2="50" />
-        <line x1="0" y1="100" x2="800" y2="100" />
-        <line x1="0" y1="150" x2="800" y2="150" />
-        <line x1="0" y1="200" x2="800" y2="200" />
-      </g>
-
-      <text x="400" y="-30" fill="var(--white-color)" font-size="20px" text-anchor="middle">Активність за місяць</text>
-
-      <polyline points="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" fill="none" stroke="var(--gold-color)" stroke-width="3">
-        <animate 
-            attributeName="points" 
-            from="50,200 100,200 150,200 200,200 250,200 300,200 350,200 400,200 450,200 500,200 550,200 600,200 650,200 700,200 750,200 800,200" 
-            to="50,200 100,150 150,180 200,130 250,170 300,100 350,140 400,160 450,120 500,180 550,140 600,160 650,120 700,180 750,140 800,160" 
-            dur="4s" 
-            fill="freeze" />
-      </polyline>
-
-      <!-- Точки даних -->
-      <circle cx="50" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="200" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>200 активностей</title>
-      </circle>
-      <circle cx="100" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="150" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>150 активностей</title>
-      </circle>
-      <circle cx="150" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="180" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>180 активностей</title>
-      </circle>
-      <circle cx="200" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="130" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>130 активностей</title>
-      </circle>
-      <circle cx="250" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="170" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>170 активностей</title>
-      </circle>
-      <circle cx="300" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="100" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>100 активностей</title>
-      </circle>
-      <circle cx="350" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="140" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>140 активностей</title>
-      </circle>
-      <circle cx="400" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="160" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>160 активностей</title>
-      </circle>
-      <circle cx="450" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="120" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>120 активностей</title>
-      </circle>
-      <circle cx="500" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="180" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>180 активностей</title>
-      </circle>
-      <circle cx="550" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="140" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>140 активностей</title>
-      </circle>
-      <circle cx="600" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="160" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>160 активностей</title>
-      </circle>
-      <circle cx="650" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="120" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>120 активностей</title>
-      </circle>
-      <circle cx="700" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="180" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>180 активностей</title>
-      </circle>
-      <circle cx="750" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="140" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>140 активностей</title>
-      </circle>
-      <circle cx="800" cy="200" r="0" fill="var(--gold-color)">
-        <animate 
-            attributeName="cy" 
-            from="200" 
-            to="160" 
-            dur="4s" 
-            fill="freeze" />
-        <animate 
-            attributeName="r" 
-            from="0" 
-            to="5" 
-            dur="4s" 
-            fill="freeze" />
-        <title>160 активностей</title>
-      </circle>
-    </g>
-
-    <!-- Анімація появи секції графіків -->
-    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1s" />
+  <!-- Прогрес-бар -->
+  <g id="progress" transform="translate(10, 120)" filter="url(#shadow)">
+    <text x="0" y="0" class="section-title">Прогрес:</text>
+    <rect x="0" y="5" width="80" height="10" class="progress-bar-bg" />
+    <rect x="0" y="5" width="0" height="10" class="progress-bar-fill"></rect>
+    <text x="40" y="14" text-anchor="middle" font-size="4" fill="#FFFFFF">62%</text>
   </g>
 
   <!-- Соціальні мережі -->
-  <g id="socialLinksSection" filter="url(#shadow)" transform="translate(50, 1600)" opacity="0">
-    <text class="section-title" x="0" y="0">Соціальні мережі</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
-    <g transform="translate(0, 50)">
-      <!-- Discord -->
-      <a href="https://discord.com/users/is_mlbb" target="_blank" aria-label="Discord: @is_mlbb">
-        <use href="#discord" class="social-icon" x="0" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>Discord: @is_mlbb</title>
-      </a>
-
-      <!-- Twitter -->
-      <a href="https://twitter.com/is_mlbb" target="_blank" aria-label="Twitter: @is_mlbb">
-        <use href="#twitter" class="social-icon" x="80" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>Twitter: @is_mlbb</title>
-      </a>
-
-      <!-- YouTube -->
-      <a href="https://youtube.com/is_mlbb" target="_blank" aria-label="YouTube: is_mlbb">
-        <use href="#youtube" class="social-icon" x="160" y="0" width="50" height="50">
-          <animate attributeName="opacity" from="0" to="1" dur="1s" fill="freeze" begin="3s" />
-        </use>
-        <title>YouTube: is_mlbb</title>
-      </a>
-    </g>
-    <!-- Анімація появи секції соціальних мереж -->
-    <animate attributeName="opacity" from="0" to="1" dur="2s" fill="freeze" begin="1.5s" />
+  <g id="social" transform="translate(10, 150)" filter="url(#shadow)">
+    <text x="0" y="0" class="section-title">Соціальні мережі:</text>
+    <!-- Іконки -->
+    <circle cx="5" cy="10" r="3" fill="#7289DA" class="social-icon">
+      <title>Discord</title>
+    </circle>
+    <circle cx="15" cy="10" r="3" fill="#1DA1F2" class="social-icon">
+      <title>Twitter</title>
+    </circle>
+    <circle cx="25" cy="10" r="3" fill="#FF0000" class="social-icon">
+      <title>YouTube</title>
+    </circle>
   </g>
 
-  <!-- Додаткові Елементи для Вдосконалення Інтерфейсу та Графіків -->
+  <!-- Фільтр тіні для додаткових елементів -->
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="0.5" flood-color="rgba(0, 0, 0, 0.5)" />
+    </filter>
+  </defs>
 
+  <!-- Додаткові Елементи -->
+  
   <!-- 1. Живий графік пінгу -->
-  <g id="livePingChart" transform="translate(450, 1800)" filter="url(#shadow)">
-    <text x="0" y="-150" class="section-title" text-anchor="middle">Живий пінг</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
+  <g id="livePingChart" transform="translate(10, 180)" filter="url(#shadow)">
+    <text x="25" y="0" class="section-title" text-anchor="middle">Живий пінг</text>
     <!-- Лінія пінгу -->
-    <polyline id="pingWave" points="0,50 50,70 100,30 150,60 200,40 250,50"
-      class="ping-wave">
+    <polyline points="0,10 10,15 20,10 30,20 40,15 50,10" fill="none" stroke="#1E90FF" stroke-width="0.5">
       <animate attributeName="points" dur="2s" repeatCount="indefinite"
-               values="0,50 50,70 100,30 150,60 200,40 250,50;
-                       0,50 50,60 100,40 150,70 200,30 250,50;
-                       0,50 50,70 100,30 150,60 200,40 250,50" />
+               values="0,10 10,15 20,10 30,20 40,15 50,10;
+                       0,10 10,12 20,14 30,18 40,12 50,10;
+                       0,10 10,15 20,10 30,20 40,15 50,10" />
     </polyline>
-    <!-- Поточне значення -->
-    <text x="250" y="90" class="stat-text" text-anchor="middle">120ms</text>
+    <!-- Поточне значення пінгу -->
+    <text x="25" y="25" class="stat-text" text-anchor="middle">120ms</text>
   </g>
 
   <!-- 2. Теплова карта активності -->
-  <g id="heatMap" transform="translate(50, 2000)" filter="url(#shadow)">
-    <text x="200" y="-50" class="section-title" text-anchor="middle">Активність за тиждень</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="200" y1="20" x2="200" y2="24" class="decorative-line" />
-    </g>
-    <!-- Клітинки теплової карти -->
-    <g transform="translate(0, 50)">
-      <!-- Приклад 7 днів -->
-      <!-- День 1 -->
-      <rect class="heatmap-cell" x="0" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+  <g id="heatMap" transform="translate(10, 220)" filter="url(#shadow)">
+    <text x="20" y="0" class="section-title" text-anchor="middle">Активність</text>
+    <!-- Клітинки теплової карти (7 днів) -->
+    <g transform="translate(0, 5)">
+      <rect class="heatmap-cell" x="0" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--green-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#4CAF50;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 2 -->
-      <rect class="heatmap-cell" x="50" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="12" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--orange-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#FF4500;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 3 -->
-      <rect class="heatmap-cell" x="100" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="24" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--turquoise-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#00CED1;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 4 -->
-      <rect class="heatmap-cell" x="150" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="36" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--purple-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#6A5ACD;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 5 -->
-      <rect class="heatmap-cell" x="200" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="48" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--red-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#F44336;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 6 -->
-      <rect class="heatmap-cell" x="250" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="60" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--green-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#4CAF50;rgba(0,0,0,0.3)" />
       </rect>
-      <!-- День 7 -->
-      <rect class="heatmap-cell" x="300" y="0" width="40" height="40" fill="var(--semi-transparent-black)">
+      <rect class="heatmap-cell" x="72" y="0" width="10" height="10" fill="rgba(0,0,0,0.3)">
         <animate attributeName="fill" dur="1s" fill="freeze"
-                 values="var(--semi-transparent-black); var(--orange-color); var(--semi-transparent-black)" />
+                 values="rgba(0,0,0,0.3);#FF4500;rgba(0,0,0,0.3)" />
       </rect>
     </g>
   </g>
 
-  <!-- 3. Прогрес-бар (Progress Bar) -->
-  <g id="progressBar" transform="translate(50, 2300)" filter="url(#shadow)">
-    <text x="200" y="-30" class="section-title" text-anchor="middle">Прогрес</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="200" y1="20" x2="200" y2="24" class="decorative-line" />
-    </g>
-    <!-- Прогрес-бар -->
-    <g transform="translate(0, 50)">
-      <rect x="0" y="0" width="400" height="30" class="progress-bar-bg" />
-      <rect x="0" y="0" width="0" height="30" class="progress-bar-fill">
-        <animate attributeName="width" from="0" to="250" dur="2s" fill="freeze" />
-      </rect>
-      <text x="200" y="20" text-anchor="middle" fill="var(--white-color)" font-size="16px">62%</text>
-    </g>
+  <!-- 3. Таймер зворотнього відліку -->
+  <g id="countdownTimer" transform="translate(10, 250)" filter="url(#shadow)">
+    <text x="25" y="0" class="section-title" text-anchor="middle">Зворотній відлік</text>
+    <!-- Таймер -->
+    <text x="25" y="15" class="stat-text" text-anchor="middle" id="countdown">3:25:10</text>
+    <!-- Анімація змін кольору -->
+    <animate attributeName="fill" from="#FFFFFF" to="#FF0000" dur="3h25m10s" fill="freeze" />
   </g>
 
-  <!-- 4. Радіальний графік нагород -->
-  <g id="radialAchievements" transform="translate(450, 2500)" filter="url(#shadow)">
-    <text x="0" y="-150" class="section-title" text-anchor="middle">Нагороди</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
-    <!-- Радіальний графік -->
-    <g transform="translate(0, 50)">
-      <circle cx="0" cy="0" r="100" class="radial-chart-bg" />
-      <path d="M0,-100 A100,100 0 0,1 75,-43.3 L0,0 Z" class="radial-chart-fill">
-        <animate attributeName="d" dur="2s" fill="freeze"
-                 values="M0,-10 A10,10 0 0,1 10,0 L0,0 Z;
-                         M0,-100 A100,100 0 0,1 75,-43.3 L0,0 Z;
-                         M0,-10 A10,10 0 0,1 10,0 L0,0 Z" />
-      </path>
-      <!-- Відсоток у центрі -->
-      <text x="0" y="10" text-anchor="middle" fill="var(--white-color)" font-size="24px">75%</text>
-    </g>
-  </g>
-
-  <!-- 5. Анімований статус сервера -->
-  <g id="serverStatus" transform="translate(50, 2700)" filter="url(#shadow)">
-    <text x="50" y="-30" class="section-title">Статус сервера</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="50" y1="20" x2="350" y2="20" class="decorative-line" />
-    </g>
+  <!-- 4. Анімований статус сервера -->
+  <g id="serverStatus" transform="translate(10, 270)" filter="url(#shadow)">
+    <text x="0" y="0" class="section-title">Статус сервера</text>
     <!-- Індикатор статусу -->
-    <g transform="translate(0, 50)">
-      <circle cx="50" cy="50" r="20" class="server-status-circle online">
-        <animate attributeName="class" dur="6s" repeatCount="indefinite"
-                 values="server-status-circle online;
-                         server-status-circle moderate;
-                         server-status-circle offline;
-                         server-status-circle online" />
+    <g transform="translate(0, 5)">
+      <circle cx="5" cy="5" r="3" class="server-status-circle online">
+        <animate attributeName="fill" dur="6s" repeatCount="indefinite"
+                 values="#4CAF50;#FF9800;#F44336;#4CAF50" />
       </circle>
-      <text x="90" y="55" fill="var(--white-color)" font-size="16px">Online</text>
+      <text x="10" y="8" font-size="4" fill="#FFFFFF">Online</text>
     </g>
+  </g>
+
+  <!-- 5. Радіальний графік нагород -->
+  <g id="radialAchievements" transform="translate(10, 300)" filter="url(#shadow)">
+    <text x="25" y="0" class="section-title" text-anchor="middle">Нагороди</text>
+    <!-- Радіальний графік -->
+    <circle cx="25" cy="15" r="10" fill="none" stroke="#3A3A3A" stroke-width="1"/>
+    <path d="M25,5 A10,10 0 1,1 35,15 L25,15 Z" fill="#FFD700">
+      <animate attributeName="d" dur="2s" repeatCount="indefinite"
+               values="M25,5 A10,10 0 0,1 25,5 L25,15 Z;
+                       M25,5 A10,10 0 1,1 35,15 L25,15 Z;
+                       M25,5 A10,10 0 0,1 25,5 L25,15 Z" />
+    </path>
+    <!-- Відсоток у центрі -->
+    <text x="25" y="18" text-anchor="middle" fill="#FFFFFF" font-size="4">75%</text>
   </g>
 
   <!-- 6. Інтерактивна лінійна діаграма -->
-  <g id="interactiveLineChart" transform="translate(50, 2900)" filter="url(#shadow)">
-    <text x="200" y="-30" class="section-title" text-anchor="middle">Рейтинг за місяць</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="200" y1="20" x2="200" y2="24" class="decorative-line" />
-    </g>
-    <!-- Лінійний графік -->
-    <g transform="translate(0, 50)">
-      <polyline points="50,100 100,90 150,80 200,70 250,60" fill="none" stroke="var(--accent-color)" stroke-width="3">
-        <animate 
-            attributeName="points" 
-            from="50,100 100,100 150,100 200,100 250,100" 
-            to="50,100 100,90 150,80 200,70 250,60" 
-            dur="4s" 
-            fill="freeze" />
-      </polyline>
-      <!-- Точки даних з інтерактивними підказками -->
-      <circle cx="50" cy="100" r="5" fill="var(--gold-color)">
-        <title>День 1: 100 очок</title>
-      </circle>
-      <circle cx="100" cy="90" r="5" fill="var(--gold-color)">
-        <title>День 5: 90 очок</title>
-      </circle>
-      <circle cx="150" cy="80" r="5" fill="var(--gold-color)">
-        <title>День 10: 80 очок</title>
-      </circle>
-      <circle cx="200" cy="70" r="5" fill="var(--gold-color)">
-        <title>День 15: 70 очок</title>
-      </circle>
-      <circle cx="250" cy="60" r="5" fill="var(--gold-color)">
-        <title>День 20: 60 очок</title>
-      </circle>
-    </g>
+  <g id="interactiveLineChart" transform="translate(10, 330)" filter="url(#shadow)">
+    <text x="25" y="0" class="section-title" text-anchor="middle">Рейтинг за місяць</text>
+    <!-- Лінія графіка -->
+    <polyline points="5,15 15,13 25,11 35,9 45,7" fill="none" stroke="#1E90FF" stroke-width="0.5">
+      <animate attributeName="points" dur="4s" repeatCount="indefinite"
+               values="5,15 15,15 25,15 35,15 45,15;
+                       5,15 15,13 25,11 35,9 45,7;
+                       5,15 15,15 25,15 35,15 45,15" />
+    </polyline>
+    <!-- Точки даних з підказками -->
+    <circle cx="5" cy="15" r="1.5" fill="#FFD700">
+      <title>День 1: 100 очок</title>
+    </circle>
+    <circle cx="15" cy="13" r="1.5" fill="#FFD700">
+      <title>День 5: 90 очок</title>
+    </circle>
+    <circle cx="25" cy="11" r="1.5" fill="#FFD700">
+      <title>День 10: 80 очок</title>
+    </circle>
+    <circle cx="35" cy="9" r="1.5" fill="#FFD700">
+      <title>День 15: 70 очок</title>
+    </circle>
+    <circle cx="45" cy="7" r="1.5" fill="#FFD700">
+      <title>День 20: 60 очок</title>
+    </circle>
   </g>
 
-  <!-- 7. Додаткова інтеграція соціальних мереж -->
-  <!-- Цей елемент вже включено в секцію Соціальні мережі -->
-
-  <!-- 8. Покращений фон із градієнтами -->
-  <!-- Градієнт вже анімовано у визначенні bgGradient -->
-
-  <!-- 9. Таймер зворотнього відліку -->
-  <g id="countdownTimer" transform="translate(450, 3100)" filter="url(#shadow)">
-    <text x="0" y="-50" class="section-title" text-anchor="middle">Зворотній відлік</text>
-    <!-- Декоративна лінія під розділовим заголовком -->
-    <g>
-      <line x1="0" y1="20" x2="300" y2="20" class="decorative-line" />
-    </g>
-    <!-- Таймер -->
-    <g transform="translate(0, 50)">
-      <text x="0" y="0" class="stat-text" text-anchor="middle" id="countdown">3:25:10</text>
-      <!-- Анімація оновлення тексту таймера не підтримується без JavaScript -->
-      <!-- Можна використовувати SMIL або анімацію змін кольору або ефектів -->
-      <!-- Ось приклад SMIL анімації кольору -->
-      <animate attributeName="fill" from="var(--white-color)" to="var(--red-color)" dur="3h25m10s" fill="freeze" />
-    </g>
-  </g>
-
-  <!-- 10. Додаткові Ідеї для Інновацій -->
-  <!-- Реалізація додаткових графіків та інтерактивних елементів може бути розширена за необхідності -->
+  <!-- Додаткові Елементи: Живий графік пінгу, Теплова карта, Прогрес-бар, Радіальний графік нагород, Анімований статус сервера, Інтерактивна лінійна діаграма, Соціальні мережі, Динамічний фон, Таймер зворотнього відліку -->
+  <!-- Ці елементи вже включені вище в структурі панелі -->
 
 </svg>
