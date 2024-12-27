@@ -40,3 +40,7 @@ class MenuStates(StatesGroup):
     RECOMMENDATIONS_MENU = State() # Used in meta menu for recommendations
     UPDATES_MENU = State()        # Used in meta menu for updates
     BACK_TO_MAIN = State()
+    # Hero comparison states
+    COMPARISON_STEP_1 = State()  # Вибір першого героя/предмета для порівняння
+    COMPARISON_STEP_2 = State()  # Вибір другого героя/предмета для порівняння
+    COMPARISON_RESULT = State()  # Показ результатів порівняння
