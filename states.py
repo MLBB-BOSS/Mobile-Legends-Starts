@@ -140,3 +140,9 @@ class MenuStates(StatesGroup):
     INTRO_PAGE_2 = State()            # 97. Друга сторінка вступу
     INTRO_PAGE_3 = State()            # 98. Третя сторінка вступу
     INTRO_COMPLETE = State()          # 99. Завершення вступу
+
+    MAIN_MENU = "main_menu"
+    FEEDBACK = "feedback"
+    RATING = "rating"
+    SUGGESTION = "suggestion"
+    REPORT = "report"
