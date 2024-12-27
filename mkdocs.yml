@@ -1,0 +1,11 @@
+class MessageHandler:
+    """
+    Обробник повідомлень бота.
+
+    Attributes:
+        bot (Bot): Екземпляр Telegram бота
+        
+    Example:
+        >>> handler = MessageHandler(bot)
+        >>> await handler.safe_delete_message(chat_id, message_id)
+    """
