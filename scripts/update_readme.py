@@ -1,43 +1,45 @@
+# scripts/update_readme.py
 import os
 from datetime import datetime
-import sys
 
 class ReadmeGenerator:
-    def __init__(self, current_time=None, current_user=None):
-        # Використовуємо передані параметри або значення за замовчуванням
-        self.current_date = current_time or datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-        self.author = current_user or "MLBB-BOSS"
+    def __init__(self):
+        self.current_date = "2024-12-27 20:38:40 UTC"  # Ваш точний час
+        self.author = "MLBB-BOSS"
         self.bot_name = "@MLBB_MLS_BOT"
         
-        self.ascii_art = """
-████████╗██╗   ██╗    ████████╗██╗   ██╗████████╗
-╚══██╔══╝╚██╗ ██╔╝    ╚══██╔══╝██║   ██║╚══██╔══╝
-   ██║    ╚████╔╝        ██║   ██║   ██║   ██║   
-   ██║     ╚██╔╝         ██║   ██║   ██║   ██║   
-   ██║      ██║          ██║   ╚██████╔╝   ██║   
-   ╚═╝      ╚═╝          ╚═╝    ╚═════╝    ╚═╝   
-                                                  
-███╗   ███╗██╗     ███████╗    ██████╗  ██████╗ ████████╗
-████╗ ████║██║     ██╔════╝    ██╔══██╗██╔═══██╗╚══██╔══╝
-██╔████╔██║██║     ███████╗    ██████╔╝██║   ██║   ██║   
-██║╚██╔╝██║██║     ╚════██║    ██╔══██╗██║   ██║   ██║   
-██║ ╚═╝ ██║███████╗███████║    ██████╔╝╚██████╔╝   ██║   
-╚═╝     ╚═╝╚══════╝╚══════╝    ╚═════╝  ╚═════╝    ╚═╝"""
-        
+        # Креативний ASCII-арт з часом
+        self.ascii_art = f"""
+╔════════════════════ CURRENT TIME ══════════════════════╗
+║                                                        ║
+║  ████████╗██╗   ██╗    ████████╗██╗   ██╗████████╗    ║
+║  ╚══██╔══╝╚██╗ ██╔╝    ╚══██╔══╝██║   ██║╚══██╔══╝    ║
+║     ██║    ╚████╔╝        ██║   ██║   ██║   ██║       ║
+║     ██║     ╚██╔╝         ██║   ██║   ██║   ██║       ║
+║     ██║      ██║          ██║   ╚██████╔╝   ██║       ║
+║     ╚═╝      ╚═╝          ╚═╝    ╚═════╝    ╚═╝       ║
+║                                                        ║
+║          {self.current_date}           ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+"""
+
+        # Оновлена статистика з часовою міткою
         self.stats = {
             "users": "1000+",
             "commands": "10000+",
             "languages": 3,
-            "states": 99
+            "states": 99,
+            "last_update": self.current_date
         }
 
-    # ... (rest of the code remains the same)
+        # Додаткова інформація про оновлення
+        self.update_info = {
+            "author": self.author,
+            "bot": self.bot_name,
+            "time": self.current_date,
+            "branch": "aiogram-3x"
+        }
 
-if __name__ == "__main__":
-    # Отримуємо параметри з командного рядка
-    current_time = sys.argv[1] if len(sys.argv) > 1 else None
-    current_user = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    # Створюємо генератор з отриманими параметрами
-    generator = ReadmeGenerator(current_time, current_user)
-    generator.save_readme()
+    def generate_readme(self):
+        return f'''<div align="center">
