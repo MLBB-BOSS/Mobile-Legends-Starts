@@ -1,4 +1,10 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+Єfrom aiogram.types import (
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardRemove
+)
 from enum import Enum, unique
 import logging
 
@@ -120,6 +126,12 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
+@unique
+class LanguageButton(Enum):
+    UKRAINIAN = "🇺🇦 Українська"
+    ENGLISH = "🇬🇧 English"
+    BACK = "🔙 Назад"
+
 menu_button_to_class = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
@@ -170,19 +182,19 @@ def create_menu(buttons, placeholder, row_width=2):
     """
     Створює меню з кнопками.
 
-    :param buttons: Список кнопок (MenuButton або str)
+    :param buttons: Список кнопок (MenuButton Enum)
     :param placeholder: Підказка для поля вводу
     :param row_width: Кількість кнопок у рядку
     :return: ReplyKeyboardMarkup об'єкт
     """
-    if not all(isinstance(button, MenuButton) or isinstance(button, str) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або str.")
+    if not all(isinstance(button, MenuButton) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton Enum.")
 
-    button_texts = [button.value if isinstance(button, MenuButton) else button for button in buttons]
+    button_texts = [button.value for button in buttons]
     logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
 
     keyboard_buttons = [
-        KeyboardButton(text=button.value if isinstance(button, MenuButton) else button) for button in buttons
+        KeyboardButton(text=button.value) for button in buttons
     ]
 
     keyboard = [
@@ -287,9 +299,9 @@ def get_language_menu():
     """
     return create_menu(
         buttons=[
-            "🇺🇦 Українська",
-            "🇬🇧 English",
-            MenuButton.BACK
+            LanguageButton.UKRAINIAN,
+            LanguageButton.ENGLISH,
+            LanguageButton.BACK
         ],
         placeholder="Оберіть мову інтерфейсу",
         row_width=1
