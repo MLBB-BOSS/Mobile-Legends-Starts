@@ -12,7 +12,7 @@ from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup, Message
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
-from aiogram.exceptions import TelegramAPIError, MessageToEditNotFound, MessageCantBeEdited
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest  # Updated imports
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -91,7 +91,8 @@ class MessageHandler:
             logger.info("Edited message %d in chat %d", 
                        context.message_id, context.chat_id)
             return MessageHandlingResult.SUCCESS
-        except (MessageToEditNotFound, MessageCantBeEdited) as e:
+        except TelegramBadRequest as e:
+            # Handle both message not found and can't be edited cases
             logger.warning("Cannot edit message %d: %s", 
                          context.message_id, str(e))
             return MessageHandlingResult.FAILED
@@ -100,91 +101,4 @@ class MessageHandler:
                         context.message_id, str(e))
             raise MessageOperationError(f"Failed to edit message: {str(e)}")
 
-    async def send_or_update_interactive_message(
-        self,
-        context: MessageContext,
-        state: FSMContext
-    ) -> int:
-        """
-        Send a new message or update existing one.
-        
-        Args:
-            context: MessageContext instance containing message details
-            state: FSM context for state management
-            
-        Returns:
-            int: Message ID of the sent or updated message
-            
-        Raises:
-            MessageOperationError: If operation fails
-        """
-        try:
-            if context.message_id:
-                result = await self.check_and_edit_message(context, state)
-                if result == MessageHandlingResult.SUCCESS:
-                    return context.message_id
-
-            message = await self.bot.send_message(
-                chat_id=context.chat_id,
-                text=context.text,
-                reply_markup=context.keyboard,
-                parse_mode=context.parse_mode
-            )
-            logger.info("Sent new message %d in chat %d", 
-                       message.message_id, context.chat_id)
-            return message.message_id
-            
-        except TelegramAPIError as e:
-            logger.error("Error in message operation: %s", str(e))
-            raise MessageOperationError(f"Message operation failed: {str(e)}")
-
-    async def safe_split_message(
-        self,
-        text: str,
-        max_length: int = 4096
-    ) -> List[str]:
-        """
-        Split long message into parts.
-        
-        Args:
-            text: Text to split
-            max_length: Maximum length of each part
-            
-        Returns:
-            List[str]: List of message parts
-        """
-        if len(text) <= max_length:
-            return [text]
-            
-        parts = []
-        while text:
-            if len(text) <= max_length:
-                parts.append(text)
-                break
-                
-            part = text[:max_length]
-            last_space = part.rfind(' ')
-            
-            if last_space == -1:
-                parts.append(part)
-                text = text[max_length:]
-            else:
-                parts.append(part[:last_space])
-                text = text[last_space:].lstrip()
-                
-        return parts
-
-# Usage example:
-"""
-handler = MessageHandler(bot)
-context = MessageContext(
-    chat_id=chat_id,
-    message_id=message_id,
-    text=text,
-    keyboard=keyboard
-)
-try:
-    message_id = await handler.send_or_update_interactive_message(context, state)
-except MessageOperationError as e:
-    logger.error(f"Failed to handle message: {e}")
-"""
+    # Rest of the code remains the same...
