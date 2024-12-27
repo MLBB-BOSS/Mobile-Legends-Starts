@@ -1,5 +1,5 @@
 import logging
-from pydantic_settings import BaseSettings, Field
+from pydantic import BaseSettings, Field
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
