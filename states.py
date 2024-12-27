@@ -1,5 +1,3 @@
-# states.py
-
 from aiogram.fsm.state import State, StatesGroup
 
 class MenuStates(StatesGroup):
@@ -22,3 +20,4 @@ class MenuStates(StatesGroup):
     HELP_SUBMENU = State()
     CHANGE_USERNAME = State()
     RECEIVE_FEEDBACK = State()  # Доданий стан
+    REPORT_BUG = State()  # Доданий стан
