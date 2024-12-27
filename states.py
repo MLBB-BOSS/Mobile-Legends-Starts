@@ -1,6 +1,7 @@
 from aiogram.fsm.state import State, StatesGroup
 
 class MenuStates(StatesGroup):
+    # Existing states
     MAIN_MENU = State()
     CHALLENGES_MENU = State()
     GUIDES_MENU = State()
@@ -19,6 +20,13 @@ class MenuStates(StatesGroup):
     GPT_MENU = State()
     HELP_SUBMENU = State()
     CHANGE_USERNAME = State()
-    RECEIVE_FEEDBACK = State()  # Доданий стан
-    REPORT_BUG = State()  # Доданий стан
-    TOURNAMENTS_MENU = State()
+    RECEIVE_FEEDBACK = State()
+    REPORT_BUG = State()
+
+    # New states to add based on the handlers
+    TOURNAMENTS_MENU = State()      # Used in handlers causing the current error
+    HEROES_MENU = State()           # Used in base.py
+    COUNTER_PICKS_MENU = State()    # Used in base.py
+    BUILDS_MENU = State()           # Used in base.py
+    VOTING_MENU = State()           # Used in base.py
+    NAVIGATION_MENU = State()       # Used in navigation handlers
