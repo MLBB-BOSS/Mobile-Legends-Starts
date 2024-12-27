@@ -4,7 +4,6 @@ import io
 from aiogram.filters import Command
 from aiogram.filters.text import Text
 
-import networkx as nx
 import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
