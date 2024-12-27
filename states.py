@@ -139,3 +139,12 @@ class MenuStates(StatesGroup):
     INTRO_PAGE_2 = State()           # Друга сторінка вступу
     INTRO_PAGE_3 = State()           # Третя сторінка вступу
     INTRO_COMPLETE = State()
+
+    SEARCH_HERO = State()                # Стан пошуку героя
+    HERO_DETAILS = State()               # Перегляд деталей героя
+    HERO_SELECTION = State()             # Вибір героя зі списку
+    HERO_FILTER = State()                # Фільтрація героїв
+    HERO_SORT = State()                  # Сортування героїв
+    HERO_FAVORITES = State()             # Обрані герої
+    HERO_STATISTICS = State()            # Статистика героя
+    HERO_CLASS_MENU = State()            # Меню класів героїв (додаємо цей стан)
