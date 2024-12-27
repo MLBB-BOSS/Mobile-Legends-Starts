@@ -608,7 +608,7 @@ def get_generic_inline_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="Повернутися до меню", callback_data="menu_back")
+                InlineKeyboardButton(text="       ░▒▓█ Ｍ Ｌ Ｓ █▓▒░    ", callback_data="menu_back")
             ]
         ]
     )
