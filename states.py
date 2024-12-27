@@ -133,3 +133,9 @@ class MenuStates(StatesGroup):
     SUPPORT_TICKET = State()             # Квиток підтримки
     SUPPORT_CHAT = State()               # Чат підтримки
     SUPPORT_FAQ = State()                # Часті запитання підтримки
+
+    # Intro states (додайте це до існуючих станів)
+    INTRO_PAGE_1 = State()           # Перша сторінка вступу
+    INTRO_PAGE_2 = State()           # Друга сторінка вступу
+    INTRO_PAGE_3 = State()           # Третя сторінка вступу
+    INTRO_COMPLETE = State()
