@@ -1,12 +1,9 @@
 name: Update README
 
 on:
-  # Оновлюємо кожен день о 00:00 UTC
   schedule:
-    - cron: '0 0 * * *'
-  # Можливість ручного запуску
+    - cron: '0 0 * * *'  # Щодня о 00:00 UTC
   workflow_dispatch:
-  # При пуші в основну гілку
   push:
     branches:
       - aiogram-3x
@@ -30,9 +27,19 @@ jobs:
         with:
           python-version: '3.10'
 
+      # Додаємо крок для отримання поточного часу
+      - name: Get current time
+        id: current-time
+        run: echo "time=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+
+      # Додаємо крок для отримання логіну користувача
+      - name: Get current user
+        id: current-user
+        run: echo "user=$(git config --get user.name || echo 'MLBB-BOSS')" >> $GITHUB_OUTPUT
+
       - name: Update README
         run: |
-          python scripts/update_readme.py
+          python scripts/update_readme.py "${{ steps.current-time.outputs.time }}" "${{ steps.current-user.outputs.user }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -44,6 +51,6 @@ jobs:
           git diff --quiet && git diff --staged --quiet || (git commit -m "📝 Update README
           
           🤖 Automatically updated by GitHub Actions
-          ⏰ Generated at $(date -u)
+          ⏰ Generated at ${{ steps.current-time.outputs.time }}
           
-          By: MLBB-BOSS" && git push)
+          By: ${{ steps.current-user.outputs.user }}" && git push)
