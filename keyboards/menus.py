@@ -1,3 +1,5 @@
+# keyboards/menus.py
+
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
@@ -6,6 +8,7 @@ from aiogram.types import (
     ReplyKeyboardRemove
 )
 from enum import Enum, unique
+from typing import List, Dict, Union, Optional
 import logging
 
 # Налаштування логування
@@ -132,7 +135,8 @@ class LanguageButton(Enum):
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
 
-menu_button_to_class = {
+# Мапінг кнопок до класів персонажів
+menu_button_to_class: Dict[str, str] = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
     MenuButton.MARKSMAN.value: "Стрілець",
@@ -142,7 +146,7 @@ menu_button_to_class = {
 }
 
 # Списки героїв по класах
-heroes_by_class = {
+heroes_by_class: Dict[str, List[str]] = {
     "Боєць": [
         "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
         "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
@@ -178,17 +182,21 @@ heroes_by_class = {
     ],
 }
 
-def create_menu(buttons, placeholder, row_width=2):
+def create_menu(
+    buttons: List[Union[MenuButton, LanguageButton]], 
+    placeholder: str = "", 
+    row_width: int = 2
+) -> ReplyKeyboardMarkup:
     """
     Створює меню з кнопками.
 
-    :param buttons: Список кнопок (MenuButton Enum)
+    :param buttons: Список кнопок (MenuButton або LanguageButton Enum)
     :param placeholder: Підказка для поля вводу
     :param row_width: Кількість кнопок у рядку
     :return: ReplyKeyboardMarkup об'єкт
     """
-    if not all(isinstance(button, MenuButton) for button in buttons):
-        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton Enum.")
+    if not all(isinstance(button, (MenuButton, LanguageButton)) for button in buttons):
+        raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
 
     button_texts = [button.value for button in buttons]
     logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
@@ -208,7 +216,24 @@ def create_menu(buttons, placeholder, row_width=2):
         input_field_placeholder=placeholder
     )
 
-def get_main_menu():
+def create_inline_menu(
+    buttons: List[InlineKeyboardButton], 
+    row_width: int = 3
+) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн меню з кнопками.
+
+    :param buttons: Список InlineKeyboardButton об'єктів
+    :param row_width: Кількість кнопок у рядку
+    :return: InlineKeyboardMarkup об'єкт
+    """
+    keyboard = [
+        buttons[i:i + row_width]
+        for i in range(0, len(buttons), row_width)
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+def get_main_menu() -> ReplyKeyboardMarkup:
     """
     Створює головне меню.
 
@@ -223,7 +248,7 @@ def get_main_menu():
         row_width=2
     )
 
-def get_navigation_menu():
+def get_navigation_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Навігації.
 
@@ -245,7 +270,7 @@ def get_navigation_menu():
         row_width=3
     )
 
-def get_heroes_menu():
+def get_heroes_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Персонажів.
 
@@ -270,7 +295,7 @@ def get_heroes_menu():
         row_width=3
     )
 
-def get_profile_menu():
+def get_profile_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Профілю.
 
@@ -291,7 +316,7 @@ def get_profile_menu():
         row_width=3
     )
 
-def get_language_menu():
+def get_language_menu() -> ReplyKeyboardMarkup:
     """
     Клавіатура для вибору мови.
 
@@ -307,7 +332,7 @@ def get_language_menu():
         row_width=1
     )
 
-def get_challenges_menu():
+def get_challenges_menu() -> ReplyKeyboardMarkup:
     """
     Клавіатура для розділу Челенджів.
 
@@ -322,7 +347,7 @@ def get_challenges_menu():
         row_width=2
     )
 
-def get_bust_menu():
+def get_bust_menu() -> ReplyKeyboardMarkup:
     """
     Клавіатура для розділу Буст.
 
@@ -337,7 +362,7 @@ def get_bust_menu():
         row_width=2
     )
 
-def get_my_team_menu():
+def get_my_team_menu() -> ReplyKeyboardMarkup:
     """
     Клавіатура для розділу Моєї Команди.
 
@@ -352,7 +377,7 @@ def get_my_team_menu():
         row_width=2
     )
 
-def get_guides_menu():
+def get_guides_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Гайдів.
 
@@ -372,7 +397,7 @@ def get_guides_menu():
         row_width=3
     )
 
-def get_counter_picks_menu():
+def get_counter_picks_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Контр-піків.
 
@@ -388,7 +413,7 @@ def get_counter_picks_menu():
         row_width=3
     )
 
-def get_builds_menu():
+def get_builds_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Білдів.
 
@@ -405,7 +430,7 @@ def get_builds_menu():
         row_width=3
     )
 
-def get_voting_menu():
+def get_voting_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Голосування.
 
@@ -422,7 +447,7 @@ def get_voting_menu():
         row_width=3
     )
 
-def get_statistics_menu():
+def get_statistics_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Статистики.
 
@@ -439,7 +464,7 @@ def get_statistics_menu():
         row_width=3
     )
 
-def get_achievements_menu():
+def get_achievements_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Досягнень.
 
@@ -457,7 +482,7 @@ def get_achievements_menu():
         row_width=3
     )
 
-def get_settings_menu():
+def get_settings_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Налаштувань.
 
@@ -475,7 +500,7 @@ def get_settings_menu():
         row_width=3
     )
 
-def get_feedback_menu():
+def get_feedback_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Зворотного Зв'язку.
 
@@ -491,7 +516,7 @@ def get_feedback_menu():
         row_width=3
     )
 
-def get_help_menu():
+def get_help_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Допомоги.
 
@@ -508,7 +533,7 @@ def get_help_menu():
         row_width=3
     )
 
-def get_tournaments_menu():
+def get_tournaments_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Турнірів.
 
@@ -524,7 +549,7 @@ def get_tournaments_menu():
         row_width=3
     )
 
-def get_meta_menu():
+def get_meta_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню META.
 
@@ -541,7 +566,7 @@ def get_meta_menu():
         row_width=3
     )
 
-def get_m6_menu():
+def get_m6_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню M6.
 
@@ -558,7 +583,7 @@ def get_m6_menu():
         row_width=3
     )
 
-def get_gpt_menu():
+def get_gpt_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню GPT.
 
@@ -575,7 +600,7 @@ def get_gpt_menu():
         row_width=2
     )
 
-def get_teams_menu():
+def get_teams_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Команд.
 
@@ -591,7 +616,7 @@ def get_teams_menu():
         row_width=2
     )
 
-def get_trading_menu():
+def get_trading_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Торгівлі.
 
@@ -608,7 +633,7 @@ def get_trading_menu():
         row_width=2
     )
 
-def get_generic_inline_keyboard():
+def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
     Створює інлайн-клавіатуру з однією кнопкою Назад.
 
