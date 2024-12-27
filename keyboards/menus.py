@@ -1,3 +1,5 @@
+# keyboards/menus.py
+
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
@@ -6,7 +8,7 @@ from aiogram.types import (
     ReplyKeyboardRemove
 )
 from enum import Enum, unique
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 import logging
 
 # Налаштування логування
@@ -100,7 +102,7 @@ class MenuButton(Enum):
 
     # Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
-    CHANGE_USERNAME = "ℹ️ Змінити Username"
+    CHANGE_USERNAME = "✏️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
@@ -127,22 +129,20 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
-
 @unique
 class LanguageButton(Enum):
     UKRAINIAN = "🇺🇦 Українська"
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
 
-
 # Мапінг кнопок до класів персонажів
-menu_button_to_class: Dict[str, str] = {
+MENU_BUTTON_TO_CLASS: Dict[str, str] = {
     MenuButton.TANK.value: "Танк",
     MenuButton.MAGE.value: "Маг",
     MenuButton.MARKSMAN.value: "Стрілець",
     MenuButton.ASSASSIN.value: "Асасін",
     MenuButton.SUPPORT.value: "Підтримка",
-    MenuButton.FIGHTER.value: "Боєць",
+    MenuButton.FIGHTER.value: "Боєць"
 }
 
 # Списки героїв по класах
@@ -182,7 +182,6 @@ heroes_by_class: Dict[str, List[str]] = {
     ],
 }
 
-
 def create_menu(
     buttons: List[Union[MenuButton, LanguageButton]], 
     placeholder: str = "", 
@@ -190,11 +189,6 @@ def create_menu(
 ) -> ReplyKeyboardMarkup:
     """
     Створює меню з кнопками.
-
-    :param buttons: Список кнопок (MenuButton або LanguageButton Enum)
-    :param placeholder: Підказка для поля вводу
-    :param row_width: Кількість кнопок у рядку
-    :return: ReplyKeyboardMarkup об'єкт
     """
     keyboard_buttons = [KeyboardButton(text=button.value) for button in buttons]
     keyboard = [
@@ -208,17 +202,12 @@ def create_menu(
         input_field_placeholder=placeholder
     )
 
-
 def create_inline_menu(
     buttons: List[InlineKeyboardButton], 
     row_width: int = 3
 ) -> InlineKeyboardMarkup:
     """
     Створює інлайн меню з кнопками.
-
-    :param buttons: Список інлайн кнопок
-    :param row_width: Кількість кнопок у рядку
-    :return: InlineKeyboardMarkup об'єкт
     """
     keyboard = [
         buttons[i:i + row_width]
@@ -226,12 +215,9 @@ def create_inline_menu(
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_main_menu() -> ReplyKeyboardMarkup:
     """
     Створює головне меню.
-
-    :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
@@ -242,12 +228,9 @@ def get_main_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-
 def get_navigation_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню Навігації.
-
-    :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
@@ -265,236 +248,82 @@ def get_navigation_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-
-def get_heroes_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Персонажів.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.TANK,
-            MenuButton.MAGE,
-            MenuButton.MARKSMAN,
-            MenuButton.ASSASSIN,
-            MenuButton.FIGHTER,
-            MenuButton.SUPPORT,
-            MenuButton.META,
-            MenuButton.COUNTER_PICKS,
-            MenuButton.COMPARISON,
-            MenuButton.VOTING,
-            MenuButton.SEARCH_HERO,
-            MenuButton.BACK
-        ],
-        placeholder="Виберіть клас персонажа",
-        row_width=3
-    )
-
-
-def get_profile_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Профілю.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.STATISTICS,
-            MenuButton.MY_TEAM,
-            MenuButton.ACHIEVEMENTS,
-            MenuButton.SETTINGS,
-            MenuButton.FEEDBACK,
-            MenuButton.HELP,
-            MenuButton.GPT,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть дію з профілем",
-        row_width=3
-    )
-
-
-def get_language_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для вибору мови.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            LanguageButton.UKRAINIAN,
-            LanguageButton.ENGLISH,
-            LanguageButton.BACK
-        ],
-        placeholder="Оберіть мову інтерфейсу",
-        row_width=1
-    )
-
-
 def get_challenges_menu() -> ReplyKeyboardMarkup:
     """
-    Клавіатура для розділу Челенджів.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Challenges.
     """
     return create_menu(
         buttons=[
-            MenuButton.CHALLENGES,
+            MenuButton.ADD_CHALLENGE,
             MenuButton.BACK
         ],
-        placeholder="Виберіть опцію челенджів",
+        placeholder="Оберіть опцію для Challenges",
         row_width=2
     )
-
-
-def get_bust_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для розділу Буст.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.BUST,
-            MenuButton.BACK
-        ],
-        placeholder="Виберіть опцію бустів",
-        row_width=2
-    )
-
-
-def get_my_team_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для розділу Моєї Команди.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.MY_TEAM,
-            MenuButton.BACK
-        ],
-        placeholder="Виберіть опцію Моєї Команди",
-        row_width=2
-    )
-
 
 def get_guides_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Гайдів.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Guides.
     """
     return create_menu(
         buttons=[
             MenuButton.NEW_GUIDES,
-            MenuButton.M6,
             MenuButton.POPULAR_GUIDES,
             MenuButton.BEGINNER_GUIDES,
             MenuButton.ADVANCED_TECHNIQUES,
             MenuButton.TEAMPLAY_GUIDES,
+            MenuButton.M6,
             MenuButton.BACK
         ],
-        placeholder="Оберіть розділ гайдів",
-        row_width=3
+        placeholder="Оберіть опцію для Guides",
+        row_width=2
     )
 
-
-def get_counter_picks_menu() -> ReplyKeyboardMarkup:
+def get_bust_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Контр-піків.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Bust.
     """
     return create_menu(
         buttons=[
-            MenuButton.COUNTER_SEARCH,
-            MenuButton.COUNTER_LIST,
+            MenuButton.BUST_BOOST,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію Контр-піків",
-        row_width=3
+        placeholder="Оберіть опцію для Bust",
+        row_width=2
     )
 
-
-def get_builds_menu() -> ReplyKeyboardMarkup:
+def get_teams_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Білдів.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Teams.
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_BUILD,
-            MenuButton.MY_BUILDS,
-            MenuButton.POPULAR_BUILDS,
+            MenuButton.CREATE_TEAM,
+            MenuButton.VIEW_TEAMS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію Білдів",
-        row_width=3
+        placeholder="Оберіть опцію для Teams",
+        row_width=2
     )
 
-
-def get_voting_menu() -> ReplyKeyboardMarkup:
+def get_trading_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Голосування.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Trading.
     """
     return create_menu(
         buttons=[
-            MenuButton.CURRENT_VOTES,
-            MenuButton.MY_VOTES,
-            MenuButton.SUGGEST_TOPIC,
+            MenuButton.CREATE_TRADE,
+            MenuButton.VIEW_TRADES,
+            MenuButton.MANAGE_TRADES,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію голосування",
-        row_width=3
+        placeholder="Оберіть опцію для Trading",
+        row_width=2
     )
-
-
-def get_statistics_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Статистики.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.ACTIVITY,
-            MenuButton.RANKING,
-            MenuButton.GAME_STATS,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть тип статистики",
-        row_width=3
-    )
-
-
-def get_achievements_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Досягнень.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.BADGES,
-            MenuButton.PROGRESS,
-            MenuButton.TOURNAMENT_STATS,
-            MenuButton.AWARDS,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть категорію досягнень",
-        row_width=3
-    )
-
 
 def get_settings_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Налаштувань.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Settings.
     """
     return create_menu(
         buttons=[
@@ -504,33 +333,13 @@ def get_settings_menu() -> ReplyKeyboardMarkup:
             MenuButton.NOTIFICATIONS,
             MenuButton.BACK
         ],
-        placeholder="Налаштуйте свій профіль",
-        row_width=3
+        placeholder="Оберіть опцію для Налаштувань",
+        row_width=2
     )
-
-
-def get_feedback_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Зворотного Зв'язку.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.SEND_FEEDBACK,
-            MenuButton.REPORT_BUG,
-            MenuButton.BACK
-        ],
-        placeholder="Виберіть тип зворотного зв'язку",
-        row_width=3
-    )
-
 
 def get_help_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Допомоги.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню Help.
     """
     return create_menu(
         buttons=[
@@ -539,105 +348,102 @@ def get_help_menu() -> ReplyKeyboardMarkup:
             MenuButton.HELP_SUPPORT,
             MenuButton.BACK
         ],
-        placeholder="Оберіть розділ допомоги",
-        row_width=3
-    )
-
-
-def get_tournaments_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Турнірів.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.CREATE_TOURNAMENT,
-            MenuButton.VIEW_TOURNAMENTS,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть дію з турнірами",
+        placeholder="Оберіть опцію для Допомоги",
         row_width=2
     )
 
-
-def get_meta_menu() -> ReplyKeyboardMarkup:
+def get_my_team_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню META.
-
-    :return: ReplyKeyboardMarkup об'єкт
-    """
-    return create_menu(
-        buttons=[
-            MenuButton.META_HERO_LIST,
-            MenuButton.META_RECOMMENDATIONS,
-            MenuButton.META_UPDATES,
-            MenuButton.BACK
-        ],
-        placeholder="Оберіть опцію META",
-        row_width=2
-    )
-
-
-def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
-
-    :param hero_class: Назва класу героя
-    :return: InlineKeyboardMarkup об'єкт
-    """
-    heroes = heroes_by_class.get(hero_class, [])
-    if not heroes:
-        logger.warning(f"Немає героїв для класу: {hero_class}")
-        return InlineKeyboardMarkup().add(InlineKeyboardButton(text="🔙 Назад", callback_data="menu_back"))
-
-    keyboard_buttons = [
-        InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}") for hero in heroes
-    ]
-    keyboard_buttons.append(InlineKeyboardButton(text="🔙 Назад", callback_data="menu_back"))
-    return create_inline_menu(keyboard_buttons, row_width=3)
-
-
-# Додаткові Меню (якщо необхідно)
-def get_create_team_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню для створення команди.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню My Team.
     """
     return create_menu(
         buttons=[
             MenuButton.CREATE_TEAM,
+            MenuButton.VIEW_TEAMS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть дію з командами",
+        placeholder="Оберіть опцію для Моїй Команді",
         row_width=2
     )
 
-
-def get_trading_menu() -> ReplyKeyboardMarkup:
+def get_language_menu() -> ReplyKeyboardMarkup:
     """
-    Створює меню Торгівлі.
-
-    :return: ReplyKeyboardMarkup об'єкт
+    Створює меню вибору мови.
     """
     return create_menu(
         buttons=[
-            MenuButton.CREATE_TRADE,
-            MenuButton.VIEW_TRADES,
-            MenuButton.MANAGE_TRADES,
-            MenuButton.BACK
+            LanguageButton.UKRAINIAN,
+            LanguageButton.ENGLISH,
+            LanguageButton.BACK
         ],
-        placeholder="Оберіть дію з торгівлею",
+        placeholder="Оберіть мову інтерфейсу",
         row_width=2
     )
 
+def get_profile_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню Профілю.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.STATISTICS,
+            MenuButton.ACHIEVEMENTS,
+            MenuButton.SETTINGS,
+            MenuButton.FEEDBACK,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію для Профілю",
+        row_width=2
+    )
+
+def get_statistics_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню Статистики.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.ACTIVITY,
+            MenuButton.RANKING,
+            MenuButton.GAME_STATS,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію для Статистики",
+        row_width=2
+    )
+
+def get_achievements_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню Досягнень.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.BADGES,
+            MenuButton.PROGRESS,
+            MenuButton.TOURNAMENT_STATS,
+            MenuButton.AWARDS,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію для Досягнень",
+        row_width=2
+    )
+
+def get_feedback_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню Зворотного Зв'язку.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.SEND_FEEDBACK,
+            MenuButton.REPORT_BUG,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію для Зворотного Зв'язку",
+        row_width=2
+    )
 
 def get_gpt_menu() -> ReplyKeyboardMarkup:
     """
     Створює меню GPT.
-
-    :return: ReplyKeyboardMarkup об'єкт
     """
     return create_menu(
         buttons=[
@@ -646,6 +452,37 @@ def get_gpt_menu() -> ReplyKeyboardMarkup:
             MenuButton.GPT_HERO_STATS,
             MenuButton.BACK
         ],
-        placeholder="Оберіть опцію GPT",
+        placeholder="Оберіть опцію для GPT",
         row_width=2
     )
+
+def get_m6_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню M6.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.M6_INFO,
+            MenuButton.M6_STATS,
+            MenuButton.M6_NEWS,
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть інформацію про M6",
+        row_width=3
+    )
+
+# Додаткові меню для конкретних функцій
+def get_bust_boost_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню для функції Буст.
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.BUST_BOOST,  # Переконайтеся, що ця кнопка визначена в MenuButton
+            MenuButton.BACK
+        ],
+        placeholder="Оберіть опцію для Буст",
+        row_width=2
+    )
+
+# Додайте будь-які додаткові меню, які потрібні для інших розділів
