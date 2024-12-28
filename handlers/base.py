@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command, Text
+from aiogram.filters import Command  # Видаляємо імпорт Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -381,7 +381,7 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
 
 # Обробники вступних сторінок через callback queries
-@router.callback_query(Text(startswith="intro"))
+@router.callback_query(F.text.startswith("intro"))
 async def handle_intro(callback_query: types.CallbackQuery, state: FSMContext, bot: Bot):
     """
     Обробник для інтро повідомлень з інлайн-клавіатурами.
@@ -472,7 +472,7 @@ async def handle_intro(callback_query: types.CallbackQuery, state: FSMContext, b
 
     else:
         logger.warning(f"Невідомий callback_data: {data}")
-        await callback_query.answer("Невідома команда.", show_alert=True)
+        await callback_query.answer("Вибачте, я не розумію цю команду.", show_alert=True)
 
 # Уніфікована функція для обробки меню
 async def handle_menu(
@@ -1172,7 +1172,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, new_state)
 
-# Обробчик меню "M6 Menu"
+# Обробчик натискання звичайних кнопок у підрозділі "M6"
 @router.message(MenuStates.M6_MENU)
 async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     """
@@ -1356,7 +1356,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, new_state)
 
-# Обробчик натискання звичайних кнопок у меню Навігація
+# Обробчик натискання звичайних кнопок у підрозділі "Навігація"
 @router.message(MenuStates.NAVIGATION_MENU)
 async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bot: Bot):
     """
@@ -1465,7 +1465,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
         parse_mode=ParseMode.HTML
     )
 
-    # Оновлення стану користувача
+    # Оновлюємо стан користувача
     if new_state:
         await transition_state(state, new_state)
     await state.update_data(bot_message_id=new_bot_message_id)
