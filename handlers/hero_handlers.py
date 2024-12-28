@@ -16,7 +16,7 @@ from aiogram.fsm.context import FSMContext
 
 # Ваші власні модулі
 from states import MenuStates
-from database.hero_database import HeroDatabase  # Приклад: ваш клас/модуль для взаємодії з БД
+#from database.hero_database import HeroDatabase  # Приклад: ваш клас/модуль для взаємодії з БД
 from utils.message_utils import safe_delete_message
 
 # Ініціалізація логера та роутера
