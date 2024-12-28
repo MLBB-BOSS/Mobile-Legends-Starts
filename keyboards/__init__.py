@@ -31,8 +31,7 @@ from .menus import (
     LanguageButton,
     heroes_by_class,
     menu_button_to_class,
-    create_menu,
-    create_inline_menu
+    create_menu
 )
 
 from .inline_keyboards import (
@@ -89,6 +88,5 @@ __all__ = [
     'LanguageButton',
     'heroes_by_class',
     'menu_button_to_class',
-    'create_menu',
-    'create_inline_menu'
+    'create_menu'
 ]
