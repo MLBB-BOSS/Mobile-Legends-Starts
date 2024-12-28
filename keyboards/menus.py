@@ -129,11 +129,13 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
+
 @unique
 class LanguageButton(Enum):
     UKRAINIAN = "🇺🇦 Українська"
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
+
 
 # Мапінг кнопок до класів персонажів
 menu_button_to_class: Dict[str, str] = {
@@ -182,18 +184,19 @@ heroes_by_class: Dict[str, List[str]] = {
     ],
 }
 
+
 def create_menu(
-    buttons: List[Union[MenuButton, LanguageButton]], 
-    placeholder: str = "", 
+    buttons: List[Union[MenuButton, LanguageButton]],
+    placeholder: str = "",
     row_width: int = 2
 ) -> ReplyKeyboardMarkup:
     """
-    Створює меню з кнопками.
+    Створює меню з кнопками (ReplyKeyboardMarkup).
 
-    :param buttons: Список кнопок (MenuButton або LanguageButton Enum)
-    :param placeholder: Підказка для поля вводу
-    :param row_width: Кількість кнопок у рядку
-    :return: ReplyKeyboardMarkup об'єкт
+    :param buttons: Список кнопок (MenuButton або LanguageButton Enum).
+    :param placeholder: Підказка для поля вводу.
+    :param row_width: Кількість кнопок у рядку.
+    :return: ReplyKeyboardMarkup об'єкт.
     """
     if not all(isinstance(button, (MenuButton, LanguageButton)) for button in buttons):
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
@@ -201,31 +204,30 @@ def create_menu(
     button_texts = [button.value for button in buttons]
     logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
 
-    keyboard_buttons = [
-        KeyboardButton(text=button.value) for button in buttons
-    ]
+    keyboard_buttons = [KeyboardButton(text=btn.value) for btn in buttons]
 
-    keyboard = [
+    keyboard_rows = [
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
     ]
 
     return ReplyKeyboardMarkup(
-        keyboard=keyboard, 
-        resize_keyboard=True, 
+        keyboard=keyboard_rows,
+        resize_keyboard=True,
         input_field_placeholder=placeholder
     )
 
+
 def create_inline_menu(
-    buttons: List[InlineKeyboardButton], 
+    buttons: List[InlineKeyboardButton],
     row_width: int = 3
 ) -> InlineKeyboardMarkup:
     """
-    Створює інлайн меню з кнопками.
+    Створює інлайн меню з кнопками (InlineKeyboardMarkup).
 
-    :param buttons: Список InlineKeyboardButton об'єктів
-    :param row_width: Кількість кнопок у рядку
-    :return: InlineKeyboardMarkup об'єкт
+    :param buttons: Список InlineKeyboardButton об'єктів.
+    :param row_width: Кількість кнопок у рядку.
+    :return: InlineKeyboardMarkup об'єкт.
     """
     keyboard = [
         buttons[i:i + row_width]
@@ -233,27 +235,16 @@ def create_inline_menu(
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-def get_main_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює головне меню.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_main_menu() -> ReplyKeyboardMarkup:
     return create_menu(
-        buttons=[
-            MenuButton.NAVIGATION,
-            MenuButton.PROFILE
-        ],
+        buttons=[MenuButton.NAVIGATION, MenuButton.PROFILE],
         placeholder="Оберіть одну з основних опцій",
         row_width=2
     )
 
-def get_navigation_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Навігації.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_navigation_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.HEROES,
@@ -270,12 +261,8 @@ def get_navigation_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_heroes_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Персонажів.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_heroes_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.TANK,
@@ -295,12 +282,8 @@ def get_heroes_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_profile_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Профілю.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_profile_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.STATISTICS,
@@ -316,12 +299,8 @@ def get_profile_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_language_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для вибору мови.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_language_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             LanguageButton.UKRAINIAN,
@@ -332,12 +311,8 @@ def get_language_menu() -> ReplyKeyboardMarkup:
         row_width=1
     )
 
-def get_challenges_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для розділу Челенджів.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_challenges_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CHALLENGES,
@@ -347,12 +322,8 @@ def get_challenges_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-def get_bust_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для розділу Буст.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_bust_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.BUST,
@@ -362,12 +333,8 @@ def get_bust_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-def get_my_team_menu() -> ReplyKeyboardMarkup:
-    """
-    Клавіатура для розділу Моєї Команди.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_my_team_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.MY_TEAM,
@@ -377,12 +344,8 @@ def get_my_team_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-def get_guides_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Гайдів.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_guides_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.NEW_GUIDES,
@@ -397,12 +360,8 @@ def get_guides_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_counter_picks_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Контр-піків.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_counter_picks_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.COUNTER_SEARCH,
@@ -413,12 +372,8 @@ def get_counter_picks_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_builds_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Білдів.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_builds_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CREATE_BUILD,
@@ -430,12 +385,8 @@ def get_builds_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_voting_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Голосування.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_voting_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CURRENT_VOTES,
@@ -447,12 +398,8 @@ def get_voting_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_statistics_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Статистики.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_statistics_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.ACTIVITY,
@@ -464,12 +411,8 @@ def get_statistics_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_achievements_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Досягнень.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_achievements_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.BADGES,
@@ -482,12 +425,8 @@ def get_achievements_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_settings_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Налаштувань.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_settings_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.LANGUAGE,
@@ -500,12 +439,8 @@ def get_settings_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_feedback_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Зворотного Зв'язку.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_feedback_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.SEND_FEEDBACK,
@@ -516,12 +451,8 @@ def get_feedback_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_help_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Допомоги.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_help_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.INSTRUCTIONS,
@@ -533,12 +464,8 @@ def get_help_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_tournaments_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Турнірів.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_tournaments_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CREATE_TOURNAMENT,
@@ -549,12 +476,8 @@ def get_tournaments_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_meta_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню META.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_meta_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.META_HERO_LIST,
@@ -566,12 +489,8 @@ def get_meta_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_m6_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню M6.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_m6_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.M6_INFO,
@@ -583,12 +502,8 @@ def get_m6_menu() -> ReplyKeyboardMarkup:
         row_width=3
     )
 
-def get_gpt_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню GPT.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_gpt_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.GPT_DATA_GENERATION,
@@ -600,12 +515,8 @@ def get_gpt_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-def get_teams_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Команд.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_teams_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CREATE_TEAM,
@@ -616,12 +527,8 @@ def get_teams_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
-def get_trading_menu() -> ReplyKeyboardMarkup:
-    """
-    Створює меню Торгівлі.
 
-    :return: ReplyKeyboardMarkup об'єкт
-    """
+def get_trading_menu() -> ReplyKeyboardMarkup:
     return create_menu(
         buttons=[
             MenuButton.CREATE_TRADE,
@@ -633,31 +540,48 @@ def get_trading_menu() -> ReplyKeyboardMarkup:
         row_width=2
     )
 
+
 def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
     """
-    Створює інлайн-клавіатуру з однією кнопкою Назад.
-
-    :return: InlineKeyboardMarkup об'єкт
+    Приклад інлайн-клавіатури — тут лише одна «назад»-кнопка, 
+    якщо ви інколи використовуєте inline.
     """
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back")
+                InlineKeyboardButton(
+                    text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад",
+                    callback_data="menu_back"
+                )
             ]
         ]
     )
 
-def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
-    """
-    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
 
-    :param hero_class: Назва класу героя
-    :return: InlineKeyboardMarkup об'єкт
+def get_hero_class_reply_menu(hero_class: str) -> ReplyKeyboardMarkup:
+    """
+    Створює ЗВИЧАЙНУ клавіатуру (ReplyKeyboardMarkup) зі списком героїв обраного класу.
+    
+    :param hero_class: Напр. "Танк", "Маг", "Боєць" тощо.
+    :return: ReplyKeyboardMarkup зі списком героїв, + кнопка Назад.
     """
     heroes = heroes_by_class.get(hero_class, [])
-    keyboard = InlineKeyboardMarkup(row_width=3)
-    for hero in heroes:
-        keyboard.insert(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
-    # Додавання кнопки "Назад" з декоративним текстом
-    keyboard.add(InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back"))
-    return keyboard
+    logger.info(f"Створюємо звичайну клавіатуру для класу {hero_class}, героїв знайдено: {len(heroes)}")
+
+    hero_buttons = [KeyboardButton(hero) for hero in heroes]
+
+    # Додамо кнопку "Назад" (звичайну)
+    hero_buttons.append(KeyboardButton("🔙 Назад"))
+
+    # Наприклад, 3 герої в рядку
+    row_width = 3
+    keyboard_rows = [
+        hero_buttons[i:i + row_width]
+        for i in range(0, len(hero_buttons), row_width)
+    ]
+
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard_rows,
+        resize_keyboard=True,
+        input_field_placeholder=f"Оберіть героя з класу {hero_class}"
+    )
