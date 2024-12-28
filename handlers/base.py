@@ -1,7 +1,6 @@
-# handlers/base.py
-
 import logging
 import io
+import os
 from typing import Optional
 from utils.message_utils import safe_delete_message, check_and_edit_message
 import networkx as nx
@@ -74,6 +73,9 @@ from texts import (
     STATS_TEXT,
 )
 
+# Додано імпорт для OpenAI
+import openai
+
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -89,6 +91,18 @@ MENU_BUTTON_TO_CLASS = {
     MenuButton.SUPPORT.value: "Підтримка",
     MenuButton.FIGHTER.value: "Боєць"
 }
+
+# Ініціалізація OpenAI API
+def initialize_openai():
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        logger.critical("OPENAI_API_KEY не встановлено в змінних оточення.")
+        raise EnvironmentError("OPENAI_API_KEY не встановлено в змінних оточення.")
+    openai.api_key = api_key
+    logger.info("OpenAI API успішно ініціалізовано.")
+
+# Викликаємо ініціалізацію при запуску модуля
+initialize_openai()
 
 # Допоміжні функції
 
@@ -212,6 +226,33 @@ async def transition_state(state: FSMContext, new_state: State):
     """
     await state.set_state(new_state)
     logger.debug(f"Стан встановлено на {new_state}")
+
+# Функція для взаємодії з GPT
+async def get_gpt_response(prompt: str) -> str:
+    """
+    Отримання відповіді від GPT на заданий запит.
+
+    :param prompt: Текст запиту користувача.
+    :return: Відповідь GPT.
+    """
+    try:
+        response = await openai.ChatCompletion.acreate(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Ти допоміжний бот."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=150,
+            n=1,
+            stop=None,
+            temperature=0.7,
+        )
+        answer = response.choices[0].message['content'].strip()
+        logger.info(f"Отримано відповідь від GPT: {answer}")
+        return answer
+    except Exception as e:
+        logger.error(f"Помилка при взаємодії з GPT: {e}")
+        return "Виникла помилка при обробці вашого запиту. Спробуйте пізніше."
 
 # Функції для генерації графіків
 def create_overall_activity_graph() -> bytes:
@@ -567,10 +608,21 @@ async def handle_menu(
         new_interactive_text = M6_MENU_TEXT
         updated_state = MenuStates.M6_MENU
     elif user_choice == MenuButton.GPT.value:
-        new_main_text = GPT_MENU_TEXT
-        new_main_keyboard = get_gpt_menu()
-        new_interactive_text = GPT_MENU_TEXT
-        updated_state = MenuStates.GPT_MENU
+        # Переход до стану AI-чату
+        await transition_state(state, MenuStates.AI_CHAT)
+        try:
+            await bot.send_message(
+                chat_id=chat_id,
+                text="🤖 Ви можете задати будь-яке питання. Щоб вийти, натисніть /exit.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="🔙 Вихід до меню", callback_data="ai_exit")]
+                ]),
+                parse_mode=ParseMode.HTML
+            )
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення AI-чату: {e}")
+            await handle_error(bot, chat_id=chat_id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+        return
     elif user_choice == MenuButton.BACK.value:
         # Повернення до головного меню
         user_first_name = message.from_user.first_name or "Користувач"
@@ -1059,7 +1111,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, d
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1144,7 +1196,7 @@ async def handle_meta_menu_buttons(message: Message, state: FSMContext, bot: Bot
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1693,6 +1745,20 @@ async def unknown_command(message: Message, state: FSMContext, bot: Bot):
             logger.error(f"Не вдалося надіслати підказку: {e}")
         await transition_state(state, current_state)
         return
+    elif current_state == MenuStates.AI_CHAT.state:
+        # Якщо користувач перебуває в AI-чату і надсилає невідому команду
+        try:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="🤖 Будь ласка, поставте своє питання або натисніть кнопку '🔙 Вихід до меню', щоб завершити чат.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="🔙 Вихід до меню", callback_data="ai_exit")]
+                ]),
+                parse_mode=ParseMode.HTML
+            )
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати підказку у AI-чату: {e}")
+        return
     else:
         user_first_name = message.from_user.first_name or "Користувач"
         new_main_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
@@ -1998,6 +2064,46 @@ async def handle_inline_buttons(callback: CallbackQuery, state: FSMContext, bot:
             old_bot_message_id = state_data.get('bot_message_id')
             if old_bot_message_id:
                 await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
+        elif data == "ai_exit":
+            # Завершення AI-чату та повернення до головного меню
+            await transition_state(state, MenuStates.MAIN_MENU)
+            new_interactive_text = MAIN_MENU_DESCRIPTION
+            new_interactive_keyboard = get_generic_inline_keyboard()
+
+            # Редагуємо інтерактивне повідомлення
+            try:
+                await check_and_edit_message(
+                    bot=bot,
+                    chat_id=callback.message.chat.id,
+                    message_id=interactive_message_id,
+                    new_text=new_interactive_text,
+                    new_keyboard=new_interactive_keyboard,
+                    state=state,
+                    parse_mode=ParseMode.HTML
+                )
+            except Exception as e:
+                logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+                await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+
+            # Відправляємо головне меню
+            user_first_name = callback.from_user.first_name or "Користувач"
+            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+            try:
+                main_message = await bot.send_message(
+                    chat_id=callback.message.chat.id,
+                    text=main_menu_text_formatted,
+                    reply_markup=get_main_menu()
+                )
+                # Оновлюємо bot_message_id
+                await state.update_data(bot_message_id=main_message.message_id)
+            except Exception as e:
+                logger.error(f"Не вдалося надіслати головне меню: {e}")
+                await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+
+            # Видаляємо попереднє повідомлення з клавіатурою
+            old_bot_message_id = state_data.get('bot_message_id')
+            if old_bot_message_id:
+                await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
         else:
             # Додайте обробку інших інлайн-кнопок за потребою
             await bot.answer_callback_query(callback.id, text=UNHANDLED_INLINE_BUTTON_TEXT)
@@ -2073,6 +2179,95 @@ async def handle_search_topic(message: Message, state: FSMContext, bot: Bot):
 
     # Повертаємо користувача до меню Зворотний Зв'язок
     await transition_state(state, MenuStates.FEEDBACK_MENU)
+
+# Обробчик для AI-чату
+@router.message(F.state == MenuStates.AI_CHAT)
+async def handle_ai_chat(message: Message, state: FSMContext, bot: Bot):
+    """
+    Обробчик для AI-чату. Обробляє запити користувача та відповідає за допомогою GPT.
+    """
+    user_input = message.text.strip()
+    user_id = message.from_user.id
+    logger.info(f"Користувач {user_id} запитує у AI: {user_input}")
+
+    await safe_delete_message(bot, message.chat.id, message.message_id)
+
+    if user_input.lower() in ["/exit", "🔙 Вихід до меню"]:
+        # Завершення AI-чату та повернення до головного меню
+        try:
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text="🤖 Чат з AI завершено. Ви повернулися до головного меню.",
+                reply_markup=get_generic_inline_keyboard()
+            )
+            await transition_state(state, MenuStates.MAIN_MENU)
+        except Exception as e:
+            logger.error(f"Не вдалося надіслати повідомлення про завершення AI-чату: {e}")
+            await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+        return
+
+    # Отримання відповіді від GPT
+    ai_response = await get_gpt_response(user_input)
+
+    try:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=ai_response,
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="🔙 Вихід до меню", callback_data="ai_exit")]
+            ]),
+            parse_mode=ParseMode.HTML
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати відповідь від AI: {e}")
+        await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+
+# Обробчик для завершення AI-чату через інлайн-кнопку
+@router.callback_query(F.data == "ai_exit")
+async def handle_ai_exit(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    """
+    Обробчик для завершення AI-чату через інлайн-кнопку.
+    """
+    await transition_state(state, MenuStates.MAIN_MENU)
+    new_interactive_text = MAIN_MENU_DESCRIPTION
+    new_interactive_keyboard = get_generic_inline_keyboard()
+
+    # Редагуємо інтерактивне повідомлення
+    try:
+        await check_and_edit_message(
+            bot=bot,
+            chat_id=callback.message.chat.id,
+            message_id=state_data.get('interactive_message_id'),
+            new_text=new_interactive_text,
+            new_keyboard=new_interactive_keyboard,
+            state=state,
+            parse_mode=ParseMode.HTML
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
+        await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+
+    # Відправляємо головне меню
+    user_first_name = callback.from_user.first_name or "Користувач"
+    main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
+    try:
+        main_message = await bot.send_message(
+            chat_id=callback.message.chat.id,
+            text=main_menu_text_formatted,
+            reply_markup=get_main_menu()
+        )
+        # Оновлюємо bot_message_id
+        await state.update_data(bot_message_id=main_message.message_id)
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати головне меню: {e}")
+        await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger, exception=e)
+
+    # Видаляємо попереднє повідомлення з клавіатурою
+    old_bot_message_id = state_data.get('bot_message_id')
+    if old_bot_message_id:
+        await safe_delete_message(bot, callback.message.chat.id, old_bot_message_id)
+
+    await callback.answer()
 
 # Функція для налаштування обробників
 def setup_handlers(dp: Dispatcher):
