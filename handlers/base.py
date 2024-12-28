@@ -985,9 +985,9 @@ async def handle_report_bug(message: Message, state: FSMContext, db: AsyncSessio
     await transition_state(state, MenuStates.FEEDBACK_MENU)
 
 # Обробчик меню "Tournaments Menu"
-@router.message(MenuStates.TOURNAMENTS_MENU)
-async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, bot: Bot):
-    """
+@router.message(F.state == MenuStates.MAIN_MENU)
+async def main_menu_handler(message: Message, state: FSMContext):
+    ...
     Обробчик кнопок у меню Турніри.
     """
     user_choice = message.text
