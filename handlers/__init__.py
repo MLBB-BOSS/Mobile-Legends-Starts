@@ -1,16 +1,21 @@
+# handlers/__init__.py
 
 from aiogram import Dispatcher
-from .base import router as base_router
-from .missing_handlers import router as missing_handlers_router
-from .base import router as base_router
-from .hero_handlers import router as hero_router
+from .start_intro import router as start_intro_router
+from .main_menu import router as main_menu_router
 
-__all__ = ['base_router', 'hero_router']
+# Якщо не готові модулі navigation та profile, не підключайте їх поки
+# from .navigation.menu import router as navigation_router
+# from .profile.menu import router as profile_router
 
 def setup_handlers(dp: Dispatcher):
-    # Список роутерів для підключення
-    routers = [base_router, missing_handlers_router]
+    """
+    Підключаємо тільки ті хендлери, які точно працюють:
+    /start, сторінки інтро та головне меню.
+    """
+    dp.include_router(start_intro_router)
+    dp.include_router(main_menu_router)
 
-    # Підключення всіх роутерів до диспетчера
-    for router in routers:
-        dp.include_router(router)
+    # Коли доробите інші файли:
+    # dp.include_router(navigation_router)
+    # dp.include_router(profile_router)
