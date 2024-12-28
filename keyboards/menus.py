@@ -129,13 +129,11 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
-
 @unique
 class LanguageButton(Enum):
     UKRAINIAN = "🇺🇦 Українська"
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
-
 
 # Мапінг кнопок до класів персонажів
 menu_button_to_class: Dict[str, str] = {
@@ -585,3 +583,23 @@ def get_hero_class_reply_menu(hero_class: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         input_field_placeholder=f"Оберіть героя з класу {hero_class}"
     )
+
+
+def get_hero_class_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює клавіатуру для вибору класу героя.
+    """
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = [
+        KeyboardButton(text="Танк"),
+        KeyboardButton(text="Маг"),
+        KeyboardButton(text="Стрілець"),
+        KeyboardButton(text="Асасін"),
+        KeyboardButton(text="Підтримка"),
+        KeyboardButton(text="Боєць"),
+        KeyboardButton(text="Назад")
+    ]
+    keyboard.add(*buttons)
+    return keyboard
+
+# Інші функції, такі як get_main_menu, get_heroes_menu тощо
