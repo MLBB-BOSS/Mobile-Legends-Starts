@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command, Text
+from aiogram.filters import Command  # Видалено імпорт Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -22,7 +22,6 @@ from sqlalchemy.future import select
 
 from states import MenuStates
 from utils.db import get_user_profile
-from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.text_formatter import format_profile_text
 import models.user
 import models.user_stats
@@ -757,7 +756,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
         await transition_state(state, MenuStates.MAIN_MENU)
 
 # Обробчик кнопки "🪪 Мій Профіль"
-@router.message(Text(equals="🪪 Мій Профіль"))
+@router.message(F.text == "🪪 Мій Профіль")
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробчик натискання кнопки "🪪 Мій Профіль".
@@ -1279,6 +1278,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_state = MenuStates.GPT_MENU
 
     # Відправка нового повідомлення з клавіатурою
     try:
