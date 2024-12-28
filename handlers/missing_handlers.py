@@ -26,6 +26,13 @@ from keyboards.menus import (
     get_achievements_menu,
     get_feedback_menu,
     get_gpt_menu
+    FEEDBACK_TEXT,
+    FEEDBACK_SUCCESS_TEXT,
+    FEEDBACK_ERROR_TEXT,
+    FEEDBACK_HELP_TEXT,
+    FEEDBACK_REPORT_BUG_TEXT,
+    FEEDBACK_SUGGESTION_TEXT,
+    FEEDBACK_CONTACT_SUPPORT_TEXT
 )
 from texts import (
     MAIN_MENU_ERROR_TEXT, UNKNOWN_COMMAND_TEXT, GENERIC_ERROR_MESSAGE_TEXT,
