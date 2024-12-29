@@ -8,6 +8,7 @@ from states.menu_states import IntroState, MainMenuState
 from keyboards.intro_kb import get_intro_kb_1, get_intro_kb_2, get_intro_kb_3
 from constants.intro_texts import INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
 from utils.interface_manager import safe_delete_message
+from models.user import User  # Add this import
 
 class IntroHandler:
     def __init__(self):
@@ -21,17 +22,19 @@ class IntroHandler:
         self.router.callback_query.register(self.next_page_2, F.data == "intro_next_2")
         self.router.callback_query.register(self.finish_intro, F.data == "intro_finish")
 
-    async def cmd_start(self, message: Message, state: FSMContext, session: AsyncSession):
+    async def cmd_start(self, message: Message, state: FSMContext, db: AsyncSession):
         """Обробка команди /start"""
         # Перевірка, чи користувач новий
         user_id = message.from_user.id
-        user = await session.get(User, user_id)
+        user = await db.get(User, user_id)
         if user:
             # Користувач вже існує, переходимо до головного меню
             await self.goto_main_menu(message, state)
         else:
             # Новий користувач, починаємо інтро
             await self.start_intro(message, state)
+
+    # Rest of the code remains the same...
 
     async def start_intro(self, message: Message, state: FSMContext):
         """Початок інтро"""
