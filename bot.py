@@ -12,6 +12,19 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from config import settings
 from handlers.base import setup_handlers
+from handlers.navigation import router as navigation_router
+from handlers.profile import router as profile_router
+from handlers.heroes import router as heroes_router
+from handlers.tournaments import router as tournaments_router
+from handlers.guides import router as guides_router
+from handlers.builds import router as builds_router
+from handlers.teams import router as teams_router
+from handlers.challenges import router as challenges_router
+from handlers.bust import router as bust_router
+from handlers.trading import router as trading_router
+from handlers.start_intro import router as start_router
+from handlers.main_menu import router as main_menu_router
+
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
@@ -56,10 +69,39 @@ class MLBBBot:
         try:
             self.dp = Dispatcher(storage=MemoryStorage())
             self._setup_middlewares()
-            setup_handlers(self.dp)
+            self._register_routers()
             logger.info("Dispatcher initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize dispatcher: {e}")
+            raise
+
+    def _register_routers(self) -> None:
+        """Реєстрація всіх роутерів"""
+        try:
+            # Реєстрація роутерів в правильному порядку
+            routers = [
+                start_router,          # Роутер для команди /start та інтро
+                main_menu_router,      # Роутер головного меню
+                navigation_router,     # Роутер навігації
+                profile_router,        # Роутер профілю
+                heroes_router,         # Роутер героїв
+                tournaments_router,    # Роутер турнірів
+                guides_router,         # Роутер гайдів
+                builds_router,         # Роутер білдів
+                teams_router,          # Роутер команд
+                challenges_router,     # Роутер челенджів
+                bust_router,          # Роутер бусту
+                trading_router,        # Роутер торгівлі
+            ]
+
+            for router in routers:
+                self.dp.include_router(router)
+                logger.info(f"Registered router: {router.__class__.__name__}")
+
+            setup_handlers(self.dp)  # Додаткові хендлери, якщо такі є
+            logger.info("All routers registered successfully")
+        except Exception as e:
+            logger.error(f"Failed to register routers: {e}")
             raise
 
     def _setup_middlewares(self) -> None:
