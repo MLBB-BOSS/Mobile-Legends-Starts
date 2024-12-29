@@ -2,6 +2,12 @@
 from aiogram.fsm.state import State, StatesGroup
 
 class MenuStates(StatesGroup):
+    # Стани для інтро-сторінок
+    INTRO_PAGE_1 = State()
+    INTRO_PAGE_2 = State()
+    INTRO_PAGE_3 = State()
+    
+    # Основні стани меню
     MAIN_MENU = State()
     NAVIGATION_MENU = State()
     HEROES_MENU = State()
@@ -23,7 +29,22 @@ class MenuStates(StatesGroup):
     BUILDS_MENU = State()
     VOTING_MENU = State()
     COUNTER_PICKS_MENU = State()
-    INTRO_PAGE_1 = State()            # 96. Перша сторінка вступу
-    INTRO_PAGE_2 = State()            # 97. Друга сторінка вступу
-    INTRO_PAGE_3 = State()            # 98. Третя сторінка вступу
-    INTRO_COMPLETE = State()          # 99. 
+
+    # Стани для підменю героїв
+    HERO_CLASS_SELECTION = State()
+    HERO_LIST = State()
+    HERO_DETAILS = State()
+    
+    # Стани для налаштувань
+    LANGUAGE_SELECTION = State()
+    NOTIFICATION_SETTINGS = State()
+    
+    # Стани для турнірів
+    TOURNAMENT_CREATION = State()
+    TOURNAMENT_LIST = State()
+    TOURNAMENT_DETAILS = State()
+    
+    # Стани для команд
+    TEAM_CREATION = State()
+    TEAM_LIST = State()
+    TEAM_DETAILS = State()
