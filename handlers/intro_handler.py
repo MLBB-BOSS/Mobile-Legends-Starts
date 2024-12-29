@@ -84,3 +84,27 @@ class IntroHandler:
         await state.clear()
         main_menu_handler = MainMenuHandler()
         await main_menu_handler.cmd_start(message, state)
+
+    async def next_page_1(self, callback_query: CallbackQuery, state: FSMContext):
+    """Перехід до другої сторінки інтро"""
+    try:
+        await callback_query.answer()
+        data = await state.get_data()
+        intro_message_id = data.get('intro_message_id')
+        
+        if not intro_message_id:
+            logger.error("No intro_message_id in state data")
+            return
+            
+        await callback_query.bot.edit_message_text(
+            chat_id=callback_query.message.chat.id,
+            message_id=intro_message_id,
+            text=INTRO_PAGE_2_TEXT,
+            reply_markup=get_intro_kb_2()
+        )
+        await state.set_state(IntroState.page_2)
+        logger.info(f"User {callback_query.from_user.id} moved to intro page 2")
+        
+    except Exception as e:
+        logger.error(f"Error in next_page_1: {e}")
+        await callback_query.answer("Виникла помилка. Спробуйте /start")
