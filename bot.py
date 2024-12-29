@@ -13,17 +13,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from config import settings
 from handlers.base import setup_handlers
 from handlers.navigation import router as navigation_router
-from handlers.profile import router as profile_router
-from handlers.heroes import router as heroes_router
-from handlers.tournaments import router as tournaments_router
-from handlers.guides import router as guides_router
-from handlers.builds import router as builds_router
-from handlers.teams import router as teams_router
-from handlers.challenges import router as challenges_router
-from handlers.bust import router as bust_router
-from handlers.trading import router as trading_router
 from handlers.start_intro import router as start_router
 from handlers.main_menu import router as main_menu_router
+
+# Видаляємо імпорти неіснуючих роутерів
+# from handlers.heroes import router as heroes_router
+# from handlers.tournaments import router as tournaments_router
+# і т.д.
 
 from utils.db import engine, async_session, init_db
 from models.base import Base
@@ -78,20 +74,11 @@ class MLBBBot:
     def _register_routers(self) -> None:
         """Реєстрація всіх роутерів"""
         try:
-            # Реєстрація роутерів в правильному порядку
+            # Реєструємо тільки існуючі роутери
             routers = [
                 start_router,          # Роутер для команди /start та інтро
                 main_menu_router,      # Роутер головного меню
                 navigation_router,     # Роутер навігації
-                profile_router,        # Роутер профілю
-                heroes_router,         # Роутер героїв
-                tournaments_router,    # Роутер турнірів
-                guides_router,         # Роутер гайдів
-                builds_router,         # Роутер білдів
-                teams_router,          # Роутер команд
-                challenges_router,     # Роутер челенджів
-                bust_router,          # Роутер бусту
-                trading_router,        # Роутер торгівлі
             ]
 
             for router in routers:
