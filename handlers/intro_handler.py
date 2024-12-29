@@ -108,3 +108,22 @@ class IntroHandler:
     except Exception as e:
         logger.error(f"Error in next_page_1: {e}")
         await callback_query.answer("Виникла помилка. Спробуйте /start")
+
+    async def cmd_start(self, message: Message, state: FSMContext, session: AsyncSession):
+    """Обробка команди /start"""
+    logger.info(f"Start command received from user {message.from_user.id}")
+    try:
+        # Перевірка, чи користувач новий
+        user_id = message.from_user.id
+        user = await session.get(User, user_id)
+        
+        if user:
+            logger.info(f"Existing user {user_id} - redirecting to main menu")
+            await self.goto_main_menu(message, state)
+        else:
+            logger.info(f"New user {user_id} - starting intro")
+            await self.start_intro(message, state)
+            
+    except Exception as e:
+        logger.error(f"Error in cmd_start: {e}")
+        raise
