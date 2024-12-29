@@ -1,7 +1,9 @@
 #handlers/base_handler.py
 from aiogram import Router, Bot
-from aiogram.types import Message
+from typing import Optional
+from aiogram.types import Message, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State  # Додали цей імпорт
 from utils.interface_manager import UIState, update_interface, safe_delete_message
 import logging
 
