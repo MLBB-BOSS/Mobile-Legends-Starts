@@ -7,7 +7,8 @@ import logging
 from interface_messages import InterfaceMessages
 from navigation_state_manager import NavigationStateManager
 from navigation_config import NavigationConfig
-from states.menu_states import MenuStates  # Додаємо імпорт MenuStates
+from states.menu_states import MenuStates  # Додайте цей імпорт
+from keyboards.menus import get_navigation_menu  # Додайте цей імпорт, якщо він ще не доданий
 
 router = Router()
 logger = logging.getLogger(__name__)
