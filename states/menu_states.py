@@ -23,3 +23,7 @@ class MenuStates(StatesGroup):
     BUILDS_MENU = State()
     VOTING_MENU = State()
     COUNTER_PICKS_MENU = State()
+    INTRO_PAGE_1 = State()            # 96. Перша сторінка вступу
+    INTRO_PAGE_2 = State()            # 97. Друга сторінка вступу
+    INTRO_PAGE_3 = State()            # 98. Третя сторінка вступу
+    INTRO_COMPLETE = State()          # 99. 
