@@ -1,6 +1,12 @@
 # states/menu_states.py
 from aiogram.fsm.state import State, StatesGroup
 
+class IntroState(StatesGroup):
+    """Стани інтро-повідомлень"""
+    page_1 = State()
+    page_2 = State()
+    page_3 = State()
+
 class BaseState(StatesGroup):
     """Базовий клас для всіх станів"""
     main = State()
