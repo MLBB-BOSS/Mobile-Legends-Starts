@@ -1,4 +1,5 @@
 # navigation_state_manager.py
+from states import MenuStates
 from aiogram.fsm.context import FSMContext
 from interface_messages import InterfaceMessages
 
