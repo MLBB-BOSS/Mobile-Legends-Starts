@@ -7,11 +7,56 @@ import logging
 from interface_messages import InterfaceMessages
 from navigation_state_manager import NavigationStateManager
 from navigation_config import NavigationConfig
-from states.menu_states import MenuStates  # Додайте цей імпорт
-from keyboards.menus import get_navigation_menu  # Додайте цей імпорт, якщо він ще не доданий
+from states.menu_states import MenuStates
+from keyboards.menus import get_navigation_menu
+from utils.message_utils import safe_delete_message, check_and_edit_message
 
 router = Router()
 logger = logging.getLogger(__name__)
+
+async def update_interface_messages(bot: Bot, chat_id: int, old_message_id: int, 
+                                 interactive_message_id: int, state: FSMContext) -> tuple[int, int]:
+    """Оновлює інтерфейсні повідомлення."""
+    try:
+        # Спробуємо відредагувати існуюче повідомлення
+        if old_message_id:
+            success = await check_and_edit_message(
+                bot=bot,
+                chat_id=chat_id,
+                message_id=old_message_id,
+                text=NavigationConfig.Messages.NAVIGATION_MENU,
+                keyboard=get_navigation_menu()
+            )
+            if success:
+                return old_message_id, interactive_message_id
+
+        # Якщо редагування не вдалося, видаляємо старі повідомлення і створюємо нові
+        await safe_delete_message(bot, chat_id, old_message_id)
+        await safe_delete_message(bot, chat_id, interactive_message_id)
+
+        # Створюємо нове повідомлення
+        new_message = await bot.send_message(
+            chat_id=chat_id,
+            text=NavigationConfig.Messages.NAVIGATION_MENU,
+            reply_markup=get_navigation_menu()
+        )
+
+        return new_message.message_id, new_message.message_id
+    except Exception as e:
+        logger.error(f"Помилка при оновленні інтерфейсу: {e}")
+        return None, None
+
+async def handle_navigation_error(bot: Bot, chat_id: int, state: FSMContext):
+    """Обробляє помилки навігації."""
+    try:
+        await bot.send_message(
+            chat_id=chat_id,
+            text="Виникла помилка при навігації. Спробуйте ще раз або зверніться до адміністратора.",
+            reply_markup=get_navigation_menu()
+        )
+        await state.set_state(MenuStates.MAIN_MENU)
+    except Exception as e:
+        logger.error(f"Помилка при обробці помилки навігації: {e}")
 
 @router.message(MenuStates.MAIN_MENU, F.text == "🧭 Навігація")
 async def handle_navigation_transition(message: Message, state: FSMContext, bot: Bot):
@@ -24,8 +69,7 @@ async def handle_navigation_transition(message: Message, state: FSMContext, bot:
 
     try:
         # Видалення повідомлення користувача
-        if not await safe_delete_message(bot, message.chat.id, message.message_id):
-            logger.warning(f"Не вдалося видалити повідомлення користувача {message.message_id}")
+        await safe_delete_message(bot, message.chat.id, message.message_id)
 
         # Оновлення інтерфейсу
         new_message_id, new_interactive_id = await update_interface_messages(
@@ -56,3 +100,33 @@ async def handle_navigation_transition(message: Message, state: FSMContext, bot:
     except Exception as e:
         logger.error(f"Помилка при переході до навігаційного меню: {e}")
         await handle_navigation_error(bot, message.chat.id, state)
+
+@router.message(MenuStates.NAVIGATION_MENU)
+async def handle_navigation_menu(message: Message, state: FSMContext):
+    """Обробляє вибір опцій в навігаційному меню."""
+    try:
+        text = message.text
+        logger.info(f"Користувач {message.from_user.id} вибрав опцію: {text}")
+
+        # Маппінг опцій меню до станів
+        menu_options = {
+            "🥷 Персонажі": MenuStates.HEROES_MENU,
+            "🏆 Турніри": MenuStates.TOURNAMENTS_MENU,
+            "📚 Гайди": MenuStates.GUIDES_MENU,
+            "🛡️ Білди": MenuStates.BUILDS_MENU,
+            "🧑‍🤝‍🧑 Команди": MenuStates.TEAMS_MENU,
+            "🧩 Челендж": MenuStates.CHALLENGES_MENU,
+            "🚀 Буст": MenuStates.BUST_MENU,
+            "💰 Торгівля": MenuStates.TRADING_MENU,
+            "🔙 Назад": MenuStates.MAIN_MENU
+        }
+
+        if text in menu_options:
+            await state.set_state(menu_options[text])
+            await message.answer(f"Ви перейшли до розділу {text}")
+        else:
+            await message.answer("Невідома опція. Будь ласка, виберіть опцію з меню.")
+
+    except Exception as e:
+        logger.error(f"Помилка при обробці вибору в навігаційному меню: {e}")
+        await handle_navigation_error(message.bot, message.chat.id, state)
