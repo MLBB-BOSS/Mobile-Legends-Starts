@@ -11,16 +11,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from sqlalchemy.exc import SQLAlchemyError
 
 from config import settings
-from handlers.base import setup_handlers
-from handlers.navigation import router as navigation_router
-from handlers.start_intro import router as start_router
-from handlers.main_menu import router as main_menu_router
-
-# Видаляємо імпорти неіснуючих роутерів
-# from handlers.heroes import router as heroes_router
-# from handlers.tournaments import router as tournaments_router
-# і т.д.
-
+from handlers import setup_handlers  # Імпортуємо тільки setup_handlers
 from utils.db import engine, async_session, init_db
 from models.base import Base
 import models.user
@@ -65,30 +56,13 @@ class MLBBBot:
         try:
             self.dp = Dispatcher(storage=MemoryStorage())
             self._setup_middlewares()
-            self._register_routers()
+            
+            # Використовуємо єдину функцію для реєстрації всіх хендлерів
+            setup_handlers(self.dp)
+            
             logger.info("Dispatcher initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize dispatcher: {e}")
-            raise
-
-    def _register_routers(self) -> None:
-        """Реєстрація всіх роутерів"""
-        try:
-            # Реєструємо тільки існуючі роутери
-            routers = [
-                start_router,          # Роутер для команди /start та інтро
-                main_menu_router,      # Роутер головного меню
-                navigation_router,     # Роутер навігації
-            ]
-
-            for router in routers:
-                self.dp.include_router(router)
-                logger.info(f"Registered router: {router.__class__.__name__}")
-
-            setup_handlers(self.dp)  # Додаткові хендлери, якщо такі є
-            logger.info("All routers registered successfully")
-        except Exception as e:
-            logger.error(f"Failed to register routers: {e}")
             raise
 
     def _setup_middlewares(self) -> None:
