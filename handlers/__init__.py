@@ -8,3 +8,5 @@ def setup_handlers(dp: Dispatcher) -> None:
     
     # Реєструємо роутер головного меню
     dp.include_router(main_menu.router)
+
+__all__ = ['setup_handlers']
