@@ -1,60 +1,91 @@
 # services/user_service.py
-from typing import Optional, Dict, Any
-from motor.motor_asyncio import AsyncIOMotorDatabase
-from models.user import User
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from models import User
+from exceptions import UserNotFoundError
 
 class UserService:
-    """Async user data service"""
+    """Service for user-related operations"""
     
-    def __init__(self, db: AsyncIOMotorDatabase):
+    def __init__(self, db: AsyncSession):
         self._db = db
-        self._collection = db.users
         self.logger = getLogger(__name__)
 
-    async def get_user(self, user_id: int) -> Optional[User]:
-        """Get user by ID"""
+    async def get_profile_text(self, user_id: int) -> str:
+        """
+        Get formatted profile text
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            str: Formatted profile text
+            
+        Raises:
+            UserNotFoundError: If user not found
+        """
         try:
-            data = await self._collection.find_one({"_id": user_id})
-            return User(**data) if data else None
-        except Exception as e:
-            self.logger.error(f"Error getting user {user_id}: {e}")
-            raise
-
-    async def update_user(self, user_id: int, update: Dict[str, Any]) -> None:
-        """Update user data"""
-        try:
-            await self._collection.update_one(
-                {"_id": user_id},
-                {"$set": update},
-                upsert=True
+            query = select(User).where(User.id == user_id)
+            result = await self._db.execute(query)
+            user = result.scalar_one_or_none()
+            
+            if not user:
+                raise UserNotFoundError(f"User {user_id} not found")
+            
+            return (
+                f"👤 <b>Профіль користувача</b>\n\n"
+                f"🆔 ID: <code>{user.id}</code>\n"
+                f"📝 Нік: <code>{user.username}</code>\n"
+                f"📈 Рейтинг: <code>{user.rating}</code>\n"
+                f"🏆 Перемог: <code>{user.wins}</code>\n"
+                f"💪 Вінрейт: <code>{user.winrate:.1f}%</code>"
             )
+            
         except Exception as e:
-            self.logger.error(f"Error updating user {user_id}: {e}")
+            self.logger.error(f"Error getting profile text: {e}")
             raise
 
-# services/stats_service.py
-class StatsService:
-    """Async statistics service"""
+# services/chart_service.py
+class ChartService:
+    """Service for chart generation"""
     
-    def __init__(self, db: AsyncIOMotorDatabase, http: aiohttp.ClientSession):
+    def __init__(self, db: AsyncSession):
         self._db = db
-        self._http = http
-        self._collection = db.stats
         self.logger = getLogger(__name__)
 
-    async def get_user_stats(self, user_id: int) -> Dict[str, Any]:
-        """Get user statistics"""
+    async def generate_rating_chart(self, user_id: int) -> BytesIO:
+        """
+        Generate rating chart
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            BytesIO: Chart image bytes
+            
+        Raises:
+            ChartGenerationError: If generation fails
+        """
         try:
-            # Get local stats
-            local_stats = await self._collection.find_one({"user_id": user_id})
+            # Get rating history
+            query = select(UserRating).where(
+                UserRating.user_id == user_id
+            ).order_by(UserRating.timestamp)
             
-            # Get remote stats
-            async with self._http.get(f"/api/stats/{user_id}") as response:
-                remote_stats = await response.json()
+            result = await self._db.execute(query)
+            ratings = [r.rating for r in result.scalars()]
             
-            # Combine stats
-            return {**local_stats, **remote_stats} if local_stats else remote_stats
+            # Generate chart
+            buffer = BytesIO()
+            plt.figure(figsize=(10, 6))
+            plt.plot(ratings, marker='o')
+            plt.title("Історія рейтингу")
+            plt.grid(True)
+            
+            plt.savefig(buffer, format='png')
+            plt.close()
+            
+            return buffer
             
         except Exception as e:
-            self.logger.error(f"Error getting stats for user {user_id}: {e}")
-            raise
+            raise ChartGenerationError(f"Failed to generate chart: {e}")
