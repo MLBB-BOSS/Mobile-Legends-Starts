@@ -25,11 +25,12 @@ class IntroHandler:
         self.logger = getLogger(__name__)
         self._setup_router()
 
-    async def start_intro(
-        self,
-        message: types.Message,
-        state: FSMContext
-    ) -> None:
+  async def handle_start(message: types.Message):
+    await message.answer(
+        "Вітаємо! Оберіть опцію:",
+        reply_markup=keyboards.main_menu()
+    )
+      
         try:
             self.logger.info(f"Starting intro for user {message.from_user.id}")
             
@@ -50,6 +51,12 @@ class IntroHandler:
         except Exception as e:
             self.logger.error(f"Error in start_intro: {e}")
             await message.answer(Messages.Intro.ERROR)
+
+    async def handle_navigation(message: types.Message):
+    await message.answer(
+        "Навігаційне меню:",
+        reply_markup=keyboards.navigation_menu()
+    )
 
     async def handle_intro_navigation(
         self,
