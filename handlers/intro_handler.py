@@ -1,4 +1,9 @@
 # handlers/intro_handler.py
+# handlers/intro_handler.py
+
+from aiogram import types
+from texts import WELCOME_NEW_USER_TEXT, INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
+from keyboards.menus import get_main_menu
 from typing import Optional
 from aiogram import Router, types, F
 from aiogram.filters import Command
@@ -9,6 +14,9 @@ from utils.message_utils import MessageManager
 from states.menu_states import IntroState, MainMenuState
 from keyboards.menus import Keyboards
 from texts import Messages
+
+async def handle_intro(message: types.Message):
+    await message.reply(WELCOME_NEW_USER_TEXT, reply_markup=get_main_menu())
 
 class IntroHandler:
     def __init__(self, message_manager: Optional[MessageManager] = None):
