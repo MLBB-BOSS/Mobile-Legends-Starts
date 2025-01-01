@@ -1,9 +1,48 @@
 # keyboards/menus.py
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from enum import Enum, unique
-from typing import List, Dict, Union
-import logging
+from texts.enums import MenuButton, LanguageButton
+from texts.data import heroes_by_class
+from utils.logger_setup import setup_logger
+
+logger = setup_logger(__name__)
+
+class MenuBuilder:
+    def __init__(self, row_width: int = 2):
+        self.row_width = row_width
+
+    def create_menu(
+        self,
+        buttons: List[Union[MenuButton, LanguageButton]],
+        placeholder: str = ""
+    ) -> ReplyKeyboardMarkup:
+        if not all(isinstance(button, (MenuButton, LanguageButton)) for button in buttons):
+            logger.error("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
+            raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
+
+        button_texts = [button.value for button in buttons]
+        logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
+
+        keyboard_buttons = [KeyboardButton(text=btn.value) for btn in buttons]
+
+        keyboard_rows = [
+            keyboard_buttons[i:i + self.row_width]
+            for i in range(0, len(keyboard_buttons), self.row_width)
+        ]
+
+        return ReplyKeyboardMarkup(
+            keyboard=keyboard_rows,
+            resize_keyboard=True,
+            input_field_placeholder=placeholder
+        )
+
+    # Додайте методи для різних меню
+    def get_main_menu(self) -> ReplyKeyboardMarkup:
+        return self.create_menu(
+            buttons=[MenuButton.NAVIGATION, MenuButton.PROFILE],
+            placeholder="Оберіть одну з основних опцій",
+            row_width=2
+        )
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
