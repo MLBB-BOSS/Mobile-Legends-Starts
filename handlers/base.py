@@ -1,18 +1,49 @@
 # handlers/base.py
-
 import logging
-from . import setup_handlers
+from aiogram import Router
+from aiogram.fsm.context import FSMContext
+from aiogram.filters import Command, StateFilter
+from typing import Dict, Type
 
 logger = logging.getLogger(__name__)
 
+class BaseHandler:
+    def __init__(self):
+        self.router = Router()
+        self._setup_router()
+
+    async def _setup_router(self):
+        """Метод для налаштування роутера. Перевизначається в дочірніх класах"""
+        pass
+
+    @classmethod
+    async def get_state_data(cls, state: FSMContext) -> Dict:
+        """Отримати дані стану"""
+        return await state.get_data()
+
+    @classmethod
+    async def update_state_data(cls, state: FSMContext, **kwargs):
+        """Оновити дані стану"""
+        await state.update_data(**kwargs)
+
+    @classmethod
+    async def clear_state(cls, state: FSMContext):
+        """Очистити стан"""
+        await state.clear()
+
 def setup_handlers(dp):
-    """
-    Підключаємо мінімальні хендлери для старту + головне меню
-    """
-    from .start_intro import router as start_intro_router
-    from .main_menu import router as main_menu_router
+    """Підключаємо всі хендлери"""
+    from .start_intro import StartIntroHandler
+    from .main_menu import MainMenuHandler
+    # Додайте інші хендлери тут
 
-    dp.include_router(start_intro_router)
-    dp.include_router(main_menu_router)
+    handlers = [
+        StartIntroHandler(),
+        MainMenuHandler(),
+        # Додайте інші хендлери тут
+    ]
 
-    logger.info("Handlers for start + main menu successfully set up.")
+    for handler in handlers:
+        dp.include_router(handler.router)
+
+    logger.info("All handlers successfully set up.")
