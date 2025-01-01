@@ -12,3 +12,18 @@ class MainMenuState(StatesGroup):
     stats = State()
     team = State()
     tournament = State()
+
+# Define NavigationState if it’s actually part of your design
+class NavigationState(StatesGroup):
+    example = State()
+
+# Define ProfileState if it's needed
+class ProfileState(StatesGroup):
+    info = State()
+
+__all__ = [
+    'IntroState',
+    'MainMenuState',
+    'NavigationState',
+    'ProfileState'
+]
