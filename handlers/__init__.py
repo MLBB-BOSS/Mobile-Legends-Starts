@@ -5,6 +5,9 @@ from logging import getLogger
 from utils.message_utils import MessageManager
 from .intro_handler import IntroHandler
 from .menu_handler import MenuHandler
+# handlers/intro_handler.py
+
+from texts import WELCOME_NEW_USER_TEXT, INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
 
 logger = getLogger(__name__)
 
