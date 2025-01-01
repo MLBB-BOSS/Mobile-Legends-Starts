@@ -1,13 +1,5 @@
-from .menu_states import (
-    MainMenuState,
-    NavigationState,
-    ProfileState,
-    IntroState
-)
+# texts/__init__.py
 
-__all__ = [
-    'MainMenuState',
-    'NavigationState',
-    'ProfileState',
-    'IntroState'
-]
+from .messages import Messages
+
+__all__ = ['Messages']
