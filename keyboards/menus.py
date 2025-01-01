@@ -1,7 +1,6 @@
 # keyboards/menus.py
 
 from typing import List, Union
-from utils.logger_setup import setup_logger
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from texts.enums import MenuButton, LanguageButton
 from texts.data import heroes_by_class
@@ -38,13 +37,15 @@ class MenuBuilder:
             input_field_placeholder=placeholder
         )
 
-    # Додайте методи для різних меню
-    def get_main_menu(self) -> ReplyKeyboardMarkup:
-        return self.create_menu(
-            buttons=[MenuButton.NAVIGATION, MenuButton.PROFILE],
-            placeholder="Оберіть одну з основних опцій",
-            row_width=2
-        )
+  def get_main_menu() -> ReplyKeyboardMarkup:
+    """
+    Генерує клавіатуру для головного меню з кнопками "Навігація" та "Профіль".
+    """
+    menu_builder = MenuBuilder()
+    return menu_builder.create_menu(
+        buttons=[MenuButton.NAVIGATION, MenuButton.PROFILE],
+        placeholder="Оберіть одну з основних опцій"
+    )
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
