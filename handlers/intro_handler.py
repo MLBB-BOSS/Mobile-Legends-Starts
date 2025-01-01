@@ -5,9 +5,11 @@ from logging import getLogger
 from typing import Optional
 
 from utils.message_utils import MessageManager
-from states.menu_states import IntroState, MainMenuState
+from states.menu_states import IntroState, MainMenuState  # Змінено імпорт
 from keyboards.menus import Keyboards
-from texts import Messages  # Тепер це працюватиме
+from texts import Messages
+
+# ... решта коду залишається без змін
 
 class IntroHandler:
     """Обробник вступної частини бота"""
