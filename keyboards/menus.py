@@ -2,6 +2,7 @@
 
 from typing import List, Union, Dict
 from enum import Enum, unique
+import logging
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.logger_setup import setup_logger
 from texts.data import heroes_by_class
@@ -489,6 +490,121 @@ class MenuBuilder:
             resize_keyboard=True,
             input_field_placeholder=f"Оберіть героя з класу {hero_class}"
         )
+
+    # Налаштування логування
+logger = setup_logger(__name__)
+
+class Keyboards:
+    """Клас для централізованого доступу до всіх клавіатур"""
+    
+    def __init__(self):
+        self.builder = MenuBuilder()
+        logger.info("Keyboards class initialized")
+
+    def main_menu(self) -> ReplyKeyboardMarkup:
+        """Головне меню"""
+        return self.builder.get_main_menu()
+
+    def navigation_menu(self) -> ReplyKeyboardMarkup:
+        """Меню навігації"""
+        return self.builder.get_navigation_menu()
+
+    def heroes_menu(self) -> ReplyKeyboardMarkup:
+        """Меню героїв"""
+        return self.builder.get_heroes_menu()
+
+    def profile_menu(self) -> ReplyKeyboardMarkup:
+        """Меню профілю"""
+        return self.builder.get_profile_menu()
+
+    def language_menu(self) -> ReplyKeyboardMarkup:
+        """Меню вибору мови"""
+        return self.builder.get_language_menu()
+
+    def challenges_menu(self) -> ReplyKeyboardMarkup:
+        """Меню челенджів"""
+        return self.builder.get_challenges_menu()
+
+    def bust_menu(self) -> ReplyKeyboardMarkup:
+        """Меню бустів"""
+        return self.builder.get_bust_menu()
+
+    def my_team_menu(self) -> ReplyKeyboardMarkup:
+        """Меню моєї команди"""
+        return self.builder.get_my_team_menu()
+
+    def guides_menu(self) -> ReplyKeyboardMarkup:
+        """Меню гайдів"""
+        return self.builder.get_guides_menu()
+
+    def counter_picks_menu(self) -> ReplyKeyboardMarkup:
+        """Меню контр-піків"""
+        return self.builder.get_counter_picks_menu()
+
+    def builds_menu(self) -> ReplyKeyboardMarkup:
+        """Меню білдів"""
+        return self.builder.get_builds_menu()
+
+    def voting_menu(self) -> ReplyKeyboardMarkup:
+        """Меню голосування"""
+        return self.builder.get_voting_menu()
+
+    def statistics_menu(self) -> ReplyKeyboardMarkup:
+        """Меню статистики"""
+        return self.builder.get_statistics_menu()
+
+    def achievements_menu(self) -> ReplyKeyboardMarkup:
+        """Меню досягнень"""
+        return self.builder.get_achievements_menu()
+
+    def settings_menu(self) -> ReplyKeyboardMarkup:
+        """Меню налаштувань"""
+        return self.builder.get_settings_menu()
+
+    def feedback_menu(self) -> ReplyKeyboardMarkup:
+        """Меню зворотного зв'язку"""
+        return self.builder.get_feedback_menu()
+
+    def help_menu(self) -> ReplyKeyboardMarkup:
+        """Меню допомоги"""
+        return self.builder.get_help_menu()
+
+    def tournaments_menu(self) -> ReplyKeyboardMarkup:
+        """Меню турнірів"""
+        return self.builder.get_tournaments_menu()
+
+    def meta_menu(self) -> ReplyKeyboardMarkup:
+        """Меню META"""
+        return self.builder.get_meta_menu()
+
+    def m6_menu(self) -> ReplyKeyboardMarkup:
+        """Меню M6"""
+        return self.builder.get_m6_menu()
+
+    def gpt_menu(self) -> ReplyKeyboardMarkup:
+        """Меню GPT"""
+        return self.builder.get_gpt_menu()
+
+    def teams_menu(self) -> ReplyKeyboardMarkup:
+        """Меню команд"""
+        return self.builder.get_teams_menu()
+
+    def trading_menu(self) -> ReplyKeyboardMarkup:
+        """Меню торгівлі"""
+        return self.builder.get_trading_menu()
+
+    def hero_class_menu(self) -> ReplyKeyboardMarkup:
+        """Меню вибору класу героя"""
+        return self.builder.get_hero_class_menu()
+
+    def hero_class_reply_menu(self, hero_class: str) -> ReplyKeyboardMarkup:
+        """Меню вибору героя з конкретного класу"""
+        return self.builder.get_hero_class_reply_menu(hero_class)
+
+    @property
+    def back_button(self) -> str:
+        """Кнопка 'Назад'"""
+        return MenuButton.BACK.value
 
 # Створюємо глобальний екземпляр MenuBuilder
 menu_builder = MenuBuilder()
