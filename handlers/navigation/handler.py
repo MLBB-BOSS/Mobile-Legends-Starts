@@ -1,24 +1,47 @@
-from .base_handler import BaseHandler
-from states.state_groups import NavigationState, MainMenuState
-from keyboards.menus import get_navigation_menu
-from keyboards.inline import get_generic_inline_keyboard
-from texts.navigation import NAVIGATION_MENU_TEXT, NAVIGATION_INTERACTIVE_TEXT
+# handlers/navigation/handler.py
 
-class NavigationHandler(BaseHandler):
-    def register_handlers(self):
-        """Реєстрація обробників навігаційного меню"""
-        self.router.message(MainMenuState.main)(self.handle_navigation_transition)
-        self.router.message(NavigationState.main)(self.handle_navigation_menu)
+from typing import Optional
+from aiogram import Router, Bot, F
+from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from states.menu_states import MenuStates
+from ..interface_manager import InterfaceManager
+from keyboards.navigation import (
+    get_navigation_control_keyboard,
+    get_navigation_screen_keyboard
+)
+from texts.navigation import NavigationTexts
 
-    async def handle_navigation_transition(self, message: Message, state: FSMContext):
-        """Обробка переходу до навігаційного меню"""
-        if message.text == "🧭 Навігація":
-            await self.handle_transition(
-                message=message,
-                state=state,
-                new_state=NavigationState.main,
-                control_text=NAVIGATION_MENU_TEXT,
-                control_markup=get_navigation_menu(),
-                screen_text=NAVIGATION_INTERACTIVE_TEXT,
-                screen_markup=get_generic_inline_keyboard()
-            )
+router = Router()
+
+@router.message(MenuStates.MAIN_MENU, F.text == "🧭 Навігація")
+async def handle_navigation_transition(
+    message: Message,
+    state: FSMContext,
+    bot: Bot
+) -> None:
+    """Handle transition to navigation menu"""
+    try:
+        # Initialize interface manager
+        interface = InterfaceManager(bot, message.chat.id, state)
+        
+        # Delete user's message
+        await message.delete()
+        
+        # Update interface
+        await interface.update_interface(
+            control_text=NavigationTexts.CONTROL_PANEL,
+            control_markup=get_navigation_control_keyboard(),
+            screen_text=NavigationTexts.SCREEN,
+            screen_markup=get_navigation_screen_keyboard()
+        )
+        
+        # Set new state
+        await state.set_state(MenuStates.NAVIGATION_MENU)
+        
+    except Exception as e:
+        logger.error(f"Error in navigation transition: {e}")
+        await message.answer(
+            "Виникла помилка. Спробуйте ще раз через /start"
+        )
+        raise
