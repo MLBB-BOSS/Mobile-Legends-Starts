@@ -1,5 +1,9 @@
 # texts/__init__.py
 
+from .messages import Messages
+
+__all__ = ['Messages']
+
 from .enums import MenuButton, LanguageButton
 from .messages_intro import (
     WELCOME_NEW_USER_TEXT,
