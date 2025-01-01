@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
     """Клавіатура головного меню"""
@@ -10,13 +10,13 @@ def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
         resize_keyboard=True
     )
 
-def get_main_menu_inline_keyboard() -> InlineKeyboardMarkup:
-    """Інлайн клавіатура для екрану головного меню"""
+def get_main_menu_inline() -> InlineKeyboardMarkup:
+    """Інлайн клавіатура для головного меню"""
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(text="📱 Наш канал", url="https://t.me/mlbb_boss"),
-                InlineKeyboardButton(text="💬 Чат", url="https://t.me/mlbb_boss_chat")
-            ]
+            [InlineKeyboardButton(text="🧭 Навігація", callback_data="navigation")],
+            [InlineKeyboardButton(text="🪪 Мій Профіль", callback_data="profile")]
         ]
     )
+
+# Other functions...
