@@ -1,15 +1,5 @@
 # handlers/navigation.py
-from aiogram import Router, Bot, F
-from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
-import logging
-from interface_messages import InterfaceMessages
-from navigation_state_manager import NavigationStateManager
-from navigation_config import NavigationConfig
-from states.menu_states import MenuStates
-from keyboards.menus import get_navigation_menu
-from utils.message_utils import safe_delete_message  # Додамо імпорт утиліт
+дамо імпорт утиліт
 
 router = Router()
 logger = logging.getLogger(__name__)
