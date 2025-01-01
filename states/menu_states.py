@@ -12,3 +12,15 @@ class MainMenuState(StatesGroup):
     main = State()
     navigation = State()
     profile = State()
+
+class NavigationState(StatesGroup):
+    """Navigation menu states"""
+    main = State()
+    select_hero = State()
+    hero_details = State()
+
+class ProfileState(StatesGroup):
+    """Profile section states"""
+    main = State()
+    edit = State()
+    view = State()
