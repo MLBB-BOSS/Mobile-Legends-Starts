@@ -33,12 +33,12 @@ class BaseHandler:
 
 def setup_handlers(dp):
     """Підключаємо всі хендлери"""
-    from .start_intro import StartIntroHandler
-    from .main_menu import MainMenuHandler
+    from .intro_handler import IntroHandler
+    from .main_menu_handler import MainMenuHandler
     # Додайте інші хендлери тут
 
     handlers = [
-        StartIntroHandler(),
+        IntroHandler(),
         MainMenuHandler(),
         # Додайте інші хендлери тут
     ]
