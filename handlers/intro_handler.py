@@ -12,6 +12,7 @@ from keyboards.inline_menus import (
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
+from keyboards.menus import get_main_menu
 from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
@@ -68,12 +69,11 @@ class IntroHandler(BaseHandler):
 
         elif data == "intro_start" and current_state == IntroState.page_3.state:
             await fsm.set_state(MainMenuState.main)
-            # Завершуємо інтро, переходимо в головне меню
             await callback.message.edit_text(
                 text=MAIN_MENU_TEXT,
-                reply_markup=None  # Видаляємо клавіатуру
+                reply_markup=get_main_menu()  # Перехід до головного меню
             )
-            await callback.message.answer(MAIN_MENU_TEXT)
+            await callback.answer("Вітаємо! Ви перейшли до головного меню.")
 
         await callback.answer()
 
