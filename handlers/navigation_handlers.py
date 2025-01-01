@@ -1,5 +1,174 @@
 # handlers/navigation.py
-дамо імпорт утиліт
+from typing import Optional, Any, Dict
+from aiogram import Router, Bot, F
+from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.exceptions import TelegramAPIError
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
+from dataclasses import dataclass
+from logging import getLogger
+from enum import Enum, auto
+
+from states.menu_states import NavigationState, MainMenuState
+from keyboards.menus import get_navigation_menu, get_main_menu_inline
+from utils.message_utils import safe_delete_message
+
+# Constants
+class NavigationCallback(str, Enum):
+    """Navigation callback data"""
+    HERO_SELECT = "nav_hero_select"
+    HERO_DETAILS = "nav_hero_details"
+    BACK = "nav_back"
+    MAIN_MENU = "nav_main"
+
+@dataclass
+class NavigationTexts:
+    """Navigation menu texts"""
+    MAIN_SCREEN = "🧭 Навігація по грі"
+    HERO_SELECT = "Оберіть героя:"
+    HERO_DETAILS = "Інформація про героя:"
+    ERROR = "Виникла помилка. Спробуйте ще раз."
+    UNKNOWN_COMMAND = "Невідома команда. Оберіть опцію з меню."
+
+class NavigationHandler:
+    """Handler for navigation section"""
+
+    def __init__(self) -> None:
+        """Initialize navigation handler"""
+        self.router = Router(name="navigation")
+        self.logger = getLogger("handlers.navigation")
+        self._setup_router()
+
+    def _setup_router(self) -> None:
+        """Setup router with handlers"""
+        # Message handlers
+        self.router.message.register(
+            self._handle_navigation_start,
+            F.text == "🧭 Навігація",
+            MainMenuState.main
+        )
+        
+        self.router.message.register(
+            self._handle_navigation_menu,
+            NavigationState.main
+        )
+        
+        # Callback handlers
+        self.router.callback_query.register(
+            self._handle_hero_select,
+            F.data == NavigationCallback.HERO_SELECT,
+            NavigationState.main
+        )
+        
+        self.router.callback_query.register(
+            self._handle_back_to_main,
+            F.data == NavigationCallback.BACK
+        )
+
+    async def _handle_navigation_start(
+        self,
+        message: Message,
+        state: FSMContext,
+        bot: Bot
+    ) -> None:
+        """
+        Handle transition to navigation menu
+        
+        Args:
+            message: User's message
+            state: FSM context
+            bot: Bot instance
+        """
+        try:
+            # Delete user's message
+            await safe_delete_message(bot, message.chat.id, message.message_id)
+            
+            # Get current interface state
+            data = await state.get_data()
+            
+            # Update interface with navigation menu
+            await self._update_interface(
+                bot=bot,
+                chat_id=message.chat.id,
+                state=state,
+                text=NavigationTexts.MAIN_SCREEN,
+                keyboard=get_navigation_menu(),
+                current_data=data
+            )
+            
+            # Set navigation state
+            await state.set_state(NavigationState.main)
+            self.logger.info(f"User {message.from_user.id} entered navigation menu")
+            
+        except Exception as e:
+            await self._handle_error(
+                bot=bot,
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                error=e
+            )
+
+    async def _handle_navigation_menu(
+        self,
+        message: Message,
+        state: FSMContext,
+        bot: Bot
+    ) -> None:
+        """
+        Handle navigation menu choices
+        
+        Args:
+            message: User's message
+            state: FSM context
+            bot: Bot instance
+        """
+        try:
+            user_choice = message.text
+            await safe_delete_message(bot, message.chat.id, message.message_id)
+            
+            data = await state.get_data()
+            
+            match user_choice:
+                case "🔍 Обрати героя":
+                    await self._show_hero_selection(bot, message.chat.id, state, data)
+                case "🔙 Назад":
+                    await self._back_to_main_menu(bot, message.chat.id, state, data)
+                case _:
+                    await self._handle_unknown_command(bot, message.chat.id, state, data)
+                    
+        except Exception as e:
+            await self._handle_error(
+                bot=bot,
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                error=e
+            )
+
+    async def _update_interface(
+        self,
+        bot: Bot,
+        chat_id: int,
+        state: FSMContext,
+        text: str,
+        keyboard: ReplyKeyboardMarkup | InlineKeyboardMarkup,
+        current_data: Dict[str, Any]
+    ) -> None:
+        """
+        Update interface with new message and keyboard
+        
+        Args:
+            bot: Bot instance
+            chat_id: Chat ID
+            state: FSM context
+            text: New message text
+            keyboard: New keyboard
+            current_data: Current state data
+        """
+        try:
+            # Delete old message if exists
+            old_message_id = current_data.get('bot_message_id')
+            if old_message_id:
+                await safe_delete_message(bot, chat_id, old_message_i 
 
 router = Router()
 logger = logging.getLogger(__name__)
