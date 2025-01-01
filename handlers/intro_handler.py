@@ -7,8 +7,8 @@ from logging import getLogger
 
 from utils.message_utils import MessageManager
 from states.menu_states import IntroState, MainMenuState
-from keyboards.intro import get_intro_keyboard
-from keyboards.menu import get_main_menu_keyboard
+from keyboards.menus import Keyboards
+from texts import Messages
 
 class IntroHandler:
     def __init__(self, message_manager: Optional[MessageManager] = None):
@@ -17,94 +17,96 @@ class IntroHandler:
         self.logger = getLogger(__name__)
         self._setup_router()
 
-    def _setup_router(self) -> None:
-        self.router.message.register(self.start_intro, Command("start"))
-        self.router.callback_query.register(
-            self.handle_intro_navigation,
-            F.data.startswith("intro_")
-        )
-
-    async def show_main_menu(
+    async def start_intro(
         self,
-        chat_id: int,
-        message_id: Optional[int],
+        message: types.Message,
         state: FSMContext
     ) -> None:
-        """Show main menu"""
         try:
-            # Set main menu state
-            await state.set_state(MainMenuState.main)
+            self.logger.info(f"Starting intro for user {message.from_user.id}")
             
-            # Prepare menu text
-            menu_text = (
-                "🎮 <b>Головне меню</b>\n\n"
-                "Виберіть потрібний розділ:\n\n"
-                "👤 <b>Профіль</b> - Ваша інформація та налаштування\n"
-                "📊 <b>Статистика</b> - Ваші показники та досягнення\n"
-                "👥 <b>Команда</b> - Управління командою\n"
-                "🏆 <b>Турніри</b> - Участь у турнірах"
-            )
+            await state.set_state(IntroState.page_1)
             
-            # Show menu
             if self.message_manager:
                 await self.message_manager.send_or_edit(
-                    chat_id=chat_id,
-                    text=menu_text,
-                    message_id=message_id,
-                    keyboard=get_main_menu_keyboard()
+                    chat_id=message.chat.id,
+                    text=Messages.Intro.PAGE_1,
+                    keyboard=Keyboards.intro_keyboard(1)
                 )
             else:
-                # Fallback to direct bot API
-                if message_id:
-                    await self.bot.edit_message_text(
-                        chat_id=chat_id,
-                        message_id=message_id,
-                        text=menu_text,
-                        reply_markup=get_main_menu_keyboard()
-                    )
-                else:
-                    await self.bot.send_message(
-                        chat_id=chat_id,
-                        text=menu_text,
-                        reply_markup=get_main_menu_keyboard()
-                    )
-                    
-        except Exception as e:
-            self.logger.error(f"Error showing main menu: {e}")
-            if self.message_manager:
-                await self.message_manager.send_or_edit(
-                    chat_id=chat_id,
-                    text="❌ Помилка відображення меню. Спробуйте /start",
-                    message_id=message_id
+                await message.answer(
+                    text=Messages.Intro.PAGE_1,
+                    reply_markup=Keyboards.intro_keyboard(1)
                 )
+                
+        except Exception as e:
+            self.logger.error(f"Error in start_intro: {e}")
+            await message.answer(Messages.Intro.ERROR)
 
     async def handle_intro_navigation(
         self,
         callback: types.CallbackQuery,
         state: FSMContext
     ) -> None:
-        """Handle intro navigation"""
         try:
             current_state = await state.get_state()
             if not current_state:
-                await callback.answer("❌ Помилка стану. Почніть спочатку через /start")
+                await callback.answer(Messages.Intro.STATE_ERROR)
                 return
                 
             action = callback.data.split("_")[1]
             
-            if action == "complete":
-                # Show main menu
-                await self.show_main_menu(
-                    chat_id=callback.message.chat.id,
-                    message_id=callback.message.message_id,
-                    state=state
-                )
-                await callback.answer("✅ Ласкаво просимо до головного меню!")
-                return
+            if action == "next":
+                if current_state == "IntroState:page_1":
+                    next_state = IntroState.page_2
+                    page = 2
+                    text = Messages.Intro.PAGE_2
+                elif current_state == "IntroState:page_2":
+                    next_state = IntroState.page_3
+                    page = 3
+                    text = Messages.Intro.PAGE_3
+                else:
+                    await callback.answer(Messages.Intro.NAV_ERROR)
+                    return
+                    
+                await state.set_state(next_state)
                 
-            # Rest of navigation handling...
-            # (previous code for next/prev navigation)
+            elif action == "prev":
+                if current_state == "IntroState:page_2":
+                    next_state = IntroState.page_1
+                    page = 1
+                    text = Messages.Intro.PAGE_1
+                elif current_state == "IntroState:page_3":
+                    next_state = IntroState.page_2
+                    page = 2
+                    text = Messages.Intro.PAGE_2
+                else:
+                    await callback.answer(Messages.Intro.NAV_ERROR)
+                    return
+                    
+                await state.set_state(next_state)
+                
+            elif action == "complete":
+                await state.set_state(MainMenuState.main)
+                text = Messages.MainMenu.WELCOME
+                keyboard = Keyboards.main_menu()
+            
+            # Update message
+            if self.message_manager:
+                await self.message_manager.send_or_edit(
+                    chat_id=callback.message.chat.id,
+                    text=text,
+                    message_id=callback.message.message_id,
+                    keyboard=Keyboards.intro_keyboard(page) if action != "complete" else keyboard
+                )
+            else:
+                await callback.message.edit_text(
+                    text=text,
+                    reply_markup=Keyboards.intro_keyboard(page) if action != "complete" else keyboard
+                )
+            
+            await callback.answer()
             
         except Exception as e:
             self.logger.error(f"Error in navigation: {e}")
-            await callback.answer("❌ Помилка. Спробуйте /start")
+            await callback.answer(Messages.Intro.ERROR)
