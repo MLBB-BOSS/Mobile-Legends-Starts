@@ -1,4 +1,13 @@
-# states/__init__.py
-from .menu_states import MainMenuState, NavigationState, ProfileState
+from .menu_states import (
+    MainMenuState,
+    NavigationState,
+    ProfileState,
+    IntroState
+)
 
-__all__ = ['MainMenuState', 'NavigationState', 'ProfileState']
+__all__ = [
+    'MainMenuState',
+    'NavigationState',
+    'ProfileState',
+    'IntroState'
+]
