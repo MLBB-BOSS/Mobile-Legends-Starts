@@ -1,4 +1,3 @@
-# handlers/intro_handler.py
 from aiogram import types, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -12,7 +11,7 @@ from keyboards.inline_menus import (
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard
 )
-from keyboards.menus import get_main_menu
+from keyboards.menus import get_main_menu_inline  # Updated import
 from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
@@ -71,7 +70,7 @@ class IntroHandler(BaseHandler):
             await fsm.set_state(MainMenuState.main)
             await callback.message.edit_text(
                 text=MAIN_MENU_TEXT,
-                reply_markup=get_main_menu()  # Перехід до головного меню
+                reply_markup=get_main_menu_inline()  # Перехід до головного меню
             )
             await callback.answer("Вітаємо! Ви перейшли до головного меню.")
 
