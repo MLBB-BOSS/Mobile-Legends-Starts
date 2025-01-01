@@ -1,10 +1,10 @@
-# bot.py
 import asyncio
 import logging
-from typing import Optional
+import signal
+from typing import Optional, Set
 from contextlib import asynccontextmanager
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
@@ -20,67 +20,86 @@ import models.user
 import models.user_stats
 from middlewares.database import DatabaseMiddleware
 
-# Logging setup
+# Покращене налаштування логування
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('bot.log')
+        logging.FileHandler('bot.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
 
 class MLBBBot:
-    """Main bot class"""
-
+    """Головний клас бота MLBB"""
+    
     def __init__(self):
-        """Initialize bot and its components"""
+        """Ініціалізація бота та його компонентів"""
         self.bot: Optional[Bot] = None
         self.dp: Optional[Dispatcher] = None
         self.message_manager: Optional[MessageManager] = None
+        self._is_running: bool = False
+        self._active_users: Set[int] = set()  # Для відстеження активних користувачів
         self._setup_bot()
         self._setup_dispatcher()
+        self._setup_signal_handlers()
+
+    def _setup_signal_handlers(self) -> None:
+        """Налаштування обробників сигналів"""
+        try:
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                signal.signal(sig, self._handle_shutdown)
+            logger.info("Signal handlers set up successfully")
+        except Exception as e:
+            logger.error(f"Failed to set up signal handlers: {e}")
+
+    def _handle_shutdown(self, signum, frame) -> None:
+        """Обробка сигналів завершення"""
+        logger.info(f"Received signal {signum}. Starting graceful shutdown...")
+        self._is_running = False
 
     def _setup_bot(self) -> None:
-        """Setup bot instance"""
+        """Налаштування екземпляра бота"""
         try:
             session = AiohttpSession()
             self.bot = Bot(
                 token=settings.TELEGRAM_BOT_TOKEN,
-                default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+                default=DefaultBotProperties(
+                    parse_mode=ParseMode.HTML,
+                    protect_content=True  # Захист контенту
+                ),
                 session=session
             )
-            # Initialize message manager
             self.message_manager = MessageManager(self.bot)
             logger.info("Bot initialized successfully")
+        except ValueError as e:
+            logger.error(f"Invalid bot token: {e}")
+            raise
         except Exception as e:
             logger.error(f"Failed to initialize bot: {e}")
             raise
 
     def _setup_dispatcher(self) -> None:
-        """Setup dispatcher and register handlers"""
+        """Налаштування диспетчера та реєстрація обробників"""
         try:
             self.dp = Dispatcher(storage=MemoryStorage())
             self._setup_middlewares()
-
-            # Register all handlers
             setup_handlers(self.dp, self.message_manager)
-
             logger.info("Dispatcher initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize dispatcher: {e}")
             raise
 
     def _setup_middlewares(self) -> None:
-        """Setup middlewares"""
+        """Налаштування проміжного ПЗ"""
         try:
             # Database middleware
             self.dp.message.middleware(DatabaseMiddleware(async_session))
             self.dp.callback_query.middleware(DatabaseMiddleware(async_session))
-
-            # Add other middlewares here
-
+            
+            # Можна додати інші middleware тут
+            
             logger.info("Middlewares set up successfully")
         except Exception as e:
             logger.error(f"Failed to set up middlewares: {e}")
@@ -88,16 +107,18 @@ class MLBBBot:
 
     @asynccontextmanager
     async def bot_context(self):
-        """Context manager for bot lifecycle"""
+        """Контекстний менеджер для життєвого циклу бота"""
         try:
+            self._is_running = True
             yield
         finally:
+            self._is_running = False
             if self.bot and self.bot.session:
                 await self.bot.session.close()
                 logger.info("Bot session closed")
 
     async def create_tables(self) -> None:
-        """Create database tables"""
+        """Створення таблиць бази даних"""
         try:
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
@@ -107,7 +128,7 @@ class MLBBBot:
             raise
 
     async def _setup_database(self) -> None:
-        """Setup database"""
+        """Налаштування бази даних"""
         try:
             await init_db()
             await self.create_tables()
@@ -116,38 +137,52 @@ class MLBBBot:
             logger.error(f"Database initialization failed: {e}")
             raise
 
+    def add_active_user(self, user_id: int) -> None:
+        """Додати користувача до списку активних"""
+        self._active_users.add(user_id)
+
+    def remove_active_user(self, user_id: int) -> None:
+        """Видалити користувача зі списку активних"""
+        self._active_users.discard(user_id)
+
+    @property
+    def active_users_count(self) -> int:
+        """Отримати кількість активних користувачів"""
+        return len(self._active_users)
+
     async def start(self) -> None:
-        """Start bot"""
+        """Запуск бота"""
         try:
             logger.info("Starting bot...")
-
-            # Initialize database
+            
+            # Ініціалізація бази даних
             await self._setup_database()
-
-            # Start polling
+            
+            # Запуск поллінгу
             await self.dp.start_polling(
                 self.bot,
                 allowed_updates=[
-                    types.UpdateType.MESSAGE,
-                    types.UpdateType.CALLBACK_QUERY,
-                    types.UpdateType.CHAT_MEMBER
+                    "message",
+                    "callback_query",
+                    "chat_member",
+                    "my_chat_member"  # Додано для відстеження змін статусу бота
                 ]
             )
-
+            
         except Exception as e:
             logger.error(f"Error while running bot: {e}")
             raise
 
 async def main() -> int:
-    """Main function"""
+    """Головна функція"""
     bot_instance = MLBBBot()
-
+    
     async with bot_instance.bot_context():
         try:
             await bot_instance.start()
             return 0
         except Exception as e:
-            logger.critical(f"Critical error occurred: {e}")
+            logger.critical(f"Critical error occurred: {e}", exc_info=True)
             return 1
 
 if __name__ == "__main__":
@@ -160,5 +195,5 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         logger.info("Bot stopped by user!")
     except Exception as e:
-        logger.critical(f"Unexpected error occurred: {e}")
+        logger.critical(f"Unexpected error occurred: {e}", exc_info=True)
         exit(1)
