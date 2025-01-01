@@ -1,19 +1,18 @@
-#handlers/base_handler.py
-from aiogram import Router, Bot
+# handlers/base_handler.py
+from aiogram import Router
+from logging import getLogger
 from typing import Optional
-from aiogram.types import Message, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State  # Додали цей імпорт
-from utils.interface_manager import UIState, update_interface, safe_delete_message
-import logging
-
-logger = logging.getLogger(__name__)
 
 class BaseHandler:
-    """Базовий клас для всіх обробників меню"""
-    def __init__(self, name: str):
+    """Base handler class"""
+    
+    def __init__(self, name: Optional[str] = None):
         self.router = Router(name=name)
-        self.logger = logging.getLogger(f"handlers.{name}")
+        self.logger = getLogger(f"handlers.{name}" if name else "handlers")
+
+    def _setup_router(self) -> None:
+        """Setup router handlers"""
+        raise NotImplementedError
 
     async def handle_transition(
         self,
