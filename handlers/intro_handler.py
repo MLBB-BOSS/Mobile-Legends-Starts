@@ -1,5 +1,4 @@
 # handlers/intro_handler.py
-# handlers/intro_handler.py
 
 from aiogram import types
 from texts import WELCOME_NEW_USER_TEXT, INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
