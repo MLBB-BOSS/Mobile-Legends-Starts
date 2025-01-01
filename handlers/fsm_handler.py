@@ -1,35 +1,46 @@
-#handlers/fsm_handler.py
+from typing import Any, Dict, Optional
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
-from typing import Optional, Any
 
 class AsyncFSMHandler:
-    """Базовий клас для асинхронної обробки станів"""
+    """Async FSM context handler"""
     
-    def __init__(self, state: FSMContext):
-        self.state = state
+    def __init__(self, state: FSMContext) -> None:
+        self._state = state
+
+    async def get_current_state(self) -> Optional[str]:
+        """
+        Get current state
         
-    async def get_current_state(self) -> Optional[State]:
-        """Отримати поточний стан"""
-        return await self.state.get_state()
-    
-    async def set_state(self, state: State):
-        """Встановити новий стан"""
-        await self.state.set_state(state)
+        Returns:
+            Optional[str]: Current state or None
+        """
+        state = await self._state.get_state()
+        return state.state if state else None
+
+    async def set_state(self, state: State) -> None:
+        """
+        Set new state
         
-    async def finish(self):
-        """Завершити поточний стан"""
-        await self.state.clear()
+        Args:
+            state: New state to set
+        """
+        await self._state.set_state(state)
+
+    async def update_data(self, **kwargs: Any) -> None:
+        """
+        Update state data
         
-    async def update_data(self, **kwargs):
-        """Оновити дані стану"""
-        await self.state.update_data(**kwargs)
+        Args:
+            **kwargs: Key-value pairs to update
+        """
+        await self._state.update_data(**kwargs)
+
+    async def get_data(self) -> Dict[str, Any]:
+        """
+        Get state data
         
-    async def get_data(self) -> dict:
-        """Отримати дані стану"""
-        return await self.state.get_data()
-        
-    async def get_data_value(self, key: str, default: Any = None) -> Any:
-        """Отримати конкретне значення зі стану"""
-        data = await self.get_data()
-        return data.get(key, default)
+        Returns:
+            Dict[str, Any]: Current state data
+        """
+        return await self._state.get_data()
