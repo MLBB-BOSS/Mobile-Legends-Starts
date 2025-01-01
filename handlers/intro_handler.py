@@ -4,18 +4,26 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from logging import getLogger
 
-from .fsm_handler import FSMContextManager
+from utils.message_utils import safe_delete_message, MessageManager
 from states.menu_states import IntroState
 from keyboards.intro import get_intro_keyboard
-from utils.message_utils import safe_delete_message
 
 class IntroHandler:
-    """Handler for intro sequence"""
-    
-    def __init__(self):
+    def __init__(self, message_manager: Optional[MessageManager] = None):
         self.router = Router(name="intro")
+        self.message_manager = message_manager
         self.logger = getLogger(__name__)
         self._setup_router()
+
+    async def handle_message(self, message: types.Message, state: FSMContext):
+        if not self.message_manager:
+            # Fallback to function if no manager
+            await safe_delete_message(message.bot, message.chat.id, message.message_id)
+        else:
+            await self.message_manager.safe_delete(
+                message.chat.id,
+                message.message_id
+            )
 
     def _setup_router(self) -> None:
         """Setup message handlers"""
