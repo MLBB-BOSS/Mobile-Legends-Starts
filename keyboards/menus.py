@@ -1,114 +1,82 @@
-from typing import List, Dict, Union
-from enum import Enum, auto
-from dataclasses import dataclass
-from aiogram.types import (
-    ReplyKeyboardMarkup, 
-    KeyboardButton, 
-    InlineKeyboardMarkup, 
-    InlineKeyboardButton
-)
-from logging import getLogger
+Добре, опишу повний цикл обробки натискання кнопки "Навігація":
 
-logger = getLogger(__name__)
+1. Відправка повідомлення користувачем:
+- Користувач натискає кнопку "🧭 Навігація" на ReplyKeyboardMarkup
+- В чат надсилається текстове повідомлення "🧭 Навігація"
 
-class MenuCallbackData(str, Enum):
-    """Callback data for menu buttons"""
-    NAVIGATION = "navigation"
-    PROFILE = "profile"
-    BACK = "back"
+2. Перехоплення повідомлення хендлером:
+- Спрацьовує хендлер @router.message(MenuStates.MAIN_MENU)
+- Перевіряється поточний стан користувача
+- Отримується текст повідомлення та ID чату
 
-@dataclass
-class MenuButton:
-    """Menu button configuration"""
-    text: str
-    callback_data: str
+3. Первинна обробка:
+- Видаляється повідомлення користувача з текстом "🧭 Навігація"
+- Отримуються дані поточного стану (message_ids, last_text, тощо)
+- Перевіряється наявність необхідних ID повідомлень у стані
 
-class MainMenuButtons:
-    """Main menu button configurations"""
-    NAVIGATION = MenuButton("🧭 Навігація", MenuCallbackData.NAVIGATION)
-    PROFILE = MenuButton("🪪 Мій Профіль", MenuCallbackData.PROFILE)
-    BACK = MenuButton("🔙 Назад", MenuCallbackData.BACK)
+4. Підготовка нових даних:
+- Формується текст для звичайного повідомлення (NAVIGATION_MENU_TEXT)
+- Створюється нова клавіатура для "пульта керування" (get_navigation_menu())
+- Готується текст для інтерактивного "екрану" (NAVIGATION_INTERACTIVE_TEXT)
+- Формується інлайн клавіатура для "екрану" (get_generic_inline_keyboard())
 
-def create_inline_keyboard(
-    buttons: List[MenuButton],
-    row_width: int = 2
-) -> InlineKeyboardMarkup:
-    """
-    Create inline keyboard from buttons
+5. Оновлення інтерфейсу:
+- Видаляється старе звичайне повідомлення (старий "пульт")
+- Відправляється нове звичайне повідомлення з новою клавіатурою
+- Редагується інтерактивне повідомлення (оновлюється "екран")
+
+6. Збереження нового стану:
+- Зберігається ID нового звичайного повідомлення
+- Зберігається останній використаний текст та клавіатура
+- Встановлюється новий стан MenuStates.NAVIGATION_MENU
+
+7. Кінцевий результат:
+- Користувач бачить оновлений "екран" з інформацією про навігацію
+- Під ним з'являється новий "пульт керування" з кнопками навігаційного меню
+- Бот готовий до наступної взаємодії в контексті навігаційного меню
+
+Код цього процесу виглядає приблизно так:
+@router.message(MenuStates.MAIN_MENU)
+async def handle_navigation_transition(message: Message, state: FSMContext, bot: Bot):
+    # 1. Видалення повідомлення користувача
+    await safe_delete_message(bot, message.chat.id, message.message_id)
     
-    Args:
-        buttons: List of MenuButton objects
-        row_width: Number of buttons per row
-        
-    Returns:
-        InlineKeyboardMarkup: Configured inline keyboard
-    """
-    keyboard = []
-    for i in range(0, len(buttons), row_width):
-        row = [
-            InlineKeyboardButton(
-                text=btn.text,
-                callback_data=btn.callback_data
-            ) for btn in buttons[i:i + row_width]
-        ]
-        keyboard.append(row)
+    # 2. Отримання даних стану
+    data = await state.get_data()
+    old_message_id = data.get('bot_message_id')
+    interactive_message_id = data.get('interactive_message_id')
     
-    return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-def get_main_menu_inline() -> InlineKeyboardMarkup:
-    """
-    Get main menu inline keyboard
+    # 3. Видалення старого "пульта"
+    if old_message_id:
+        await safe_delete_message(bot, message.chat.id, old_message_id)
     
-    Returns:
-        InlineKeyboardMarkup: Main menu keyboard
-    """
-    buttons = [
-        MainMenuButtons.NAVIGATION,
-        MainMenuButtons.PROFILE
-    ]
-    return create_inline_keyboard(buttons)
-
-def create_reply_keyboard(
-    buttons: List[str],
-    row_width: int = 2,
-    resize_keyboard: bool = True,
-    placeholder: str | None = None
-) -> ReplyKeyboardMarkup:
-    """
-    Create reply keyboard from button texts
-    
-    Args:
-        buttons: List of button texts
-        row_width: Number of buttons per row
-        resize_keyboard: Whether to resize keyboard
-        placeholder: Input field placeholder
-        
-    Returns:
-        ReplyKeyboardMarkup: Configured reply keyboard
-    """
-    keyboard = []
-    for i in range(0, len(buttons), row_width):
-        row = [KeyboardButton(text=text) for text in buttons[i:i + row_width]]
-        keyboard.append(row)
-        
-    return ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=resize_keyboard,
-        input_field_placeholder=placeholder
+    # 4. Відправка нового "пульта"
+    new_message = await bot.send_message(
+        chat_id=message.chat.id,
+        text=NAVIGATION_MENU_TEXT,
+        reply_markup=get_navigation_menu()
     )
-
-def get_main_menu() -> ReplyKeyboardMarkup:
-    """
-    Get main menu reply keyboard
     
-    Returns:
-        ReplyKeyboardMarkup: Main menu keyboard
-    """
-    buttons = [
-        MainMenuButtons.NAVIGATION.text,
-        MainMenuButtons.PROFILE.text
-    ]
-    return create_reply_keyboard(
-        buttons=buttons,
-        placeholder="Оберіть одну з основних опцій"
+    # 5. Оновлення "екрану"
+    if interactive_message_id:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=interactive_message_id,
+            text=NAVIGATION_INTERACTIVE_TEXT,
+            reply_markup=get_generic_inline_keyboard()
+        )
+    
+    # 6. Збереження нового стану
+    await state.update_data(
+        bot_message_id=new_message.message_id,
+        last_text=NAVIGATION_MENU_TEXT,
+        last_keyboard=get_navigation_menu()
     )
+    await state.set_state(MenuStates.NAVIGATION_MENU)
+Після цього користувач опиняється в навігаційному меню, де:
+- На "екрані" відображається загальна інформація про доступні розділи
+- На "пульті" доступні кнопки для переходу в різні розділи
+- Всі ID повідомлень збережені в стані для подальшої роботи
+- Встановлений відповідний стан для обробки наступних команд
+
+Це повний цикл одного переходу між станами з оновленням обох компонентів інтерфейсу.
