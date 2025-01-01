@@ -7,7 +7,7 @@ from typing import Optional
 from utils.message_utils import MessageManager
 from states.menu_states import IntroState, MainMenuState
 from keyboards.menus import Keyboards
-from texts import Messages
+from texts import Messages  # Тепер це працюватиме
 
 class IntroHandler:
     """Обробник вступної частини бота"""
