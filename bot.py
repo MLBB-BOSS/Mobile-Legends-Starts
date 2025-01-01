@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from contextlib import asynccontextmanager
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class MLBBBot:
     """Main bot class"""
-    
+
     def __init__(self):
         """Initialize bot and its components"""
         self.bot: Optional[Bot] = None
@@ -63,10 +63,10 @@ class MLBBBot:
         try:
             self.dp = Dispatcher(storage=MemoryStorage())
             self._setup_middlewares()
-            
+
             # Register all handlers
             setup_handlers(self.dp, self.message_manager)
-            
+
             logger.info("Dispatcher initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize dispatcher: {e}")
@@ -78,9 +78,9 @@ class MLBBBot:
             # Database middleware
             self.dp.message.middleware(DatabaseMiddleware(async_session))
             self.dp.callback_query.middleware(DatabaseMiddleware(async_session))
-            
+
             # Add other middlewares here
-            
+
             logger.info("Middlewares set up successfully")
         except Exception as e:
             logger.error(f"Failed to set up middlewares: {e}")
@@ -120,20 +120,20 @@ class MLBBBot:
         """Start bot"""
         try:
             logger.info("Starting bot...")
-            
+
             # Initialize database
             await self._setup_database()
-            
+
             # Start polling
             await self.dp.start_polling(
                 self.bot,
                 allowed_updates=[
-                    "message",
-                    "callback_query",
-                    "chat_member"
+                    types.UpdateType.MESSAGE,
+                    types.UpdateType.CALLBACK_QUERY,
+                    types.UpdateType.CHAT_MEMBER
                 ]
             )
-            
+
         except Exception as e:
             logger.error(f"Error while running bot: {e}")
             raise
@@ -141,7 +141,7 @@ class MLBBBot:
 async def main() -> int:
     """Main function"""
     bot_instance = MLBBBot()
-    
+
     async with bot_instance.bot_context():
         try:
             await bot_instance.start()
