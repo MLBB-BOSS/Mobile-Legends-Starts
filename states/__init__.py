@@ -1,5 +1,19 @@
-# texts/__init__.py
+# states/__init__.py
 
-from .messages import Messages
+from .menu_states import (
+    IntroState,
+    MainMenuState,
+    ProfileState,
+    NavigationState,
+    HeroState,
+    TournamentState
+)
 
-__all__ = ['Messages']
+__all__ = [
+    'IntroState',
+    'MainMenuState',
+    'ProfileState',
+    'NavigationState',
+    'HeroState',
+    'TournamentState'
+]
