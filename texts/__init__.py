@@ -6,7 +6,6 @@ from .messages_intro import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
     INTRO_PAGE_3_TEXT,
-    WELCOME_NEW_USER_TEXT,
     # Додайте інші текстові константи
 )
 from .messages_main_menu import (
