@@ -1,19 +1,24 @@
 # handlers/__init__.py
 from aiogram import Dispatcher
 from .intro_handler import IntroHandler
-from .main_menu import MainMenuHandler
-import logging
+from logging import getLogger
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 def setup_handlers(dp: Dispatcher) -> None:
-    """Setup all handlers"""
+    """
+    Setup all handlers
+    
+    Args:
+        dp: Dispatcher instance
+    """
     try:
+        # Initialize handlers
         handlers = [
-            IntroHandler(),
-            MainMenuHandler()
+            IntroHandler()
         ]
         
+        # Register all handlers
         for handler in handlers:
             dp.include_router(handler.router)
             logger.info(f"Registered {handler.__class__.__name__}")
