@@ -1,35 +1,46 @@
-# handlers/intro_handler.py
-
-from aiogram import types
-from texts import WELCOME_NEW_USER_TEXT, INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
-from keyboards.menus import get_main_menu
-from typing import Optional
 from aiogram import Router, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from logging import getLogger
+from typing import Optional
 
 from utils.message_utils import MessageManager
 from states.menu_states import IntroState, MainMenuState
 from keyboards.menus import Keyboards
 from texts import Messages
 
-async def handle_intro(message: types.Message):
-    await message.reply(WELCOME_NEW_USER_TEXT, reply_markup=get_main_menu())
-
 class IntroHandler:
+    """Обробник вступної частини бота"""
+
     def __init__(self, message_manager: Optional[MessageManager] = None):
+        """
+        Ініціалізація обробника вступу.
+        
+        Args:
+            message_manager: Менеджер повідомлень для управління відправкою/редагуванням
+        """
         self.router = Router(name="intro")
         self.message_manager = message_manager
         self.logger = getLogger(__name__)
+        self.keyboards = Keyboards()  # Створюємо екземпляр клавіатур
         self._setup_router()
 
-  async def handle_start(message: types.Message):
-    await message.answer(
-        "Вітаємо! Оберіть опцію:",
-        reply_markup=keyboards.main_menu()
-    )
-      
+    def _setup_router(self) -> None:
+        """Налаштування маршрутизатора"""
+        self.router.message.register(self.start_intro, Command("start"))
+        self.router.callback_query.register(
+            self.handle_intro_navigation,
+            F.data.startswith("intro_")
+        )
+
+    async def start_intro(self, message: types.Message, state: FSMContext) -> None:
+        """
+        Обробка команди /start та початок вступу.
+        
+        Args:
+            message: Повідомлення від користувача
+            state: Стан FSM
+        """
         try:
             self.logger.info(f"Starting intro for user {message.from_user.id}")
             
@@ -39,29 +50,30 @@ class IntroHandler:
                 await self.message_manager.send_or_edit(
                     chat_id=message.chat.id,
                     text=Messages.Intro.PAGE_1,
-                    keyboard=Keyboards.intro_keyboard(1)
+                    keyboard=self.keyboards.intro_keyboard(1)
                 )
             else:
                 await message.answer(
                     text=Messages.Intro.PAGE_1,
-                    reply_markup=Keyboards.intro_keyboard(1)
+                    reply_markup=self.keyboards.intro_keyboard(1)
                 )
                 
         except Exception as e:
             self.logger.error(f"Error in start_intro: {e}")
             await message.answer(Messages.Intro.ERROR)
 
-    async def handle_navigation(message: types.Message):
-    await message.answer(
-        "Навігаційне меню:",
-        reply_markup=keyboards.navigation_menu()
-    )
-
     async def handle_intro_navigation(
         self,
         callback: types.CallbackQuery,
         state: FSMContext
     ) -> None:
+        """
+        Обробка навігації по сторінках вступу.
+        
+        Args:
+            callback: Callback-запит від користувача
+            state: Стан FSM
+        """
         try:
             current_state = await state.get_state()
             if not current_state:
@@ -69,58 +81,67 @@ class IntroHandler:
                 return
                 
             action = callback.data.split("_")[1]
+            page = None
+            keyboard = None
             
             if action == "next":
-                if current_state == "IntroState:page_1":
-                    next_state = IntroState.page_2
-                    page = 2
-                    text = Messages.Intro.PAGE_2
-                elif current_state == "IntroState:page_2":
-                    next_state = IntroState.page_3
-                    page = 3
-                    text = Messages.Intro.PAGE_3
-                else:
-                    await callback.answer(Messages.Intro.NAV_ERROR)
-                    return
-                    
-                await state.set_state(next_state)
-                
+                page, next_state, text = self._get_next_page_data(current_state)
             elif action == "prev":
-                if current_state == "IntroState:page_2":
-                    next_state = IntroState.page_1
-                    page = 1
-                    text = Messages.Intro.PAGE_1
-                elif current_state == "IntroState:page_3":
-                    next_state = IntroState.page_2
-                    page = 2
-                    text = Messages.Intro.PAGE_2
-                else:
-                    await callback.answer(Messages.Intro.NAV_ERROR)
-                    return
-                    
-                await state.set_state(next_state)
-                
+                page, next_state, text = self._get_prev_page_data(current_state)
             elif action == "complete":
-                await state.set_state(MainMenuState.main)
+                next_state = MainMenuState.main
                 text = Messages.MainMenu.WELCOME
-                keyboard = Keyboards.main_menu()
-            
-            # Update message
-            if self.message_manager:
-                await self.message_manager.send_or_edit(
-                    chat_id=callback.message.chat.id,
-                    text=text,
-                    message_id=callback.message.message_id,
-                    keyboard=Keyboards.intro_keyboard(page) if action != "complete" else keyboard
-                )
+                keyboard = self.keyboards.main_menu()
             else:
-                await callback.message.edit_text(
-                    text=text,
-                    reply_markup=Keyboards.intro_keyboard(page) if action != "complete" else keyboard
-                )
+                await callback.answer(Messages.Intro.NAV_ERROR)
+                return
             
+            await state.set_state(next_state)
+            
+            # Створюємо клавіатуру, якщо вона ще не створена
+            if not keyboard and page:
+                keyboard = self.keyboards.intro_keyboard(page)
+            
+            # Оновлюємо повідомлення
+            await self._update_message(callback, text, keyboard)
             await callback.answer()
             
         except Exception as e:
             self.logger.error(f"Error in navigation: {e}")
             await callback.answer(Messages.Intro.ERROR)
+
+    def _get_next_page_data(self, current_state: str) -> tuple:
+        """Отримати дані для наступної сторінки"""
+        if current_state == "IntroState:page_1":
+            return 2, IntroState.page_2, Messages.Intro.PAGE_2
+        elif current_state == "IntroState:page_2":
+            return 3, IntroState.page_3, Messages.Intro.PAGE_3
+        raise ValueError("Invalid state for next page")
+
+    def _get_prev_page_data(self, current_state: str) -> tuple:
+        """Отримати дані для попередньої сторінки"""
+        if current_state == "IntroState:page_2":
+            return 1, IntroState.page_1, Messages.Intro.PAGE_1
+        elif current_state == "IntroState:page_3":
+            return 2, IntroState.page_2, Messages.Intro.PAGE_2
+        raise ValueError("Invalid state for previous page")
+
+    async def _update_message(
+        self,
+        callback: types.CallbackQuery,
+        text: str,
+        keyboard: types.InlineKeyboardMarkup
+    ) -> None:
+        """Оновити повідомлення"""
+        if self.message_manager:
+            await self.message_manager.send_or_edit(
+                chat_id=callback.message.chat.id,
+                text=text,
+                message_id=callback.message.message_id,
+                keyboard=keyboard
+            )
+        else:
+            await callback.message.edit_text(
+                text=text,
+                reply_markup=keyboard
+            )
