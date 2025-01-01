@@ -1,5 +1,7 @@
 # keyboards/menus.py
+# keyboards/menus.py
 
+from utils.logger_setup import setup_logger
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from texts.enums import MenuButton, LanguageButton
 from texts.data import heroes_by_class
