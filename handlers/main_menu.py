@@ -10,6 +10,14 @@ from constants.menu_texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
 from utils.interface_manager import UIState, update_interface, safe_delete_message
 from .base_handler import BaseHandler
 
+from aiogram.types import Message, CallbackQuery
+from keyboards.main_menu import (
+    get_main_menu_keyboard,
+    get_main_menu_inline_keyboard,
+    MainMenuCallbacks,
+    MainMenuButtons
+)
+
 class MainMenuHandler(BaseHandler):
     def __init__(self):
         super().__init__(name="main_menu")
