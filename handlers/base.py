@@ -23,7 +23,6 @@ from sqlalchemy.future import select
 
 from states import MenuStates
 from utils.db import get_user_profile
-from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.text_formatter import format_profile_text
 import models.user
 import models.user_stats
@@ -41,7 +40,7 @@ from keyboards.menus import (
     get_achievements_menu, get_settings_menu, get_feedback_menu, get_help_menu,
     get_tournaments_menu, get_meta_menu, get_m6_menu, get_gpt_menu, heroes_by_class
 )
-    from texts import (
+from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
     INTRO_PAGE_3_TEXT,
@@ -883,6 +882,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+            await handle_error(bot, chat_id=message.chat.id, error_message=MAIN_MENU_ERROR_TEXT, logger=logger)
         return
 
     # Визначаємо новий текст та клавіатуру
@@ -1278,7 +1278,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1291,7 +1291,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot):
         state=state
     )
 
-    # Оновлення стану користувача
+    # Оновлюємо стан користувача
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, new_state)
 
@@ -1358,7 +1358,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого звичайного повідомлення
+    # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1371,7 +1371,7 @@ async def handle_gpt_menu_buttons(message: Message, state: FSMContext, bot: Bot)
         state=state
     )
 
-    # Оновлення стану користувача
+    # Оновлюємо стан користувача
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, new_state)
 
@@ -1542,11 +1542,14 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         # Запитуємо імена двох героїв для порівняння
         try:
             comparison_prompt = "⚔️ Введіть імена двох героїв для порівняння, розділивши їх комою (наприклад, Hero A, Hero B):"
-            comparison_keyboard = ReplyKeyboardRemove()
+            confirmation_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="✅ Так", callback_data="compare_confirm_yes")],
+                [InlineKeyboardButton(text="❌ Скасувати", callback_data="compare_confirm_no")]
+            ])
             comparison_message = await bot.send_message(
                 chat_id=message.chat.id,
                 text=comparison_prompt,
-                reply_markup=comparison_keyboard
+                reply_markup=confirmation_keyboard
             )
             await state.update_data(
                 comparison_step=1,
@@ -1595,7 +1598,7 @@ async def handle_heroes_menu_buttons(message: Message, state: FSMContext, bot: B
         state=state
     )
 
-    # Оновлюємо стан користувача
+    # Оновлення стану користувача
     if new_state:
         await transition_state(state, new_state)
     await state.update_data(bot_message_id=new_bot_message_id)
@@ -1947,7 +1950,7 @@ async def handle_achievements_menu_buttons(message: Message, state: FSMContext, 
     # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    # Редагування інтерактивного повідомлення
+    # Редагуємо інтерактивне повідомлення
     await check_and_edit_message(
         bot=bot,
         chat_id=message.chat.id,
@@ -2165,6 +2168,7 @@ async def handle_profile_menu_buttons(message: Message, state: FSMContext, db: A
                 text=MAIN_MENU_ERROR_TEXT,
                 reply_markup=get_main_menu()
             )
+            # Зберігаємо ID повідомлення бота
             await state.update_data(bot_message_id=main_message.message_id)
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
