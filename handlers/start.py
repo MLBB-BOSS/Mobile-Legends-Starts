@@ -1,12 +1,17 @@
 # handlers/start.py
 
-from aiogram import types, Dispatcher
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram import Router, F
+from aiogram.filters import Command
+from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 import logging
+
+# Create a router instance
+router = Router()
 
 logger = logging.getLogger(__name__)
 
-async def cmd_start(message: types.Message):
+@router.message(Command("start"))
+async def cmd_start(message: Message):
     """
     Обробник команди /start.
     Відправляє повідомлення з інтерактивними кнопками.
@@ -20,8 +25,4 @@ async def cmd_start(message: types.Message):
 
     await message.answer("Вітаю! Оберіть одну з опцій нижче:", reply_markup=keyboard)
 
-def register_start_handler(dp: Dispatcher):
-    """
-    Реєструє хендлер для команди /start.
-    """
-    dp.message.register(cmd_start, commands="start", state="*")
+# Remove the register_start_handler function as it's no longer needed
