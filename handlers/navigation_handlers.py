@@ -1,74 +1,57 @@
-from aiogram import Router, Bot
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+# handlers/navigation_handlers.py
+from aiogram import Router, Bot, F
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
+import logging
+from interface_messages import InterfaceMessages  # Додайте цей імпорт
+from navigation_state_manager import NavigationStateManager  # Додайте цей імпорт
+from navigation_config import NavigationConfig  # Додайте цей імпорт
+from handlers.navigation_errors import handle_navigation_error
 
-# Текст для меню
-NAVIGATION_MENU_TEXT = "🧭 Навігація:\n\nОберіть розділ для переходу."
-NAVIGATION_INTERACTIVE_TEXT = "🔍 Інтерактивна інформація про доступні розділи."
-
-# Створення Reply-клавіатури
-def get_navigation_menu():
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="🔙 Назад"), KeyboardButton(text="📜 Розділи")],
-            [KeyboardButton(text="🗺️ Карта"), KeyboardButton(text="⚙️ Налаштування")],
-        ],
-        resize_keyboard=True,
-    )
-
-# Створення Inline-клавіатури
-def get_generic_inline_keyboard():
-    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📄 Деталі", callback_data="details")],
-        [InlineKeyboardButton(text="❌ Закрити", callback_data="close")],
-    ])
-
-# Видалення повідомлення з безпечним обробленням винятків
-async def safe_delete_message(bot: Bot, chat_id: int, message_id: int):
-    try:
-        await bot.delete_message(chat_id=chat_id, message_id=message_id)
-    except (MessageCantBeDeleted, MessageToDeleteNotFound):
-        pass
-
-# Хендлер обробки переходу
 router = Router()
+logger = logging.getLogger(__name__)
 
-@router.message(MenuStates.MAIN_MENU)
+@router.message(MenuStates.MAIN_MENU, F.text == "🧭 Навігація")
 async def handle_navigation_transition(message: Message, state: FSMContext, bot: Bot):
-    # 1. Видалення повідомлення користувача
-    await safe_delete_message(bot, message.chat.id, message.message_id)
+    """Обробник переходу до навігаційного меню."""
+    logger.info(f"Користувач {message.from_user.id} перейшов до навігаційного меню")
     
-    # 2. Отримання даних стану
-    data = await state.get_data()
-    old_message_id = data.get('bot_message_id')
-    interactive_message_id = data.get('interactive_message_id')
-    
-    # 3. Видалення старого "пульта"
-    if old_message_id:
-        await safe_delete_message(bot, message.chat.id, old_message_id)
-    
-    # 4. Відправка нового "пульта"
-    new_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text=NAVIGATION_MENU_TEXT,
-        reply_markup=get_navigation_menu()
-    )
-    
-    # 5. Оновлення "екрану"
-    if interactive_message_id:
-        await bot.edit_message_text(
+    # Ініціалізація менеджера станів
+    state_manager = NavigationStateManager(state)
+    await state_manager.load_state()
+
+    try:
+        # Видалення повідомлення користувача
+        if not await safe_delete_message(bot, message.chat.id, message.message_id):
+            logger.warning(f"Не вдалося видалити повідомлення користувача {message.message_id}")
+
+        # Оновлення інтерфейсу
+        new_message_id, new_interactive_id = await update_interface_messages(
+            bot=bot,
             chat_id=message.chat.id,
-            message_id=interactive_message_id,
-            text=NAVIGATION_INTERACTIVE_TEXT,
-            reply_markup=get_generic_inline_keyboard()
+            old_message_id=state_manager.messages.bot_message_id,
+            interactive_message_id=state_manager.messages.interactive_message_id,
+            state=state
         )
-    
-    # 6. Збереження нового стану
-    await state.update_data(
-        bot_message_id=new_message.message_id,
-        last_text=NAVIGATION_MENU_TEXT,
-        last_keyboard=get_navigation_menu()
-    )
-    await state.set_state(MenuStates.NAVIGATION_MENU)
+
+        if new_message_id and new_interactive_id:
+            # Оновлення даних повідомлень
+            await state_manager.messages.update(
+                bot=bot,
+                chat_id=message.chat.id,
+                new_message_id=new_message_id,
+                new_interactive_id=new_interactive_id,
+                text=NavigationConfig.Messages.NAVIGATION_MENU,
+                keyboard=get_navigation_menu()
+            )
+            
+            # Перехід до нового стану
+            await state_manager.transition_to(MenuStates.NAVIGATION_MENU)
+            logger.info(f"Успішний перехід до навігаційного меню для користувача {message.from_user.id}")
+        else:
+            raise ValueError("Не вдалося оновити інтерфейс")
+
+    except Exception as e:
+        logger.error(f"Помилка при переході до навігаційного меню: {e}")
+        await handle_navigation_error(bot, message.chat.id, state)
