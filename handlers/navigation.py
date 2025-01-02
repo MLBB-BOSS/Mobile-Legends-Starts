@@ -1,13 +1,14 @@
 # handlers/navigation.py
 
-from aiogram import types, Router
+from aiogram import types
 from aiogram.types import CallbackQuery
+from aiogram.dispatcher.router import Router
 import logging
 
-# Create a router instance
-router = Router()
-
 logger = logging.getLogger(__name__)
+
+# Створення Router
+router = Router()
 
 @router.callback_query(lambda c: c.data in ["navigate", "profile"])
 async def handle_navigation_callback(query: CallbackQuery):
