@@ -1,14 +1,12 @@
-# __init__.py
+# handlers/__init__.py
 def setup_handlers(dp: Dispatcher):
-    from .profile import profile_router
-    from .team import team_router
-    from .tournaments import tournament_router
+    from .base import base_handlers
+    from .features import feature_handlers
     
-    routers = [
-        profile_router,
-        team_router,
-        tournament_router
-    ]
+    all_handlers = (
+        *base_handlers,
+        *feature_handlers
+    )
     
-    for router in routers:
-        dp.include_router(router)
+    for handler in all_handlers:
+        dp.register_message_handler(handler)
