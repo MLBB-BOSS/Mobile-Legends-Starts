@@ -9,26 +9,34 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
 
     # Database settings
-    DATABASE_URL: str = os.getenv('DATABASE_URL', '')
-    ASYNC_DATABASE_URL: str = ''
+    DATABASE_URL: str | None = None
+    ASYNC_DATABASE_URL: str | None = None
     DEBUG: bool = False
 
-    def __init__(self, **data):
-        super().__init__(**data)
+    def model_post_init(self, *args, **kwargs):
+        """Виконується після ініціалізації моделі"""
+        # Отримуємо URL з змінної середовища Heroku
+        database_url = os.getenv('DATABASE_URL')
         
-        # Перетворення DATABASE_URL в ASYNC_DATABASE_URL
-        if self.DATABASE_URL.startswith('postgres://'):
-            self.DATABASE_URL = self.DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+        if database_url:
+            # Конвертуємо URL для PostgreSQL
+            if database_url.startswith('postgres://'):
+                database_url = database_url.replace('postgres://', 'postgresql://', 1)
             
-        # Створення асинхронного URL
-        if self.DATABASE_URL:
-            self.ASYNC_DATABASE_URL = self.DATABASE_URL.replace('postgresql://', 'postgresql+asyncpg://', 1)
-            logger.info("Async Database URL created successfully")
+            self.DATABASE_URL = database_url
+            self.ASYNC_DATABASE_URL = database_url.replace('postgresql://', 'postgresql+asyncpg://', 1)
+            logger.info("Database URLs configured successfully")
         else:
-            logger.warning("Database URL is not set")
+            logger.warning("DATABASE_URL not found in environment variables")
+            # Встановлюємо значення за замовчуванням або викидаємо помилку
+            self.DATABASE_URL = "sqlite:///./test.db"
+            self.ASYNC_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
     class Config:
         env_file = '.env'
         env_file_encoding = 'utf-8'
+        # Дозволяємо використання додаткових змінних середовища
+        extra = 'ignore'
 
+# Створюємо екземпляр налаштувань
 settings = Settings()
