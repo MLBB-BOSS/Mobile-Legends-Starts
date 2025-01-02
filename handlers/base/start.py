@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from states.hero_states import HeroStates
+from states.intro_states import IntroStates  # Новий стан для вступу
 from keyboards.inline_menus import get_intro_page_1_keyboard
 from keyboards.menus import get_main_menu_keyboard
 
@@ -21,9 +21,10 @@ async def start_command(message: Message, state: FSMContext):
             f"👋 Вітаю, {message.from_user.first_name}! Почнемо знайомство!",
             reply_markup=get_intro_page_1_keyboard()
         )
-        await state.set_state(HeroStates.main)
+        await state.set_state(IntroStates.page_1)  # Початковий стан для вступу
     else:
         await message.answer(
             "👋 Вітаю! Повертаю вас до головного меню.",
             reply_markup=get_main_menu_keyboard()
         )
+        await state.set_state(IntroStates.completed)  # Встановлюємо стан завершення вступу
