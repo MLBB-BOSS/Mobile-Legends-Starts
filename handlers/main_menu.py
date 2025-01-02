@@ -1,14 +1,13 @@
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
-from states.menu_states import MainMenuState, NavigationState, ProfileState
+from states.menu_states import MainMenuState
 from constants.menu_texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
 from utils.interface_manager import update_interface, safe_delete_message
 from .base_handler import BaseHandler
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Визначення клавіатури для головного меню
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
@@ -17,11 +16,13 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Почати", callback_data="start")],
-            [InlineKeyboardButton(text="Налаштування", callback_data="settings")],
-            [InlineKeyboardButton(text="Допомога", callback_data="help")]
+            [InlineKeyboardButton(text="🧭 Навігація", callback_data="navigation")],
+            [InlineKeyboardButton(text="🪪 Мій Профіль", callback_data="profile")],
+            [InlineKeyboardButton(text="⚙️ Налаштування", callback_data="settings")],
+            [InlineKeyboardButton(text="❓ Допомога", callback_data="help")]
         ]
     )
+
 
 class MainMenuHandler(BaseHandler):
     def __init__(self):
@@ -34,18 +35,20 @@ class MainMenuHandler(BaseHandler):
         self.router.message.register(self.handle_main_menu, MainMenuState.main)
 
     async def cmd_start(self, message: Message, state: FSMContext):
-        """Обробка команди /start"""
+        """
+        Обробка команди /start.
+        """
         # Видаляємо повідомлення користувача
         await safe_delete_message(message.bot, message.chat.id, message.message_id)
 
-        # Створюємо новий інтерактивний екран
+        # Відправляємо екран головного меню
         screen = await message.bot.send_message(
             chat_id=message.chat.id,
             text=MAIN_MENU_SCREEN_TEXT,
             reply_markup=get_main_menu_keyboard()
         )
 
-        # Зберігаємо стан
+        # Зберігаємо стан і дані для головного меню
         await state.set_state(MainMenuState.main)
         await state.update_data(
             bot_message_id=screen.message_id,
@@ -54,11 +57,32 @@ class MainMenuHandler(BaseHandler):
         )
 
     async def handle_main_menu(self, message: Message, state: FSMContext):
-        """Обробка кнопок головного меню"""
-        match message.text:
+        """
+        Обробка кнопок головного меню.
+        """
+        # Отримуємо callback_data з повідомлення
+        user_input = message.text
+
+        # Логіка обробки кнопок
+        match user_input:
             case "🧭 Навігація":
-                # Логіка переходу до навігації
-                pass
+                await message.answer("🔍 Переходжу до навігації...")
+                # Логіка переходу до навігації (перевести в NavigationState)
+                await state.set_state(MainMenuState.settings)
+
             case "🪪 Мій Профіль":
-                # Логіка переходу до профілю
-                pass
+                await message.answer("👤 Відображаю профіль...")
+                # Логіка переходу до профілю (перевести в ProfileState)
+                await state.set_state(MainMenuState.profile)
+
+            case "⚙️ Налаштування":
+                await message.answer("⚙️ Перехід до налаштувань...")
+                # Логіка переходу до налаштувань
+                await state.set_state(MainMenuState.settings)
+
+            case "❓ Допомога":
+                await message.answer("📘 Ось інструкція по використанню бота.")
+                # Логіка відображення допомоги
+
+            case _:
+                await message.answer("❌ Невідома команда. Спробуйте ще раз.")
