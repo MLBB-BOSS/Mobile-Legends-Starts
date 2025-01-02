@@ -4,7 +4,7 @@ import os
 import logging
 
 # Імпортуємо ваші моделі
-from .models import User, Item  # Замініть на ваші реальні моделі
+from utils.models import User, Item
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
