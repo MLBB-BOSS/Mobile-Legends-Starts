@@ -1,4 +1,4 @@
-"states/menu_states.py
+#states/menu_states.py
 
 from aiogram.fsm.state import State, StatesGroup
 
