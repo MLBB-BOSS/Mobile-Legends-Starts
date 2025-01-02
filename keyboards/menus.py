@@ -1,5 +1,8 @@
 # keyboards/menus.py
 
+# -------------------------
+# 📦 Імпорти
+# -------------------------
 from aiogram.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
@@ -12,22 +15,24 @@ from typing import List, Dict, Union, Optional
 import logging
 
 # -------------------------
-# Logging Configuration
+# 📝 Конфігурація Логування
 # -------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # -------------------------
-# Enums for Menu Buttons
+# 🔢 Перерахування (Enums) для Кнопок Меню
 # -------------------------
 
 @unique
 class MenuButton(Enum):
-    # Головне Меню
+    """Перерахування для кнопок меню бота."""
+    
+    # 🏠 Головне Меню
     NAVIGATION = "🧭 Навігація"
     PROFILE = "🪪 Мій Профіль"
 
-    # Розділ Навігація
+    # 🧭 Розділ Навігація
     TOURNAMENTS = "🏆 Турніри"
     HEROES = "🥷 Персонажі"
     CHALLENGES = "🧩 Челендж"
@@ -38,15 +43,14 @@ class MenuButton(Enum):
     TRADING = "💰 Торгівля"
     BACK = "🔙 Назад"
 
-    # Додані константи для Турнірів та M6
+    # ➕ Додані Константи для Турнірів та M6
     CREATE_TOURNAMENT = "➕ Створити Турнір"
     VIEW_TOURNAMENTS = "🔍 Переглянути Турніри"
-
     M6_INFO = "ℹ️ Інфо M6"
     M6_STATS = "📊 Статистика M6"
     M6_NEWS = "📰 Новини M6"
 
-    # Розділ Персонажі
+    # 🥷 Розділ Персонажі
     TANK = "🛡️ Танк"
     MAGE = "🧙‍♂️ Маг"
     MARKSMAN = "🏹 Стрілець"
@@ -57,18 +61,18 @@ class MenuButton(Enum):
     SEARCH_HERO = "🔎 Пошук"
     VOTING = "🗳️ Голосуй"
 
-    # Розділ Контр-піки
+    # 🧩 Розділ Контр-піки
     COUNTER_SEARCH = "🔎 Пошук Контр-піка"
     COUNTER_LIST = "📝 Список Персонажів"
     COUNTER_PICKS = "♻️ Контр-пік"
 
-    # Розділ META
+    # 🔥 Розділ META
     META_HERO_LIST = "🔍 Список Героїв META"
     META_RECOMMENDATIONS = "☑️ Рекомендації META"
     META_UPDATES = "📈 Оновлення META"
     META = "🔥 МЕТА"
 
-    # Розділ Гайди
+    # 📚 Розділ Гайди
     NEW_GUIDES = "🆕 Нові Гайди"
     M6 = "🏆 M6"
     POPULAR_GUIDES = "🌟 Популярні Гайди"
@@ -76,17 +80,17 @@ class MenuButton(Enum):
     ADVANCED_TECHNIQUES = "🧙 Стратегії Гри"
     TEAMPLAY_GUIDES = "🤝 Командна Гра"
 
-    # Розділ Білди
+    # 🛡️ Розділ Білди
     CREATE_BUILD = "🏗️ Створити Білд"
     MY_BUILDS = "📄 Мої Білди"
     POPULAR_BUILDS = "🔝 Популярні Білди"
 
-    # Розділ Голосування
+    # 🗳️ Розділ Голосування
     CURRENT_VOTES = "📍 Поточні Опитування"
     MY_VOTES = "📋 Мої Голосування"
     SUGGEST_TOPIC = "➕ Запропонувати Тему"
 
-    # Розділ Профіль
+    # 🪪 Розділ Профіль
     STATISTICS = "📈 Статистика"
     ACHIEVEMENTS = "🏆 Досягнення"
     SETTINGS = "⚙️ Налаштування"
@@ -95,55 +99,55 @@ class MenuButton(Enum):
     MY_TEAM = "🧍 Моя команда"
     GPT = "👾 GPT"
 
-    # Підрозділ Статистика
+    # 📊 Підрозділ Статистика
     ACTIVITY = "📊 Загальна Активність"
     RANKING = "🥇 Рейтинг"
     GAME_STATS = "🎮 Ігрова Статистика"
 
-    # Підрозділ Досягнення
+    # 🏅 Підрозділ Досягнення
     BADGES = "🎖️ Мої Бейджі"
     PROGRESS = "🚀 Прогрес"
     TOURNAMENT_STATS = "🏅 Турнірна Статистика"
     AWARDS = "🎟️ Отримані Нагороди"
 
-    # Підрозділ Налаштування
+    # 🌐 Підрозділ Налаштування
     LANGUAGE = "🌐 Мова Інтерфейсу"
     CHANGE_USERNAME = "ℹ️ Змінити Username"
     UPDATE_ID = "🆔 Оновити ID"
     NOTIFICATIONS = "🔔 Сповіщення"
 
-    # Підрозділ Зворотний зв'язок
+    # ✏️ Підрозділ Зворотний зв'язок
     SEND_FEEDBACK = "✏️ Надіслати Відгук"
     REPORT_BUG = "🐛 Повідомити про Помилку"
 
-    # Підрозділ Допомога
+    # ❓ Підрозділ Допомога
     INSTRUCTIONS = "📄 Інструкції"
     FAQ = "❔ FAQ"
     HELP_SUPPORT = "📞 Підтримка"
 
-    # Новий розділ Команди
+    # ➕ Новий Розділ Команди
     CREATE_TEAM = "➕ Створити Команду"
     VIEW_TEAMS = "👀 Переглянути Команди"
 
-    # Нові константи для Торгівлі
+    # ➕ Нові Константи для Торгівлі
     CREATE_TRADE = "➕ Створити Торгівлю"
     VIEW_TRADES = "👀 Переглянути Торгівлі"
     MANAGE_TRADES = "🔧 Управління Торгівлями"
 
-    # GPT Меню
+    # 👾 GPT Меню
     GPT_DATA_GENERATION = "📊 Генерація Даних"
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
-
 @unique
 class LanguageButton(Enum):
+    """Перерахування для кнопок вибору мови."""
     UKRAINIAN = "🇺🇦 Українська"
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
 
 # -------------------------
-# Data Mappings
+# 🗂️ Мапінги Даних
 # -------------------------
 
 # Мапінг кнопок до класів персонажів
@@ -194,7 +198,7 @@ heroes_by_class: Dict[str, List[str]] = {
 }
 
 # -------------------------
-# Menu Creation Functions
+# 🛠️ Функції Створення Меню
 # -------------------------
 
 def create_menu(
@@ -248,14 +252,13 @@ def create_inline_menu(
         return InlineKeyboardMarkup()
 
     keyboard = [
-        buttons[i:i + row_width]
-        for i in range(0, len(buttons), row_width)
+        buttons[i:i + row_width] for i in range(0, len(buttons), row_width)
     ]
     logger.info(f"Створення інлайн меню з {len(buttons)} кнопками.")
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 # -------------------------
-# Specific Menu Functions
+# 🎯 Специфічні Функції Меню
 # -------------------------
 
 def get_main_menu() -> ReplyKeyboardMarkup:
@@ -293,6 +296,26 @@ def get_navigation_menu() -> ReplyKeyboardMarkup:
         ],
         placeholder="Виберіть розділ у навігації",
         row_width=3
+    )
+
+def get_hero_class_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює меню вибору класу героїв.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    return create_menu(
+        buttons=[
+            MenuButton.TANK,
+            MenuButton.MAGE,
+            MenuButton.MARKSMAN,
+            MenuButton.ASSASSIN,
+            MenuButton.FIGHTER,
+            MenuButton.SUPPORT,
+            MenuButton.BACK
+        ],
+        placeholder="Виберіть клас персонажа",
+        row_width=2
     )
 
 def get_heroes_menu() -> ReplyKeyboardMarkup:
@@ -365,7 +388,8 @@ def get_challenges_menu() -> ReplyKeyboardMarkup:
     """
     return create_menu(
         buttons=[
-            MenuButton.CHALLENGES,
+            MenuButton.CREATE_CHALLENGE,  # Переконайтеся, що ці Enum додані
+            MenuButton.VIEW_CHALLENGES,   # Переконайтеся, що ці Enum додані
             MenuButton.BACK
         ],
         placeholder="Виберіть опцію челенджів",
@@ -683,8 +707,8 @@ def get_hero_class_reply_menu(hero_class: str) -> ReplyKeyboardMarkup:
     heroes = heroes_by_class.get(hero_class)
     if not heroes:
         logger.error(f"Class '{hero_class}' not found in heroes_by_class mapping.")
-        # Handle the error, e.g., return a default menu or raise an exception
-        return get_generic_inline_keyboard()  # Alternatively, return a different menu
+        # Повертаємо інлайн клавіатуру з кнопкою 'Назад' у випадку помилки
+        return get_generic_inline_keyboard()
 
     buttons = [KeyboardButton(text=hero) for hero in heroes]
 
@@ -715,7 +739,7 @@ def get_hero_class_inline_menu(hero_class: str, row_width: int = 3) -> InlineKey
     heroes = heroes_by_class.get(hero_class, [])
     if not heroes:
         logger.error(f"Class '{hero_class}' not found in heroes_by_class mapping.")
-        # Handle the error, e.g., return a generic inline keyboard or raise an exception
+        # Повертаємо інлайн клавіатуру з кнопкою 'Назад' у випадку помилки
         return get_generic_inline_keyboard()
 
     buttons = [
@@ -737,10 +761,10 @@ def get_hero_class_inline_menu(hero_class: str, row_width: int = 3) -> InlineKey
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 # -------------------------
-# Additional Keyboard Functions
+# ➕ Додаткові Функції Клавіатур
 # -------------------------
 
-def get_heroes_class_menu() -> ReplyKeyboardMarkup:
+def get_hero_class_menu() -> ReplyKeyboardMarkup:
     """
     Створює клавіатуру для вибору класу героїв.
 
@@ -748,23 +772,26 @@ def get_heroes_class_menu() -> ReplyKeyboardMarkup:
     """
     keyboard = [
         [
-            KeyboardButton(text="🛡 Танк"),
-            KeyboardButton(text="🧙‍♂️ Маг")
+            KeyboardButton(text=MenuButton.TANK.value),
+            KeyboardButton(text=MenuButton.MAGE.value)
         ],
         [
-            KeyboardButton(text="🏹 Стрілець"),
-            KeyboardButton(text="🗡 Асасін")
+            KeyboardButton(text=MenuButton.MARKSMAN.value),
+            KeyboardButton(text=MenuButton.ASSASSIN.value)
         ],
         [
-            KeyboardButton(text="💖 Підтримка"),
-            KeyboardButton(text="⚔️ Боєць")
+            KeyboardButton(text=MenuButton.SUPPORT.value),
+            KeyboardButton(text=MenuButton.FIGHTER.value)
         ],
-        [KeyboardButton(text="🔙 Назад до навігації")]
+        [
+            KeyboardButton(text=MenuButton.BACK.value)
+        ]
     ]
 
     logger.info("Створення меню вибору класу героїв.")
     
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
-        resize_keyboard=True
-)
+        resize_keyboard=True,
+        input_field_placeholder="Оберіть клас персонажа"
+    )
