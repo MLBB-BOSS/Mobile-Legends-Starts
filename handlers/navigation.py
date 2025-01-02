@@ -1,14 +1,11 @@
 # handlers/navigation.py
 
-from aiogram import Router, types
+from aiogram import types, Dispatcher
 from aiogram.types import CallbackQuery
 import logging
 
 logger = logging.getLogger(__name__)
 
-router = Router()
-
-@router.callback_query(lambda c: c.data in ["navigate", "profile"])
 async def handle_navigation_callback(query: CallbackQuery):
     """
     Обробляє натискання інтерактивних кнопок.
@@ -25,3 +22,13 @@ async def handle_navigation_callback(query: CallbackQuery):
         # Додайте логіку для профілю
     else:
         await query.answer("Невідома дія.")
+
+def register_navigation_handlers(dp: Dispatcher):
+    """
+    Реєструє хендлер для обробки callback queries.
+    """
+    dp.callback_query.register(
+        handle_navigation_callback,
+        lambda c: c.data in ["navigate", "profile"],
+        state="*"
+    )
