@@ -1,12 +1,14 @@
-
-from aiogram import Dispatcher
-from .base import router as base_router
-from .missing_handlers import router as missing_handlers_router
-
+# __init__.py
 def setup_handlers(dp: Dispatcher):
-    # Список роутерів для підключення
-    routers = [base_router, missing_handlers_router]
-
-    # Підключення всіх роутерів до диспетчера
+    from .profile import profile_router
+    from .team import team_router
+    from .tournaments import tournament_router
+    
+    routers = [
+        profile_router,
+        team_router,
+        tournament_router
+    ]
+    
     for router in routers:
         dp.include_router(router)
