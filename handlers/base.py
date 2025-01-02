@@ -1,4 +1,5 @@
 # handlers/base.py
+
 import logging
 import io
 from typing import Optional
@@ -8,7 +9,7 @@ import plotly.graph_objects as go
 from PIL import Image
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
-from aiogram.filters import Command
+from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import (
@@ -23,7 +24,6 @@ from sqlalchemy.future import select
 
 from states import MenuStates
 from utils.db import get_user_profile
-from utils.message_utils import safe_delete_message, check_and_edit_message
 from utils.text_formatter import format_profile_text
 import models.user
 import models.user_stats
@@ -90,7 +90,7 @@ MENU_BUTTON_TO_CLASS = {
 async def handle_error(bot: Bot, chat_id: int, error_message: str, logger: logging.Logger):
     """
     Централізована функція для обробки помилок.
-    
+
     :param bot: Екземпляр бота.
     :param chat_id: ID чату, куди надсилати повідомлення.
     :param error_message: Текст помилки для користувача.
@@ -104,7 +104,7 @@ async def handle_error(bot: Bot, chat_id: int, error_message: str, logger: loggi
 async def increment_step(state: FSMContext):
     """
     Інкрементує крок у FSM. Якщо крок досягає 3, не очищає стан.
-    
+
     :param state: Контекст FSM.
     """
     data = await state.get_data()
@@ -123,7 +123,7 @@ async def send_or_update_interactive_message(
 ) -> Optional[int]:
     """
     Відправка нового повідомлення або оновлення існуючого.
-    
+
     :return: ID відправленого або оновленого повідомлення.
     """
     if message_id:
@@ -167,7 +167,7 @@ async def check_and_edit_message(
 ):
     """
     Перевірка зміни тексту або клавіатури перед редагуванням повідомлення.
-    
+
     :param bot: Екземпляр бота.
     :param chat_id: ID чату.
     :param message_id: ID повідомлення для редагування.
@@ -198,7 +198,7 @@ async def check_and_edit_message(
 async def transition_state(state: FSMContext, new_state: State):
     """
     Встановлення нового стану без очищення існуючих даних.
-    
+
     :param state: Контекст FSM.
     :param new_state: Новий стан для встановлення.
     """
@@ -218,8 +218,9 @@ def create_overall_activity_graph() -> bytes:
         yaxis_title="Активність",
         template="plotly_white"
     )
-    img_bytes = fig.to_image(format="png")
-    return img_bytes
+    with io.BytesIO() as buffer:
+        fig.write_image(buffer, format="PNG")
+        return buffer.getvalue()
 
 def create_rating_graph() -> bytes:
     """Генерація графіка рейтингу за місяць."""
@@ -232,8 +233,9 @@ def create_rating_graph() -> bytes:
         yaxis_title="Рейтинг",
         template="plotly_white"
     )
-    img_bytes = fig.to_image(format="png")
-    return img_bytes
+    with io.BytesIO() as buffer:
+        fig.write_image(buffer, format="PNG")
+        return buffer.getvalue()
 
 def create_game_stats_graph() -> bytes:
     """Генерація графіка ігрової статистики героїв."""
@@ -253,13 +255,14 @@ def create_game_stats_graph() -> bytes:
         yaxis_title="Кількість",
         template="plotly_white"
     )
-    img_bytes = fig.to_image(format="png")
-    return img_bytes
+    with io.BytesIO() as buffer:
+        fig.write_image(buffer, format="PNG")
+        return buffer.getvalue()
 
 def create_comparison_graph(hero1_stats: dict, hero2_stats: dict, hero1_name: str, hero2_name: str) -> bytes:
     """
     Генерація графіка порівняння двох героїв.
-    
+
     :param hero1_stats: Статистика першого героя.
     :param hero2_stats: Статистика другого героя.
     :param hero1_name: Ім'я першого героя.
@@ -289,10 +292,12 @@ def create_comparison_graph(hero1_stats: dict, hero2_stats: dict, hero1_name: st
         yaxis_title="Кількість",
         template="plotly_white"
     )
-    img_bytes = fig.to_image(format="png")
-    return img_bytes
+    with io.BytesIO() as buffer:
+        fig.write_image(buffer, format="PNG")
+        return buffer.getvalue()
 
-# Обробник команди /example
+# Обробники команд
+
 @router.message(Command("example"))
 async def handle_example(message: Message, state: FSMContext):
     """
@@ -301,7 +306,6 @@ async def handle_example(message: Message, state: FSMContext):
     await transition_state(state, MenuStates.MAIN_MENU)
     await message.answer("Перехід до головного меню.")
 
-# Обробник команди /start з реєстрацією користувача
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
@@ -358,6 +362,7 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
 
 # Обробники вступних сторінок
+
 @router.callback_query(F.data == "intro_next_1")
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
@@ -480,6 +485,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await callback.answer()
 
 # Уніфікована функція для обробки меню
+
 async def handle_menu(
     user_choice: str,
     message: Message,
@@ -764,7 +770,7 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
         await transition_state(state, MenuStates.MAIN_MENU)
 
 # Обробчик кнопки "🪪 Мій Профіль"
-@router.message(F.text == "🪪 Мій Профіль")
+@router.message(Text(equals="🪪 Мій Профіль", ignore_case=True))
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробчик натискання кнопки "🪪 Мій Профіль".
@@ -824,6 +830,7 @@ async def handle_feedback_menu_buttons(message: Message, state: FSMContext, db: 
             await transition_state(state, MenuStates.MAIN_MENU)
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
+            await handle_error(bot, chat_id=message.chat.id, error_message=MAIN_MENU_ERROR_TEXT, logger=logger)
         return
 
     # Визначаємо новий текст та клавіатуру
@@ -1409,7 +1416,7 @@ async def handle_navigation_menu_buttons(message: Message, state: FSMContext, bo
     # Видалення старого повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
-    # Редагування інтерактивного повідомлення
+    # Редагуємо інтерактивне повідомлення
     await check_and_edit_message(
         bot=bot,
         chat_id=message.chat.id,
@@ -1591,7 +1598,7 @@ async def handle_comparison_step_1(message: Message, state: FSMContext, db: Asyn
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
 
 # Обробчик підтвердження порівняння героїв
-@router.callback_query(F.data.startswith("compare_confirm_"))
+@router.callback_query(F.data.in_("compare_confirm_yes", "compare_confirm_no"))
 async def handle_comparison_confirmation(callback: CallbackQuery, state: FSMContext, db: AsyncSession, bot: Bot):
     """
     Обробчик для підтвердження або скасування порівняння героїв.
