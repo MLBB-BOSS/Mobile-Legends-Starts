@@ -1,4 +1,7 @@
 # handlers/__init__.py
+from typing import Optional
+from aiogram import Dispatcher
+from utils.message_utils import MessageManager  # Add this import
 from handlers.intro_handler import router as intro_router
 from handlers.menu_handler import router as menu_router
 
