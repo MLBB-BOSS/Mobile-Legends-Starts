@@ -5,6 +5,12 @@ from utils.message_utils import MessageManager  # Add this import
 from handlers.intro_handler import router as intro_router
 from handlers.menu_handler import router as menu_router
 from aiogram.exceptions import TelegramBadRequest
+import os
+
+print("Current directory:", os.getcwd())
+print("Handlers path exists:", os.path.exists("handlers"))
+print("Intro handler exists:", os.path.exists("handlers/intro_handler.py"))
+print("Menu handler exists:", os.path.exists("handlers/menu_handler.py"))
 def setup_handlers(dp: Dispatcher, message_manager: Optional[MessageManager] = None):
     """
     Реєструє всі обробники в Dispatcher.
