@@ -4,3 +4,12 @@ __pycache__/
 *.pyc
 .env
 *.sqlite3
+# .gitignore
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.dist/
+build/
+*.sqlite3
