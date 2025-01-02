@@ -1,56 +1,34 @@
 # handlers/navigation.py
-from aiogram import Router, Bot, F
-from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
-import logging
-from interface_messages import InterfaceMessages
-from navigation_state_manager import NavigationStateManager
-from navigation_config import NavigationConfig
 
-router = Router()
+from aiogram import types, Dispatcher
+from aiogram.types import CallbackQuery
+import logging
+
 logger = logging.getLogger(__name__)
 
-@router.message(MenuStates.MAIN_MENU, F.text == "🧭 Навігація")
-async def handle_navigation_transition(message: Message, state: FSMContext, bot: Bot):
-    """Обробник переходу до навігаційного меню."""
-    logger.info(f"Користувач {message.from_user.id} перейшов до навігаційного меню")
-    
-    # Ініціалізація менеджера станів
-    state_manager = NavigationStateManager(state)
-    await state_manager.load_state()
+async def handle_navigation_callback(query: CallbackQuery):
+    """
+    Обробляє натискання інтерактивних кнопок.
+    """
+    data = query.data
+    user_id = query.from_user.id
+    logger.info(f"Користувач {user_id} натиснув кнопку: {data}")
 
-    try:
-        # Видалення повідомлення користувача
-        if not await safe_delete_message(bot, message.chat.id, message.message_id):
-            logger.warning(f"Не вдалося видалити повідомлення користувача {message.message_id}")
+    if data == "navigate":
+        await query.message.edit_text("Ви обрали навігацію.", reply_markup=None)
+        # Додайте логіку для навігації
+    elif data == "profile":
+        await query.message.edit_text("Ви обрали профіль.", reply_markup=None)
+        # Додайте логіку для профілю
+    else:
+        await query.answer("Невідома дія.")
 
-        # Оновлення інтерфейсу
-        new_message_id, new_interactive_id = await update_interface_messages(
-            bot=bot,
-            chat_id=message.chat.id,
-            old_message_id=state_manager.messages.bot_message_id,
-            interactive_message_id=state_manager.messages.interactive_message_id,
-            state=state
-        )
-
-        if new_message_id and new_interactive_id:
-            # Оновлення даних повідомлень
-            await state_manager.messages.update(
-                bot=bot,
-                chat_id=message.chat.id,
-                new_message_id=new_message_id,
-                new_interactive_id=new_interactive_id,
-                text=NavigationConfig.Messages.NAVIGATION_MENU,
-                keyboard=get_navigation_menu()
-            )
-            
-            # Перехід до нового стану
-            await state_manager.transition_to(MenuStates.NAVIGATION_MENU)
-            logger.info(f"Успішний перехід до навігаційного меню для користувача {message.from_user.id}")
-        else:
-            raise ValueError("Не вдалося оновити інтерфейс")
-
-    except Exception as e:
-        logger.error(f"Помилка при переході до навігаційного меню: {e}")
-        await handle_navigation_error(bot, message.chat.id, state)
+def register_navigation_handlers(dp: Dispatcher):
+    """
+    Реєструє хендлер для обробки callback queries.
+    """
+    dp.register_callback_query_handler(
+        handle_navigation_callback,
+        lambda c: c.data in ["navigate", "profile"],
+        state="*"
+    )
