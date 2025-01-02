@@ -1,8 +1,8 @@
 # utils/models/user.py
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
-from utils.base import Base  # Імпорт базового класу
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import List
+from utils.base import Base  # Імпорт базового класу
 
 class User(Base):
     """
@@ -10,13 +10,13 @@ class User(Base):
     """
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
     # Додайте інші поля за потребою
 
     # Встановлення зв'язку з моделлю Item
-    items: List["Item"] = relationship("Item", back_populates="owner")
+    items: Mapped[List["Item"]] = relationship("Item", back_populates="owner")
 
     def __repr__(self):
         return f"<User(id={self.id}, name='{self.name}', email='{self.email}')>"
