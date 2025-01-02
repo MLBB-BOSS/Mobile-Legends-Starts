@@ -1,15 +1,8 @@
-# handlers/__init__.py
-from aiogram import Dispatcher
 from .base import router as base_router
-# If you have a features module, uncomment the next line:
-# from .features import router as features_router
 
-def setup_handlers(dp: Dispatcher):
-    """
-    Register all routers with the dispatcher.
-    """
-    # Include the base router
+def setup_handlers(dp):
     dp.include_router(base_router)
-    
-    # If you have a features router, uncomment the next line:
-    # dp.include_router(features_router)
+    # Якщо у вас будуть інші роутери, додайте їх тут
+    # Наприклад:
+    # from .challenges import router as challenges_router
+    # dp.include_router(challenges_router)
