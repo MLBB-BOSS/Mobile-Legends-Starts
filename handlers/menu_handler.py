@@ -3,10 +3,10 @@ from typing import Optional
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from logging import getLogger
+from main_menu import get_main_menu_keyboard
 
 from utils.message_utils import MessageManager
 from states.menu_states import MainMenuState
-from keyboards.menu import get_main_menu_keyboard
 
 class MenuHandler:
     def __init__(self, message_manager: Optional[MessageManager] = None):
