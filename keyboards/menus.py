@@ -1,14 +1,16 @@
 # keyboards/menus.py
 
-from typing import List, Union, Dict
+from typing import List, Union
 from enum import Enum, unique
 import logging
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from utils.logger_setup import setup_logger
 from texts.data import heroes_by_class
 
 # Налаштування логування
 logger = setup_logger(__name__)
+
 
 @unique
 class MenuButton(Enum):
@@ -135,10 +137,11 @@ class LanguageButton(Enum):
 class MenuBuilder:
     def __init__(self, row_width: int = 2):
         self.row_width = row_width
+        logger.info("MenuBuilder initialized with row_width=%d", self.row_width)
 
     def create_menu(
         self,
-        buttons: List[Union[MenuButton, LanguageButton]],
+        buttons: List[Union[MenuButton, 'LanguageButton']],
         placeholder: str = ""
     ) -> ReplyKeyboardMarkup:
         """
@@ -153,7 +156,7 @@ class MenuBuilder:
             raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
 
         button_texts = [button.value for button in buttons]
-        logger.info(f"Створення меню з кнопками: {button_texts} та підказкою: '{placeholder}'")
+        logger.info("Створення меню з кнопками: %s та підказкою: '%s'", button_texts, placeholder)
 
         keyboard_buttons = [KeyboardButton(text=btn.value) for btn in buttons]
         keyboard_rows = [
@@ -164,8 +167,25 @@ class MenuBuilder:
         return ReplyKeyboardMarkup(
             keyboard=keyboard_rows,
             resize_keyboard=True,
-            input_field_placeholder=placeholder
+            input_field_placeholder=placeholder if placeholder else None
         )
+
+    def create_inline_menu(self, buttons: List[MenuButton]) -> ReplyKeyboardMarkup:
+        """
+        Створює Inline-клавіатуру для інтерактивних повідомлень.
+
+        :param buttons: Список кнопок MenuButton Enum.
+        :return: InlineKeyboardMarkup об'єкт.
+        """
+        from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+        inline_buttons = []
+        for btn in buttons:
+            inline_buttons.append([InlineKeyboardButton(text=btn.value, callback_data=btn.value)])
+
+        logger.info("Створення Inline-клавіатури з кнопками: %s", [btn.value for btn in buttons])
+
+        return InlineKeyboardMarkup(inline_keyboard=inline_buttons)
 
     def get_main_menu(self) -> ReplyKeyboardMarkup:
         """Головне меню"""
@@ -173,21 +193,6 @@ class MenuBuilder:
             buttons=[MenuButton.NAVIGATION, MenuButton.PROFILE],
             placeholder="Оберіть одну з основних опцій"
         )
-
-        from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-
-def get_main_menu_keyboard():
-    """
-    Генерує клавіатуру головного меню.
-    """
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton("🧭 Навігація"), KeyboardButton("🪪 Профіль")],
-            [KeyboardButton("⚔️ Герої"), KeyboardButton("🏆 Турніри")],
-            [KeyboardButton("📚 Гайди"), KeyboardButton("⚡️ Буст")]
-        ],
-        resize_keyboard=True
-    )
 
     def get_navigation_menu(self) -> ReplyKeyboardMarkup:
         """Меню навігації"""
@@ -488,7 +493,7 @@ def get_main_menu_keyboard():
         :return: ReplyKeyboardMarkup зі списком героїв + кнопка "Назад".
         """
         heroes = heroes_by_class.get(hero_class, [])
-        logger.info(f"Створюємо клавіатуру для класу {hero_class}, героїв знайдено: {len(heroes)}")
+        logger.info("Створюємо клавіатуру для класу %s, героїв знайдено: %d", hero_class, len(heroes))
 
         # Створюємо кнопки для кожного героя
         hero_buttons = [KeyboardButton(text=hero) for hero in heroes]
@@ -506,12 +511,10 @@ def get_main_menu_keyboard():
             input_field_placeholder=f"Оберіть героя з класу {hero_class}"
         )
 
-    # Налаштування логування
-logger = setup_logger(__name__)
 
 class Keyboards:
     """Клас для централізованого доступу до всіх клавіатур"""
-    
+
     def __init__(self):
         self.builder = MenuBuilder()
         logger.info("Keyboards class initialized")
@@ -621,81 +624,107 @@ class Keyboards:
         """Кнопка 'Назад'"""
         return MenuButton.BACK.value
 
-# Створюємо глобальний екземпляр MenuBuilder
-menu_builder = MenuBuilder()
+
+# Створюємо глобальний екземпляр Keyboards
+keyboards = Keyboards()
+
 
 # Експортуємо функції для зворотної сумісності
 def get_main_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_main_menu()
+    return keyboards.main_menu()
+
 
 def get_navigation_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_navigation_menu()
+    return keyboards.navigation_menu()
+
 
 def get_heroes_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_heroes_menu()
+    return keyboards.heroes_menu()
+
 
 def get_profile_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_profile_menu()
+    return keyboards.profile_menu()
+
 
 def get_language_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_language_menu()
+    return keyboards.language_menu()
+
 
 def get_challenges_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_challenges_menu()
+    return keyboards.challenges_menu()
+
 
 def get_bust_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_bust_menu()
+    return keyboards.bust_menu()
+
 
 def get_my_team_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_my_team_menu()
+    return keyboards.my_team_menu()
+
 
 def get_guides_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_guides_menu()
+    return keyboards.guides_menu()
+
 
 def get_counter_picks_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_counter_picks_menu()
+    return keyboards.counter_picks_menu()
+
 
 def get_builds_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_builds_menu()
+    return keyboards.builds_menu()
+
 
 def get_voting_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_voting_menu()
+    return keyboards.voting_menu()
+
 
 def get_statistics_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_statistics_menu()
+    return keyboards.statistics_menu()
+
 
 def get_achievements_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_achievements_menu()
+    return keyboards.achievements_menu()
+
 
 def get_settings_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_settings_menu()
+    return keyboards.settings_menu()
+
 
 def get_feedback_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_feedback_menu()
+    return keyboards.feedback_menu()
+
 
 def get_help_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_help_menu()
+    return keyboards.help_menu()
+
 
 def get_tournaments_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_tournaments_menu()
+    return keyboards.tournaments_menu()
+
 
 def get_meta_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_meta_menu()
+    return keyboards.meta_menu()
+
 
 def get_m6_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_m6_menu()
+    return keyboards.m6_menu()
+
 
 def get_gpt_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_gpt_menu()
+    return keyboards.gpt_menu()
+
 
 def get_teams_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_teams_menu()
+    return keyboards.teams_menu()
+
 
 def get_trading_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_trading_menu()
+    return keyboards.trading_menu()
+
 
 def get_hero_class_menu() -> ReplyKeyboardMarkup:
-    return menu_builder.get_hero_class_menu()
+    return keyboards.hero_class_menu()
+
 
 def get_hero_class_reply_menu(hero_class: str) -> ReplyKeyboardMarkup:
-    return menu_builder.get_hero_class_reply_menu(hero_class)
+    return keyboards.hero_class_reply_menu(hero_class)
