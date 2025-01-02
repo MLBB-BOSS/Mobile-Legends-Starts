@@ -1,13 +1,12 @@
+
 from aiogram import Dispatcher
-from .main_menu import MainMenuHandler
-from .intro_handler import IntroHandler
+from .base import router as base_router
+from .missing_handlers import router as missing_handlers_router
 
-def setup_handlers(dp: Dispatcher) -> None:
-    """Реєстрація всіх обробників"""
-    # Створюємо екземпляр обробника інтро
-    intro_handler = IntroHandler()
-    dp.include_router(intro_handler.router)
+def setup_handlers(dp: Dispatcher):
+    # Список роутерів для підключення
+    routers = [base_router, missing_handlers_router]
 
-    # Створюємо екземпляр обробника головного меню
-    main_menu = MainMenuHandler()
-    dp.include_router(main_menu.router)
+    # Підключення всіх роутерів до диспетчера
+    for router in routers:
+        dp.include_router(router)
