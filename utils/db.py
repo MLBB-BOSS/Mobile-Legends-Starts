@@ -6,21 +6,46 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна
-engine = create_async_engine(
-    settings.ASYNC_DATABASE_URL,
-    echo=settings.DEBUG,
-    pool_pre_ping=True
-)
+def create_db_engine():
+    """Створення двигунів бази даних з правильними налаштуваннями"""
+    # Асинхронний двигун
+    async_engine = create_async_engine(
+        settings.ASYNC_DATABASE_URL,
+        echo=settings.DEBUG,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+        connect_args={
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5
+        }
+    )
 
-# Створення синхронного двигуна
-sync_engine = create_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    pool_pre_ping=True
-)
+    # Синхронний двигун
+    sync_engine = create_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+        connect_args={
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5
+        }
+    )
 
-# Створення фабрики сесій
+    return async_engine, sync_engine
+
+# Створюємо двигуни
+engine, sync_engine = create_db_engine()
+
+# Створюємо фабрику сесій
 async_session = sessionmaker(
     engine,
     class_=AsyncSession,
@@ -30,9 +55,22 @@ async_session = sessionmaker(
 async def init_db():
     """Ініціалізація бази даних"""
     try:
-        logger.info("Initializing database...")
-        # Тут можна додати додаткову логіку ініціалізації
-        logger.info("Database initialized successfully.")
+        # Тестуємо підключення
+        async with engine.connect() as conn:
+            await conn.execute("SELECT 1")
+            logger.info("Database connection test successful")
     except Exception as e:
-        logger.error(f"Error initializing database: {e}")
+        logger.error(f"Database initialization error: {str(e)}")
         raise
+
+async def get_session() -> AsyncSession:
+    """Отримання сесії бази даних"""
+    async with async_session() as session:
+        try:
+            yield session
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Database session error: {str(e)}")
+            raise
+        finally:
+            await session.close()
