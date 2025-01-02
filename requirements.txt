@@ -16,3 +16,4 @@ CairoSVG==2.5.2
 psycopg2-binary>=2.9.9
 SQLAlchemy>=2.0.0
 asyncpg>=0.29.0
+aiomysql>=0.2.0
