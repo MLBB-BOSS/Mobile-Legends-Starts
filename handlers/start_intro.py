@@ -1,18 +1,20 @@
-# handlers/start_intro.py
-
 import logging
 from aiogram import Router, types, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# Імпорт станів (нехай лежить у states.py з 1 по 99)
-from states import MenuStates
+from states.menu_states import MenuStates  # Імпорт станів
 
-# Імпортуємо ваші тексти та клавіатури
-from texts import INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
-from texts import MAIN_MENU_TEXT, MAIN_MENU_DESCRIPTION
-from texts import GENERIC_ERROR_MESSAGE_TEXT, UNKNOWN_COMMAND_TEXT
+from texts import (
+    INTRO_PAGE_1_TEXT,
+    INTRO_PAGE_2_TEXT,
+    INTRO_PAGE_3_TEXT,
+    MAIN_MENU_TEXT,
+    MAIN_MENU_DESCRIPTION,
+    GENERIC_ERROR_MESSAGE_TEXT
+)
+
 from keyboards.inline_menus import (
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
@@ -21,7 +23,6 @@ from keyboards.inline_menus import (
 )
 from keyboards.menus import get_main_menu
 
-# Допоміжні утиліти (припустимо, що вони вже існують у вас)
 from utils.shared_utils import (
     safe_delete_message,
     handle_error,
@@ -29,8 +30,8 @@ from utils.shared_utils import (
     check_and_edit_message
 )
 
-import models.user
-import models.user_stats
+from models.user import User
+from models.user_stats import UserStats
 from sqlalchemy.future import select
 
 logger = logging.getLogger(__name__)
@@ -42,22 +43,21 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
     user_id = message.from_user.id
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
-    # Реєстрація (спрощена)
     try:
         async with db.begin():
             result = await db.execute(
-                select(models.user.User).where(models.user.User.telegram_id == user_id)
+                select(User).where(User.telegram_id == user_id)
             )
             user = result.scalars().first()
 
             if not user:
-                new_user = models.user.User(
+                new_user = User(
                     telegram_id=user_id,
                     username=message.from_user.username
                 )
                 db.add(new_user)
                 await db.flush()
-                new_stats = models.user_stats.UserStats(user_id=new_user.id)
+                new_stats = UserStats(user_id=new_user.id)
                 db.add(new_stats)
                 await db.commit()
                 logger.info(f"Новий користувач: {user_id}")
@@ -68,7 +68,6 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
         return
 
-    # Переходимо в стан INTRO_PAGE_1
     await transition_state(state, MenuStates.INTRO_PAGE_1)
     try:
         msg = await bot.send_message(
@@ -76,7 +75,6 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
             text=INTRO_PAGE_1_TEXT,
             reply_markup=get_intro_page_1_keyboard()
         )
-        # Зберігаємо ID повідомлення
         await state.update_data(
             interactive_message_id=msg.message_id,
             last_text=INTRO_PAGE_1_TEXT,
@@ -87,15 +85,9 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
         logger.error(f"Не вдалося показати першу сторінку інтро: {e}")
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
 
-
 @router.callback_query()
 async def handle_intro_callback(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    """
-    Обробка колбеків для трьох сторінок інтро:
-    - intro_next_1 → INTRO_PAGE_2
-    - intro_next_2 → INTRO_PAGE_3
-    - intro_start  → MAIN_MENU
-    """
+    """Обробка колбеків для інтро."""
     data = callback.data
     current_state = await state.get_state()
     user_id = callback.from_user.id
@@ -125,27 +117,23 @@ async def handle_intro_callback(callback: types.CallbackQuery, state: FSMContext
         await callback.answer("Перехід на третю сторінку.")
 
     elif data == "intro_start" and current_state == MenuStates.INTRO_PAGE_3.state:
-        # Завершуємо інтро, переходимо в MAIN_MENU
         await transition_state(state, MenuStates.MAIN_MENU)
 
         user_first_name = callback.from_user.first_name or "Користувач"
         main_menu_text = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
 
         try:
-            # Редагуємо інтро-повідомлення, щоб сховати старі кнопки
             await bot.edit_message_text(
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id,
                 text=MAIN_MENU_DESCRIPTION,
                 reply_markup=get_generic_inline_keyboard()
             )
-            # Надсилаємо окреме звичайне повідомлення зі звичайною клавіатурою
             main_menu_msg = await bot.send_message(
                 chat_id=callback.message.chat.id,
                 text=main_menu_text,
                 reply_markup=get_main_menu()
             )
-            # Зберігаємо ID
             await state.update_data(bot_message_id=main_menu_msg.message_id)
             await callback.answer("Вітаємо! Ви перейшли до головного меню.")
         except Exception as e:
