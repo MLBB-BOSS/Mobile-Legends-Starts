@@ -1347,7 +1347,6 @@ META_MENU_TEXT = """╔═══════════════════
 ╚════════════════════════════════════════════╝
 """
 
-
 # ============================[LOGGING SETUP]=============================
 import logging
 logging.basicConfig(level=logging.INFO)
