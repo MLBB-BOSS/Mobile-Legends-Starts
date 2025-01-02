@@ -1,13 +1,15 @@
 # handlers/__init__.py
 from aiogram import Dispatcher
-from .base import base_handlers
-from .features import feature_handlers
+from .base import router as base_router
+# If you have a features module, uncomment the next line:
+# from .features import router as features_router
 
 def setup_handlers(dp: Dispatcher):
-    all_handlers = (
-        *base_handlers,
-        *feature_handlers
-    )
+    """
+    Register all routers with the dispatcher.
+    """
+    # Include the base router
+    dp.include_router(base_router)
     
-    for handler in all_handlers:
-        dp.register_message_handler(handler)
+    # If you have a features router, uncomment the next line:
+    # dp.include_router(features_router)
