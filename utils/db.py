@@ -1,48 +1,38 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Базовий клас для моделей
-Base = declarative_base()
-
-# Асинхронний двигун SQLAlchemy
-async_engine: AsyncEngine = create_async_engine(
-    settings.db_async_url,
+# Створення асинхронного двигуна
+engine = create_async_engine(
+    settings.ASYNC_DATABASE_URL,
     echo=settings.DEBUG,
-    future=True,
+    pool_pre_ping=True
 )
 
-# Синхронний двигун SQLAlchemy
-from sqlalchemy import create_engine
-
+# Створення синхронного двигуна
 sync_engine = create_engine(
-    settings.db_sync_url,
+    settings.DATABASE_URL,
     echo=settings.DEBUG,
-    future=True,
+    pool_pre_ping=True
 )
 
-# Асинхронна сесія
+# Створення фабрики сесій
 async_session = sessionmaker(
-    async_engine, expire_on_commit=False, class_=AsyncSession
-)
-
-# Синхронна сесія
-SessionLocal = sessionmaker(
-    bind=sync_engine,
-    autoflush=False,
-    autocommit=False,
+    engine,
+    class_=AsyncSession,
     expire_on_commit=False
 )
 
 async def init_db():
-    """Ініціалізує базу даних, створюючи всі таблиці."""
+    """Ініціалізація бази даних"""
     try:
-        async with async_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Async Database tables created successfully")
+        logger.info("Initializing database...")
+        # Тут можна додати додаткову логіку ініціалізації
+        logger.info("Database initialized successfully.")
     except Exception as e:
-        logger.error(f"Error initializing async database: {e}")
+        logger.error(f"Error initializing database: {e}")
         raise
