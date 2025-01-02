@@ -1,19 +1,11 @@
-# states/__init__.py
-
 from .menu_states import (
-    IntroState,
+    IntroState,  # Переконайтесь, що цей рядок є
     MainMenuState,
-    ProfileState,
-    NavigationState,
-    HeroState,
-    TournamentState
+    ProfileState
 )
 
 __all__ = [
     'IntroState',
     'MainMenuState',
-    'ProfileState',
-    'NavigationState',
-    'HeroState',
-    'TournamentState'
+    'ProfileState'
 ]
