@@ -1,79 +1,48 @@
-#utils/db.py
-
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from models.base import Base
-from sqlalchemy import select
-import logging
-
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
 from config import settings
+import logging
 
 logger = logging.getLogger(__name__)
 
-# Створення асинхронного двигуна
-engine = create_async_engine(
-    settings.AS_BASE,  # Використовуємо AS_BASE замість DB_ASYNC_URL
+# Базовий клас для моделей
+Base = declarative_base()
+
+# Асинхронний двигун SQLAlchemy
+async_engine: AsyncEngine = create_async_engine(
+    settings.db_async_url,
     echo=settings.DEBUG,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+    future=True,
 )
 
-# Фабрика асинхронних сесій
+# Синхронний двигун SQLAlchemy
+from sqlalchemy import create_engine
+
+sync_engine = create_engine(
+    settings.db_sync_url,
+    echo=settings.DEBUG,
+    future=True,
+)
+
+# Асинхронна сесія
 async_session = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
+    async_engine, expire_on_commit=False, class_=AsyncSession
+)
+
+# Синхронна сесія
+SessionLocal = sessionmaker(
+    bind=sync_engine,
+    autoflush=False,
+    autocommit=False,
     expire_on_commit=False
 )
 
 async def init_db():
-    """Ініціалізація бази даних."""
+    """Ініціалізує базу даних, створюючи всі таблиці."""
     try:
-        async with engine.begin() as conn:
-            logger.info("Initializing database...")
+        async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database initialized successfully.")
+        logger.info("Async Database tables created successfully")
     except Exception as e:
-        logger.error(f"Failed to initialize database: {e}")
+        logger.error(f"Error initializing async database: {e}")
         raise
-
-
-async def get_user_profile(session: AsyncSession, user_id: int):
-    """
-    Отримання профілю користувача з бази даних.
-    """
-    try:
-        from models.user import User
-        from models.user_stats import UserStats
-
-        # Виконуємо запит до бази даних
-        result = await session.execute(
-            select(User, UserStats)
-            .where(User.telegram_id == user_id)
-            .join(UserStats)
-        )
-        user, stats = result.first()
-
-        # Формуємо результат, якщо користувача знайдено
-        if user and stats:
-            return {
-                "username": user.username,
-                "level": stats.level,
-                "rating": stats.rating,
-                "achievements_count": stats.achievements_count,
-                "screenshots_count": stats.screenshots_count,
-                "missions_count": stats.missions_count,
-                "quizzes_count": stats.quizzes_count,
-                "total_matches": stats.total_matches,
-                "total_wins": stats.total_wins,
-                "total_losses": stats.total_losses,
-                "tournament_participations": stats.tournament_participations,
-                "badges_count": stats.badges_count,
-                "last_update": stats.last_update,
-            }
-        return None
-
-    # Логування у разі помилки
-    except Exception as e:
-        logger.error(f"Error fetching user profile for user_id {user_id}: {e}")
-        return None
