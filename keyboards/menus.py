@@ -174,6 +174,21 @@ class MenuBuilder:
             placeholder="Оберіть одну з основних опцій"
         )
 
+        from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+def get_main_menu_keyboard():
+    """
+    Генерує клавіатуру головного меню.
+    """
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton("🧭 Навігація"), KeyboardButton("🪪 Профіль")],
+            [KeyboardButton("⚔️ Герої"), KeyboardButton("🏆 Турніри")],
+            [KeyboardButton("📚 Гайди"), KeyboardButton("⚡️ Буст")]
+        ],
+        resize_keyboard=True
+    )
+
     def get_navigation_menu(self) -> ReplyKeyboardMarkup:
         """Меню навігації"""
         return self.create_menu(

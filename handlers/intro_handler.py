@@ -1,49 +1,49 @@
-# handlers/intro_handler.py
-
-from aiogram import Router, types, F
-from aiogram.filters import Command
+from aiogram import Router
+from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
-from logging import getLogger
-from typing import Optional
+from keyboards.inline_menus import (
+    get_intro_page_1_keyboard,
+    get_intro_page_2_keyboard,
+    get_intro_page_3_keyboard,
+)
 
-from utils.message_utils import MessageManager
-from states.menu_states import IntroState, MainMenuState
-from keyboards.menus import Keyboards
-from texts.messages import Messages  # Змінено імпорт
+router = Router()
 
-class IntroHandler:
-    def __init__(self, message_manager: Optional[MessageManager] = None):
-        self.router = Router(name="intro")
-        self.message_manager = message_manager
-        self.logger = getLogger(__name__)
-        self.keyboards = Keyboards()
-        self._setup_router()
 
-    def _setup_router(self) -> None:
-        self.router.message.register(self.start_intro, Command("start"))
-        self.router.callback_query.register(
-            self.handle_intro_navigation,
-            F.data.startswith("intro_")
-        )
+@router.callback_query(lambda callback: callback.data == "intro_next_1")
+async def intro_page_2(callback: CallbackQuery, state: FSMContext):
+    """
+    Обробник для другої сторінки інтро.
+    """
+    await callback.message.edit_text(
+        text="🛠️ Цей бот допоможе вам:\n\n"
+             "• 📊 Відстежувати свою статистику\n"
+             "• 🏆 Організовувати турніри\n"
+             "• 🥷 Дізнаватись про героїв",
+        reply_markup=get_intro_page_2_keyboard(),
+    )
+    await state.set_state("intro_page_2")
 
-    async def start_intro(self, message: types.Message, state: FSMContext) -> None:
-        try:
-            self.logger.info(f"Starting intro for user {message.from_user.id}")
-            await state.set_state(IntroState.page_1)
-            
-            if self.message_manager:
-                await self.message_manager.send_or_edit(
-                    chat_id=message.chat.id,
-                    text=Messages.Intro.PAGE_1,
-                    keyboard=self.keyboards.intro_keyboard(1)
-                )
-            else:
-                await message.answer(
-                    text=Messages.Intro.PAGE_1,
-                    reply_markup=self.keyboards.intro_keyboard(1)
-                )
-        except Exception as e:
-            self.logger.error(f"Error in start_intro: {e}")
-            await message.answer(Messages.Error.GENERAL)
 
-    # ... інші методи класу
+@router.callback_query(lambda callback: callback.data == "intro_next_2")
+async def intro_page_3(callback: CallbackQuery, state: FSMContext):
+    """
+    Обробник для третьої сторінки інтро.
+    """
+    await callback.message.edit_text(
+        text="🎮 Готові почати гру? Натисніть «Розпочати», щоб перейти до головного меню.",
+        reply_markup=get_intro_page_3_keyboard(),
+    )
+    await state.set_state("intro_page_3")
+
+
+@router.callback_query(lambda callback: callback.data == "intro_start")
+async def complete_intro(callback: CallbackQuery, state: FSMContext):
+    """
+    Завершення інтро.
+    """
+    await callback.message.edit_text(
+        text="👋 Вітаємо в головному меню! Оберіть дію:",
+        reply_markup=None,  # Замініть на головне меню, якщо воно реалізоване
+    )
+    await state.set_state("main_menu")
