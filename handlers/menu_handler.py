@@ -2,7 +2,6 @@ from aiogram import Router, Bot
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
-from states.menu_states import MenuStates
 
 # Текст для меню
 NAVIGATION_MENU_TEXT = "🧭 Навігація:\n\nОберіть розділ для переходу."
