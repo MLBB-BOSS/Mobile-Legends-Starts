@@ -1,4 +1,11 @@
 # states/__init__.py
-from .menu_states import MenuStates
 
-__all__ = ["MenuStates"]
+from .intro import IntroState
+from .main_menu import MainMenuState
+# Імпортуйте інші стани тут
+
+__all__ = [
+    "IntroState",
+    "MainMenuState",
+    # Додайте інші стани тут
+] 
