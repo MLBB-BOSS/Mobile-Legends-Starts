@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-
+from keyboards.main_menu import get_main_menu_keyboard
 from states.menu_states import MainMenuState, NavigationState, ProfileState
 from constants.menu_texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
 from utils.interface_manager import update_interface, safe_delete_message
