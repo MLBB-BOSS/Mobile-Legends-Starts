@@ -1,14 +1,13 @@
 # utils/message_utils.py
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramBadRequest, CantDeleteMessage, MessageToDeleteNotFound
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 import logging
 
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
 from typing import Union
 
 logger = logging.getLogger(__name__)
-
 
 async def safe_delete_message(bot: Bot, chat_id: int, message_id: int):
     """
@@ -17,11 +16,10 @@ async def safe_delete_message(bot: Bot, chat_id: int, message_id: int):
     try:
         await bot.delete_message(chat_id=chat_id, message_id=message_id)
         logger.info(f"Повідомлення {message_id} успішно видалено в чаті {chat_id}.")
-    except (CantDeleteMessage, MessageToDeleteNotFound) as e:
+    except (TelegramForbiddenError, TelegramBadRequest) as e:
         logger.warning(f"Не вдалося видалити повідомлення {message_id} в чаті {chat_id}: {e}")
     except Exception as e:
         logger.error(f"Невідома помилка при видаленні повідомлення {message_id} в чаті {chat_id}: {e}")
-
 
 async def check_and_edit_message(bot: Bot, chat_id: int, message_id: int, text: str, keyboard: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup]):
     """
