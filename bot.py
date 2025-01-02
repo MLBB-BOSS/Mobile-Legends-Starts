@@ -3,12 +3,14 @@
 import logging
 import asyncio
 from aiogram import Bot, Dispatcher
-from aiogram.middleware.logging import LoggingMiddleware
 from handlers import setup_handlers
 from config import settings
 
 # Налаштування логування
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 async def main():
@@ -22,9 +24,6 @@ async def main():
     # Ініціалізація бота
     bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
     dp = Dispatcher()
-
-    # Додавання middlewares
-    dp.message.middleware.setup(LoggingMiddleware())
 
     # Реєстрація хендлерів
     setup_handlers(dp)
