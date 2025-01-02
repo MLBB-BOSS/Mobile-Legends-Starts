@@ -31,13 +31,6 @@ class MainMenuHandler(BaseHandler):
     def register_handlers(self):
         """Реєстрація обробників головного меню"""
         self.router.message.register(self.cmd_start, CommandStart())
-        self.router.message.register(self.handle_main_menu, MainMenuState.main)
-
-    async def cmd_start(self, message: Message, state: FSMContext):
-        """Обробка команди /start"""
-        # Видаляємо повідомлення користувача
-        await safe_delete_message(message.bot, message.chat.id, message.message_id)
-
         # Створюємо новий інтерактивний екран
         screen = await message.bot.send_message(
             chat_id=message.chat.id,
