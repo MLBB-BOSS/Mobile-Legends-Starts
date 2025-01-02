@@ -1,4 +1,4 @@
-# handlers/__init__.py
+handlers/__init__.py
 from typing import Optional
 from aiogram import Dispatcher
 from utils.message_utils import MessageManager  # Add this import
