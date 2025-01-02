@@ -1,5 +1,1 @@
-from .menu_states import (
-    MenuStates,
-    SomeOtherState,
-    ...
-)
+from .menu_states import MenuStates
