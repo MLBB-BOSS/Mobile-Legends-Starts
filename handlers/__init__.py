@@ -1,32 +1,39 @@
-# handlers/__init__.py
-from aiogram import Dispatcher
-from typing import Optional
-from logging import getLogger
-from utils.message_utils import MessageManager
-from .intro_handler import router as intro_router
-from .menu_handler import MenuHandler
-from texts import WELCOME_NEW_USER_TEXT, INTRO_PAGE_1_TEXT, INTRO_PAGE_2_TEXT, INTRO_PAGE_3_TEXT
+from typing import Final
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-logger = getLogger(__name__)
+# Constants
+NEXT_BUTTON_TEXT: Final = "Далі ➡️"
+START_BUTTON_TEXT: Final = "Розпочати 🚀"
 
-def setup_handlers(dp: Dispatcher, message_manager: Optional[MessageManager] = None) -> None:
-    """Setup all handlers"""
-    try:
-        handlers = [
-            IntroHandler(message_manager),
-            MenuHandler(message_manager)
+
+def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
+    """
+    Клавіатура для сторінки 1 інтро.
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=NEXT_BUTTON_TEXT, callback_data="intro_next_1")]
         ]
-        
-        for handler in handlers:
-            dp.include_router(handler.router)
-            logger.info(f"Registered {handler.__class__.__name__}")
-            
-    except Exception as e:
-        logger.error(f"Error setting up handlers: {e}")
-        raise
+    )
 
-    def setup_handlers(dp: Dispatcher):
+
+def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
     """
-    Реєструє всі обробники в Dispatcher.
+    Клавіатура для сторінки 2 інтро.
     """
-    dp.include_router(intro_router)
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=NEXT_BUTTON_TEXT, callback_data="intro_next_2")]
+        ]
+    )
+
+
+def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
+    """
+    Клавіатура для сторінки 3 інтро.
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=START_BUTTON_TEXT, callback_data="intro_start")]
+        ]
+    )
