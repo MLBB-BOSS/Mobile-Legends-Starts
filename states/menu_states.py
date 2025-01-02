@@ -1,29 +1,18 @@
 from aiogram.fsm.state import State, StatesGroup
 
-# Головне меню
-class MainMenuState(StatesGroup):
-    """Стан головного меню"""
-    MAIN_MENU = State()
-    SETTINGS = State()
-    PROFILE = State()
-    TOURNAMENTS = State()
-    SCREENSHOTS = State()
+class ProfileState(StatesGroup):
+    # Profile related states
+    view = State()
+    edit = State()
+    settings = State()
+    # Add other profile-related states as needed
 
-# Меню користувача
 class MenuStates(StatesGroup):
-    """Станів для меню користувача"""
-    MAIN_MENU = State()
-    PROFILE = State()
-    STATS = State()
-    TEAM = State()
-    TOURNAMENT = State()
+    # Menu related states
+    main = State()
+    settings = State()
+    tournaments = State()
+    screenshots = State()
 
-# Інтро
-class IntroState(StatesGroup):
-    """Станів для інтро"""
-    INTRO_PAGE_1 = State()
-    INTRO_PAGE_2 = State()
-    INTRO_PAGE_3 = State()
-
-# Додайте __all__ для зручного імпорту
-__all__ = ['MainMenuState', 'MenuStates', 'IntroState']
+# Make sure to include all states you're exporting
+__all__ = ['ProfileState', 'MenuStates']
