@@ -1,9 +1,10 @@
 # handlers/navigation.py
-from aiogram import Router, Bot, F
+from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
+from aiogram.exceptions import TelegramBadRequest
 import logging
+
 from interface_messages import InterfaceMessages
 from navigation_state_manager import NavigationStateManager
 from navigation_config import NavigationConfig
@@ -14,9 +15,13 @@ from utils.message_utils import safe_delete_message, check_and_edit_message
 router = Router()
 logger = logging.getLogger(__name__)
 
-async def update_interface_messages(bot: Bot, chat_id: int, old_message_id: int, 
-                                 interactive_message_id: int, state: FSMContext) -> tuple[int, int]:
-    """Оновлює інтерфейсні повідомлення."""
+async def update_interface_messages(
+    bot, chat_id: int, old_message_id: int, 
+    interactive_message_id: int, state: FSMContext
+) -> tuple[int, int]:
+    """
+    Оновлює інтерфейсні повідомлення. Повертає нові ID повідомлень.
+    """
     try:
         # Спробуємо відредагувати існуюче повідомлення
         if old_message_id:
@@ -41,13 +46,23 @@ async def update_interface_messages(bot: Bot, chat_id: int, old_message_id: int,
             reply_markup=get_navigation_menu()
         )
 
-        return new_message.message_id, new_message.message_id
+        # Створюємо нове інтерактивне повідомлення
+        new_interactive_message = await bot.send_message(
+            chat_id=chat_id,
+            text=NavigationConfig.Messages.NAVIGATION_INTERACTIVE,
+            reply_markup=get_generic_inline_keyboard()
+        )
+
+        return new_message.message_id, new_interactive_message.message_id
+
     except Exception as e:
         logger.error(f"Помилка при оновленні інтерфейсу: {e}")
         return None, None
 
-async def handle_navigation_error(bot: Bot, chat_id: int, state: FSMContext):
-    """Обробляє помилки навігації."""
+async def handle_navigation_error(bot, chat_id: int, state: FSMContext):
+    """
+    Обробляє помилки навігації.
+    """
     try:
         await bot.send_message(
             chat_id=chat_id,
@@ -59,8 +74,10 @@ async def handle_navigation_error(bot: Bot, chat_id: int, state: FSMContext):
         logger.error(f"Помилка при обробці помилки навігації: {e}")
 
 @router.message(MenuStates.MAIN_MENU, F.text == "🧭 Навігація")
-async def handle_navigation_transition(message: Message, state: FSMContext, bot: Bot):
-    """Обробник переходу до навігаційного меню."""
+async def handle_navigation_transition(message: Message, state: FSMContext, bot):
+    """
+    Обробник переходу до навігаційного меню.
+    """
     logger.info(f"Користувач {message.from_user.id} перейшов до навігаційного меню")
     
     # Ініціалізація менеджера станів
@@ -102,8 +119,10 @@ async def handle_navigation_transition(message: Message, state: FSMContext, bot:
         await handle_navigation_error(bot, message.chat.id, state)
 
 @router.message(MenuStates.NAVIGATION_MENU)
-async def handle_navigation_menu(message: Message, state: FSMContext):
-    """Обробляє вибір опцій в навігаційному меню."""
+async def handle_navigation_menu_selection(message: Message, state: FSMContext):
+    """
+    Обробляє вибір опцій в навігаційному меню.
+    """
     try:
         text = message.text
         logger.info(f"Користувач {message.from_user.id} вибрав опцію: {text}")
@@ -124,8 +143,10 @@ async def handle_navigation_menu(message: Message, state: FSMContext):
         if text in menu_options:
             await state.set_state(menu_options[text])
             await message.answer(f"Ви перейшли до розділу {text}")
+            logger.info(f"Користувач {message.from_user.id} встановив стан {menu_options[text]}")
         else:
             await message.answer("Невідома опція. Будь ласка, виберіть опцію з меню.")
+            logger.warning(f"Користувач {message.from_user.id} вибрав невідому опцію: {text}")
 
     except Exception as e:
         logger.error(f"Помилка при обробці вибору в навігаційному меню: {e}")
