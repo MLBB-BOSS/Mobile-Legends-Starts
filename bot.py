@@ -5,7 +5,6 @@ from aiogram import Bot, Dispatcher, executor
 from aiogram.middleware.logging import LoggingMiddleware
 from handlers import setup_handlers
 from config import settings  # Імпорт налаштувань
-import os
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +19,7 @@ except Exception as e:
 
 # Ініціалізація бота
 bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher()
 dp.message.middleware.setup(LoggingMiddleware())
 
 # Реєстрація хендлерів
