@@ -4,7 +4,7 @@ from aiogram import Dispatcher
 from utils.message_utils import MessageManager  # Add this import
 from handlers.intro_handler import router as intro_router
 from handlers.menu_handler import router as menu_router
-
+from aiogram.exceptions import TelegramBadRequest
 def setup_handlers(dp: Dispatcher, message_manager: Optional[MessageManager] = None):
     """
     Реєструє всі обробники в Dispatcher.
