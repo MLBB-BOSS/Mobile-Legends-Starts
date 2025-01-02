@@ -1,15 +1,7 @@
-from .menu_states import (
+from states import (
     IntroState,
     BaseState,
     MainMenuState,
     NavigationState,
     ProfileState
 )
-
-__all__ = [
-    'IntroState',
-    'BaseState',
-    'MainMenuState',
-    'NavigationState',
-    'ProfileState'
-]
