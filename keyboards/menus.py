@@ -148,37 +148,31 @@ menu_button_to_class: Dict[str, str] = {
 # Списки героїв по класах
 heroes_by_class: Dict[str, List[str]] = {
     "Боєць": [
-        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
-        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
-        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
-        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
-        "Badang", "Guinevere"
+        "Aldous", "Alpha", "Alucard", "Argus", "Badang", "Chou", "Dyrroth", "Freya",
+        "Guinevere", "Jawhead", "Lapu-Lapu", "Leomord", "Martis", "Minsitthar",
+        "Roger", "Ruby", "Sun", "Terizla", "Thamuz", "X.Borg", "Yu Zhong", "Zilong"
     ],
     "Танк": [
-        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolita", "Grock",
-        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia",
-        "Masha", "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda",
-        "Carmilla", "Gloo", "Chip"
+        "Atlas", "Akai", "Belerick", "Gatotkaca", "Grock", "Hylos", "Johnson",
+        "Khufra", "Lolita", "Minotaur", "Tigreal", "Uranus", "Alice", "Franco",
+        "Esmeralda", "Terizla", "Baxia", "Masha", "Barats", "Edith", "Fredrinn",
+        "Hilda", "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
-        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin",
-        "Lancelot", "Helcurt", "Lesley", "Selena", "Mathilda", "Paquito",
-        "Yin", "Arlott", "Harley", "Suyou"
+        "Alucard", "Fanny", "Gusion", "Hanzo", "Hayabusa", "Helcurt", "Karina",
+        "Lancelot", "Ling", "Natalia", "Saber", "Selena"
     ],
     "Стрілець": [
-        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia",
-        "Hanabi", "Claude", "Kimmy", "Granger", "Wanwan", "Miya", "Bruno",
-        "Clint", "Layla", "Yi Sun-shin", "Moskov", "Roger", "Karrie",
-        "Irithel", "Lesley"
+        "Bruno", "Claude", "Granger", "Hanabi", "Irithel", "Karrie", "Kimmy",
+        "Layla", "Miya", "Moskov", "Wanwan", "Yi Sun-shin"
     ],
     "Маг": [
-        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier",
-        "Novaria", "Zhuxin", "Harley", "Yve", "Aurora", "Faramis",
-        "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
+        "Aurora", "Cyclops", "Eudora", "Gord", "Harley", "Kagura", "Lunox",
+        "Lylia", "Nana", "Odette", "Vale", "Valir", "Vexana", "Zhask"
     ],
     "Підтримка": [
-        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis",
-        "Mathilda", "Florin", "Johnson"
+        "Angela", "Carmilla", "Diggie", "Estes", "Faramis", "Rafaela", "Rafa",
+        "Mathilda", "Florin"
     ],
 }
 
@@ -205,6 +199,7 @@ def create_menu(
         KeyboardButton(text=button.value) for button in buttons
     ]
 
+    # Розбиваємо кнопки на рядки по row_width
     keyboard = [
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
@@ -647,17 +642,31 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
         ]
     )
 
-def get_hero_class_menu(hero_class: str) -> InlineKeyboardMarkup:
+def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
     """
-    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
+    Створює клавіатуру для вибору конкретного героя з класу.
 
     :param hero_class: Назва класу героя
-    :return: InlineKeyboardMarkup об'єкт
+    :return: ReplyKeyboardMarkup об'єкт
     """
     heroes = heroes_by_class.get(hero_class, [])
-    keyboard = InlineKeyboardMarkup(row_width=3)
-    for hero in heroes:
-        keyboard.insert(InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}"))
-    # Додавання кнопки "Назад" з декоративним текстом
-    keyboard.add(InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back"))
-    return keyboard
+    if not heroes:
+        logger.warning(f"Клас героїв '{hero_class}' не знайдено у словнику heroes_by_class.")
+        return ReplyKeyboardRemove()
+
+    # Створюємо кнопки для кожного героя
+    buttons = [KeyboardButton(text=hero) for hero in heroes]
+
+    # Розбиваємо кнопки на рядки по 3
+    keyboard = [buttons[i:i + 3] for i in range(0, len(buttons), 3)]
+
+    # Додаємо навігаційні кнопки внизу
+    keyboard.append([
+        KeyboardButton(text="🔙 Назад до класів"),
+        KeyboardButton(text="🏠 Головне меню")
+    ])
+
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True
+    )
