@@ -1,110 +1,65 @@
-# keyboards/main_menu.py
-from aiogram.types import (
-    ReplyKeyboardMarkup,
-    KeyboardButton,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton
-)
-from typing import List
+from aiogram import Router, F
+from aiogram.types import Message
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 
-def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
+from states.menu_states import MainMenuState, NavigationState, ProfileState
+from constants.menu_texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
+from utils.interface_manager import update_interface, safe_delete_message
+from .base_handler import BaseHandler
+
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+# Визначення клавіатури для головного меню
+def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     """
-    Create main menu keyboard
-    
-    Returns:
-        ReplyKeyboardMarkup: Main menu keyboard
+    Створює клавіатуру головного меню.
     """
-    keyboard = [
-        [
-            KeyboardButton(text="🧭 Навігація"),
-            KeyboardButton(text="🪪 Профіль")
-        ],
-        [
-            KeyboardButton(text="⚔️ Герої"),
-            KeyboardButton(text="🏆 Турніри")
-        ],
-        [
-            KeyboardButton(text="📚 Гайди"),
-            KeyboardButton(text="⚡️ Буст")
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Почати", callback_data="start")],
+            [InlineKeyboardButton(text="Налаштування", callback_data="settings")],
+            [InlineKeyboardButton(text="Допомога", callback_data="help")]
         ]
-    ]
-    
-    return ReplyKeyboardMarkup(
-        keyboard=keyboard,
-        resize_keyboard=True,
-        input_field_placeholder="Оберіть опцію з меню"
     )
 
-def get_main_menu_inline_keyboard() -> InlineKeyboardMarkup:
-    """
-    Create main menu inline keyboard
-    
-    Returns:
-        InlineKeyboardMarkup: Main menu inline keyboard
-    """
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                text="🧭 Навігація",
-                callback_data="nav_main"
-            ),
-            InlineKeyboardButton(
-                text="🪪 Профіль",
-                callback_data="profile_main"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="⚔️ Герої",
-                callback_data="heroes_main"
-            ),
-            InlineKeyboardButton(
-                text="🏆 Турніри",
-                callback_data="tournaments_main"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="📚 Гайди",
-                callback_data="guides_main"
-            ),
-            InlineKeyboardButton(
-                text="⚡️ Буст",
-                callback_data="boost_main"
-            )
-        ]
-    ]
-    
-    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+class MainMenuHandler(BaseHandler):
+    def __init__(self):
+        super().__init__(name="main_menu")
+        self.register_handlers()
 
-# Constants for callback data
-class MainMenuCallbacks:
-    """Main menu callback data"""
-    NAVIGATION = "nav_main"
-    PROFILE = "profile_main"
-    HEROES = "heroes_main"
-    TOURNAMENTS = "tournaments_main"
-    GUIDES = "guides_main"
-    BOOST = "boost_main"
+    def register_handlers(self):
+        """Реєстрація обробників головного меню"""
+        self.router.message.register(self.cmd_start, CommandStart())
+        self.router.message.register(self.handle_main_menu, MainMenuState.main)
 
-# Button text constants
-class MainMenuButtons:
-    """Main menu button texts"""
-    NAVIGATION = "🧭 Навігація"
-    PROFILE = "🪪 Профіль"
-    HEROES = "⚔️ Герої"
-    TOURNAMENTS = "🏆 Турніри"
-    GUIDES = "📚 Гайди"
-    BOOST = "⚡️ Буст"
+    async def cmd_start(self, message: Message, state: FSMContext):
+        """Обробка команди /start"""
+        # Видаляємо повідомлення користувача
+        await safe_delete_message(message.bot, message.chat.id, message.message_id)
 
-def create_keyboard_row(buttons: List[str]) -> List[KeyboardButton]:
-    """
-    Create keyboard row from button texts
-    
-    Args:
-        buttons: List of button texts
-        
-    Returns:
-        List[KeyboardButton]: List of keyboard buttons
-    """
-    return [KeyboardButton(text=text) for text in buttons]
+        # Створюємо новий інтерактивний екран
+        screen = await message.bot.send_message(
+            chat_id=message.chat.id,
+            text=MAIN_MENU_SCREEN_TEXT,
+            reply_markup=get_main_menu_keyboard()
+        )
+
+        # Зберігаємо стан
+        await state.set_state(MainMenuState.main)
+        await state.update_data(
+            bot_message_id=screen.message_id,
+            last_text=MAIN_MENU_TEXT,
+            last_keyboard=get_main_menu_keyboard()
+        )
+
+    async def handle_main_menu(self, message: Message, state: FSMContext):
+        """Обробка кнопок головного меню"""
+        match message.text:
+            case "🧭 Навігація":
+                # Логіка переходу до навігації
+                pass
+            case "🪪 Мій Профіль":
+                # Логіка переходу до профілю
+                pass
+
