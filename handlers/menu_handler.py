@@ -3,7 +3,6 @@ from typing import Optional
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from logging import getLogger
-from keyboards.main_menu import get_main_menu_keyboard
 
 from utils.message_utils import MessageManager
 from states.menu_states import MainMenuState
@@ -45,6 +44,8 @@ class MenuHandler:
             else:
                 await callback.answer("❌ Невідома команда")
                 return
+            
+            from keyboards.main_menu import get_main_menu_keyboard
             
             if self.message_manager:
                 await self.message_manager.send_or_edit(
