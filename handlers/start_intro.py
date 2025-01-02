@@ -1,11 +1,10 @@
 import logging
-from aiogram import Router, types, Bot
+from aiogram import Router, Bot, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from states.menu_states import MenuStates  # Імпорт станів
-
 from texts import (
     INTRO_PAGE_1_TEXT,
     INTRO_PAGE_2_TEXT,
@@ -14,22 +13,18 @@ from texts import (
     MAIN_MENU_DESCRIPTION,
     GENERIC_ERROR_MESSAGE_TEXT
 )
-
 from keyboards.inline_menus import (
     get_intro_page_1_keyboard,
     get_intro_page_2_keyboard,
     get_intro_page_3_keyboard,
-    get_generic_inline_keyboard
+    get_main_menu_keyboard
 )
-from keyboards.menus import get_main_menu
-
 from utils.shared_utils import (
     safe_delete_message,
     handle_error,
     transition_state,
     check_and_edit_message
 )
-
 from models.user import User
 from models.user_stats import UserStats
 from sqlalchemy.future import select
@@ -65,7 +60,7 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
                 logger.info(f"Існуючий користувач: {user_id}")
     except Exception as e:
         logger.error(f"Помилка реєстрації користувача {user_id}: {e}")
-        await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
+        await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu_keyboard())
         return
 
     await transition_state(state, MenuStates.INTRO_PAGE_1)
@@ -83,7 +78,7 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
         )
     except Exception as e:
         logger.error(f"Не вдалося показати першу сторінку інтро: {e}")
-        await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
+        await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu_keyboard())
 
 @router.callback_query()
 async def handle_intro_callback(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
@@ -127,18 +122,18 @@ async def handle_intro_callback(callback: types.CallbackQuery, state: FSMContext
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id,
                 text=MAIN_MENU_DESCRIPTION,
-                reply_markup=get_generic_inline_keyboard()
+                reply_markup=get_main_menu_keyboard()
             )
             main_menu_msg = await bot.send_message(
                 chat_id=callback.message.chat.id,
                 text=main_menu_text,
-                reply_markup=get_main_menu()
+                reply_markup=get_main_menu_keyboard()
             )
             await state.update_data(bot_message_id=main_menu_msg.message_id)
             await callback.answer("Вітаємо! Ви перейшли до головного меню.")
         except Exception as e:
             logger.error(f"Не вдалося оновити інтро-повідомлення: {e}")
-            await handle_error(bot, callback.message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu())
+            await handle_error(bot, callback.message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger, get_main_menu_keyboard())
     else:
         logger.warning(f"Невідомий колбек: {data}")
         await callback.answer("Невідома команда або інтро вже пройдено.", show_alert=True)
