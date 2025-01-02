@@ -1,11 +1,3 @@
-from .menu_states import (
-    IntroState,  # Переконайтесь, що цей рядок є
-    MainMenuState,
-    ProfileState
-)
+from .menu_states import MenuStates
 
-__all__ = [
-    'IntroState',
-    'MainMenuState',
-    'ProfileState'
-]
+__all__ = ['MenuStates']
