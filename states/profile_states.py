@@ -5,19 +5,16 @@ from models.user_stats import UserStats
 from datetime import datetime
 
 async def get_user(session: AsyncSession, telegram_id: int) -> User | None:
-    """Повертає користувача з БД за його telegram_id або None, якщо такого немає."""
     result = await session.execute(select(User).where(User.telegram_id == telegram_id))
     return result.scalar_one_or_none()
 
 async def create_user(session: AsyncSession, telegram_id: int, username: str = None) -> User:
-    """Створює нового користувача з заданим telegram_id та опціональним username."""
     user = User(telegram_id=telegram_id, username=username)
     session.add(user)
     await session.flush()
     return user
 
 async def get_or_create_user_stats(session: AsyncSession, user: User) -> UserStats:
-    """Отримує статистику користувача або створює новий запис, якщо його немає."""
     result = await session.execute(select(UserStats).where(UserStats.user_id == user.id))
     stats = result.scalar_one_or_none()
     if not stats:
@@ -27,7 +24,6 @@ async def get_or_create_user_stats(session: AsyncSession, user: User) -> UserSta
     return stats
 
 async def update_user_stats(session: AsyncSession, telegram_id: int, rating: int = None, achievements: int = None) -> None:
-    """Оновлює статистику користувача за telegram_id. Створює користувача та статистику, якщо їх не існує."""
     user = await get_user(session, telegram_id)
     if not user:
         user = await create_user(session, telegram_id)
@@ -40,7 +36,6 @@ async def update_user_stats(session: AsyncSession, telegram_id: int, rating: int
     await session.commit()
 
 async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
-    """Формує текстовий профіль користувача за його telegram_id."""
     user = await get_user(session, telegram_id)
     if not user:
         return "Користувач не знайдений."
@@ -54,7 +49,5 @@ async def get_user_profile_text(session: AsyncSession, telegram_id: int) -> str:
         f"🚀 Рівень: <b>{level}</b>\n"
         f"📈 Рейтинг: <b>{stats.rating}</b>\n"
         f"🎯 Досягнення: <b>{stats.achievements_count} досягнень</b>\n"
-        f"🎮 Матчі: {stats.total_matches}, Перемоги: {stats.total_wins}, Поразки: {stats.total_losses}\n"
-        f"\nОстаннє оновлення: {stats.last_update.strftime('%Y-%m-%d %H:%M:%S')}"
     )
     return profile_text
