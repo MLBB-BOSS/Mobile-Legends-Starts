@@ -1,5 +1,9 @@
-# states/__init__.py
+# handlers/__init__.py
 
-from .menu_states import MenuStates
+from aiogram import Dispatcher
+from .start import router as start_router
+from .navigation import router as navigation_router
 
-__all__ = ['MenuStates']
+def setup_handlers(dp: Dispatcher):
+    dp.include_router(start_router)
+    dp.include_router(navigation_router)
