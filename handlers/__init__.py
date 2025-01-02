@@ -1,4 +1,6 @@
 # handlers/__init__.py
+from aiogram import Dispatcher  # Add this import at the top
+
 def setup_handlers(dp: Dispatcher):
     from .base import base_handlers
     from .features import feature_handlers
