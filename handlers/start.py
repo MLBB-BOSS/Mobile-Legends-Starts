@@ -24,4 +24,4 @@ def register_start_handler(dp: Dispatcher):
     """
     Реєструє хендлер для команди /start.
     """
-    dp.register_message_handler(cmd_start, commands="start", state="*")
+    dp.message.register(cmd_start, commands="start", state="*")
