@@ -1,3 +1,5 @@
+# handlers/base.py
+
 import logging
 from typing import Optional
 
@@ -16,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from PIL import Image
 import plotly.graph_objects as go
+import io
 
 # Власні модулі
 from states import (
@@ -236,8 +239,7 @@ async def transition_state(state: FSMContext, new_state):
     await state.set_state(new_state)
     logger.debug(f"Стан встановлено на {new_state}")
 
-# Функції для генерації графіків
-
+# Функції для генерації графіків (залишаються без змін)
 def create_overall_activity_graph() -> bytes:
     """Генерація графіка загальної активності за місяць."""
     days = list(range(1, 31))
@@ -325,14 +327,6 @@ def create_comparison_graph(hero1_stats: dict, hero2_stats: dict, hero1_name: st
 
 # Обробники команд та повідомлень
 
-@router.message(Command("example"))
-async def handle_example(message: Message, state: FSMContext):
-    """
-    Обробник для демонстрації переходу між станами.
-    """
-    await transition_state(state, MainMenuState.main)
-    await message.answer("Перехід до головного меню.")
-
 @router.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
@@ -390,7 +384,7 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
 
 # Обробники вступних сторінок
 
-@router.callback_query(F.data == "intro_next_1")
+@router.callback_query(lambda c: c.data == "intro_next_1")
 async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
     Обробник для переходу від INTRO_PAGE_1 до INTRO_PAGE_2.
@@ -420,7 +414,7 @@ async def handle_intro_next_1(callback: CallbackQuery, state: FSMContext, bot: B
     await transition_state(state, new_state)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_next_2")
+@router.callback_query(lambda c: c.data == "intro_next_2")
 async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: Bot):
     """
     Обробник для переходу від INTRO_PAGE_2 до INTRO_PAGE_3.
@@ -450,7 +444,7 @@ async def handle_intro_next_2(callback: CallbackQuery, state: FSMContext, bot: B
     await transition_state(state, new_state)
     await callback.answer()
 
-@router.callback_query(F.data == "intro_start")
+@router.callback_query(lambda c: c.data == "intro_start")
 async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bot, db: AsyncSession):
     """
     Обробник для завершення вступних сторінок та переходу до головного меню.
@@ -511,8 +505,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
     await transition_state(state, MainMenuState.main)
     await callback.answer()
 
-# Приклад уніфікованої функції для обробки меню
-
+# Приклад уніфікованої функції для обробки меню (може бути корисною для інших меню)
 async def handle_menu(
     user_choice: str,
     message: Message,
@@ -554,10 +547,10 @@ async def handle_menu(
         try:
             main_message = await bot.send_message(chat_id=chat_id, text=main_menu_error, reply_markup=main_menu_keyboard_func())
             await state.update_data(bot_message_id=main_message.message_id)
-            await transition_state(state, MainMenuState.main)  # Залежить від контексту
+            await transition_state(state, new_state)  # Залежить від контексту
         except Exception as e:
             logger.error(f"Не вдалося надіслати повідомлення про помилку головного меню: {e}")
-            await handle_error(bot, chat_id=chat_id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
+            await handle_error(bot, chat_id, GENERIC_ERROR_MESSAGE_TEXT, logger)
         return
 
     # Логіка для вибору користувача
@@ -634,7 +627,17 @@ async def handle_menu(
     await state.update_data(bot_message_id=new_bot_message_id)
     await transition_state(state, updated_state)
 
-# Приклад функції обробки профілю користувача
+# Обробник кнопки "🪪 Мій Профіль"
+
+@router.message(ProfileState.stats)
+async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    """
+    Обробчик натискання кнопки "🪪 Мій Профіль".
+    """
+    await increment_step(state)
+    await process_my_profile(message=message, state=state, db=db, bot=bot)
+
+# Функція для обробки профілю користувача
 
 async def process_my_profile(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
     """
@@ -785,50 +788,41 @@ async def process_my_profile(message: Message, state: FSMContext, db: AsyncSessi
         # Встановлення стану до PROFILE_MENU
         await transition_state(state, ProfileState.stats)
 
-    # Обробчик кнопки "🪪 Мій Профіль"
+# Обробник меню "Main Menu"
 
-    @router.message(ProfileState.stats)
-    async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-        """
-        Обробчик натискання кнопки "🪪 Мій Профіль".
-        """
-        await increment_step(state)
-        await process_my_profile(message=message, state=state, db=db, bot=bot)
+@router.message(MainMenuState.main)
+async def handle_main_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
+    """
+    Обробчик кнопок у головному меню.
+    """
+    user_choice = message.text
+    logger.info(f"Користувач {message.from_user.id} обрав '{user_choice}' в головному меню")
 
-    # Обробчик меню "Main Menu"
+    await safe_delete_message(bot, message.chat.id, message.message_id)
 
-    @router.message(MainMenuState.main)
-    async def handle_main_menu_buttons(message: Message, state: FSMContext, db: AsyncSession, bot: Bot):
-        """
-        Обробчик кнопок у головному меню.
-        """
-        user_choice = message.text
-        logger.info(f"Користувач {message.from_user.id} обрав '{user_choice}' в головному меню")
+    await handle_menu(
+        user_choice=user_choice,
+        message=message,
+        state=state,
+        db=db,
+        bot=bot,
+        chat_id=message.chat.id,
+        main_menu_error=MAIN_MENU_ERROR_TEXT,
+        main_menu_keyboard_func=get_main_menu,
+        main_menu_text=MAIN_MENU_TEXT,
+        interactive_text=MAIN_MENU_DESCRIPTION,
+        new_state=MainMenuState.main
+    )
 
-        await safe_delete_message(bot, message.chat.id, message.message_id)
+# Інші обробники меню та функції
+# Наприклад, обробники для NavigationState.heroes, ProfileState.achievements тощо
 
-        await handle_menu(
-            user_choice=user_choice,
-            message=message,
-            state=state,
-            db=db,
-            bot=bot,
-            chat_id=message.chat.id,
-            main_menu_error=MAIN_MENU_ERROR_TEXT,
-            main_menu_keyboard_func=get_main_menu,
-            main_menu_text=MAIN_MENU_TEXT,
-            interactive_text=MAIN_MENU_DESCRIPTION,
-            new_state=MainMenuState.main
-        )
+# Функція для налаштування обробників
 
-    # Інші обробники меню та функції
-
-    # Функція для налаштування обробників
-
-    def setup_handlers(dp: Dispatcher):
-        """
-        Функція для налаштування обробників у Dispatcher.
-        """
-        dp.include_router(router)
-        # Якщо у вас є інші роутери, включіть їх тут, наприклад:
-        # dp.include_router(profile_router)
+def setup_handlers(dp: Dispatcher):
+    """
+    Функція для налаштування обробників у Dispatcher.
+    """
+    dp.include_router(router)
+    # Якщо у вас є інші роутери, включіть їх тут, наприклад:
+    # dp.include_router(profile_router)
