@@ -3,13 +3,16 @@ from typing import Optional
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from logging import getLogger
+from keyboards.main_menu import get_main_menu_keyboard
 
 from utils.message_utils import MessageManager
 from states.menu_states import MainMenuState
 
+router = Router(name="menu")  # Define router here
+
 class MenuHandler:
     def __init__(self, message_manager: Optional[MessageManager] = None):
-        self.router = Router(name="menu")
+        self.router = router  # Use the defined router
         self.message_manager = message_manager
         self.logger = getLogger(__name__)
         self._setup_router()
@@ -44,8 +47,6 @@ class MenuHandler:
             else:
                 await callback.answer("❌ Невідома команда")
                 return
-            
-            from keyboards.main_menu import get_main_menu_keyboard
             
             if self.message_manager:
                 await self.message_manager.send_or_edit(
