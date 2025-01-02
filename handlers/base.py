@@ -1,11 +1,8 @@
 # handlers/base.py
+
 import logging
-import io
 from typing import Optional
-from utils.message_utils import safe_delete_message, check_and_edit_message
-import networkx as nx
-import plotly.graph_objects as go
-from PIL import Image
+
 from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
@@ -126,6 +123,7 @@ from texts import (
     TOURNAMENTS_MENU_TEXT,
     META_MENU_TEXT
 )
+from texts import MenuButton, LanguageButton, MENU_BUTTON_TO_CLASS, heroes_by_class
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
