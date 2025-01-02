@@ -1,4 +1,3 @@
-#config.py
 import logging
 from pydantic_settings import BaseSettings
 from pydantic import Field
@@ -9,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str = Field(..., env="TELEGRAM_BOT_TOKEN")
-    AS_BASE: str = Field(..., env="AS_BASE")  # URL для асинхронного підключення (SQLAlchemy + asyncpg)
-    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # URL для синхронного підключення (SQLAlchemy)
+    AS_BASE: str = Field(..., env="AS_BASE")  # URL для асинхронного підключення (SQLAlchemy + aiomysql)
+    DATABASE_URL: str = Field(..., env="DATABASE_URL")  # URL для синхронного підключення (SQLAlchemy + pymysql)
     APP_NAME: str = "mlbb"
     DEBUG: bool = False
 
@@ -23,11 +22,12 @@ class Settings(BaseSettings):
 
     @property
     def db_async_url(self) -> str:
-        """Повертає URL для асинхронного підключення (SQLAlchemy + asyncpg)."""
+        """Повертає URL для асинхронного підключення (SQLAlchemy + aiomysql)."""
         url = self.AS_BASE
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
-            logger.info("Async Database URL formatted successfully")
+        if url.startswith("mysql+aiomysql://"):
+            logger.info("Async Database URL formatted correctly")
+        else:
+            logger.warning("Async Database URL does not start with 'mysql+aiomysql://'")
         return url
 
     def validate(self):
