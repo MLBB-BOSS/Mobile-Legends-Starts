@@ -1,8 +1,13 @@
+# utils/models/user.py
 from sqlalchemy import Column, Integer, String
-from utils.db import Base
 
-class User(Base):
+class User:
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    telegram_id = Column(Integer, unique=True, nullable=False)
+    name = Column(String)
+    # Інші поля...
+
+    def some_method(self):
+        from utils.db import Base
+        # Використання Base тут
