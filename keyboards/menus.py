@@ -11,9 +11,15 @@ from enum import Enum, unique
 from typing import List, Dict, Union, Optional
 import logging
 
-# Налаштування логування
+# -------------------------
+# Logging Configuration
+# -------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# -------------------------
+# Enums for Menu Buttons
+# -------------------------
 
 @unique
 class MenuButton(Enum):
@@ -129,11 +135,16 @@ class MenuButton(Enum):
     GPT_HINTS = "💡 Поради"
     GPT_HERO_STATS = "📈 Статистика Героїв"
 
+
 @unique
 class LanguageButton(Enum):
     UKRAINIAN = "🇺🇦 Українська"
     ENGLISH = "🇬🇧 English"
     BACK = "🔙 Назад"
+
+# -------------------------
+# Data Mappings
+# -------------------------
 
 # Мапінг кнопок до класів персонажів
 menu_button_to_class: Dict[str, str] = {
@@ -148,33 +159,43 @@ menu_button_to_class: Dict[str, str] = {
 # Списки героїв по класах
 heroes_by_class: Dict[str, List[str]] = {
     "Боєць": [
-        "Aldous", "Alpha", "Alucard", "Argus", "Badang", "Chou", "Dyrroth", "Freya",
-        "Guinevere", "Jawhead", "Lapu-Lapu", "Leomord", "Martis", "Minsitthar",
-        "Roger", "Ruby", "Sun", "Terizla", "Thamuz", "X.Borg", "Yu Zhong", "Zilong"
+        "Balmond", "Alucard", "Bane", "Zilong", "Freya", "Alpha", "Ruby", "Roger",
+        "Gatotkaca", "Jawhead", "Martis", "Aldous", "Minsitthar", "Terizla", "X.Borg",
+        "Dyroth", "Masha", "Silvanna", "Yu Zhong", "Khaleed", "Barats", "Paquito",
+        "Phoveus", "Aulus", "Fiddrin", "Arlott", "Cici", "Kaja", "Leomord", "Thamuz",
+        "Badang", "Guinevere"
     ],
     "Танк": [
-        "Atlas", "Akai", "Belerick", "Gatotkaca", "Grock", "Hylos", "Johnson",
-        "Khufra", "Lolita", "Minotaur", "Tigreal", "Uranus", "Alice", "Franco",
-        "Esmeralda", "Terizla", "Baxia", "Masha", "Barats", "Edith", "Fredrinn",
-        "Hilda", "Carmilla", "Gloo", "Chip"
+        "Alice", "Tigreal", "Akai", "Franco", "Minotaur", "Lolita", "Grock",
+        "Hylos", "Uranus", "Belerick", "Khufra", "Esmeralda", "Terizla", "Baxia",
+        "Masha", "Atlas", "Barats", "Edith", "Fredrinn", "Johnson", "Hilda",
+        "Carmilla", "Gloo", "Chip"
     ],
     "Асасін": [
-        "Alucard", "Fanny", "Gusion", "Hanzo", "Hayabusa", "Helcurt", "Karina",
-        "Lancelot", "Ling", "Natalia", "Saber", "Selena"
+        "Saber", "Alucard", "Zilong", "Fanny", "Natalia", "Yi Sun-shin",
+        "Lancelot", "Helcurt", "Lesley", "Selena", "Mathilda", "Paquito",
+        "Yin", "Arlott", "Harley", "Suyou"
     ],
     "Стрілець": [
-        "Bruno", "Claude", "Granger", "Hanabi", "Irithel", "Karrie", "Kimmy",
-        "Layla", "Miya", "Moskov", "Wanwan", "Yi Sun-shin"
+        "Popol and Kupa", "Brody", "Beatrix", "Natan", "Melissa", "Ixia",
+        "Hanabi", "Claude", "Kimmy", "Granger", "Wanwan", "Miya", "Bruno",
+        "Clint", "Layla", "Yi Sun-shin", "Moskov", "Roger", "Karrie",
+        "Irithel", "Lesley"
     ],
     "Маг": [
-        "Aurora", "Cyclops", "Eudora", "Gord", "Harley", "Kagura", "Lunox",
-        "Lylia", "Nana", "Odette", "Vale", "Valir", "Vexana", "Zhask"
+        "Vale", "Lunox", "Kadita", "Cecillion", "Luo Yi", "Xavier",
+        "Novaria", "Zhuxin", "Harley", "Yve", "Aurora", "Faramis",
+        "Esmeralda", "Kagura", "Cyclops", "Vexana", "Odette", "Zhask"
     ],
     "Підтримка": [
-        "Angela", "Carmilla", "Diggie", "Estes", "Faramis", "Rafaela", "Rafa",
-        "Mathilda", "Florin"
+        "Rafaela", "Minotaur", "Lolita", "Estes", "Angela", "Faramis",
+        "Mathilda", "Florin", "Johnson"
     ],
 }
+
+# -------------------------
+# Menu Creation Functions
+# -------------------------
 
 def create_menu(
     buttons: List[Union[MenuButton, LanguageButton]], 
@@ -190,6 +211,7 @@ def create_menu(
     :return: ReplyKeyboardMarkup об'єкт
     """
     if not all(isinstance(button, (MenuButton, LanguageButton)) for button in buttons):
+        logger.error("Список кнопок містить некоректні елементи.")
         raise ValueError("Усі елементи у списку кнопок повинні бути екземплярами MenuButton або LanguageButton Enum.")
 
     button_texts = [button.value for button in buttons]
@@ -199,7 +221,6 @@ def create_menu(
         KeyboardButton(text=button.value) for button in buttons
     ]
 
-    # Розбиваємо кнопки на рядки по row_width
     keyboard = [
         keyboard_buttons[i:i + row_width]
         for i in range(0, len(keyboard_buttons), row_width)
@@ -222,11 +243,20 @@ def create_inline_menu(
     :param row_width: Кількість кнопок у рядку
     :return: InlineKeyboardMarkup об'єкт
     """
+    if not buttons:
+        logger.warning("Список інлайн кнопок порожній.")
+        return InlineKeyboardMarkup()
+
     keyboard = [
         buttons[i:i + row_width]
         for i in range(0, len(buttons), row_width)
     ]
+    logger.info(f"Створення інлайн меню з {len(buttons)} кнопками.")
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+# -------------------------
+# Specific Menu Functions
+# -------------------------
 
 def get_main_menu() -> ReplyKeyboardMarkup:
     """
@@ -634,6 +664,7 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
 
     :return: InlineKeyboardMarkup об'єкт
     """
+    logger.info("Створення генералізованої інлайн клавіатури з кнопкою 'Назад'.")
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -642,31 +673,98 @@ def get_generic_inline_keyboard() -> InlineKeyboardMarkup:
         ]
     )
 
-def get_hero_class_menu(hero_class: str) -> ReplyKeyboardMarkup:
+def get_hero_class_reply_menu(hero_class: str) -> ReplyKeyboardMarkup:
     """
-    Створює клавіатуру для вибору конкретного героя з класу.
+    Створює клавіатуру для героїв конкретного класу.
 
     :param hero_class: Назва класу героя
     :return: ReplyKeyboardMarkup об'єкт
     """
-    heroes = heroes_by_class.get(hero_class, [])
+    heroes = heroes_by_class.get(hero_class)
     if not heroes:
-        logger.warning(f"Клас героїв '{hero_class}' не знайдено у словнику heroes_by_class.")
-        return ReplyKeyboardRemove()
+        logger.error(f"Class '{hero_class}' not found in heroes_by_class mapping.")
+        # Handle the error, e.g., return a default menu or raise an exception
+        return get_generic_inline_keyboard()  # Alternatively, return a different menu
 
-    # Створюємо кнопки для кожного героя
     buttons = [KeyboardButton(text=hero) for hero in heroes]
 
-    # Розбиваємо кнопки на рядки по 3
+    # Організуємо кнопки в рядки по 3
     keyboard = [buttons[i:i + 3] for i in range(0, len(buttons), 3)]
 
-    # Додаємо навігаційні кнопки внизу
+    # Додаємо навігаційні кнопки
     keyboard.append([
         KeyboardButton(text="🔙 Назад до класів"),
         KeyboardButton(text="🏠 Головне меню")
     ])
 
+    logger.info(f"Створення ReplyKeyboard для класу '{hero_class}' з {len(heroes)} героями.")
+    
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
         resize_keyboard=True
     )
+
+def get_hero_class_inline_menu(hero_class: str, row_width: int = 3) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для вибору конкретного героя з класу.
+
+    :param hero_class: Назва класу героя
+    :param row_width: Кількість кнопок у рядку
+    :return: InlineKeyboardMarkup об'єкт
+    """
+    heroes = heroes_by_class.get(hero_class, [])
+    if not heroes:
+        logger.error(f"Class '{hero_class}' not found in heroes_by_class mapping.")
+        # Handle the error, e.g., return a generic inline keyboard or raise an exception
+        return get_generic_inline_keyboard()
+
+    buttons = [
+        InlineKeyboardButton(text=hero, callback_data=f"hero_{hero}") for hero in heroes
+    ]
+
+    # Створюємо інлайн клавіатуру з заданою шириною рядка
+    keyboard = [
+        buttons[i:i + row_width] for i in range(0, len(buttons), row_width)
+    ]
+
+    # Додаємо декоративну кнопку "Назад"
+    keyboard.append([
+        InlineKeyboardButton(text="░▒▓█ Ｍ Ｌ Ｓ █▓▒░ 🔙 Назад", callback_data="menu_back")
+    ])
+
+    logger.info(f"Створення InlineKeyboard для класу '{hero_class}' з {len(heroes)} героями.")
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+# -------------------------
+# Additional Keyboard Functions
+# -------------------------
+
+def get_heroes_class_menu() -> ReplyKeyboardMarkup:
+    """
+    Створює клавіатуру для вибору класу героїв.
+
+    :return: ReplyKeyboardMarkup об'єкт
+    """
+    keyboard = [
+        [
+            KeyboardButton(text="🛡 Танк"),
+            KeyboardButton(text="🧙‍♂️ Маг")
+        ],
+        [
+            KeyboardButton(text="🏹 Стрілець"),
+            KeyboardButton(text="🗡 Асасін")
+        ],
+        [
+            KeyboardButton(text="💖 Підтримка"),
+            KeyboardButton(text="⚔️ Боєць")
+        ],
+        [KeyboardButton(text="🔙 Назад до навігації")]
+    ]
+
+    logger.info("Створення меню вибору класу героїв.")
+    
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard,
+        resize_keyboard=True
+)
