@@ -9,9 +9,6 @@ from sqlalchemy.ext.declarative import declarative_base
 # Імпортуємо ваші моделі
 from utils.models import User, Item
 
-Base = declarative_base()
-# Не імпортуйте моделі тут, щоб уникнути циклічних імпортів
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
