@@ -16,13 +16,15 @@ async def cmd_start(message: Message):
     Обробник команди /start.
     Відправляє повідомлення з інтерактивними кнопками.
     """
-    keyboard = InlineKeyboardMarkup(row_width=2)
+    # Create buttons first
     buttons = [
-        InlineKeyboardButton(text="🧭 Навігація", callback_data="navigate"),
-        InlineKeyboardButton(text="🪪 Мій Профіль", callback_data="profile"),
+        [
+            InlineKeyboardButton(text="🧭 Навігація", callback_data="navigate"),
+            InlineKeyboardButton(text="🪪 Мій Профіль", callback_data="profile")
+        ]
     ]
-    keyboard.add(*buttons)
+    
+    # Create keyboard with the buttons
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await message.answer("Вітаю! Оберіть одну з опцій нижче:", reply_markup=keyboard)
-
-# Remove the register_start_handler function as it's no longer needed
