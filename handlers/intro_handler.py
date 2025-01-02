@@ -1,37 +1,49 @@
-from typing import Final
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router
+from aiogram.types import CallbackQuery
+from aiogram.fsm.context import FSMContext
+from keyboards.inline_menus import (
+    get_intro_page_1_keyboard,
+    get_intro_page_2_keyboard,
+    get_intro_page_3_keyboard,
+)
 
-# Constants
-NEXT_BUTTON_TEXT: Final = "Далі ➡️"
-START_BUTTON_TEXT: Final = "Розпочати 🚀"
+router = Router()
 
-def get_intro_page_1_keyboard() -> InlineKeyboardMarkup:
+
+@router.callback_query(lambda callback: callback.data == "intro_next_1")
+async def intro_page_2(callback: CallbackQuery, state: FSMContext):
     """
-    Клавіатура для сторінки 1 інтро
+    Обробник для другої сторінки інтро.
     """
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=NEXT_BUTTON_TEXT, callback_data="intro_next_1")]
-        ]
+    await callback.message.edit_text(
+        text="🛠️ Цей бот допоможе вам:\n\n"
+             "• 📊 Відстежувати свою статистику\n"
+             "• 🏆 Організовувати турніри\n"
+             "• 🥷 Дізнаватись про героїв",
+        reply_markup=get_intro_page_2_keyboard(),
     )
+    await state.set_state("intro_page_2")
 
-def get_intro_page_2_keyboard() -> InlineKeyboardMarkup:
+
+@router.callback_query(lambda callback: callback.data == "intro_next_2")
+async def intro_page_3(callback: CallbackQuery, state: FSMContext):
     """
-    Клавіатура для сторінки 2 інтро
+    Обробник для третьої сторінки інтро.
     """
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=NEXT_BUTTON_TEXT, callback_data="intro_next_2")]
-        ]
+    await callback.message.edit_text(
+        text="🎮 Готові почати гру? Натисніть «Розпочати», щоб перейти до головного меню.",
+        reply_markup=get_intro_page_3_keyboard(),
     )
+    await state.set_state("intro_page_3")
 
-def get_intro_page_3_keyboard() -> InlineKeyboardMarkup:
+
+@router.callback_query(lambda callback: callback.data == "intro_start")
+async def complete_intro(callback: CallbackQuery, state: FSMContext):
     """
-    Клавіатура для сторінки 3 інтро
+    Завершення інтро.
     """
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=START_BUTTON_TEXT, callback_data="intro_start")]
-        ]
+    await callback.message.edit_text(
+        text="👋 Вітаємо в головному меню! Оберіть дію:",
+        reply_markup=None,  # Замініть на головне меню, якщо воно реалізоване
     )
-
+    await state.set_state("main_menu")
