@@ -1,5 +1,6 @@
 # utils/message_utils.py
 
+from aiogram.types import InlineKeyboardMarkup
 from aiogram import Bot
 from aiogram.types import Message
 import logging
