@@ -14,11 +14,10 @@ class User(Base):
     username = Column(String(100))
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=True)
-    
-    # Відношення
-    stats = relationship("UserStats", back_populates="user", uselist=False)
-    feedbacks = relationship("Feedback", back_populates="user")
-    bug_reports = relationship("BugReport", back_populates="user")
+    rating = Column(Float, default=0.0)
+    tournaments_count = Column(Integer, default=0)
+    wins = Column(Integer, default=0)
+    matches_count = Column(Integer, default=0)
 
 class UserStats(Base):
     __tablename__ = 'user_stats'
@@ -33,9 +32,7 @@ class UserStats(Base):
     total_screenshots = Column(Integer, default=0)
     achievements_count = Column(Integer, default=0)
     last_activity = Column(DateTime, default=datetime.utcnow)
-    
-    # Відношення
-    user = relationship("User", back_populates="stats")
+    user = relationship("User")
 
 class Feedback(Base):
     __tablename__ = 'feedbacks'
@@ -45,9 +42,7 @@ class Feedback(Base):
     text = Column(Text)
     rating = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Відношення
-    user = relationship("User", back_populates="feedbacks")
+    user = relationship("User")
 
 class BugReport(Base):
     __tablename__ = 'bug_reports'
@@ -59,6 +54,4 @@ class BugReport(Base):
     status = Column(String(50), default='new')
     created_at = Column(DateTime, default=datetime.utcnow)
     resolved_at = Column(DateTime, nullable=True)
-    
-    # Відношення
-    user = relationship("User", back_populates="bug_reports")
+    user = relationship("User")
