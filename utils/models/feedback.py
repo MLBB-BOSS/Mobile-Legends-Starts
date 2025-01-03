@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, MetaData, Table
 from sqlalchemy.orm import relationship
 from utils.db_base import Base
 from datetime import datetime
+
+metadata = MetaData()
 
 class Feedback(Base):
     __tablename__ = "feedback"
