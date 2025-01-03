@@ -13,12 +13,13 @@ from utils.settings import settings
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бази даних
+# Функція для ініціалізації бази даних
 async def setup_database():
     await init_db()
+    logger.info("База даних ініціалізована успішно.")
 
-# Ініціалізація бота та диспетчера
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+# Ініціалізація бота з токеном з налаштувань
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, parse_mode=types.ParseMode.HTML)
 dp = Dispatcher(bot)
 
 # Реєстрація маршрутизаторів
@@ -27,13 +28,14 @@ dp.include_router(base_router)
 async def main():
     # Ініціалізація бази даних
     await setup_database()
-    logger.info("База даних ініціалізована.")
-    
-    # Старт бота
+
+    # Запуск бота
     try:
+        logger.info("Бот запускається...")
         await dp.start_polling()
     finally:
         await bot.close()
+        logger.info("Бот зупинено.")
 
 if __name__ == '__main__':
     asyncio.run(main())
