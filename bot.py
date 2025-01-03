@@ -5,7 +5,6 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram import F
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
 from aiogram.enums import ParseMode
 from utils.db import init_db, check_connection, AsyncSessionLocal
 from utils.models import User, UserStats, BugReport, Feedback
@@ -31,6 +30,9 @@ from texts import (
     # Додайте інші константи за потребою
 )
 
+# Імпортуємо FSM стани
+from states import MenuStates
+
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -48,14 +50,7 @@ if not TELEGRAM_BOT_TOKEN:
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
-# Визначте стани
-class MenuStates(StatesGroup):
-    MAIN_MENU = State()
-    NAVIGATION_MENU = State()
-    HEROES_MENU = State()
-    PROFILE_MENU = State()
-    STATISTICS_MENU = State()
-    # Додайте інші стани за необхідністю
+# Визначте обробники
 
 @dp.message(Command(commands=['start', 'help']))
 async def send_welcome(message: types.Message, state: FSMContext):
@@ -72,13 +67,11 @@ async def send_welcome(message: types.Message, state: FSMContext):
 async def main_menu_navigation(message: types.Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} перейшов до меню Навігації")
     await message.reply(
-        MAIN_MENU_TEXT,
+        MAIN_MENU_TEXT.format(user_first_name=message.from_user.first_name),
         reply_markup=get_navigation_menu(),
         parse_mode=ParseMode.HTML
     )
     await state.set_state(MenuStates.NAVIGATION_MENU)
-
-# Додайте інші обробники, використовуючи константи з texts.py
 
 @dp.message_handler()
 async def handle_unknown_commands(message: types.Message):
@@ -86,6 +79,8 @@ async def handle_unknown_commands(message: types.Message):
         UNKNOWN_COMMAND_TEXT,
         parse_mode=ParseMode.HTML
     )
+
+# Додайте інші обробники, використовуючи стани з MenuStates
 
 async def main():
     await init_db()
