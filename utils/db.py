@@ -1,5 +1,8 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
+from models.user import User
+from models.user_stats import UserStats
 import logging
 from config import settings  # Імпорт з кореневої директорії
 from utils.db_base import Base
@@ -51,3 +54,28 @@ async def check_connection():
     except Exception as e:
         logger.error(f"Database connection test failed: {e}")
         return False
+
+async def get_user_profile(session: AsyncSession, telegram_id: int) -> dict:
+    user = await session.execute(select(User).where(User.telegram_id == telegram_id))
+    user = user.scalar_one_or_none()
+    if not user:
+        return None
+
+    user_stats = await session.execute(select(UserStats).where(UserStats.user_id == user.id))
+    user_stats = user_stats.scalar_one_or_none()
+    
+    return {
+        "username": user.username,
+        "level": user_stats.rating // 100,
+        "rating": user_stats.rating,
+        "achievements_count": user_stats.achievements_count,
+        "screenshots_count": user_stats.total_screenshots,
+        "missions_count": user_stats.missions_count,
+        "quizzes_count": user_stats.quizzes_count,
+        "total_matches": user_stats.matches_played,
+        "total_wins": user_stats.matches_won,
+        "total_losses": user_stats.matches_played - user_stats.matches_won,
+        "tournament_participations": user_stats.tournaments_played,
+        "badges_count": user_stats.achievements_count,
+        "last_update": user_stats.last_activity
+    }
