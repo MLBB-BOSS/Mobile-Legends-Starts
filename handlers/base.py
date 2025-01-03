@@ -1,5 +1,6 @@
 # handlers/base.py
 
+from typing import Optional
 import logging
 import asyncio
 import io
