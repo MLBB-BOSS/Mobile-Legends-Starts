@@ -1,55 +1,39 @@
-# bot.py
-import asyncio
-import logging
-from aiogram import Bot, Dispatcher
 
-from utils.db import async_session, init_db
-from utils.models import User, Item
-from handlers import base_router
-from utils.settings import settings
+import asyncio
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
+from utils.db import init_db, SessionLocal
+from handlers.base import setup_handlers
+
+from dotenv import load_dotenv
+import os
+import logging
+
+load_dotenv()
+
+API_TOKEN = os.getenv("API_TOKEN")
 
 # Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Ініціалізація бази даних
-async def setup_database():
-    try:
-        await init_db()
-        logger.info("База даних ініціалізована успішно")
-    except Exception as e:
-        logger.error(f"Помилка при ініціалізації бази даних: {e}")
-        raise
-
-# Ініціалізація бота та диспетчера
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
-
-# Реєстрація маршрутизаторів
-dp.include_router(base_router)
-
 async def main():
+    # Ініціалізація бази даних
+    await init_db()
+
+    # Ініціалізація бота та диспетчера
+    bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
+    storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
+
+    # Налаштування обробників
+    setup_handlers(dp)
+
+    # Запуск бота
     try:
-        # Ініціалізація бази даних
-        await setup_database()
-        
-        # Старт бота
-        logger.info("Бот запускається...")
         await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"Критична помилка: {e}")
-        raise
     finally:
         await bot.close()
-        logger.info("Бот зупинено")
 
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Бот зупинено користувачем")
-    except Exception as e:
-        logger.error(f"Неочікувана помилка: {e}")
+if __name__ == "__main__":
+    asyncio.run(main())
