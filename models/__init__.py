@@ -1,6 +1,5 @@
-from .base import Base
-from .user import User
-from .feedback import Feedback
-from .user_stats import UserStats
+from utils.db_base import Base
+from .user import User, UserStats
+from .bug_report import BugReport
 
-__all__ = ['Base', 'User', 'Feedback', 'UserStats']
+__all__ = ["Base", "User", "UserStats", "Feedback", "BugReport"]
