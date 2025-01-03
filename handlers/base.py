@@ -9,6 +9,7 @@ from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
