@@ -1,4 +1,3 @@
-# utils/models/user.py
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -12,3 +11,4 @@ class User(Base):
 
     stats = relationship("UserStats", back_populates="user")
     bug_reports = relationship("BugReport", back_populates="user")
+    feedbacks = relationship("Feedback", back_populates="user")  # Якщо є модель Feedback
