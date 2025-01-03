@@ -3,6 +3,7 @@
 from aiogram.types import InlineKeyboardMarkup
 from aiogram import Bot
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 async def safe_delete_message(bot: Bot, chat_id: int, message_id: int) -> None:
     """
     Безпечне видалення повідомлення. Ігнорує помилки, якщо повідомлення вже видалено.
-
+    
     :param bot: Екземпляр бота.
     :param chat_id: ID чату.
     :param message_id: ID повідомлення для видалення.
