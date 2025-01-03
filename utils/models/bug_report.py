@@ -1,16 +1,12 @@
-# models/bug_report.py
-
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
+# utils/models/bug_report.py
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
-from datetime import datetime
 
 class BugReport(Base):
-    __tablename__ = "bug_reports"
+    __tablename__ = 'bug_reports'
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    report = Column(String, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # Змінено на 'users.id'
 
     user = relationship("User", back_populates="bug_reports")
