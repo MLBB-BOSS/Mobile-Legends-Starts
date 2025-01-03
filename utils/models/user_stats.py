@@ -5,6 +5,7 @@ from .base import Base
 
 class UserStats(Base):
     __tablename__ = 'user_stats'
+    __table_args__ = {'extend_existing': True}  # Додано цей рядок
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
