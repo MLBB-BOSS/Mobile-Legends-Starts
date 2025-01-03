@@ -1,6 +1,5 @@
 # utils/settings.py
 from pydantic_settings import BaseSettings
-import os
 import logging
 from urllib.parse import urlparse
 
@@ -13,16 +12,16 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     def model_post_init(self, *args, **kwargs):
-        database_url = os.getenv('DATABASE_URL')
-
+        database_url = self.DATABASE_URL
+        
         if database_url:
             # Конвертуємо URL в правильний формат
             if database_url.startswith('postgres://'):
                 database_url = database_url.replace('postgres://', 'postgresql://', 1)
-
+            
             self.DATABASE_URL = database_url
             self.ASYNC_DATABASE_URL = database_url.replace('postgresql://', 'postgresql+asyncpg://', 1)
-
+            
             # Логуємо успішне налаштування (без конфіденційних даних)
             parsed_url = urlparse(self.DATABASE_URL)
             logger.info(f"Database configured: {parsed_url.hostname}")
