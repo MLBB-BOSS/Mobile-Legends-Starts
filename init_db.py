@@ -4,8 +4,7 @@ import asyncio
 import logging
 from utils.db import engine
 from models.base import Base
-import models.user  # Імпортуємо модель User
-import models.user_stats  # Імпортуємо модель UserStats
+import utils.models  # Імпортуємо всі моделі, якщо вони в одному файлі
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
