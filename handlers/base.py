@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from . import user, user_stats
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
