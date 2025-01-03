@@ -1,7 +1,8 @@
 # utils/models.py
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, Float
-from sqlalchemy.orm import relationship, DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey, Text
 
 class Base(DeclarativeBase):
     pass
@@ -42,7 +43,7 @@ class Feedback(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     text = Column(Text)
-    rating = Column(Integer)  # Оцінка від 1 до 5
+    rating = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Відношення
@@ -55,7 +56,7 @@ class BugReport(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     title = Column(String(200))
     description = Column(Text)
-    status = Column(String(50), default='new')  # new, in_progress, resolved, closed
+    status = Column(String(50), default='new')
     created_at = Column(DateTime, default=datetime.utcnow)
     resolved_at = Column(DateTime, nullable=True)
     
