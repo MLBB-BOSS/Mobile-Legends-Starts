@@ -1,4 +1,3 @@
-# bot.py
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
@@ -10,7 +9,6 @@ import logging
 from handlers.base import router as base_router
 from handlers.main_menu import router as main_menu_router
 from handlers.profile import router as profile_router
-# Імпортуйте інші роутери за потребою
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -35,7 +33,6 @@ dp = Dispatcher(storage=storage)
 dp.include_router(base_router)
 dp.include_router(main_menu_router)
 dp.include_router(profile_router)
-# Включіть інші роутери за потребою
 
 async def main():
     try:
