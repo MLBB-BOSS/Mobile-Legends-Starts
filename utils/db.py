@@ -1,6 +1,6 @@
 # utils/db.py
 import os
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from .models.base import Base
 from dotenv import load_dotenv
@@ -8,26 +8,31 @@ from dotenv import load_dotenv
 # Завантажте змінні середовища з .env файлу (для локальної розробки)
 load_dotenv()
 
-# Отримайте URL бази даних з змінної середовища
-DATABASE_URL = os.getenv('DATABASE_URL')
+# Отримайте URL бази даних з змінної середовища AS_BASE
+DATABASE_URL = os.getenv('AS_BASE')
 
 if not DATABASE_URL:
-    raise ValueError("Не встановлено змінну середовища DATABASE_URL")
+    raise ValueError("Не встановлено змінну середовища AS_BASE")
 
-# Створіть двигун SQLAlchemy
-engine = create_engine(DATABASE_URL)
+# Створіть асинхронний двигун SQLAlchemy
+engine = create_async_engine(DATABASE_URL, echo=True)
 
-# Створіть фабрику сесій
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Створіть фабрику асинхронних сесій
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
 
-def init_db():
+async def init_db():
     # Імпортуйте моделі після визначення Base та engine, щоб уникнути циклічних імпортів
     import utils.models
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-def check_connection():
+async def check_connection():
     try:
-        with engine.connect() as connection:
+        async with engine.connect() as connection:
             return True
     except Exception as e:
         print(f"Підключення до бази даних не вдалося: {e}")
