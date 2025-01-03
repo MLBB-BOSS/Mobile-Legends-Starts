@@ -25,7 +25,6 @@ from states import MenuStates
 from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
-import models.user_stats
 
 from keyboards.inline_menus import (
     get_generic_inline_keyboard,
