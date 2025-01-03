@@ -2,7 +2,6 @@
 import os
 import asyncio
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 import logging
