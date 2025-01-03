@@ -1,39 +1,32 @@
-
+# bot.py
 import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
-from utils.db import init_db, SessionLocal
-from handlers.base import setup_handlers
-
-from dotenv import load_dotenv
-import os
 import logging
-
-load_dotenv()
-
-API_TOKEN = os.getenv("API_TOKEN")
+from aiogram import Bot, Dispatcher
+from utils.settings import settings
+from utils.db import init_db
+from handlers.base import router
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Створення бота та диспетчера
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+dp = Dispatcher()
+
+# Реєстрація роутерів
+dp.include_router(router)
+
 async def main():
-    # Ініціалізація бази даних
+    logger.info("Ініціалізація бази даних...")
     await init_db()
+    logger.info("База даних ініціалізована успішно")
+    
+    logger.info("Запуск бота...")
+    await dp.start_polling(bot)
 
-    # Ініціалізація бота та диспетчера
-    bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
-    storage = MemoryStorage()
-    dp = Dispatcher(storage=storage)
-
-    # Налаштування обробників
-    setup_handlers(dp)
-
-    # Запуск бота
+if __name__ == '__main__':
     try:
-        await dp.start_polling(bot)
-    finally:
-        await bot.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинено")
