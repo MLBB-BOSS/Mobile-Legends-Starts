@@ -1,7 +1,7 @@
 # models/heroes_model.py
 from sqlalchemy import Column, String, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base
+from utils.models.base import Base
 
 class Hero(Base):
     """
