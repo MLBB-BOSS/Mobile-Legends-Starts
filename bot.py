@@ -3,22 +3,33 @@ import os
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram import F  # Імпортуємо F для фільтрації
+from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import ParseMode
+from aiogram.enums import ParseMode
 from utils.db import init_db, check_connection, AsyncSessionLocal
-from utils.models import User, UserStats, BugReport, Feedback  # Імпортуємо ваші моделі
+from utils.models import User, UserStats, BugReport, Feedback
 from keyboards.menus import (
     get_main_menu,
     get_navigation_menu,
     get_heroes_menu,
     get_profile_menu,
+    get_statistics_menu,
     MenuButton
 )
 from dotenv import load_dotenv
 from sqlalchemy.future import select
 import logging
+
+# Імпортуємо текстові константи
+from texts import (
+    WELCOME_NEW_USER_TEXT,
+    MAIN_MENU_TEXT,
+    MAIN_MENU_ERROR_TEXT,
+    UNKNOWN_COMMAND_TEXT,
+    GENERIC_ERROR_MESSAGE_TEXT,
+    # Додайте інші константи за потребою
+)
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -49,34 +60,32 @@ class MenuStates(StatesGroup):
 @dp.message(Command(commands=['start', 'help']))
 async def send_welcome(message: types.Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} виконав команду /start або /help")
-    await message.reply("Привіт! Я ваш бот.", reply_markup=get_main_menu())
+    welcome_text = WELCOME_NEW_USER_TEXT.format(user_first_name=message.from_user.first_name)
+    await message.reply(
+        welcome_text,
+        reply_markup=get_main_menu(),
+        parse_mode=ParseMode.HTML
+    )
     await state.set_state(MenuStates.MAIN_MENU)
 
 @dp.message(MenuStates.MAIN_MENU, F.text == MenuButton.NAVIGATION.value)
 async def main_menu_navigation(message: types.Message, state: FSMContext):
     logger.info(f"Користувач {message.from_user.id} перейшов до меню Навігації")
-    await message.reply("Ви в меню Навігації.", reply_markup=get_navigation_menu())
+    await message.reply(
+        MAIN_MENU_TEXT,
+        reply_markup=get_navigation_menu(),
+        parse_mode=ParseMode.HTML
+    )
     await state.set_state(MenuStates.NAVIGATION_MENU)
 
-@dp.message(MenuStates.NAVIGATION_MENU, F.text == MenuButton.HEROES.value)
-async def navigation_menu_heroes(message: types.Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} перейшов до меню Персонажів")
-    await message.reply("Ви в меню Персонажів.", reply_markup=get_heroes_menu())
-    await state.set_state(MenuStates.HEROES_MENU)
+# Додайте інші обробники, використовуючи константи з texts.py
 
-@dp.message(MenuStates.HEROES_MENU, F.text == MenuButton.TANK.value)
-async def handle_tank_class(message: types.Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} вибрав клас Танк")
-    # Ваш код для обробки вибору класу Танк
-    await message.reply("Ви вибрали клас Танк.", reply_markup=get_heroes_menu())
-
-@dp.message(MenuStates.PROFILE_MENU, F.text == MenuButton.STATISTICS.value)
-async def handle_statistics_menu(message: types.Message, state: FSMContext):
-    logger.info(f"Користувач {message.from_user.id} перейшов до меню Статистики")
-    await message.reply("Ви в меню Статистики.", reply_markup=get_statistics_menu())
-    await state.set_state(MenuStates.STATISTICS_MENU)
-
-# Додайте інші обробники для різних меню та станів
+@dp.message_handler()
+async def handle_unknown_commands(message: types.Message):
+    await message.reply(
+        UNKNOWN_COMMAND_TEXT,
+        parse_mode=ParseMode.HTML
+    )
 
 async def main():
     await init_db()
