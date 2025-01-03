@@ -1,6 +1,6 @@
 # utils/__init__.py
 from .models import Base, User, UserStats, Feedback, BugReport
-from .db import async_session, init_db
+from .db import init_db, async_session, SessionLocal, get_db, get_async_session
 from .settings import settings
 
 __all__ = [
@@ -9,7 +9,10 @@ __all__ = [
     'UserStats',
     'Feedback',
     'BugReport',
-    'async_session',
     'init_db',
+    'async_session',
+    'SessionLocal',
+    'get_db',
+    'get_async_session',
     'settings'
 ]
