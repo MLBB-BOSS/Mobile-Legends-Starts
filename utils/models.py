@@ -1,11 +1,10 @@
 # utils/models.py
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
 
 class User(Base):
     __tablename__ = 'users'
