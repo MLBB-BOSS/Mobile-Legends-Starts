@@ -1,7 +1,6 @@
 import logging
 import io
-from utils.models.user import User
-from utils.models.user_stats import UserStats
+from utils.models.user import User, UserStats
 from typing import Optional, Dict
 import plotly.graph_objects as go
 from PIL import Image
