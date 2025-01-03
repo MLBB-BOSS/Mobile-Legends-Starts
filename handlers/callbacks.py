@@ -163,3 +163,39 @@ async def handle_navigation_transition(message: Message, state: FSMContext, bot:
     except Exception as e:
         logger.error(f"Помилка при переході до навігаційного меню: {e}")
         await handle_navigation_error(bot, message.chat.id, state)
+
+# Імпорти з інших файлів
+async def handle_navigation_error(bot: Bot, chat_id: int, state: FSMContext):
+    try:
+        await bot.send_message(
+            chat_id=chat_id,
+            text=NavigationConfig.Messages.ERROR,
+            reply_markup=get_main_menu()
+        )
+        logger.info(f"Надіслано повідомлення про помилку до чату {chat_id}")
+        
+        await state.set_state(MenuStates.MAIN_MENU)
+        logger.info(f"Стан встановлено на MAIN_MENU для чату {chat_id}")
+        
+        await state.update_data(
+            bot_message_id=None,
+            interactive_message_id=None,
+            last_text="",
+            last_keyboard=None
+        )
+        logger.info(f"Дані стану очищено для чату {chat_id}")
+
+    except Exception as e:
+        logger.critical(f"Критична помилка при обробці помилки навігації: {e}")
+
+# Додайте необхідні класи і змінні з navigation_config.py
+class NavigationConfig:
+    class Messages:
+        NAVIGATION_MENU = "Навігаційне меню: оберіть розділ для переходу"
+        INTERACTIVE = "Інтерактивний екран навігації"
+        ERROR = "Виникла помилка при обробці команди. Спробуйте ще раз або зверніться до адміністратора."
+
+    class LogMessages:
+        TRANSITION_SUCCESS = "Успішний перехід до навігаційного меню для користувача {user_id}"
+        TRANSITION_ERROR = "Помилка при переході до навігаційного меню: {error}"
+        DELETE_ERROR = "Не вдалося видалити повідомлення {message_id}"
