@@ -1,16 +1,16 @@
-# bot.py
+import os
+import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command, Text
+from aiogram.filters import Command
+from aiogram.filters.text import Text  # Виправлений імпорт
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ParseMode
 from utils.db import init_db, check_connection, AsyncSessionLocal
-from utils.models import User, UserStats, BugReport, Feedback
-from keyboards.menus import get_main_menu, get_navigation_menu, MenuButton
+from utils.models import User, UserStats, BugReport, Feedback  # Імпортуйте ваші моделі
+from keyboards.menus import get_main_menu, get_navigation_menu, MenuButton, get_heroes_menu  # Імпортуйте потрібні клавіатури
 from dotenv import load_dotenv
 from sqlalchemy.future import select
-import os
-import asyncio
 
 # Завантажте змінні середовища з .env файлу
 load_dotenv()
@@ -29,21 +29,13 @@ dp = Dispatcher()
 class MenuStates(StatesGroup):
     MAIN_MENU = State()
     NAVIGATION_MENU = State()
+    HEROES_MENU = State()
     PROFILE_MENU = State()
-    # Додайте інші стани за необхідності
+    # Додайте інші стани за необхідністю
 
-@dp.message(Command(commands=['start']))
-async def cmd_start(message: types.Message, state: FSMContext):
-    # Реєстрація користувача, якщо ще не зареєстрований
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(User).where(User.email == message.from_user.id))
-        user = result.scalars().first()
-        if not user:
-            new_user = User(name=message.from_user.full_name, email=str(message.from_user.id))
-            session.add(new_user)
-            await session.commit()
-    # Відправка головного меню
-    await message.reply("Ласкаво просимо до бота!", reply_markup=get_main_menu())
+@dp.message(Command(commands=['start', 'help']))
+async def send_welcome(message: types.Message, state: FSMContext):
+    await message.reply("Привіт! Я ваш бот.", reply_markup=get_main_menu())
     await state.set_state(MenuStates.MAIN_MENU)
 
 @dp.message(MenuStates.MAIN_MENU, Text(equals=MenuButton.NAVIGATION.value))
