@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import Column, Integer, String
 from utils.db import Base
 
