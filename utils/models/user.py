@@ -1,23 +1,35 @@
-# utils/models/user.py
-from typing import Optional
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from typing import List
-from utils.base import Base  # Імпорт базового класу
+# utils/models/users.py
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Float, ForeignKey
+from sqlalchemy.orm import relationship
+from .base import Base
 
 class User(Base):
-    """
-    Модель користувача.
-    """
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String, index=True)
-    email: Mapped[str] = mapped_column(String, unique=True, index=True)
-    # Додайте інші поля за потребою
+    id = Column(Integer, primary_key=True)
+    username = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    
+    # Відношення
+    stats = relationship("UserStats", back_populates="user", uselist=False)
+    feedbacks = relationship("Feedback", back_populates="user")
+    bug_reports = relationship("BugReport", back_populates="user")
 
-    # Встановлення зв'язку з моделлю Item
-    items: Mapped[List["Item"]] = relationship("Item", back_populates="owner")
+class UserStats(Base):
+    __tablename__ = 'user_stats'
 
-    def __repr__(self):
-        return f"<User(id={self.id}, name='{self.name}', email='{self.email}')>"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    tournaments_played = Column(Integer, default=0)
+    tournaments_won = Column(Integer, default=0)
+    matches_played = Column(Integer, default=0)
+    matches_won = Column(Integer, default=0)
+    rating = Column(Float, default=0.0)
+    total_screenshots = Column(Integer, default=0)
+    achievements_count = Column(Integer, default=0)
+    last_activity = Column(DateTime, default=datetime.utcnow)
+    
+    # Відношення
+    user = relationship("User", back_populates="stats")
