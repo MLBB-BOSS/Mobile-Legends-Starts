@@ -1,17 +1,13 @@
 # utils/text_formatter.py
 
-import logging
+from typing import Dict
 
-logger = logging.getLogger(__name__)
+def format_profile_text(template: str, profile_info: Dict[str, any]) -> str:
+    """
+    Форматує текст профілю користувача з використанням шаблону.
 
-def format_profile_text(template: str, profile_info: dict) -> str:
+    :param template: Шаблон тексту з місцями для заповнення.
+    :param profile_info: Словник з інформацією про профіль.
+    :return: Відформатований текст профілю.
     """
-    Formats the profile text using the provided template and profile information.
-    """
-    try:
-        formatted_text = template.format(**profile_info)
-        logger.info("Formatted profile text successfully")
-        return formatted_text
-    except KeyError as e:
-        logger.error(f"Missing key in profile_info: {e}")
-        raise ValueError(f"Missing key in profile_info: {e}")
+    return template.format(**profile_info)
