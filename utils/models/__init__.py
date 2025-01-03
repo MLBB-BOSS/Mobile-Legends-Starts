@@ -1,4 +1,3 @@
-# utils/models/__init__.py
 from .base import Base
 from .user import User
 from .user_stats import UserStats
