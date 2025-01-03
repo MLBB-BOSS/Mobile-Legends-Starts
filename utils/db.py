@@ -1,96 +1,93 @@
 # utils/db.py
-
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
-from models.user_stats import UserStats
 import logging
+from contextlib import contextmanager
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, Session
+
+from .models import Base
+from .settings import settings
 
 logger = logging.getLogger(__name__)
 
-async def get_or_create_user(db: AsyncSession, telegram_id: int, user_data: dict):
-    """
-    Перевіряє, чи існує користувач у базі. Якщо ні — створює його.
+# Налаштування двигунів
+async_engine = create_async_engine(
+    settings.ASYNC_DATABASE_URL,
+    echo=settings.DEBUG,
+    pool_pre_ping=True,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW
+)
 
-    :param db: Асинхронна сесія бази даних.
-    :param telegram_id: Telegram ID користувача.
-    :param user_data: Словник з даними користувача.
-    :return: Кортеж (User, bool), де bool означає, чи був створений новий користувач.
-    """
+sync_engine = create_engine(
+    settings.DATABASE_URL,
+    echo=settings.DEBUG,
+    pool_pre_ping=True,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW
+)
+
+# Фабрики сесій
+async_session = sessionmaker(
+    async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+sync_session = sessionmaker(
+    sync_engine,
+    class_=Session,
+    expire_on_commit=False
+)
+
+# Ініціалізація баз даних
+async def init_db():
+    """Ініціалізація асинхронної бази даних"""
     try:
-        # Перевірка наявності користувача
-        query = select(User).where(User.telegram_id == telegram_id)
-        result = await db.execute(query)
-        user = result.scalars().first()
-
-        if not user:
-            # Створення нового користувача
-            user = User(
-                telegram_id=telegram_id,
-                username=user_data.get("username"),
-                first_name=user_data.get("first_name"),
-                last_name=user_data.get("last_name"),
-                language_code=user_data.get("language_code")
-            )
-            db.add(user)
-            await db.flush()  # Необхідно для отримання ID нового користувача
-
-            # Створення запису статистики для нового користувача
-            new_stats = UserStats(user_id=user.id)
-            db.add(new_stats)
-
-            await db.commit()
-            logger.info(f"Зареєстровано нового користувача: {telegram_id}")
-            return user, True  # Новий користувач
-        else:
-            logger.info(f"Існуючий користувач: {telegram_id}")
-            return user, False  # Існуючий користувач
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Асинхронна база даних успішно ініціалізована")
     except Exception as e:
-        logger.error(f"Помилка при отриманні або створенні користувача {telegram_id}: {e}")
-        await db.rollback()
+        logger.error(f"Помилка при ініціалізації асинхронної бази даних: {e}")
         raise
 
-async def get_user_profile(db: AsyncSession, telegram_id: int) -> Optional[Dict[str, any]]:
-    """
-    Отримує профіль користувача з бази даних.
-
-    :param db: Асинхронна сесія бази даних.
-    :param telegram_id: Telegram ID користувача.
-    :return: Словник з даними профілю або None, якщо користувача не знайдено.
-    """
+def init_sync_db():
+    """Ініціалізація синхронної бази даних"""
     try:
-        query = select(User).where(User.telegram_id == telegram_id)
-        result = await db.execute(query)
-        user = result.scalars().first()
-
-        if not user:
-            logger.warning(f"Користувача з Telegram ID {telegram_id} не знайдено.")
-            return None
-
-        # Отримуємо статистику користувача
-        stats = user.stats
-        if not stats:
-            logger.warning(f"Статистика користувача {telegram_id} не знайдена.")
-            return None
-
-        profile_data = {
-            "username": user.username,
-            "level": stats.level,
-            "rating": stats.rating,
-            "achievements_count": stats.achievements_count,
-            "screenshots_count": stats.screenshots_count,
-            "missions_count": stats.missions_count,
-            "quizzes_count": stats.quizzes_count,
-            "total_matches": stats.total_matches,
-            "total_wins": stats.total_wins,
-            "total_losses": stats.total_losses,
-            "tournament_participations": stats.tournament_participations,
-            "badges_count": stats.badges_count,
-            "last_update": stats.last_update
-        }
-
-        return profile_data
+        Base.metadata.create_all(sync_engine)
+        logger.info("Синхронна база даних успішно ініціалізована")
     except Exception as e:
-        logger.error(f"Помилка при отриманні профілю користувача {telegram_id}: {e}")
-        await db.rollback()
-        return None
+        logger.error(f"Помилка при ініціалізації синхронної бази даних: {e}")
+        raise
+
+@contextmanager
+def get_sync_db():
+    """Контекстний менеджер для синхронної сесії"""
+    session = sync_session()
+    try:
+        yield session
+    finally:
+        session.close()
+
+async def get_async_db():
+    """Асинхронний контекстний менеджер для асинхронної сесії"""
+    async with async_session() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+# Допоміжні функції для роботи з базою даних
+async def get_or_create_user(user_id: int, username: str):
+    """Отримати або створити користувача"""
+    async with async_session() as session:
+        async with session.begin():
+            user = await session.get(User, user_id)
+            if not user:
+                user = User(
+                    id=user_id,
+                    username=username
+                )
+                session.add(user)
+                await session.commit()
+            return user
