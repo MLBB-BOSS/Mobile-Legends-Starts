@@ -2,7 +2,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from utils.models import user, user_stats
+from models import user, user_stats
 
 async def get_user_profile(db: AsyncSession, telegram_id: int):
     """
