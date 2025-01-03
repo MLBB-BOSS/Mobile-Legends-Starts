@@ -1,8 +1,8 @@
-# utils/db.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from utils.models import User, UserStats
+from utils.models.user import User
+from utils.models.user_stats import UserStats
 
 async def get_user(db: AsyncSession, telegram_id: int) -> User | None:
     result = await db.execute(select(User).where(User.telegram_id == telegram_id))
