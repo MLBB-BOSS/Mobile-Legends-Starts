@@ -6,7 +6,7 @@ from datetime import datetime
 class Feedback(Base):
     __tablename__ = "feedback"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True. index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     feedback = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
