@@ -1,6 +1,3 @@
-# handlers/base.py
-
-import logging
 import io
 from typing import Optional, Dict
 from utils.message_utils import safe_delete_message, check_and_edit_message
@@ -10,7 +7,6 @@ from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State
 from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
