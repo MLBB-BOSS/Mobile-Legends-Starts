@@ -27,7 +27,9 @@ async def init_db():
     try:
         async with engine.begin() as conn:
             logger.info("Initializing database...")
-            await conn.run_sync(Base.metadata.create_all e:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database initialized successfully")
+    except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise
 
@@ -48,4 +50,4 @@ async def check_connection():
         return True
     except Exception as e:
         logger.error(f"Database connection test failed: {e}")
-        return
+        return False
