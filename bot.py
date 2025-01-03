@@ -16,7 +16,8 @@ if not TELEGRAM_BOT_TOKEN:
     raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
 
 # Ініціалізуйте базу даних
-init_db()
+async def setup_database():
+    await init_db()
 
 # Створіть екземпляри бота та диспетчера
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
@@ -27,7 +28,8 @@ async def send_welcome(message: types.Message):
     await message.reply("Привіт! Я ваш бот.")
 
 async def main():
-    if check_connection():
+    await setup_database()
+    if await check_connection():
         # Запустіть диспетчер
         await dp.start_polling(bot)
     else:
