@@ -1,60 +1,31 @@
-import asyncio
-import logging
-from aiogram import Bot, Dispatcher
-from config import settings  # Імпорт з кореневої директорії
+# bot.py
+import os
+from aiogram import Bot, Dispatcher, executor, types
 from utils.db import init_db, check_connection
-from handlers.base import router as base_router
-from handlers.profile import profile_router
-from utils.charts import charts_router
-from handlers.navigation import router as navigation_router
-from handlers.missing_handlers import router as missing_handlers_router
-from handlers.callbacks import router as callbacks_router
+from dotenv import load_dotenv
 
-# Налаштування логування
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levellevel)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Завантажте змінні середовища з .env файлу (для локальної розробки)
+load_dotenv()
 
-# Ініціалізація бота та диспетчера
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
+# Отримайте токен бота з змінної середовища
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 
-# Реєстрація роутерів
-dp.include_router(base_router)
-dp.include_router(profile_router)
-dp.include_router(charts_router)
-dp.include_router(navigation_router)
-dp.include_router(missing_handlers_router)
-dp.include_router(callbacks_router)
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("Не встановлено змінну середовища TELEGRAM_BOT_TOKEN")
 
-async def main():
-    try:
-        logger.info(f"Starting {settings.APP_NAME} at {settings.CURRENT_TIME}")
-        logger.info(f"Initialized by {settings.CURRENT_USER}")
-        
-        # Перевірка з'єднання з базою даних
-        if not await check_connection():
-            logger.error("Failed to connect to database")
-            return
+# Ініціалізуйте базу даних
+init_db()
 
-        # Ініціалізація бази даних
-        await init_db()
-        
-        # Запуск бота
-        logger.info("Bot is running...")
-        await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"Startup error: {e}")
-    finally:
-        logger.info("Shutting down...")
-        await bot.session.close()
+# Створіть екземпляри бота та диспетчера
+bot = Bot(token=TELEGRAM_BOT_TOKEN)
+dp = Dispatcher(bot)
+
+@dp.message_handler(commands=['start', 'help'])
+async def send_welcome(message: types.Message):
+    await message.reply("Привіт! Я ваш бот.")
 
 if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.info("Bot stopped by user")
-    except Exception as e:
-        logger.error(f"Critical error: {e}")
+    if check_connection():
+        executor.start_polling(dp, skip_updates=True)
+    else:
+        print("Не вдалося підключитися до бази даних.")
