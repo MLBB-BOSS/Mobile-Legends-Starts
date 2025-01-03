@@ -1,39 +1,35 @@
 # utils/db.py
-import os
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from .models.base import Base
-from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+import models.user  # Переконайтеся, що шлях правильний
 
-# Завантажте змінні середовища з .env файлу (для локальної розробки)
-load_dotenv()
+async def get_user_profile(db: AsyncSession, telegram_id: int):
+    """
+    Отримує профіль користувача за його Telegram ID.
 
-# Отримайте URL бази даних з змінної середовища AS_BASE
-DATABASE_URL = os.getenv('AS_BASE')
-
-if not DATABASE_URL:
-    raise ValueError("Не встановлено змінну середовища AS_BASE")
-
-# Створіть асинхронний двигун SQLAlchemy
-engine = create_async_engine(DATABASE_URL, echo=True)
-
-# Створіть фабрику асинхронних сесій
-AsyncSessionLocal = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
-
-async def init_db():
-    # Імпортуйте моделі після визначення Base та engine, щоб уникнути циклічних імпортів
-    import utils.models
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-async def check_connection():
-    try:
-        async with engine.connect() as connection:
-            return True
-    except Exception as e:
-        print(f"Підключення до бази даних не вдалося: {e}")
-        return False
+    :param db: Асинхронна сесія бази даних.
+    :param telegram_id: Telegram ID користувача.
+    :return: Об'єкт користувача або None, якщо не знайдено.
+    """
+    stmt = select(models.user.User).options(selectinload(models.user.User.stats)).where(models.user.User.telegram_id == telegram_id)
+    result = await db.execute(stmt)
+    user = result.scalars().first()
+    if user:
+        # Повертаємо словник з потрібними полями
+        return {
+            "username": user.username,
+            "level": user.level,
+            "rating": user.rating,
+            "achievements_count": user.achievements_count,
+            "screenshots_count": user.screenshots_count,
+            "missions_count": user.missions_count,
+            "quizzes_count": user.quizzes_count,
+            "total_matches": user.total_matches,
+            "total_wins": user.total_wins,
+            "total_losses": user.total_losses,
+            "tournament_participations": user.tournament_participations,
+            "badges_count": user.badges_count,
+            "last_update": user.last_update
+        }
+    return None
