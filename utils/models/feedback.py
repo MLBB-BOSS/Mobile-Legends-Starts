@@ -1,8 +1,6 @@
-# models/feedback.py
-
 from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
 from sqlalchemy.orm import relationship
-from utils.db import Base
+from utils.db_base import Base
 from datetime import datetime
 
 class Feedback(Base):
