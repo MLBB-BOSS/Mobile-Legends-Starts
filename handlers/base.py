@@ -20,9 +20,10 @@ from aiogram.types import (
     ReplyKeyboardRemove
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from states import MenuStates
-from utils.db import get_or_create_user, get_user_profile
+from utils.db import get_user_profile
 from utils.text_formatter import format_profile_text
 import models.user
 import models.user_stats
@@ -308,47 +309,53 @@ async def cmd_start(message: Message, state: FSMContext, db: AsyncSession, bot: 
     Обробник команди /start, реєструє користувача та відправляє вступні сторінки.
     """
     user_id = message.from_user.id
-    user_data = {
-        "username": message.from_user.username,
-        "first_name": message.from_user.first_name,
-        "last_name": message.from_user.last_name,
-        "language_code": message.from_user.language_code,
-    }
 
     # Видаляємо повідомлення з командою /start
     await safe_delete_message(bot, message.chat.id, message.message_id)
 
     try:
-        # Отримуємо або створюємо користувача
-        user, is_new_user = await get_or_create_user(db, user_id, user_data)
+        async with db.begin():
+            user_result = await db.execute(
+                select(models.user.User).where(models.user.User.telegram_id == user_id)
+            )
+            user = user_result.scalars().first()
 
-        if is_new_user:
-            # Виводимо інтро-повідомлення для нових користувачів
-            await transition_state(state, MenuStates.INTRO_PAGE_1)
-            intro_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=INTRO_PAGE_1_TEXT,
-                reply_markup=get_intro_page_1_keyboard(),
-                parse_mode=ParseMode.HTML
-            )
-            await state.update_data(
-                interactive_message_id=intro_message.message_id,
-                last_text=INTRO_PAGE_1_TEXT,
-                last_keyboard=get_intro_page_1_keyboard(),
-            )
-        else:
-            # Переходимо до головного меню для існуючих користувачів
-            await transition_state(state, MenuStates.MAIN_MENU)
-            user_first_name = message.from_user.first_name or "Користувач"
-            main_menu_text_formatted = MAIN_MENU_TEXT.format(user_first_name=user_first_name)
-            main_menu_message = await bot.send_message(
-                chat_id=message.chat.id,
-                text=main_menu_text_formatted,
-                reply_markup=get_main_menu()
-            )
-            await state.update_data(bot_message_id=main_menu_message.message_id)
+            if not user:
+                new_user = models.user.User(
+                    telegram_id=user_id,
+                    username=message.from_user.username
+                )
+                db.add(new_user)
+                await db.flush()
+                new_stats = models.user_stats.UserStats(user_id=new_user.id)
+                db.add(new_stats)
+                await db.commit()
+                logger.info(f"Зареєстровано нового користувача: {user_id}")
+            else:
+                logger.info(f"Існуючий користувач: {user_id}")
     except Exception as e:
-        logger.error(f"Помилка при обробці команди /start для користувача {user_id}: {e}")
+        logger.error(f"Помилка при реєстрації користувача {user_id}: {e}")
+        await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
+        return
+
+    # Встановлення стану на INTRO_PAGE_1 без очищення стану
+    await transition_state(state, MenuStates.INTRO_PAGE_1)
+
+    try:
+        interactive_message = await bot.send_message(
+            chat_id=message.chat.id,
+            text=INTRO_PAGE_1_TEXT,
+            parse_mode=ParseMode.HTML,
+            reply_markup=get_intro_page_1_keyboard()
+        )
+        await state.update_data(
+            interactive_message_id=interactive_message.message_id,
+            last_text=INTRO_PAGE_1_TEXT,
+            last_keyboard=get_intro_page_1_keyboard(),
+            bot_message_id=None  # Оскільки це інтерактивне повідомлення
+        )
+    except Exception as e:
+        logger.error(f"Не вдалося надіслати вступну сторінку 1: {e}")
         await handle_error(bot, message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
 
 @router.callback_query(F.data == "intro_next_1")
@@ -448,7 +455,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         )
     except Exception as e:
         logger.error(f"Не вдалося редагувати інтерактивне повідомлення: {e}")
-        await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
+        await handle_error(bot, callback.message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
 
     # Надсилаємо нове звичайне повідомлення з головним меню
     try:
@@ -460,7 +467,7 @@ async def handle_intro_start(callback: CallbackQuery, state: FSMContext, bot: Bo
         await state.update_data(bot_message_id=main_menu_message.message_id)
     except Exception as e:
         logger.error(f"Не вдалося надіслати головне меню: {e}")
-        await handle_error(bot, chat_id=callback.message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
+        await handle_error(bot, callback.message.chat.id, GENERIC_ERROR_MESSAGE_TEXT, logger)
         return
 
     # Видаляємо попереднє повідомлення з клавіатурою (якщо необхідно)
@@ -478,7 +485,7 @@ async def handle_menu(
     user_choice: str,
     message: Message,
     state: FSMContext,
-    db: Optional[AsyncSession],
+    db: AsyncSession,
     bot: Bot,
     chat_id: int,
     main_menu_error: str,
@@ -883,14 +890,18 @@ async def handle_change_username(message: Message, state: FSMContext, db: AsyncS
 
     if new_username:
         try:
-            user, created = await get_or_create_user(db, user_id, {})
-            if user:
-                user.username = new_username
-                await db.commit()
-                response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
-                logger.info(f"Користувач {user_id} змінив ім'я на: {new_username}")
-            else:
-                response_text = "❌ Користувача не знайдено. Зареєструйтесь, щоб змінити ім'я."
+            async with db.begin():
+                user_result = await db.execute(
+                    select(models.user.User).where(models.user.User.telegram_id == user_id)
+                )
+                user = user_result.scalars().first()
+                if user:
+                    user.username = new_username
+                    await db.commit()
+                    response_text = CHANGE_USERNAME_RESPONSE_TEXT.format(new_username=new_username)
+                    logger.info(f"Користувач {user_id} змінив ім'я на: {new_username}")
+                else:
+                    response_text = "❌ Користувача не знайдено. Зареєструйтесь, щоб змінити ім'я."
         except Exception as e:
             logger.error(f"Помилка при оновленні імені користувача {user_id}: {e}")
             response_text = "❌ Виникла помилка при зміні імені користувача."
@@ -1036,7 +1047,7 @@ async def handle_tournaments_menu_buttons(message: Message, state: FSMContext, b
         await handle_error(bot, chat_id=message.chat.id, error_message=GENERIC_ERROR_MESSAGE_TEXT, logger=logger)
         return
 
-    # Видалення старого повідомлення
+    # Видалення старого звичайного повідомлення
     await safe_delete_message(bot, message.chat.id, bot_message_id)
 
     # Редагування інтерактивного повідомлення
@@ -1189,6 +1200,7 @@ async def handle_m6_menu_buttons(message: Message, state: FSMContext, bot: Bot) 
     else:
         new_main_text = UNKNOWN_COMMAND_TEXT
         new_interactive_text = "Невідома команда"
+        new_state = MenuStates.M6_MENU
 
     # Відправка нового повідомлення з клавіатурою
     try:
