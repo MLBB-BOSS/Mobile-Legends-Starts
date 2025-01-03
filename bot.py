@@ -3,12 +3,17 @@ import logging
 from aiogram import Bot, Dispatcher
 from config import settings  # Імпорт з кореневої директорії
 from utils.db import init_db, check_connection
-from handlers.base import router
+from handlers.base import router as base_router
+from handlers.profile import profile_router
+from utils.charts import charts_router
+from handlers.navigation import router as navigation_router
+from handlers.missing_handlers import router as missing_handlers_router
+from handlers.callbacks import router as callbacks_router
 
 # Налаштування логування
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levellevel)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
@@ -17,7 +22,12 @@ bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
 # Реєстрація роутерів
-dp.include_router(router)
+dp.include_router(base_router)
+dp.include_router(profile_router)
+dp.include_router(charts_router)
+dp.include_router(navigation_router)
+dp.include_router(missing_handlers_router)
+dp.include_router(callbacks_router)
 
 async def main():
     try:
