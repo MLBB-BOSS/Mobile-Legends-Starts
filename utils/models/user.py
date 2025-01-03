@@ -1,4 +1,5 @@
 # utils/models/user.py
+from typing import Optional
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import List
