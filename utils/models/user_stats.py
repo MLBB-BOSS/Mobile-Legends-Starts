@@ -7,7 +7,7 @@ class UserStats(Base):
     __tablename__ = 'user_stats'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)  # Відповідь на 'users.id'
     games_played = Column(Integer, default=0)
     wins = Column(Integer, default=0)
     losses = Column(Integer, default=0)
