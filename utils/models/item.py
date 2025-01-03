@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import Optional, List
-from utils.base import Base  # Імпорт базового класу
+from utils.models.base import Base  # Імпорт базового класу
 
 class Item(Base):
     """
