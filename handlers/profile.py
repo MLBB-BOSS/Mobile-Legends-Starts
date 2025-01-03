@@ -1,4 +1,3 @@
-# handlers/profile.py
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import F
@@ -13,7 +12,7 @@ from logging import getLogger
 logger = getLogger(__name__)
 router = Router()
 
-@router.message(F.text == "🪪 Мій Профіль")
+@router.message(F.text == "🤪 Мій Профіль")
 async def handle_my_profile_handler(message: Message, state: FSMContext, db: AsyncSession, bot: Bot) -> None:
     await safe_delete_message(bot, message.chat.id, message.message_id)
     await process_my_profile(message, state, db, bot)
