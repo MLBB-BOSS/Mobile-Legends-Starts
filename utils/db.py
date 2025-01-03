@@ -27,8 +27,8 @@ def init_db():
 
 def check_connection():
     try:
-        engine.connect()
-        return True
+        with engine.connect() as connection:
+            return True
     except Exception as e:
         print(f"Підключення до бази даних не вдалося: {e}")
         return False
