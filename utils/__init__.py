@@ -1,4 +1,12 @@
 # utils/__init__.py
-from .db import async_engine as engine, async_session, init_db
+from .models import User, UserStats, Feedback, BugReport
+from .db import async_session, init_db
 
-__all__ = ['engine', 'async_session', 'init_db']
+__all__ = [
+    'User',
+    'UserStats',
+    'Feedback',
+    'BugReport',
+    'async_session',
+    'init_db'
+]
