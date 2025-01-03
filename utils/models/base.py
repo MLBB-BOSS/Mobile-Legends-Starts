@@ -1,15 +1,9 @@
-# utils/models/base.py
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
+# models/base.py
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
-@as_declarative()
-class Base:
-    """
-    Базовий клас для всіх моделей SQLAlchemy.
-    """
-    id: int
-    __name__: str
-
-    # Автоматично генерує ім'я таблиці на основі назви класу
-    @declared_attr
-    def __tablename__(cls) -> str:
-        return cls.__name__.lower()
+class Base(AsyncAttrs, DeclarativeBase):
+    """Base class for all models"""
+    
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__table__.columns}
