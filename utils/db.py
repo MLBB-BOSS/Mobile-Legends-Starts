@@ -5,7 +5,7 @@ from models.user import User
 from models.user_stats import UserStats
 import logging
 from config import settings  # Імпорт з кореневої директорії
-from utils.db_base import Base
+from .models.base import Base
 
 logger = logging.getLogger(__name__)
 
