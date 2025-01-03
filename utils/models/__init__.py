@@ -1,6 +1,12 @@
 # utils/models/__init__.py
-from .user import User
-from .item import Item
-# Додайте імпорти інших моделей тут
+from .base import Base
+from .users import User, UserStats
+from .feedback import Feedback, BugReport
 
-__all__ = ['User', 'Item']  # Додайте інші моделі до цього списку
+__all__ = [
+    'Base',
+    'User',
+    'UserStats',
+    'Feedback',
+    'BugReport'
+]
