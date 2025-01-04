@@ -645,3 +645,7 @@ def get_main_menu_keyboard():
 
 def get_main_menu_inline_keyboard():
     return get_generic_inline_keyboard()
+
+def get_navigation_inline_keyboard():
+    # Логіка створення inline-кнопок для розділу Навігація
+    return create_inline_menu([...])  # чи інше Ваше рішення
