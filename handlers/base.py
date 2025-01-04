@@ -1,5 +1,6 @@
 import logging
 import io
+from states import MenuStates
 from utils.models.user import User
 from utils.models.user_stats import UserStats
 from typing import Optional, Dict
