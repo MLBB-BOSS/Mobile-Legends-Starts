@@ -12,7 +12,7 @@ from states.menu_states import MainMenuState, NavigationState, ProfileState
 from keyboards.menus import (
     get_main_menu_keyboard,
     get_main_menu_inline_keyboard,
-    get_navigation_menu_keyboard,
+    get_navigation_menu,
     get_navigation_inline_keyboard,
     get_profile_menu_keyboard,
     get_profile_inline_keyboard
