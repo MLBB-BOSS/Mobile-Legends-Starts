@@ -1,9 +1,10 @@
-# utils/shared_utils.py
-
+import os
+import cairosvg
+from pathlib import Path
+from aiogram import Router, Bot, F
+from aiogram.types import Message, FSInputFile
+from aiogram.filters import Command
 import logging
-from aiogram import Bot
-from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
 
 logger = logging.getLogger(__name__)
 
