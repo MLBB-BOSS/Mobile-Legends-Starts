@@ -1,3 +1,3 @@
-from .menu_states import MainMenuState, NavigationState, ProfileState
+from .menu_states import MenuStates
 
-__all__ = ['MainMenuState']
+__all__ = ['MenuStates']
