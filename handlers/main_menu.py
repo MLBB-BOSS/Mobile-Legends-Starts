@@ -37,6 +37,8 @@ MAIN_MENU_SCREEN_TEXT = """\
 Оберіть дію чи розділ нижче...
 """
 
+router = Router()
+
 class MainMenuHandler(BaseHandler):
     def __init__(self):
         """
@@ -107,7 +109,7 @@ class MainMenuHandler(BaseHandler):
                     new_state=NavigationState.main,
                     control_text="Навігаційне меню\nОберіть розділ:",
                     control_markup=get_navigation_menu_keyboard(),
-                    screen_text="🧭 Навігація по грі\n\nТут ви знайдете:\n- Інформацію про героїв\n- Білди та гайди\n- Турніри та ін.",
+                    screen_text="🧭 Навігація по грі\n\nТут ви знайдете:\n- Інформацію про героїв\n- Білди та гайди\n- Турніри та �[...]
                     screen_markup=get_navigation_inline_keyboard()
                 )
 
@@ -120,7 +122,7 @@ class MainMenuHandler(BaseHandler):
                     new_state=ProfileState.main,
                     control_text="Меню профілю\nОберіть опцію:",
                     control_markup=get_profile_menu_keyboard(),
-                    screen_text="👤 Ваш профіль\n\nТут ви можете:\n- Переглянути статистику\n- Керувати налаштуваннями\n- Перевірити досягнення",
+                    screen_text="👤 Ваш профіль\n\nТут ви можете:\n- Переглянути статистику\n- Керувати налаштуваннями\n- Переві[...]
                     screen_markup=get_profile_inline_keyboard()
                 )
 
