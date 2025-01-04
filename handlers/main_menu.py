@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 
 from states.menu_states import MainMenuState, NavigationState, ProfileState
 from keyboards.menus import get_main_menu_keyboard, get_main_menu_inline_keyboard
-from texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
+from texts import MAIN_MENU_TEXT
 from utils.interface_manager import UIState, update_interface, safe_delete_message
 from .base_handler import BaseHandler
 
