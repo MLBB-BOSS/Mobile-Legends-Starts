@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 import logging
+from keyboards.menus import get_navigation_menu
 
 # Імпортуємо роутери
 from handlers.base import router as base_router
