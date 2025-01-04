@@ -1,3 +1,3 @@
-from .menu_states import MenuStates
+Нfrom .menu_states import MenuStates
 
 __all__ = ['MenuStates']
