@@ -10,9 +10,19 @@ from aiogram.types import (
     InlineKeyboardButton,
     ReplyKeyboardRemove
 )
-from enum import Enum, unique
-from typing import List, Dict, Union, Optional
+from texts import MenuButton, LanguageButton, MENU_BUTTON_TO_CLASS, heroes_by_class
 import logging
+
+# -------------------------
+# 📝 Конфігурація Логування
+# -------------------------
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# -------------------------
+# 🛠️ Функції Створення Меню
+# -------------------------
+...
 
 # -------------------------
 # 📝 Конфігурація Логування
