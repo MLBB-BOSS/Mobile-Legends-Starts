@@ -1,7 +1,6 @@
 from aiogram.fsm.state import StatesGroup, State
 
-
-# 1-20: Основне меню
+# Основне меню
 class MainMenuStates(StatesGroup):
     MAIN_MENU = State()                 # 1. Головне меню користувача
     CHALLENGES_MENU = State()           # 2. Меню викликів
@@ -16,26 +15,29 @@ class MainMenuStates(StatesGroup):
     HELP_SUBMENU = State()              # 17. Підменю довідки
     BACK_TO_MAIN = State()              # 32. Повернення до головного меню
 
-
-# 21-26: Турніри та пов'язані стани
+# Турніри
 class TournamentStates(StatesGroup):
-    TOURNAMENTS_MENU = State()          # 21. Меню турнірів
-    TOURNAMENT_CREATE = State()         # 50. Створення турніру
-    TOURNAMENT_EDIT = State()           # 51. Редагування турніру
-    TOURNAMENT_JOIN = State()           # 52. Приєднання до турніру
-    TOURNAMENT_LIST = State()           # 53. Список турнірів
-    TOURNAMENT_BRACKET = State()        # 54. Блок-діаграма турніру
-    TOURNAMENT_RESULTS = State()        # 55. Результати турніру
-    TOURNAMENT_RULES = State()          # 56. Правила турніру
+    MENU = State()                          # 21. Меню турнірів
+    CREATE_TOURNAMENT = State()             # 50. Створення турніру
+    EDIT_TOURNAMENT = State()               # 51. Редагування турніру
+    JOIN_TOURNAMENT = State()               # 52. Приєднання до турніру
+    LIST_TOURNAMENTS = State()              # 53. Список турнірів
+    BRACKET_TOURNAMENT = State()            # 54. Блок-діаграма турніру
+    RESULTS_TOURNAMENT = State()            # 55. Результати турніру
+    RULES_TOURNAMENT = State()              # 56. Правила турніру
 
+# Управління турнірами
+class TournamentManagementStates(StatesGroup):
+    MENU_MANAGEMENT = State()               # Меню управління турнірами
+    CREATE_MANAGEMENT_TOURNAMENT = State()  # 50. Створення турніру в контексті управління
+    EDIT_MANAGEMENT_TOURNAMENT = State()    # 51. Редагування турніру в контексті управління
+    JOIN_MANAGEMENT_TOURNAMENT = State()    # 52. Приєднання до турніру в контексті управління
+    LIST_MANAGEMENT_TOURNAMENTS = State()   # 53. Список турнірів в контексті управління
+    BRACKET_MANAGEMENT_TOURNAMENT = State() # 54. Блок-діаграма турніру в контексті управління
+    RESULTS_MANAGEMENT_TOURNAMENT = State() # 55. Результати турніру в контексті управління
+    RULES_MANAGEMENT_TOURNAMENT = State()   # 56. Правила турніру в контексті управління
 
-# 27-28: META та M6
-class MetaM6States(StatesGroup):
-    META_MENU = State()                 # 27. Меню мета-ігри
-    M6_MENU = State()                   # 28. Меню секції M6
-
-
-# 29-43: Герої та пов'язані стани
+# Герої
 class HeroesStates(StatesGroup):
     HEROES_MENU = State()               # 22. Меню героїв
     HERO_LIST_MENU = State()            # 29. Меню списку героїв у мета-меню
@@ -49,15 +51,13 @@ class HeroesStates(StatesGroup):
     HERO_STATISTICS = State()           # 42. Статистика героя
     HERO_CLASS_MENU = State()           # 43. Меню класів героїв
 
-
-# 33-35: Порівняння героїв
+# Порівняння героїв
 class ComparisonStates(StatesGroup):
-    COMPARISON_STEP_1 = State()         # 33. Вибір першого героя/предмета для порівняння
-    COMPARISON_STEP_2 = State()         # 34. Вибір другого героя/предмета для порівняння
-    COMPARISON_RESULT = State()         # 35. Показ результатів порівняння
+    SELECT_FIRST_HERO = State()         # 33. Вибір першого героя для порівняння
+    SELECT_SECOND_HERO = State()        # 34. Вибір другого героя для порівняння
+    DISPLAY_RESULT = State()            # 35. Показ результатів порівняння
 
-
-# 36-49: Пошук та управління героями
+# Пошук
 class SearchStates(StatesGroup):
     SEARCH_HERO = State()               # 36. Стан пошуку героя
     SEARCH_TOPIC = State()              # 44. Пошук за темою
@@ -67,97 +67,55 @@ class SearchStates(StatesGroup):
     SEARCH_HISTORY = State()            # 48. Історія пошуку
     SEARCH_FAVORITES = State()          # 49. Обрані пошукові запити
 
-
-# 50-71: Турніри, команди, матчі та управління контентом
-class TournamentManagementStates(StatesGroup):
-    # Турніри
-    TOURNAMENT_CREATE = State()         # 50. Створення турніру
-    TOURNAMENT_EDIT = State()           # 51. Редагування турніру
-    TOURNAMENT_JOIN = State()           # 52. Приєднання до турніру
-    TOURNAMENT_LIST = State()           # 53. Список турнірів
-    TOURNAMENT_BRACKET = State()        # 54. Блок-діаграма турніру
-    TOURNAMENT_RESULTS = State()        # 55. Результати турніру
-    TOURNAMENT_RULES = State()          # 56. Правила турніру
-
-    # Команди
-    TEAM_CREATE = State()               # 57. Створення команди
-    TEAM_EDIT = State()                 # 58. Редагування команди
-    TEAM_INVITE = State()               # 59. Запрошення до команди
-    TEAM_ROSTER = State()               # 60. Список гравців команди
-    TEAM_SETTINGS = State()             # 61. Налаштування команди
-    TEAM_STATS = State()                # 62. Статистика команди
-
-    # Матчі
-    MATCH_CREATE = State()              # 63. Створення матчу
-    MATCH_JOIN = State()                # 64. Приєднання до матчу
-    MATCH_RESULT = State()              # 65. Результат матчу
-    MATCH_HISTORY = State()             # 66. Історія матчів
-    MATCH_REPORT = State()              # 67. Звіт про матч
-
-    # Управління контентом
-    CONTENT_CREATE = State()            # 68. Створення контенту
-    CONTENT_EDIT = State()              # 69. Редагування контенту
-    CONTENT_DELETE = State()            # 70. Видалення контенту
-    CONTENT_REVIEW = State()            # 71. Рецензування контенту
-
-
-# 72-74: Досягнення
+# Досягнення
 class AchievementStates(StatesGroup):
-    ACHIEVEMENT_VIEW = State()          # 72. Перегляд досягнень
+    VIEW_ACHIEVEMENTS = State()         # 72. Перегляд досягнень
     ACHIEVEMENT_PROGRESS = State()      # 73. Прогрес досягнень
-    ACHIEVEMENT_CLAIM = State()         # 74. Отримання досягнення
+    CLAIM_ACHIEVEMENT = State()         # 74. Отримання досягнення
 
-
-# 75-77: Спільнота
+# Спільнота
 class CommunityStates(StatesGroup):
     COMMUNITY_CHAT = State()            # 75. Чат спільноти
     COMMUNITY_EVENTS = State()          # 76. Події спільноти
     COMMUNITY_RULES = State()           # 77. Правила спільноти
 
-
-# 78-79: Сповіщення
+# Сповіщення
 class NotificationsStates(StatesGroup):
     NOTIFICATIONS_SETTINGS = State()     # 78. Налаштування сповіщень
     NOTIFICATIONS_LIST = State()         # 79. Список сповіщень
 
-
-# 80-82: Звіти
+# Звіти
 class ReportStates(StatesGroup):
-    REPORT_CREATE = State()             # 80. Створення звіту
+    CREATE_REPORT = State()             # 80. Створення звіту
     REPORT_DETAILS = State()            # 81. Деталі звіту
     REPORT_STATUS = State()             # 82. Статус звіту
 
-
-# 83-86: Посібники
+# Посібники
 class GuideStates(StatesGroup):
-    GUIDE_CREATE = State()              # 83. Створення посібника
-    GUIDE_EDIT = State()                # 84. Редагування посібника
-    GUIDE_VIEW = State()                # 85. Перегляд посібника
-    GUIDE_LIST = State()                # 86. Список посібників
+    CREATE_GUIDE = State()              # 83. Створення посібника
+    EDIT_GUIDE = State()                # 84. Редагування посібника
+    VIEW_GUIDE = State()                # 85. Перегляд посібника
+    LIST_GUIDES = State()                # 86. Список посібників
 
-
-# 87-89: Аналітика
+# Аналітика
 class AnalyticsStates(StatesGroup):
-    ANALYTICS_OVERVIEW = State()        # 87. Загальний огляд аналітики
-    ANALYTICS_DETAILED = State()        # 88. Деталізована аналітика
-    ANALYTICS_EXPORT = State()          # 89. Експорт аналітики
+    OVERVIEW_ANALYTICS = State()        # 87. Загальний огляд аналітики
+    DETAILED_ANALYTICS = State()        # 88. Деталізована аналітика
+    EXPORT_ANALYTICS = State()          # 89. Експорт аналітики
 
-
-# 90-92: Управління скріншотами
+# Управління скріншотами
 class ScreenshotStates(StatesGroup):
-    SCREENSHOT_UPLOAD = State()         # 90. Завантаження скріншоту
-    SCREENSHOT_REVIEW = State()         # 91. Рецензування скріншоту
+    UPLOAD_SCREENSHOT = State()         # 90. Завантаження скріншоту
+    REVIEW_SCREENSHOT = State()         # 91. Рецензування скріншоту
     SCREENSHOT_GALLERY = State()        # 92. Галерея скріншотів
 
-
-# 93-95: Підтримка
+# Підтримка
 class SupportStates(StatesGroup):
     SUPPORT_TICKET = State()            # 93. Квиток підтримки
     SUPPORT_CHAT = State()              # 94. Чат підтримки
     SUPPORT_FAQ = State()               # 95. Часті запитання підтримки
 
-
-# 96-99: Вступні сторінки
+# Вступні сторінки
 class IntroStates(StatesGroup):
     INTRO_PAGE_1 = State()               # 96. Перша сторінка вступу
     INTRO_PAGE_2 = State()               # 97. Друга сторінка вступу
