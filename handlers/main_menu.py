@@ -3,7 +3,6 @@ from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from .main_menu import router as main_menu_router
 
 from states.menu_states import MainMenuState, NavigationState, ProfileState
 from keyboards.menus import get_main_menu_keyboard, get_main_menu_inline_keyboard
