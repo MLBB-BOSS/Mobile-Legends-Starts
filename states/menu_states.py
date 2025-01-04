@@ -1,4 +1,4 @@
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.states import States, StatesGroup
 
 class MenuStates(StatesGroup):
     MAIN_MENU = State()
