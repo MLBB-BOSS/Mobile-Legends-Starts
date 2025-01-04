@@ -635,6 +635,11 @@ def get_hero_class_inline_menu(hero_class: str, row_width: int = 3) -> InlineKey
 # -------------------------
 # ➕ Приклади виклику Головного Меню
 # -------------------------
+
+def get_navigation_menu_keyboard():
+    # ...логіка створення клавіатури...
+    return create_menu([...])  # чи інший виклик
+    
 def get_main_menu_keyboard():
     return get_main_menu()
 
