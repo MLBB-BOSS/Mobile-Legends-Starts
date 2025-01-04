@@ -1,5 +1,4 @@
-# handlers/__init__.py
-from .base import router as base_router
-# Імпортуйте інші обробники тут
+from .main_menu import router as main_menu_router
+from .profile import router as profile_router
 
-__all__ = ['base_router']  # Додайте інші обробники до цього списку
+__all__ = ['base_router', 'main_menu_router', 'profile_router']
