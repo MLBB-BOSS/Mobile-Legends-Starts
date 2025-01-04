@@ -795,3 +795,9 @@ def get_hero_class_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True,
         input_field_placeholder="Оберіть клас персонажа"
     )
+
+def get_main_menu_keyboard():
+    return get_main_menu()
+
+def get_main_menu_inline_keyboard():
+    return get_generic_inline_keyboard()
