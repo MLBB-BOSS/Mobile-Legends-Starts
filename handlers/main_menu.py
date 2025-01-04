@@ -5,7 +5,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from states.menu_states import MainMenuState, NavigationState, ProfileState
-from keyboards.main_menu import get_main_menu_keyboard, get_main_menu_inline_keyboard
+from keyboards.menus import get_main_menu_keyboard, get_main_menu_inline_keyboard
 from constants.menu_texts import MAIN_MENU_TEXT, MAIN_MENU_SCREEN_TEXT
 from utils.interface_manager import UIState, update_interface, safe_delete_message
 from .base_handler import BaseHandler
@@ -62,7 +62,7 @@ class MainMenuHandler(BaseHandler):
                     new_state=NavigationState.main,
                     control_text="Навігаційне меню\nОберіть розділ:",
                     control_markup=get_navigation_menu_keyboard(),
-                    screen_text="🧭 Навігація по грі\n\nТут ви знайдете:\n- Інформацію про героїв\n- Білди та гайди\n- Турніри та команди",
+                    screen_text="🧭 Навігація по грі\n\nТут ви знайдете:\n- Інформацію про героїв\n- Білди та гайди\n- Турніри та ін.",
                     screen_markup=get_navigation_inline_keyboard()
                 )
                 
