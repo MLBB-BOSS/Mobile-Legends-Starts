@@ -1,14 +1,7 @@
-# utils/models/item.py
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from typing import Optional, List
-from utils.models.base import Base  # Імпорт базового класу
-
-class Item(Base):
-    """
-    Модель предмету.
-    """
-    __tablename__ = 'items'
+    from sqlalchemy import Column, Integer, String, ForeignKey
+    from sqlalchemy.orm import relationship, Mapped, mapped_column
+    from typing import Optional, List
+    from utils.models.base import Base  # Імпорт базового класу
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String, index=True)
