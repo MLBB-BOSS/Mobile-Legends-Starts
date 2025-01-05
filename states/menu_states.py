@@ -121,3 +121,98 @@ class IntroStates(StatesGroup):
     INTRO_PAGE_2 = State()               # 97. Друга сторінка вступу
     INTRO_PAGE_3 = State()               # 98. Третя сторінка вступу
     INTRO_COMPLETE = State()             # 99. Завершення вступу
+
+# Навігаційні стани
+class NavigationState(StatesGroup):
+    MAIN = State()                    # Головне навігаційне меню
+    HERO_SELECTION = State()          # Вибір героя
+    MAP_SELECTION = State()           # Вибір карти
+    TOURNAMENT_NAVIGATION = State()    # Навігація по турнірах
+    GUIDE_NAVIGATION = State()        # Навігація по гайдах
+    BACK = State()                    # Повернення назад
+
+# Стани профілю
+class ProfileState(StatesGroup):
+    MAIN = State()                    # Головне меню профілю
+    VIEW_STATS = State()              # Перегляд статистики
+    EDIT_PROFILE = State()            # Редагування профілю
+    ACHIEVEMENTS = State()            # Досягнення
+    SETTINGS = State()                # Налаштування профілю
+    HISTORY = State()                 # Історія активності
+    INVENTORY = State()               # Інвентар користувача
+
+# Стани реєстрації та автентифікації
+class AuthState(StatesGroup):
+    START = State()                   # Початок реєстрації
+    INPUT_NICKNAME = State()          # Введення нікнейму
+    INPUT_GAME_ID = State()           # Введення ігрового ID
+    CONFIRM_DATA = State()            # Підтвердження даних
+    COMPLETE = State()                # Завершення реєстрації
+
+# Стани турнірів (розширені)
+class TournamentState(StatesGroup):
+    MAIN = State()                    # Головне меню турнірів
+    CREATE = State()                  # Створення турніру
+    JOIN = State()                    # Приєднання до турніру
+    MANAGE = State()                  # Управління турніром
+    VIEW_BRACKETS = State()           # Перегляд сітки турніру
+    SUBMIT_RESULT = State()           # Подання результатів
+    VIEW_SCHEDULE = State()           # Розклад матчів
+    TEAM_MANAGEMENT = State()         # Управління командою
+
+# Стани команд
+class TeamState(StatesGroup):
+    MAIN = State()                    # Головне меню команди
+    CREATE = State()                  # Створення команди
+    INVITE = State()                  # Запрошення гравців
+    MANAGE = State()                  # Управління командою
+    VIEW_ROSTER = State()             # Перегляд складу
+    PRACTICE = State()                # Тренування
+    SCHEDULE = State()                # Розклад тренувань
+
+# Стани гайдів
+class GuideState(StatesGroup):
+    MAIN = State()                    # Головне меню гайдів
+    CREATE = State()                  # Створення гайду
+    EDIT = State()                    # Редагування гайду
+    VIEW = State()                    # Перегляд гайду
+    RATE = State()                    # Оцінка гайду
+    COMMENT = State()                 # Коментування
+    SEARCH = State()                  # Пошук гайдів
+
+# Стани скріншотів
+class ScreenshotState(StatesGroup):
+    MAIN = State()                    # Головне меню скріншотів
+    UPLOAD = State()                  # Завантаження скріншоту
+    EDIT = State()                    # Редагування скріншоту
+    CATEGORIZE = State()              # Категоризація скріншоту
+    VIEW = State()                    # Перегляд скріншотів
+    DELETE = State()                  # Видалення скріншоту
+
+# Стани сповіщень
+class NotificationState(StatesGroup):
+    MAIN = State()                    # Головне меню сповіщень
+    SETTINGS = State()                # Налаштування сповіщень
+    VIEW = State()                    # Перегляд сповіщень
+    TOURNAMENT = State()              # Турнірні сповіщення
+    TEAM = State()                    # Командні сповіщення
+    SYSTEM = State()                  # Системні сповіщення
+
+# Стани адміністрування
+class AdminState(StatesGroup):
+    MAIN = State()                    # Головне меню адміна
+    MODERATE_USERS = State()          # Модерація користувачів
+    MODERATE_CONTENT = State()        # Модерація контенту
+    ANNOUNCEMENTS = State()           # Оголошення
+    STATISTICS = State()              # Статистика бота
+    SETTINGS = State()                # Налаштування бота
+
+# Стани пошуку
+class SearchState(StatesGroup):
+    MAIN = State()                    # Головне меню пошуку
+    BY_HERO = State()                 # Пошук по героях
+    BY_PLAYER = State()               # Пошук по гравцях
+    BY_TEAM = State()                 # Пошук по командах
+    BY_TOURNAMENT = State()           # Пошук по турнірах
+    BY_GUIDE = State()                # Пошук по гайдах
+    RESULTS = State()                 # Результати пошуку
