@@ -1,4 +1,4 @@
-# texts.py
+# texts_escaped.py
 
 # ============================[GENERAL CONFIGURATION]==========================
 # Загальні налаштування та константи для бота Mobile Legends.
